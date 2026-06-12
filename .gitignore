@@ -9,3 +9,5 @@ dist/
 rules/
 # Third-party reference screenshot (JUCE Projucer)
 docs/Projucer.png
+# Internal design brief (kept locally, not published)
+docs/Luthier.md
