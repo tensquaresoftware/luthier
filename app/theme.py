@@ -6,13 +6,13 @@ class Palette:
     BG_SIDEBAR = "#2b343a"
     BG_BAR = "#2b343a"
     BG_INPUT = "#262f34"
-    BG_DISABLED = "#5a4450"
+    BG_DISABLED = "#42484d"
     BORDER = "#44525a"
     TEXT = "#e8eaeb"
     TEXT_DIM = "#9aa6ac"
-    ACCENT = "#c46fd9"
-    PRIMARY = "#e2568f"
-    PRIMARY_HOVER = "#ef6b9f"
+    ACCENT = "#FF6600"
+    PRIMARY = "#FF6600"
+    PRIMARY_HOVER = "#FF7F2E"
     OK = "#5fbf73"
     ERR = "#e2686d"
 
@@ -21,10 +21,10 @@ def build_stylesheet() -> str:
     p = Palette
     return f"""
     QWidget {{
-        background: {p.BG_MAIN};
         color: {p.TEXT};
         font-size: 13px;
     }}
+    QMainWindow, QDialog {{ background: {p.BG_MAIN}; }}
     QLineEdit {{
         background: {p.BG_INPUT};
         border: 1px solid {p.BORDER};

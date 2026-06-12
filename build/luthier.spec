@@ -32,6 +32,7 @@ datas = (
     + [
         (os.path.join(GEN, "generator-configuration.py"), "generator"),
         (os.path.join(GEN, "project-configuration.cmake"), "generator"),
+        (os.path.join(PROJECT_ROOT, "resources", "luthier.svg"), "resources"),
     ]
 )
 
@@ -46,6 +47,8 @@ a = Analysis(
     hiddenimports=_GENERATOR_HIDDEN,
     noarchive=False,
 )
+_IS_MACOS = sys.platform == "darwin"
+
 pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
@@ -54,12 +57,17 @@ exe = EXE(
     exclude_binaries=True,
     name="Luthier",
     console=False,
-    argv_emulation=True,
+    argv_emulation=_IS_MACOS,
 )
+# COLLECT builds the one-folder distribution (dist/Luthier/) on every OS:
+# the Luthier executable plus its dependencies and bundled data. On Windows it
+# yields Luthier.exe, on Linux the Luthier binary. macOS additionally wraps it
+# into a .app. PyInstaller does not cross-compile: build on each target OS.
 coll = COLLECT(exe, a.binaries, a.datas, name="Luthier")
-app = BUNDLE(
-    coll,
-    name="Luthier.app",
-    icon=None,
-    bundle_identifier="com.tensquaresoftware.luthier",
-)
+if _IS_MACOS:
+    app = BUNDLE(
+        coll,
+        name="Luthier.app",
+        icon=None,
+        bundle_identifier="com.tensquaresoftware.luthier",
+    )

@@ -37,12 +37,24 @@ Check that the generator is reachable (headless):
 
 ## Build a standalone app
 
+PyInstaller bundles the generator, its templates, and the resources into a
+self-contained app. It does not cross-compile — build on each target OS.
+
 ```bash
 .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/pyinstaller build/luthier.spec --noconfirm --distpath dist --workpath build
 ```
 
-On macOS this produces `dist/Luthier.app`, with the generator and its templates bundled inside.
+The same `build/luthier.spec` works on all platforms:
+
+| OS      | Output                       |
+| ------- | ---------------------------- |
+| macOS   | `dist/Luthier.app`           |
+| Windows | `dist/Luthier/Luthier.exe`   |
+| Linux   | `dist/Luthier/Luthier`       |
+
+On Windows, activate the virtual environment with `.venv\Scripts\activate` and
+run `pyinstaller build\luthier.spec`.
 
 ## License
 

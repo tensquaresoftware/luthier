@@ -19,7 +19,9 @@ from app.pages.formats import FormatsPage
 from app.pages.plugin_type import PluginTypePage
 from app.pages.preferences import PreferencesPage
 from app.pages.project_info import ProjectInfoPage
+from app.resources import resource_path
 from app.sidebar import Sidebar
+from app.widgets.watermark import WatermarkBackground
 from core.generator_bridge import GeneratorBridge
 from core.preferences import Preferences
 from core.project_reader import read_project
@@ -73,8 +75,15 @@ class MainWindow(QMainWindow):
         self._stack = self._build_stack()
         self._sidebar.sectionChanged.connect(self._stack.setCurrentIndex)
         body.addWidget(self._sidebar)
-        body.addWidget(self._stack, 1)
+        body.addWidget(self._wrap_central(self._stack), 1)
         return body
+
+    def _wrap_central(self, stack: QWidget) -> QWidget:
+        central = WatermarkBackground(resource_path("luthier.svg"))
+        layout = QVBoxLayout(central)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(stack)
+        return central
 
     def _build_stack(self) -> QStackedWidget:
         stack = QStackedWidget()

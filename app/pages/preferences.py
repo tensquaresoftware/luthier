@@ -11,6 +11,10 @@ from core.preferences import Preferences
 
 def _pref_specs(prefs: Preferences) -> list[FieldSpec]:
     return [
+        FieldSpec("generatorRoot", "Generator path",
+                  validation.validate_optional_path,
+                  default=prefs.get("generatorRoot"),
+                  placeholder="empty in packaged builds; set when running from source"),
         FieldSpec("manufacturer", "Manufacturer",
                   validation.validate_manufacturer_name,
                   default=prefs.get("manufacturer")),
@@ -48,6 +52,9 @@ class PreferencesPage(QWidget):
         title.setObjectName("PageTitle")
         layout.addWidget(title)
         layout.addWidget(self._form)
+        hint = QLabel("The generator path applies after restarting Luthier.")
+        hint.setObjectName("FieldHint")
+        layout.addWidget(hint)
         layout.addWidget(self._bar)
         layout.addStretch(1)
 
