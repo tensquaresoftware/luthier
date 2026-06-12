@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+build/Luthier/
+dist/
+.DS_Store
+
+# Personal assistant conventions (not part of the product)
+rules/
+# Third-party reference screenshot (JUCE Projucer)
+docs/Projucer.png

@@ -1,0 +1,101 @@
+"""Reusable form field with inline green/red validation feedback."""
+
+from dataclasses import dataclass
+from typing import Callable
+
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QVBoxLayout, QWidget
+
+from app.qss import repolish
+
+Validator = Callable[[str], tuple[bool, str]]
+
+_LABEL_WIDTH = 150
+
+
+def make_field_label(text: str) -> QLabel:
+    """Right-aligned fixed-width label, shared by all form rows."""
+    label = QLabel(text)
+    label.setObjectName("FieldLabel")
+    label.setFixedWidth(_LABEL_WIDTH)
+    label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+    return label
+
+
+@dataclass
+class FieldSpec:
+    key: str
+    label: str
+    validator: Validator
+    default: str = ""
+    placeholder: str = ""
+
+
+class ValidatedField(QWidget):
+    """Label + line edit + inline validity mark and error message."""
+
+    validityChanged = Signal(bool)
+    valueChanged = Signal(str)
+
+    def __init__(self, spec: FieldSpec):
+        super().__init__()
+        self._spec = spec
+        self._valid = False
+        self._build_ui()
+        self._edit.setText(spec.default)
+        self._edit.textChanged.connect(self._on_text_changed)
+        self._on_text_changed(spec.default)
+
+    def value(self) -> str:
+        return self._edit.text()
+
+    def set_value(self, value: str) -> None:
+        self._edit.setText(value)
+
+    def is_valid(self) -> bool:
+        return self._valid
+
+    def focus(self) -> None:
+        self._edit.setFocus()
+
+    def _build_ui(self) -> None:
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 4, 0, 4)
+        outer.setSpacing(3)
+        outer.addLayout(self._build_input_row())
+        self._error = QLabel("")
+        self._error.setObjectName("FieldError")
+        self._error.setContentsMargins(_LABEL_WIDTH + 8, 0, 0, 0)
+        self._error.setVisible(False)
+        outer.addWidget(self._error)
+
+    def _build_input_row(self) -> QHBoxLayout:
+        row = QHBoxLayout()
+        row.setSpacing(8)
+        self._edit = QLineEdit()
+        self._edit.setPlaceholderText(self._spec.placeholder)
+        self._mark = QLabel("")
+        self._mark.setObjectName("FieldMark")
+        self._mark.setFixedWidth(16)
+        row.addWidget(make_field_label(self._spec.label))
+        row.addWidget(self._edit)
+        row.addWidget(self._mark)
+        return row
+
+    def _on_text_changed(self, text: str) -> None:
+        ok, message = self._spec.validator(text)
+        self._valid = ok
+        self._update_mark(ok, text)
+        self._update_error(ok, message, text)
+        self.validityChanged.emit(ok)
+        self.valueChanged.emit(text)
+
+    def _update_mark(self, ok: bool, text: str) -> None:
+        self._mark.setText("" if text == "" else ("✓" if ok else "✗"))
+        self._mark.setProperty("state", "" if text == "" else ("ok" if ok else "err"))
+        repolish(self._mark)
+
+    def _update_error(self, ok: bool, message: str, text: str) -> None:
+        show = bool(message) and not ok and text != ""
+        self._error.setText(message if show else "")
+        self._error.setVisible(show)
