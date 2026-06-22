@@ -38,7 +38,9 @@ class TemplatesPage(QWidget):
     def __init__(self):
         super().__init__()
         self._selector = QComboBox()
-        self._selector.setView(QListView())
+        view = QListView()
+        view.setFrameShape(QListView.Shape.NoFrame)
+        self._selector.setView(view)
         self._selector.addItems(templates_store.SOURCE_FILES)
         self._editor = _make_editor()
         self._status = QLabel("")
@@ -53,8 +55,12 @@ class TemplatesPage(QWidget):
         layout.setSpacing(10)
         title = QLabel("Templates")
         title.setObjectName("PageTitle")
+        selector_row = QHBoxLayout()
+        selector_row.setContentsMargins(0, 0, 0, 0)
+        selector_row.addWidget(self._selector, 1)
+        selector_row.addStretch(1)
         layout.addWidget(title)
-        layout.addWidget(self._selector)
+        layout.addLayout(selector_row)
         layout.addWidget(self._editor, 1)
         layout.addLayout(self._build_buttons())
 
@@ -68,6 +74,7 @@ class TemplatesPage(QWidget):
 
     def _make_button(self, label: str, slot) -> QPushButton:
         button = QPushButton(label)
+        button.setObjectName("ActionButton")
         button.clicked.connect(slot)
         return button
 

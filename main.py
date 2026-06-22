@@ -26,6 +26,7 @@ def main() -> None:
     app.setApplicationName("Luthier")
     if "--check" in sys.argv:
         sys.exit(_self_check())
+    app.setStyle("Fusion")
     app.setStyleSheet(build_stylesheet())
     window = MainWindow()
     window.show()

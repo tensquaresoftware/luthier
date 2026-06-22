@@ -1,6 +1,6 @@
 """Preferences page: edit and persist the global default values."""
 
-from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QLabel, QScrollArea, QVBoxLayout, QWidget
 
 from app.pages.artefacts import ArtefactsSection
 from app.widgets.save_bar import SaveBar
@@ -53,7 +53,15 @@ class PreferencesPage(QWidget):
         self._build_ui()
 
     def _build_ui(self) -> None:
-        layout = QVBoxLayout(self)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(0)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+
+        content = QWidget()
+        layout = QVBoxLayout(content)
         layout.setContentsMargins(24, 20, 24, 20)
         layout.setSpacing(10)
         title = QLabel("Preferences")
@@ -64,6 +72,9 @@ class PreferencesPage(QWidget):
         layout.addWidget(Section("Default artefacts", self._artefacts))
         layout.addWidget(self._bar)
         layout.addStretch(1)
+
+        scroll.setWidget(content)
+        outer.addWidget(scroll)
 
     def _intro(self) -> QLabel:
         label = QLabel(

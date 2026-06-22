@@ -4,7 +4,7 @@ from pathlib import Path
 
 from PySide6.QtCore import QStandardPaths
 
-kMainColor_ = "#FF6600"
+kMainColor_ = "#FF6633"
 
 _CHECK_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">'
               '<path d="M3.5 8.4 L6.6 11.4 L12.5 4.8" fill="none" stroke="{color}" '
@@ -42,7 +42,7 @@ class Palette:
     TEXT_DIM = "#9aa6ac"
     ACCENT = kMainColor_
     PRIMARY = kMainColor_
-    PRIMARY_HOVER = _lighten(kMainColor_, 0.18)
+    PRIMARY_HOVER = "#FF6600"
     OK = "#5fbf73"
     ERR = "#e2686d"
 
@@ -94,12 +94,29 @@ def build_stylesheet() -> str:
         background: {p.BG_INPUT};
         color: {p.TEXT};
         border: 1px solid {p.BORDER};
-        selection-background-color: {p.ACCENT};
-        selection-color: white;
         outline: 0;
+        margin: 0;
         padding: 0;
     }}
-    QComboBox QAbstractItemView::item {{ min-height: 24px; padding: 3px 8px; }}
+    QComboBox QAbstractScrollArea,
+    QComboBox QAbstractScrollArea > QWidget,
+    QComboBox QAbstractScrollArea > QWidget > QWidget,
+    QComboBox QFrame,
+    QComboBoxPrivateContainer {{
+        background: {p.BG_INPUT};
+        border: none;
+    }}
+    QComboBoxPrivateScroller {{
+        background: {p.BG_INPUT};
+        border: none;
+        max-height: 0px;
+    }}
+    QComboBox QAbstractItemView::item {{ min-height: 24px; padding: 3px 8px; border: none; }}
+    QComboBox QAbstractItemView::item:hover,
+    QComboBox QAbstractItemView::item:selected {{
+        background: {p.ACCENT};
+        color: white;
+    }}
 
     QCheckBox, QRadioButton {{ spacing: 8px; padding: 4px 2px; }}
     QCheckBox::indicator, QRadioButton::indicator {{
@@ -122,11 +139,52 @@ def build_stylesheet() -> str:
         border: 1px solid {p.BG_DISABLED};
     }}
 
-    #Sidebar {{ background: {p.BG_SIDEBAR}; }}
-    #Sidebar QListWidget {{ background: {p.BG_SIDEBAR}; border: none; outline: 0; }}
-    #Sidebar QListWidget::item {{ padding: 10px 14px; border-radius: 4px; }}
-    #Sidebar QListWidget::item:selected {{ background: {p.ACCENT}; color: white; }}
-    #Sidebar QListWidget::item:hover:!selected {{ background: {p.BG_INPUT}; }}
+    #TabBarContainer {{
+        background: {p.BG_SIDEBAR};
+        border-bottom: 1px solid {p.BORDER};
+    }}
+    #TopTabBar {{
+        background: transparent;
+    }}
+    #TopTabBar::tab {{
+        background: transparent;
+        color: {p.TEXT_DIM};
+        padding: 10px 20px;
+        border: none;
+        margin: 0;
+        min-width: 80px;
+        font-size: 13px;
+    }}
+    #TopTabBar::tab:selected {{
+        background: {p.ACCENT};
+        color: white;
+        font-weight: bold;
+        border: none;
+        margin: 0;
+    }}
+    #TopTabBar::tab:hover:!selected {{
+        background: {p.BG_INPUT};
+        color: {p.TEXT};
+        border: none;
+        margin: 0;
+    }}
+
+    QScrollBar:vertical {{
+        background: transparent;
+        width: 6px;
+        margin: 0;
+        border: none;
+    }}
+    QScrollBar::handle:vertical {{
+        background: {p.BORDER};
+        border-radius: 3px;
+        min-height: 24px;
+    }}
+    QScrollBar::handle:vertical:hover {{
+        background: {p.TEXT_DIM};
+    }}
+    QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{ height: 0; }}
+    QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{ background: none; }}
 
     QPushButton {{
         background: {p.BG_INPUT};
@@ -135,7 +193,7 @@ def build_stylesheet() -> str:
         border-radius: 4px;
         padding: 7px 16px;
     }}
-    QPushButton:hover {{ border: 1px solid {p.ACCENT}; }}
+    QPushButton:hover {{ background: {p.BG_INPUT}; border: 1px solid {p.ACCENT}; }}
     QPushButton:disabled {{ color: {p.TEXT_DIM}; }}
 
     #BottomBar {{ background: {p.BG_BAR}; border-top: 1px solid {p.BORDER}; }}
@@ -160,7 +218,7 @@ def build_stylesheet() -> str:
     }}
     #OpenButton:hover {{ background: {p.PRIMARY_HOVER}; }}
 
-    #SaveButton {{
+    #SaveButton, #ActionButton {{
         background: {p.PRIMARY};
         color: white;
         border: none;
@@ -168,15 +226,20 @@ def build_stylesheet() -> str:
         padding: 7px 16px;
         font-weight: bold;
     }}
-    #SaveButton:hover {{ background: {p.PRIMARY_HOVER}; }}
+    #SaveButton:hover, #ActionButton:hover {{ background: {p.PRIMARY_HOVER}; }}
 
     #PageTitle {{ font-size: 18px; font-weight: bold; }}
+    #AboutTitle {{ font-size: 15px; font-weight: bold; }}
     #SectionTitle {{
         font-size: 14px;
         font-weight: bold;
         color: {p.TEXT};
-        padding-bottom: 4px;
-        border-bottom: 1px solid {p.BORDER};
+        padding: 0;
+        margin: 0;
+    }}
+    #SectionDivider {{
+        background: {p.BORDER};
+        border: none;
     }}
     #FieldLabel {{ color: {p.TEXT_DIM}; }}
     #FieldHint {{ color: {p.TEXT_DIM}; font-size: 11px; }}

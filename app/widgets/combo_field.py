@@ -1,8 +1,14 @@
 """Label + drop-down field, aligned with the ValidatedField row layout."""
 
-from PySide6.QtWidgets import QComboBox, QHBoxLayout, QWidget
+from PySide6.QtWidgets import QComboBox, QHBoxLayout, QListView, QWidget
 
 from app.widgets.validated_field import make_field_label
+
+
+def _make_combo_view() -> QListView:
+    view = QListView()
+    view.setFrameShape(QListView.Shape.NoFrame)
+    return view
 
 
 class ComboField(QWidget):
@@ -11,6 +17,7 @@ class ComboField(QWidget):
     def __init__(self, label: str, choices: list[str], default: str):
         super().__init__()
         self._combo = QComboBox()
+        self._combo.setView(_make_combo_view())
         self._combo.addItems(choices)
         self.set_value(default)
         self._build_ui(label)

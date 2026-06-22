@@ -3,7 +3,7 @@
 from typing import Callable
 
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QScrollArea, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QLabel, QScrollArea, QVBoxLayout, QWidget
 
 from app.pages.artefacts import ArtefactsSection
 from app.pages.compilation import CompilationSection
@@ -54,8 +54,11 @@ class ProjectPage(QScrollArea):
         layout = QVBoxLayout(body)
         layout.setContentsMargins(24, 20, 24, 20)
         layout.setSpacing(18)
-        for title, widget in self._sections():
-            layout.addWidget(Section(title, widget))
+        title = QLabel("Project")
+        title.setObjectName("PageTitle")
+        layout.addWidget(title)
+        for name, widget in self._sections():
+            layout.addWidget(Section(name, widget))
         layout.addStretch(1)
         self.setWidget(body)
         self.setWidgetResizable(True)
