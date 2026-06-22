@@ -1,4 +1,6 @@
-"""Main window: sidebar, page stack, and the Generate action bar."""
+"""Main window: top tab bar, page stack, and the Generate action bar."""
+
+from pathlib import Path
 
 from PySide6.QtWidgets import (
     QFileDialog,
@@ -8,28 +10,29 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPushButton,
     QStackedWidget,
+    QTabBar,
     QVBoxLayout,
     QWidget,
 )
 
-from pathlib import Path
-
+from app.pages.about import AboutPage
 from app.pages.preferences import PreferencesPage
 from app.pages.project import ProjectPage
 from app.pages.templates import TemplatesPage
-from app.sidebar import Sidebar
 from core import plugin_settings, templates_store
 from core.preferences import Preferences
 from core.project_generator import ProjectGenerator
 from core.project_reader import read_project
+
+_TABS = ["Project", "Preferences", "Templates", "About"]
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Luthier")
-        self.resize(940, 660)
-        self.setMinimumSize(900, 650)
+        self.resize(780, 680)
+        self.setMinimumSize(720, 640)
         self._prefs = Preferences(Preferences.default_path())
         self._prefs.load()
         self._generator = ProjectGenerator(overrides=templates_store.overrides_dir())
@@ -47,20 +50,28 @@ class MainWindow(QMainWindow):
 
     def _build_ui(self) -> None:
         central = QWidget()
-        body = QHBoxLayout(central)
-        body.setContentsMargins(0, 0, 0, 0)
-        body.setSpacing(0)
-        self._sidebar = Sidebar()
-        self._sidebar.sectionChanged.connect(self._on_section_changed)
-        self._sidebar.openRequested.connect(self._on_open)
-        right = QVBoxLayout()
-        right.setContentsMargins(0, 0, 0, 0)
-        right.setSpacing(0)
-        right.addWidget(self._build_stack(), 1)
-        right.addWidget(self._build_bottom_bar())
-        body.addWidget(self._sidebar)
-        body.addLayout(right, 1)
+        layout = QVBoxLayout(central)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(self._build_tab_bar())
+        layout.addWidget(self._build_stack(), 1)
+        layout.addWidget(self._build_bottom_bar())
         self.setCentralWidget(central)
+
+    def _build_tab_bar(self) -> QWidget:
+        container = QWidget()
+        container.setObjectName("TabBarContainer")
+        row = QHBoxLayout(container)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(0)
+        self._tab_bar = QTabBar()
+        self._tab_bar.setObjectName("TopTabBar")
+        for name in _TABS:
+            self._tab_bar.addTab(name)
+        self._tab_bar.currentChanged.connect(self._on_section_changed)
+        row.addWidget(self._tab_bar)
+        row.addStretch(1)
+        return container
 
     def _on_section_changed(self, index: int) -> None:
         self._stack.setCurrentIndex(index)
@@ -70,9 +81,11 @@ class MainWindow(QMainWindow):
         self._project_page = ProjectPage(self._defaults, plugin_settings.bundle_id, self._prefs)
         self._prefs_page = PreferencesPage(self._prefs)
         self._templates_page = TemplatesPage()
+        self._about_page = AboutPage()
         stack.addWidget(self._project_page)
         stack.addWidget(self._prefs_page)
         stack.addWidget(self._templates_page)
+        stack.addWidget(self._about_page)
         self._project_page.validityChanged.connect(self._refresh_generate_enabled)
         self._stack = stack
         return stack
@@ -83,10 +96,14 @@ class MainWindow(QMainWindow):
         layout = QHBoxLayout(bar)
         layout.setContentsMargins(16, 8, 16, 8)
         layout.setSpacing(12)
+        self._open = QPushButton("Open Project…")
+        self._open.setObjectName("OpenButton")
+        self._open.clicked.connect(self._on_open)
         self._status = QLabel("")
         self._generate = QPushButton("Generate Project")
         self._generate.setObjectName("GenerateButton")
         self._generate.clicked.connect(self._on_generate)
+        layout.addWidget(self._open)
         layout.addWidget(self._status, 1)
         layout.addWidget(self._generate)
         return bar
