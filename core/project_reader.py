@@ -61,7 +61,7 @@ def _parse_cmakelists(text: str) -> Optional[dict]:
 
 def _read_cxx(text: str) -> str:
     match = _CXX_RE.search(text)
-    return match.group(1) if match else "17"
+    return f"C++{match.group(1)}" if match else "C++17"
 
 
 def _read_header_paths(text: str) -> str:

@@ -57,7 +57,7 @@ def build_tokens(values: dict) -> dict:
 
 def _extra_fields(values: dict) -> dict:
     return {
-        "cxxStandard": values.get("cxxStandard") or "17",
+        "cxxStandard": (values.get("cxxStandard") or "C++17").replace("C++", ""),
         "companyCopyright": values.get("companyCopyright", ""),
         "companyWebsite": values.get("companyWebsite", ""),
         "companyEmail": values.get("companyEmail", ""),

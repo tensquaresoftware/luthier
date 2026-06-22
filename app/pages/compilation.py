@@ -5,8 +5,8 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 from app.widgets.combo_field import ComboField
 from app.widgets.text_area_field import TextAreaField
 
-_CXX_CHOICES = ["17", "20", "23"]
-_DEFAULT_CXX = "17"
+_CXX_CHOICES = ["C++17", "C++20", "C++23"]
+_DEFAULT_CXX = "C++17"
 
 
 class CompilationSection(QWidget):
