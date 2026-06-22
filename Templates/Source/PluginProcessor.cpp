@@ -89,17 +89,17 @@ void PluginProcessor::releaseResources()
 {
 }
 
-void PluginProcessor::processBlock(juce::AudioBuffer<float>& buffer, 
-                                     juce::MidiBuffer& midiMessages)
+void PluginProcessor::processBlock(juce::AudioBuffer<float>& audioBuffer,
+                                   juce::MidiBuffer& midiBuffer)
 {
-    juce::ignoreUnused(midiMessages);
+    juce::ignoreUnused(midiBuffer);
     
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear(i, 0, buffer.getNumSamples());
+        audioBuffer.clear(i, 0, audioBuffer.getNumSamples());
 
     // Your audio processing code goes here
 }

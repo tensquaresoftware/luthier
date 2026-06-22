@@ -5,9 +5,12 @@ Build/Luthier/
 Dist/
 .DS_Store
 
-# Personal assistant conventions (not part of the product)
+# Local workspace (notes, screenshots, personal files)
+_local/
 Rules/
-# Third-party reference screenshot (JUCE Projucer)
-Docs/Projucer.png
-# Internal design brief (kept locally, not published)
-Docs/Luthier.md
+
+# AI tooling (not part of the product)
+.claude/
+.vscode/
+_bmad/
+_bmad-output/
