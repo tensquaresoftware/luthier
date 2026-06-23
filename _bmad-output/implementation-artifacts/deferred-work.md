@@ -27,3 +27,10 @@
 - **`flags_for_type` crash KeyError sur `plugin_type` inconnu** (`core/render_context.py`) — Pré-existant, non introduit par cette story. Un `plugin_type` hors des valeurs connues (`synth`, `effect`, `midi`) lève `KeyError` sans message descriptif.
 - **Lectures fichier non gardées dans `read_project`** (`core/project_reader.py:34-43`) — `cmake.read_text()` et `_parse_build_settings` lèvent sur `PermissionError` / `UnicodeDecodeError` au lieu de retourner `None`. Pré-existant, aucune logique de lecture modifiée par story 1.2.
 - **Bool coercion dans `ProjectSpec.from_dict`** (`core/project_spec.py`) — `d.get("copyToSystemFolders", False)` accepte n'importe quelle valeur truthy sans cast vers `bool`. Si la string `"ON"` passe, `_on_off()` évalue `"ON" == True` → `False`, sortie toujours `"OFF"`. Reporté depuis story 1.1.
+
+## Deferred from: code review of 1-5-cmakeuserpresets-json-full-multi-platform-preset-set (2026-06-23)
+
+- **Windows path backslashes break rendered JSON** (`core/render_context.py:63`) — `_artefact_entry` interpolates paths raw into JSON strings; `C:\Plugins` produces invalid JSON escapes. Explicitly deferred in story spec; same class of issue as CMakeLists.txt artefact paths (story 1-4).
+- **`from_dict` bool coercion amplified by `_artefact_entries`** (`core/project_spec.py:70`, `core/render_context.py:52`) — String `"false"` for `copyToArtefactsDir` is truthy; artefact cache vars inject when user intended off. Already tracked from stories 1-1/1-2; new code path makes consequence visible in presets.
+- **`copyToArtefactsDir` ON with all empty artefact paths** (`core/render_context.py:51-57`) — Presets correctly omit `ARTEFACTS_DIR_*` per AC3, but CMakeLists.txt still renders `copyToArtefactsDir=ON`. Pre-existing cross-file inconsistency when checkbox on but paths unset.
+- **No post-render JSON validation** (`core/rendering.py`) — CMakeUserPresets.json rendered via string interpolation with no `json.loads()` sanity check. Malformed output surfaces only at CMake configure time. Epic 3 test infrastructure planned.

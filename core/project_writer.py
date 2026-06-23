@@ -10,6 +10,7 @@ from core.project_spec import ProjectSpec
 
 _RENDERED = (
     "CMakeLists.txt",
+    "CMakeUserPresets.json",
     ".vscode/settings.json",
     ".vscode/tasks.json",
     ".vscode/launch.json",
@@ -27,7 +28,6 @@ _VERBATIM = (
     ".vscode/extensions.json",
     ".cursorrules",
     ".gitignore",
-    "CMakeUserPresets.json",
     "CMake/CopyVst3Elevated.ps1",
 )
 

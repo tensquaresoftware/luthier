@@ -21,6 +21,7 @@ def build_context(spec: ProjectSpec) -> dict:
     context.update(flags)
     context.update(_categories(flags))
     context.update(_copy_config(d))
+    context.update(_artefact_entries(d))
     context["bundleId"] = plugin_settings.bundle_id(d["manufacturerName"], d["projectName"])
     context.update(_extra_fields(d))
     return context
@@ -45,6 +46,21 @@ def _copy_config(config: dict) -> dict:
 
 def _on_off(enabled: bool) -> str:
     return "ON" if enabled else "OFF"
+
+
+def _artefact_entries(d: dict) -> dict:
+    enabled = d["copyToArtefactsDir"]
+    return {
+        "macosArtefactEntry": _artefact_entry(enabled, "ARTEFACTS_DIR_MACOS", d.get("artefactsDirMacos", "")),
+        "windowsArtefactEntry": _artefact_entry(enabled, "ARTEFACTS_DIR_WINDOWS", d.get("artefactsDirWindows", "")),
+        "linuxArtefactEntry": _artefact_entry(enabled, "ARTEFACTS_DIR_LINUX", d.get("artefactsDirLinux", "")),
+    }
+
+
+def _artefact_entry(enabled: bool, key: str, path: str) -> str:
+    if not enabled or not path:
+        return ""
+    return f',\n        "{key}": "{path}"'
 
 
 def build_tokens(spec: ProjectSpec) -> dict:
