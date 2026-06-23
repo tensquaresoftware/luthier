@@ -22,7 +22,7 @@ from app.pages.templates import TemplatesPage
 from core import plugin_settings, templates_store
 from core.preferences import Preferences
 from core.project_generator import ProjectGenerator
-from core.project_reader import read_project
+from core.project_reader import read_project_result
 from core.project_spec import ProjectSpec
 
 _TABS = ["Project", "Preferences", "Templates", "About"]
@@ -130,12 +130,30 @@ class MainWindow(QMainWindow):
             self._load_project(Path(directory))
 
     def _load_project(self, project_dir: Path) -> None:
-        spec = read_project(project_dir)
+        result = read_project_result(project_dir)
+        spec = result.spec
         if spec is None:
-            self._set_status(f"Not a JUCE plugin project: {project_dir}", ok=False)
+            sidecar = project_dir / ".luthier.json"
+            if sidecar.exists():
+                message = "Could not read project configuration (.luthier.json is invalid or unreadable)."
+                status = message
+            elif result.missing_fields:
+                bullets = "\n".join(f"• {name}" for name in result.missing_fields)
+                message = (
+                    "Could not parse project configuration from CMakeLists.txt.\n\n"
+                    f"Missing or unreadable fields:\n{bullets}"
+                )
+                status = "Could not parse project configuration from CMakeLists.txt"
+            else:
+                message = f"Not a JUCE plugin project: {project_dir}"
+                status = message
+            QMessageBox.critical(self, "Open Project", message)
+            self._set_status(status, ok=False)
             return
         if not spec.plugin_formats:
-            self._set_status(f"No plugin formats detected in: {project_dir}", ok=False)
+            message = f"No plugin formats detected in: {project_dir}"
+            QMessageBox.critical(self, "Open Project", message)
+            self._set_status(message, ok=False)
             return
         self._project_page.load(spec)
         self._prefs.update(spec)

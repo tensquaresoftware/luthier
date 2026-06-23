@@ -1,5 +1,25 @@
 # Deferred Work
 
+## Deferred from: code review of 2-2-cmake-regex-fallback-for-legacy-projects (2026-06-23)
+
+- **Échec sidecar sans raison structurée** (`core/project_reader.py:74-75`) — `ProjectReadResult` ne distingue pas JSON invalide, permission refusée ou payload non-dict. Hors périmètre 2-2 (story 2-1).
+- **Chemin sidecar sans gate de complétude** (`core/project_reader.py:83-91`) — Un sidecar syntaxiquement valide avec champs vides charge des defaults silencieux. Explicitement hors scope 2-2.
+- **Validation `pluginFormats` divergente sidecar vs CMake** (`app/main_window.py:150-154`) — Même échec, messages différents selon le chemin de lecture. Chemin sidecar = story 2-1.
+- **`project()` absent → diagnostics vides** (`core/project_reader.py:116-117`) — CMakeLists.txt présent mais sans ligne `project()` : `missing_fields=()` et message générique « Not a JUCE plugin » au lieu d'un message parse CMake.
+- **`OSError`/`UnicodeDecodeError` non capturés dans `_parse_build_settings`** (`core/project_reader.py:199`) — Pré-existant depuis review 1-4 ; `_parse_build_settings` inchangé dans sa logique interne.
+- **`OSError` sur lecture CMake classé « not a JUCE project »** (`core/project_reader.py:104-105`) — Fichier présent mais illisible : pas de message parse CMake distinct.
+- **`UnicodeDecodeError` non capturé sur lecture CMake** (`core/project_reader.py:103`) — Sidecar le capture ; CMake non. Durcissement optionnel.
+- **`ProjectReadResult` sans enum de type d'erreur** (`core/project_reader.py:66-69`) — UI infère le mode d'échec via heuristiques (`sidecar.exists()`, `missing_fields`). Amélioration design future.
+- **Regex `_quoted_fields` plus faible que `_SET_RE`** (`core/project_reader.py:172`) — Guillemets échappés (`O\"Reilly`) non gérés ; faux positifs « Company Name » manquant. Pré-existant.
+- **Tests manquants : `IS_SYNTH` absent, `CMAKE_CXX_STANDARD` absent** (`tests/test_story_2_2.py`) — Logique implémentée mais non exercée ; gap couverture non bloquant.
+- **Tests manquants : chemin UI `MainWindow._load_project()`** (`tests/test_story_2_2.py`) — AC4 dialogues CMake non testés (core-only par design story).
+- **Tests manquants : échec multi-champs, chemin générique CMake malformé** (`tests/test_story_2_2.py`) — Gate multi-label et `project()` absent non couverts.
+
+## Deferred from: code review of 2-1-project-reload-via-luthier-json-sidecar (2026-06-23)
+
+- **Valeurs non-string dans le sidecar passent à `from_dict` sans validation** (`core/project_spec.py:52-73`) — Un sidecar édité manuellement avec `"projectName": 123` stockerait un `int` dans le dataclass et pourrait faire échouer des opérations string en aval. Pré-existant depuis story 1-1 ; le writer Luthier produit toujours des types corrects.
+- **`from_dict` non encapsulé dans `_read_sidecar`** (`core/project_reader.py:51`) — AC3 couvre JSON malformé → `None` ; la validation de schéma / types est hors périmètre. Pré-existant via `ProjectSpec.from_dict`.
+
 ## Deferred from: code review of 1-1-projectspec-dataclass (2026-06-23)
 
 - **Bool coercion silencieux dans `from_dict`** — `d.get("copyToSystemFolders", False)` accepte n'importe quelle valeur truthy sans conversion vers `bool`. Les callers actuels fournissent tous des bools propres, mais un futur caller direct pourrait passer une string et casser `_on_off()` dans `render_context.py`. À surveiller lors de l'intégration story 1.2/1.3.
