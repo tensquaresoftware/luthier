@@ -47,8 +47,26 @@ endif()
 
 project({projectName} VERSION {projectVersion})
 
-# Plugin copy configuration (edit project-configuration.cmake to customize)
-include(project-configuration.cmake)
+# =============================================================================
+# PLUGIN COPY CONFIGURATION
+# COPY_TO_SYSTEM_FOLDERS: ON/OFF — copies plugins to standard DAW scan locations
+#   Windows: VST3 → C:\Program Files\Common Files\VST3\ (UAC prompt)
+#   macOS: AU → ~/Library/Audio/Plug-Ins/Components/, VST3 → ~/Library/Audio/Plug-Ins/VST3/
+#   Linux: VST3 → ~/.vst3/
+# COPY_TO_ARTEFACTS_DIR: ON/OFF — copies build outputs to a central custom folder
+#   (ARTEFACTS_DIR_WINDOWS/MACOS/LINUX, organized by platform and architecture)
+# Override at configure time: cmake .. -DUSER_COPY_TO_ARTEFACTS_DIR=ON
+# =============================================================================
+
+set(USER_COPY_TO_SYSTEM_FOLDERS {copyToSystemFolders})
+set(USER_COPY_TO_ARTEFACTS_DIR {copyToArtefactsDir})
+
+set(COPY_TO_SYSTEM_FOLDERS ${{USER_COPY_TO_SYSTEM_FOLDERS}} CACHE BOOL "Copy plugins to system folders after build (all OS)")
+set(COPY_TO_ARTEFACTS_DIR ${{USER_COPY_TO_ARTEFACTS_DIR}} CACHE BOOL "Copy build outputs to central artefacts folder (organized by platform/architecture)")
+
+set(ARTEFACTS_DIR_WINDOWS "{artefactsDirWindows}")
+set(ARTEFACTS_DIR_MACOS   "{artefactsDirMacos}")
+set(ARTEFACTS_DIR_LINUX   "{artefactsDirLinux}")
 
 set(CMAKE_CXX_STANDARD {cxxStandard})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

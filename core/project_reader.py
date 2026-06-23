@@ -1,8 +1,9 @@
 """Reads a generated project back into form values.
 
 Project identity lives in CMakeLists.txt (the juce_add_plugin block); build
-settings live in project-configuration.cmake. The set() parsing mirrors the
-generator's projectConfigParser; the juce_add_plugin fields need their own
+settings are read from project-configuration.cmake when present (legacy projects),
+or from CMakeLists.txt for projects generated after story 1.4. The set() parsing
+mirrors the generator's context; the juce_add_plugin fields need their own
 regexes since no existing parser covers them.
 """
 
@@ -108,9 +109,10 @@ def _flag(text: str, name: str) -> str:
 
 def _parse_build_settings(project_dir: Path) -> dict:
     config = project_dir / "project-configuration.cmake"
-    if not config.exists():
+    source = config if config.exists() else project_dir / "CMakeLists.txt"
+    if not source.exists():
         return {}
-    cfg = _parse_set_vars(config.read_text(encoding="utf-8"))
+    cfg = _parse_set_vars(source.read_text(encoding="utf-8"))
     return {
         "copyToSystemFolders": _bool(cfg, "USER_COPY_TO_SYSTEM_FOLDERS", "COPY_TO_SYSTEM_FOLDERS"),
         "copyToArtefactsDir": _bool(cfg, "USER_COPY_TO_ARTEFACTS_DIR", "COPY_TO_ARTEFACTS_DIR"),

@@ -10,7 +10,6 @@ from core.project_spec import ProjectSpec
 
 _RENDERED = (
     "CMakeLists.txt",
-    "project-configuration.cmake",
     ".vscode/settings.json",
     ".vscode/tasks.json",
     ".vscode/launch.json",

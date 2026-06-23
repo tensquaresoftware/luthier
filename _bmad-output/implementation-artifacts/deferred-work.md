@@ -12,6 +12,13 @@
 - **`Preferences → ProjectSpec` import coupling direction** (`core/preferences.py`) — `core/preferences.py` importing `core.project_spec` creates a one-way dependency within `core/`. If `ProjectSpec` ever needed `Preferences`, it would be circular. Currently safe per AD-8.
 - **`Preferences.update()` field list must stay manually in sync with `ProjectSpec`** (`core/preferences.py`) — The 12 explicit attribute mappings must be updated whenever `ProjectSpec` fields are added, removed, or renamed. No compiler enforcement; the old filter approach was self-maintaining.
 
+## Deferred from: code review of 1-4-cmakelists-txt-template-consolidation (2026-06-23)
+
+- **`CACHE BOOL` sans `FORCE`** (`Templates/CMakeLists.txt`) — `set(COPY_TO_SYSTEM_FOLDERS ... CACHE BOOL ...)` sans FORCE signifie que si CMakeCache.txt existe déjà, une re-génération avec des valeurs différentes n'a aucun effet. Bug pré-existant copié inline depuis project-configuration.cmake.
+- **Chemins Windows non échappés dans les placeholders artefact dir** (`Templates/CMakeLists.txt:65-67`) — `{artefactsDirWindows}` injecté directement dans un `set()` CMake. Un chemin contenant `\t`, `\n` (séquences CMake) serait interprété comme tabulation/newline. Pré-existant dans l'ancien project-configuration.cmake.
+- **`OSError` non capturé sur `source.read_text()`** (`core/project_reader.py:114`) — Si le fichier existe mais est verrouillé ou illisible (permissions), l'exception se propage jusqu'à `read_project()` et n'est pas interceptée. Pré-existant ; aucune logique de lecture modifiée par cette story.
+- **Aucun test couvrant le fallback du reader** (`core/project_reader.py:109-121`) — Le branch `source = config if config.exists() else CMakeLists.txt` n'est pas couvert. Épique 3 prévu pour l'infrastructure de test.
+
 ## Deferred from: code review of 1-2-core-generation-pipeline-accepts-projectspec (2026-06-23)
 
 - **Perte de projet si `tmp.rename()` échoue après `rmtree`** (`core/project_writer.py:52-53`) — Le projet existant est supprimé avant le rename ; si le rename échoue (permission, cross-device inattendu), le projet est perdu sans récupération possible. Le design sibling atténue le risque (même filesystem), mais la séquence reste fragile.
