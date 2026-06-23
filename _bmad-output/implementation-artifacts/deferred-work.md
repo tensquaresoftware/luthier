@@ -1,5 +1,12 @@
 # Deferred Work
 
+## Deferred from: code review of 3-1-test-infrastructure-unit-tests-validators-and-plugin-settings (2026-06-23)
+
+- **Validation boundary coverage gaps** (`tests/unit/test_validation.py`) — Leading `_`/`-` project names, tab chars in display name, padded version/manufacturer strings, 5-char manufacturer code, underscore in plugin code, whitespace-only optional path not covered. Story dev matrix satisfied; extra cases are Epic 3+ hardening.
+- **Plugin settings edge cases untested** (`tests/unit/test_plugin_settings.py`) — Unknown `type_key` KeyError, dual-TRUE flag precedence (`type_for_flags`, `au_and_vst3_categories`), lowercase/malformed flag strings, empty manufacturer/project segments after sanitization in `bundle_id`. AC3 met for the three known types.
+- **No CI workflow for pytest** (project root) — Story spec explicitly excludes CI (no `.github/` yet). Tests run locally (67 pytest + 20 unittest verified green).
+- **Shared test helpers not centralized** (`tests/unit/`) — `_assert_result` and no-Qt pattern duplicated across files; story notes `tests/conftest.py` deferred to story 3-4.
+
 ## Deferred from: code review of 2-2-cmake-regex-fallback-for-legacy-projects (2026-06-23)
 
 - **Échec sidecar sans raison structurée** (`core/project_reader.py:74-75`) — `ProjectReadResult` ne distingue pas JSON invalide, permission refusée ou payload non-dict. Hors périmètre 2-2 (story 2-1).
