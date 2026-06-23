@@ -1,5 +1,23 @@
 # Deferred Work
 
+## Deferred from: code review of 3-4-integration-tests-project-generation-round-trip (2026-06-24)
+
+- **No `plugin_type` parametrization** (`tests/integration/test_round_trip.py`) — Spec marks `@pytest.mark.parametrize("plugin_type", …)` as optional high-value coverage; synth-only golden path satisfies AC.
+- **Malformed sidecar test not ported** (`tests/integration/test_round_trip.py`) — Spec explicitly optional; `test_story_2_1::test_malformed_sidecar_returns_none_no_cmake_fallback` retains coverage in unittest tier.
+- **`IS_SYNTH` / plugin-type CMake fallback variants** (`tests/integration/test_round_trip.py:96-108`) — Negative case uses `COMPANY_NAME` strip only; effect/midi inference on CMake fallback deferred to future hardening.
+- **`test_partial_cmake` regex narrow** (`tests/integration/test_round_trip.py:103`) — Matches legacy `test_story_2_2` pattern; broader CMake formatting variants are Epic 3+ scope.
+- **Legacy compat test regex coupled to template banner** (`tests/integration/test_round_trip.py:151-157`) — DOTALL block removal depends on `# PLUGIN COPY CONFIGURATION` section text; template refactor is separate from reader compat.
+- **No `read_project` round-trip via `write_project`** (`tests/integration/test_round_trip.py`) — AC2 uses `generate_project`; writer-only read parity is optional hardening beyond epic AC.
+- **Byte-identical tree comparison sensitivity** (`tests/conftest.py:49-52`) — Theoretical flakiness if templates emit non-deterministic bytes; same approach as legacy unittest round-trip tests.
+
+## Deferred from: code review of 3-3-unit-tests-projectspec-and-templates-store (2026-06-23)
+
+- **JSON string round-trip untested** (`tests/unit/test_project_spec.py:56-70`) — Tests call `json.dumps` only; no `json.loads` → `from_dict` path. AC2 satisfied; full sidecar persistence path is story 3-4 integration scope.
+- **GITIGNORE reset contract untested** (`tests/unit/test_templates_store.py:39-45`) — Reset tested on `PluginProcessor.h` only; gitignore override path (`templates_root()/.gitignore`) uses same `_override_path` logic but is not exercised for reset.
+- **`read_default` GITIGNORE bundled path untested** (`tests/unit/test_templates_store.py:59-61`) — Optional bundled match test covers `PluginProcessor.h` only; `_bundled_path` gitignore branch (`templates_dir() / .gitignore`) untested.
+- **`from_dict` type/null/empty-string edge cases** (`tests/unit/test_project_spec.py:73-80`) — Partial dict with one key tested per AC; null values, wrong types, and empty strings overriding non-empty defaults are pre-existing `from_dict` behavior (tracked since story 1-1).
+- **Empty override and idempotent `reset()` semantics** (`tests/unit/test_templates_store.py:25-45`) — Empty `save_override` content, double-save overwrite, and `reset()` when no file exists not tested; explicitly deferred in story dev notes.
+
 ## Deferred from: code review of 3-2-unit-tests-rendering-render-context (2026-06-23)
 
 - **No-Qt import guard limited to re-import** (`tests/unit/test_rendering.py:36`, `tests/unit/test_render_context.py:140`) — Guard re-imports modules already loaded at file top; first-load Qt leak would not be detected. Same AD-8 pattern as story 3-1; shared subprocess/reload fixture deferred to story 3-4.
