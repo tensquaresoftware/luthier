@@ -1,5 +1,7 @@
 """Preferences page: edit and persist the global default values."""
 
+import sys
+
 from PySide6.QtWidgets import QLabel, QScrollArea, QVBoxLayout, QWidget
 
 from app.pages.artefacts import ArtefactsSection
@@ -9,6 +11,14 @@ from app.widgets.validated_field import FieldSpec
 from app.widgets.validated_form import ValidatedForm
 from core import validation
 from core.preferences import Preferences
+
+
+def _juce_dir_placeholder() -> str:
+    if sys.platform == "win32":
+        return "C:/Program Files/JUCE"
+    if sys.platform == "darwin":
+        return "/Applications/JUCE"
+    return "/usr/local/JUCE"
 
 
 def _pref_specs(prefs: Preferences) -> list[FieldSpec]:
@@ -36,7 +46,8 @@ def _pref_specs(prefs: Preferences) -> list[FieldSpec]:
                   default=prefs.get("destination")),
         FieldSpec("juceDir", "JUCE directory",
                   validation.validate_optional_path,
-                  default=prefs.get("juceDir")),
+                  default=prefs.get("juceDir"),
+                  placeholder=_juce_dir_placeholder()),
     ]
 
 
@@ -90,7 +101,6 @@ class PreferencesPage(QWidget):
         if not (self._form.is_valid() and self._artefacts.is_valid()):
             self._bar.set_status("Fix the invalid fields before saving.", ok=False)
             return
-        self._prefs.update(self._form.values())
-        self._prefs.update(self._artefacts.values())
+        self._prefs.apply_form(self._form.values(), self._artefacts.values())
         self._prefs.save()
         self._bar.set_status("Preferences saved.", ok=True)

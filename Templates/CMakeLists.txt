@@ -71,7 +71,7 @@ set(ARTEFACTS_DIR_LINUX   "{artefactsDirLinux}")
 set(CMAKE_CXX_STANDARD {cxxStandard})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Reference JUCE: priority cache (preset/-D), then ENV, then platform default
+{juceDirSetLine}# Reference JUCE: priority cache (preset/-D), then ENV, then platform default
 # Portable logic - works on any platform regardless of where the project was generated
 set(JUCE_DIR_CANDIDATE "")
 if(DEFINED JUCE_DIR AND NOT JUCE_DIR STREQUAL "" AND EXISTS "${{JUCE_DIR}}")

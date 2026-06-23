@@ -34,3 +34,8 @@
 - **`from_dict` bool coercion amplified by `_artefact_entries`** (`core/project_spec.py:70`, `core/render_context.py:52`) — String `"false"` for `copyToArtefactsDir` is truthy; artefact cache vars inject when user intended off. Already tracked from stories 1-1/1-2; new code path makes consequence visible in presets.
 - **`copyToArtefactsDir` ON with all empty artefact paths** (`core/render_context.py:51-57`) — Presets correctly omit `ARTEFACTS_DIR_*` per AC3, but CMakeLists.txt still renders `copyToArtefactsDir=ON`. Pre-existing cross-file inconsistency when checkbox on but paths unset.
 - **No post-render JSON validation** (`core/rendering.py`) — CMakeUserPresets.json rendered via string interpolation with no `json.loads()` sanity check. Malformed output surfaces only at CMake configure time. Epic 3 test infrastructure planned.
+
+## Deferred from: code review of 1-6-juce-directory-in-preferences (2026-06-23)
+
+- **CMake path special characters not escaped in `_juce_dir_line`** (`core/render_context.py:35`) — Quotes, backslashes, and `$` in user paths are interpolated raw into `set(JUCE_DIR "...")`. Explicitly deferred in story spec §Known Deferred Issues (same class as CMakeLists artefact paths in stories 1-4/1-5).
+- **No automated tests for juce_dir pipeline** — `_juce_dir_line`, `apply_form`, and end-to-end preference → CMake wiring untested. Epic 3 per story spec.

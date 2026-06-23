@@ -31,6 +31,17 @@ _RENDER_KEYS = (
     "artefactsDirLinux",
 )
 
+_IDENTITY_KEYS = (
+    "manufacturer", "manufacturerCode", "pluginCode",
+    "companyCopyright", "companyWebsite", "companyEmail",
+    "destination", "juceDir",
+)
+
+_ARTEFACT_KEYS = (
+    "copyToSystemFolders", "copyToArtefactsDir",
+    "artefactsDirWindows", "artefactsDirMacos", "artefactsDirLinux",
+)
+
 
 class Preferences:
     """Loads, holds and saves the persisted default values."""
@@ -55,6 +66,18 @@ class Preferences:
 
     def get(self, key: str):
         return self._data.get(key, _DEFAULTS.get(key))
+
+    @property
+    def juce_dir(self) -> str:
+        return str(self.get("juceDir") or "").strip()
+
+    def apply_form(self, identity: dict, artefacts: dict) -> None:
+        for key in _IDENTITY_KEYS:
+            if key in identity:
+                self._data[key] = identity[key]
+        for key in _ARTEFACT_KEYS:
+            if key in artefacts:
+                self._data[key] = artefacts[key]
 
     def update(self, spec: ProjectSpec) -> None:
         candidates = {

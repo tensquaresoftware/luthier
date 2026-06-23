@@ -41,7 +41,7 @@
 # - Retrospective appends its action items to action_items; sprint-status surfaces open ones
 
 generated: 2026-06-23
-last_updated: 2026-06-23 # updated by code-review 1-5
+last_updated: 2026-06-23 # updated by code-review 1-6
 project: Luthier
 project_key: NOKEY
 tracking_system: file-system
@@ -55,7 +55,7 @@ development_status:
   1-3-app-layer-uses-projectspec-via-spec: done
   1-4-cmakelists-txt-template-consolidation: done
   1-5-cmakeuserpresets-json-full-multi-platform-preset-set: done
-  1-6-juce-directory-in-preferences: backlog
+  1-6-juce-directory-in-preferences: done
   1-7-gitignore-as-a-customizable-template: backlog
   epic-1-retrospective: optional
 
