@@ -28,7 +28,6 @@ def _make_editor() -> QPlainTextEdit:
     font.setStyleHint(QFont.Monospace)
     font.setPointSize(_EDITOR_POINT_SIZE)
     editor.setFont(font)
-    CppHighlighter(editor.document())
     return editor
 
 
@@ -41,8 +40,9 @@ class TemplatesPage(QWidget):
         view = QListView()
         view.setFrameShape(QListView.Shape.NoFrame)
         self._selector.setView(view)
-        self._selector.addItems(templates_store.SOURCE_FILES)
+        self._selector.addItems(templates_store.EDITABLE_FILES)
         self._editor = _make_editor()
+        self._highlighter: CppHighlighter | None = CppHighlighter(self._editor.document())
         self._status = QLabel("")
         self._status.setObjectName("FieldHint")
         self._build_ui()
@@ -79,8 +79,18 @@ class TemplatesPage(QWidget):
         return button
 
     def _load_selected(self, name: str) -> None:
+        self._set_syntax_mode(name)
         self._editor.setPlainText(templates_store.read_effective(name))
         self._update_status(name)
+
+    def _set_syntax_mode(self, name: str) -> None:
+        if name == templates_store.GITIGNORE_FILE:
+            if self._highlighter:
+                self._highlighter.setDocument(None)
+                self._highlighter = None
+            return
+        if not self._highlighter:
+            self._highlighter = CppHighlighter(self._editor.document())
 
     def _on_save(self) -> None:
         name = self._selector.currentText()
@@ -93,11 +103,26 @@ class TemplatesPage(QWidget):
         self._load_selected(name)
 
     def _on_load_file(self) -> None:
-        path, _ = QFileDialog.getOpenFileName(
-            self, "Load template file", "", "C++ source (*.h *.cpp);;All files (*)"
-        )
+        name = self._selector.currentText()
+        if name == templates_store.GITIGNORE_FILE:
+            path = self._pick_gitignore_file()
+        else:
+            path, _ = QFileDialog.getOpenFileName(
+                self, "Load template file", "", "C++ source (*.h *.cpp);;All files (*)"
+            )
         if path:
             self._editor.setPlainText(Path(path).read_text(encoding="utf-8"))
+
+    def _pick_gitignore_file(self) -> str:
+        dialog = QFileDialog(self, "Load template file", "")
+        dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
+        dialog.setNameFilter("Git ignore (*.gitignore);;All files (*)")
+        dialog.setOption(QFileDialog.Option.ShowHidden, True)
+        dialog.setOption(QFileDialog.Option.DontUseNativeDialog, True)
+        if not dialog.exec():
+            return ""
+        selected = dialog.selectedFiles()
+        return selected[0] if selected else ""
 
     def _update_status(self, name: str) -> None:
         if templates_store.has_override(name):

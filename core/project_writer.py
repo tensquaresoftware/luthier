@@ -77,10 +77,15 @@ class ProjectWriter:
         return source.read_text(encoding="utf-8")
 
     def _override_for(self, relative: str) -> Optional[Path]:
-        if not self._overrides or relative not in _TOKENIZED:
+        if not self._overrides:
             return None
-        candidate = self._overrides / Path(relative).name
-        return candidate if candidate.exists() else None
+        if relative in _TOKENIZED:
+            candidate = self._overrides / Path(relative).name
+            return candidate if candidate.exists() else None
+        if relative == ".gitignore":
+            candidate = self._overrides.parent / ".gitignore"
+            return candidate if candidate.exists() else None
+        return None
 
     def _write_file(self, root: Path, relative: str, content: str) -> None:
         target = root / relative

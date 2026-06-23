@@ -39,3 +39,16 @@
 
 - **CMake path special characters not escaped in `_juce_dir_line`** (`core/render_context.py:35`) — Quotes, backslashes, and `$` in user paths are interpolated raw into `set(JUCE_DIR "...")`. Explicitly deferred in story spec §Known Deferred Issues (same class as CMakeLists artefact paths in stories 1-4/1-5).
 - **No automated tests for juce_dir pipeline** — `_juce_dir_line`, `apply_form`, and end-to-end preference → CMake wiring untested. Epic 3 per story spec.
+
+## Deferred from: code review of 1-7-gitignore-as-a-customizable-template (2026-06-23)
+
+- **Override path resolution duplicated** (`core/project_writer.py:85-87`) — `templates_store._override_path` and `ProjectWriter._override_for` both encode gitignore layout; `_overrides.parent` assumes `overrides_dir()` is always `templates/Source`. Intentional per story spec AD-9; revisit if override injection changes.
+- **Hardcoded `".gitignore"` in ProjectWriter** (`core/project_writer.py:85`) — Minor drift risk vs `templates_store.GITIGNORE_FILE`; spec documents literal string.
+- **`.gitignore` special-cased across three modules** — Adding another non-Source template requires touching `templates_store`, `project_writer`, and `templates.py`. Accepted minimal-scope trade-off for story 1-7.
+- **`_on_load_file` does not refresh status label** (`app/pages/templates.py:112-113`) — Editor content diverges from persisted override but status still shows previous state. Pre-existing for C++ templates.
+- **No loaded-file type validation** (`app/pages/templates.py:111-113`) — User can load mismatched content via "All files (*)" without warning. Pre-existing pattern.
+- **`read_text` errors unhandled in load-file handler** (`app/pages/templates.py:113`) — Invalid UTF-8 or permission errors propagate as exceptions. Pre-existing.
+- **Split override directory layout** (`core/templates_store.py`) — Gitignore at `templates/.gitignore`, sources at `templates/Source/`. Required by AC2; document for backup/migration.
+- **No automated tests for gitignore overrides** — Override paths, generation wiring, and Templates UI flows untested. Epic 3 story 3-3 per spec.
+- **`read_default` unguarded `FileNotFoundError`** (`core/templates_store.py:51-52`) — Missing bundled asset crashes; pre-existing for source templates.
+- **`save_override` no name allowlist** (`core/templates_store.py:60-63`) — Arbitrary `name` could write outside intended dirs if misused; internal callers only, pre-existing.

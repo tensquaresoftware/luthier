@@ -17,31 +17,51 @@ SOURCE_FILES = (
     "PluginEditor.cpp",
 )
 
+GITIGNORE_FILE = ".gitignore"
 
-def overrides_dir() -> Path:
+EDITABLE_FILES = SOURCE_FILES + (GITIGNORE_FILE,)
+
+
+def templates_root() -> Path:
     location = QStandardPaths.StandardLocation.AppConfigLocation
     base = QStandardPaths.writableLocation(location)
-    return Path(base) / "templates" / "Source"
+    return Path(base) / "templates"
+
+
+def overrides_dir() -> Path:
+    return templates_root() / "Source"
+
+
+def _bundled_path(name: str) -> Path:
+    if name == GITIGNORE_FILE:
+        return templates_dir() / GITIGNORE_FILE
+    return templates_dir() / "Source" / name
+
+
+def _override_path(name: str) -> Path:
+    if name == GITIGNORE_FILE:
+        return templates_root() / GITIGNORE_FILE
+    return overrides_dir() / name
 
 
 def has_override(name: str) -> bool:
-    return (overrides_dir() / name).exists()
+    return _override_path(name).exists()
 
 
 def read_default(name: str) -> str:
-    return (templates_dir() / "Source" / name).read_text(encoding="utf-8")
+    return _bundled_path(name).read_text(encoding="utf-8")
 
 
 def read_effective(name: str) -> str:
-    override = overrides_dir() / name
-    return override.read_text(encoding="utf-8") if override.exists() else read_default(name)
+    path = _override_path(name)
+    return path.read_text(encoding="utf-8") if path.exists() else read_default(name)
 
 
 def save_override(name: str, content: str) -> None:
-    target = overrides_dir() / name
+    target = _override_path(name)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(content, encoding="utf-8")
 
 
 def reset(name: str) -> None:
-    (overrides_dir() / name).unlink(missing_ok=True)
+    _override_path(name).unlink(missing_ok=True)
