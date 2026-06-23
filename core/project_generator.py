@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Optional
 
 from core import render_context
+from core.project_spec import ProjectSpec
 from core.project_writer import ProjectWriter
 
 
@@ -35,9 +36,9 @@ class ProjectGenerator:
     def project_exists(self, destination: str, project_name: str) -> bool:
         return (Path(destination) / project_name).exists()
 
-    def generate(self, values: dict, config: dict) -> Path:
-        project_dir = Path(values["destinationDir"]) / values["projectName"]
-        context = render_context.build_context(values, config)
-        tokens = render_context.build_tokens(values)
-        ProjectWriter(self._templates, project_dir, self._overrides).write(context, tokens)
+    def generate(self, spec: ProjectSpec) -> Path:
+        project_dir = Path(spec.destination_dir) / spec.project_name
+        context = render_context.build_context(spec)
+        tokens = render_context.build_tokens(spec)
+        ProjectWriter(self._templates, project_dir, self._overrides).write(context, tokens, spec)
         return project_dir

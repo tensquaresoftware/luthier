@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Optional
 
 from core import plugin_settings
+from core.project_spec import ProjectSpec
 
 _PROJECT_RE = re.compile(r"project\(\s*(\S+)\s+VERSION\s+([^\s)]+)")
 _FORMATS_RE = re.compile(r"set\(\s*PLUGIN_FORMATS_LIST\s+([^)]*)\)")
@@ -30,7 +31,7 @@ _QUOTED_FIELDS = {
 }
 
 
-def read_project(project_dir: Path) -> Optional[dict]:
+def read_project(project_dir: Path) -> Optional[ProjectSpec]:
     cmake = project_dir / "CMakeLists.txt"
     if not cmake.exists():
         return None
@@ -39,7 +40,7 @@ def read_project(project_dir: Path) -> Optional[dict]:
         return None
     values["destinationDir"] = str(project_dir.parent)
     values.update(_parse_build_settings(project_dir))
-    return values
+    return ProjectSpec.from_dict(values)
 
 
 def _parse_cmakelists(text: str) -> Optional[dict]:

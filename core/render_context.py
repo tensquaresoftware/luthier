@@ -1,6 +1,7 @@
 """Build the str.format context that fills the project templates."""
 
 from core import plugin_settings
+from core.project_spec import ProjectSpec
 
 _VALUE_KEYS = (
     "projectName",
@@ -13,16 +14,15 @@ _VALUE_KEYS = (
 )
 
 
-def build_context(values: dict, config: dict) -> dict:
-    flags = plugin_settings.flags_for_type(values["pluginType"])
-    context = {key: values[key] for key in _VALUE_KEYS}
+def build_context(spec: ProjectSpec) -> dict:
+    d = spec.to_dict()
+    flags = plugin_settings.flags_for_type(d["pluginType"])
+    context = {key: d[key] for key in _VALUE_KEYS}
     context.update(flags)
     context.update(_categories(flags))
-    context.update(_copy_config(config))
-    context["bundleId"] = plugin_settings.bundle_id(
-        values["manufacturerName"], values["projectName"]
-    )
-    context.update(_extra_fields(values))
+    context.update(_copy_config(d))
+    context["bundleId"] = plugin_settings.bundle_id(d["manufacturerName"], d["projectName"])
+    context.update(_extra_fields(d))
     return context
 
 
@@ -47,11 +47,11 @@ def _on_off(enabled: bool) -> str:
     return "ON" if enabled else "OFF"
 
 
-def build_tokens(values: dict) -> dict:
+def build_tokens(spec: ProjectSpec) -> dict:
     """@KEY@ substitutions available to the (user-editable) source templates."""
     return {
-        "PROJECT_NAME": values["projectName"],
-        "PROJECT_DISPLAY_NAME": values["projectDisplayName"],
+        "PROJECT_NAME": spec.project_name,
+        "PROJECT_DISPLAY_NAME": spec.project_display_name,
     }
 
 
