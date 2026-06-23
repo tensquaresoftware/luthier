@@ -12,6 +12,7 @@ from app.pages.plugin_type import PluginTypePage
 from app.pages.project_info import ProjectInfoPage
 from app.widgets.section import Section
 from core.preferences import Preferences
+from core.project_spec import ProjectSpec
 
 
 class ProjectPage(QScrollArea):
@@ -39,15 +40,24 @@ class ProjectPage(QScrollArea):
     def config(self) -> dict:
         return self._artefacts.values()
 
+    def spec(self) -> ProjectSpec:
+        d = dict(self._info.values())
+        d["pluginType"] = self._type.selected_type()
+        d["pluginFormats"] = self._formats.value()
+        d.update(self._compilation.values())
+        d.update(self._artefacts.values())
+        return ProjectSpec.from_dict(d)
+
     def is_valid(self) -> bool:
         return self._info.is_valid() and self._formats.is_valid() and self._artefacts.is_valid()
 
-    def load(self, values: dict) -> None:
-        self._info.load(values)
-        self._type.set_type(values["pluginType"])
-        self._formats.set_formats(values["pluginFormats"])
-        self._compilation.load(values)
-        self._artefacts.load(values)
+    def load(self, spec: ProjectSpec) -> None:
+        d = spec.to_dict()
+        self._info.load(d)
+        self._type.set_type(spec.plugin_type)
+        self._formats.set_formats(spec.plugin_formats)
+        self._compilation.load(d)
+        self._artefacts.load(d)
 
     def _build_ui(self) -> None:
         body = QWidget()

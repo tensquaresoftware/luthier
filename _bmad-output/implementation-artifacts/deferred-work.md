@@ -5,6 +5,13 @@
 - **Bool coercion silencieux dans `from_dict`** — `d.get("copyToSystemFolders", False)` accepte n'importe quelle valeur truthy sans conversion vers `bool`. Les callers actuels fournissent tous des bools propres, mais un futur caller direct pourrait passer une string et casser `_on_off()` dans `render_context.py`. À surveiller lors de l'intégration story 1.2/1.3.
 - **Defaults non liés entre champ dataclass et fallback `from_dict`** — Les defaults du champ (`copy_to_artefacts_dir: bool = True`) et du fallback `from_dict` (`d.get("copyToArtefactsDir", True)`) sont synchronisés manuellement. Un changement de l'un sans l'autre est un bug silencieux. Considérer une constante partagée lors d'un refactor futur.
 
+## Deferred from: code review of 1-3-app-layer-uses-projectspec-via-spec (2026-06-23)
+
+- **Key collision in `spec()` between sections unguarded** (`app/pages/project.py`) — `d.update(self._artefacts.values())` and other `.update()` calls can silently overwrite earlier keys. No current collision, but no assertion exists. Flag if a new section is added.
+- **`spec()`/`load()` round-trip symmetry not covered by tests** — `spec()` assembles a dict from widgets; `load(spec)` routes through `to_dict()`. The pair must be inverses but there are no round-trip tests. The `from_dict`/`to_dict` pair was verified in story 1-1, but the widget layer is untested.
+- **`Preferences → ProjectSpec` import coupling direction** (`core/preferences.py`) — `core/preferences.py` importing `core.project_spec` creates a one-way dependency within `core/`. If `ProjectSpec` ever needed `Preferences`, it would be circular. Currently safe per AD-8.
+- **`Preferences.update()` field list must stay manually in sync with `ProjectSpec`** (`core/preferences.py`) — The 12 explicit attribute mappings must be updated whenever `ProjectSpec` fields are added, removed, or renamed. No compiler enforcement; the old filter approach was self-maintaining.
+
 ## Deferred from: code review of 1-2-core-generation-pipeline-accepts-projectspec (2026-06-23)
 
 - **Perte de projet si `tmp.rename()` échoue après `rmtree`** (`core/project_writer.py:52-53`) — Le projet existant est supprimé avant le rename ; si le rename échoue (permission, cross-device inattendu), le projet est perdu sans récupération possible. Le design sibling atténue le risque (même filesystem), mais la séquence reste fragile.

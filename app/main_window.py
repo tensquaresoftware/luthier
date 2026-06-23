@@ -23,6 +23,7 @@ from core import plugin_settings, templates_store
 from core.preferences import Preferences
 from core.project_generator import ProjectGenerator
 from core.project_reader import read_project
+from core.project_spec import ProjectSpec
 
 _TABS = ["Project", "Preferences", "Templates", "About"]
 
@@ -117,10 +118,10 @@ class MainWindow(QMainWindow):
         self._generate.setEnabled(ready)
 
     def _on_generate(self) -> None:
-        values = self._project_page.values()
-        if not self._confirm_overwrite(values):
+        spec = self._project_page.spec()
+        if not self._confirm_overwrite(spec):
             return
-        self._run_generation(values)
+        self._run_generation(spec)
 
     def _on_open(self) -> None:
         start = self._prefs.get("destination") or ""
@@ -129,29 +130,43 @@ class MainWindow(QMainWindow):
             self._load_project(Path(directory))
 
     def _load_project(self, project_dir: Path) -> None:
-        values = read_project(project_dir)
-        if values is None:
+        spec = read_project(project_dir)
+        if spec is None:
             self._set_status(f"Not a JUCE plugin project: {project_dir}", ok=False)
             return
-        self._project_page.load(values)
-        self._prefs.update(values)
-        self._set_status(f"Loaded {values['projectName']} from {project_dir}", ok=True)
+        if not spec.plugin_formats:
+            self._set_status(f"No plugin formats detected in: {project_dir}", ok=False)
+            return
+        self._project_page.load(spec)
+        self._prefs.update(spec)
+        try:
+            self._prefs.save()
+        except OSError as error:
+            self._set_status(f"Loaded {spec.project_name} — preferences not saved: {error}", ok=False)
+            return
+        self._set_status(f"Loaded {spec.project_name} from {project_dir}", ok=True)
 
-    def _confirm_overwrite(self, values: dict) -> bool:
-        if not self._generator.project_exists(values["destinationDir"], values["projectName"]):
+    def _confirm_overwrite(self, spec: ProjectSpec) -> bool:
+        if not self._generator.project_exists(spec.destination_dir, spec.project_name):
             return True
         answer = QMessageBox.question(
             self,
             "Overwrite project",
-            f"A folder named '{values['projectName']}' already exists. Overwrite it?",
+            f"A folder named '{spec.project_name}' already exists. Overwrite it?",
         )
         return answer == QMessageBox.Yes
 
-    def _run_generation(self, values: dict) -> None:
+    def _run_generation(self, spec: ProjectSpec) -> None:
         try:
-            project_dir = self._generator.generate(values, self._project_page.config())
+            project_dir = self._generator.generate(spec)
         except Exception as error:
             self._set_status(f"Generation failed: {error}", ok=False)
+            return
+        self._prefs.update(spec)
+        try:
+            self._prefs.save()
+        except OSError as error:
+            self._set_status(f"Project generated at {project_dir} — preferences not saved: {error}", ok=False)
             return
         self._set_status(f"Project generated at {project_dir}", ok=True)
 

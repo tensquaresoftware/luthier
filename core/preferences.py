@@ -5,6 +5,8 @@ from pathlib import Path
 
 from PySide6.QtCore import QStandardPaths
 
+from core.project_spec import ProjectSpec
+
 _DEFAULTS = {
     "manufacturer": "My Company",
     "manufacturerCode": "Myco",
@@ -54,8 +56,22 @@ class Preferences:
     def get(self, key: str):
         return self._data.get(key, _DEFAULTS.get(key))
 
-    def update(self, values: dict) -> None:
-        self._data.update({k: v for k, v in values.items() if k in _DEFAULTS})
+    def update(self, spec: ProjectSpec) -> None:
+        candidates = {
+            "manufacturer": spec.manufacturer_name,
+            "manufacturerCode": spec.manufacturer_code,
+            "pluginCode": spec.plugin_code,
+            "destination": spec.destination_dir,
+            "companyCopyright": spec.company_copyright,
+            "companyWebsite": spec.company_website,
+            "companyEmail": spec.company_email,
+            "artefactsDirWindows": spec.artefacts_dir_windows,
+            "artefactsDirMacos": spec.artefacts_dir_macos,
+            "artefactsDirLinux": spec.artefacts_dir_linux,
+            "copyToSystemFolders": spec.copy_to_system_folders,
+            "copyToArtefactsDir": spec.copy_to_artefacts_dir,
+        }
+        self._data.update({k: v for k, v in candidates.items() if isinstance(v, bool) or v})
 
     def generation_config(self) -> dict:
         return {key: self._data[key] for key in _RENDER_KEYS}
