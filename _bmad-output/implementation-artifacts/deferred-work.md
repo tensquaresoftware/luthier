@@ -1,5 +1,19 @@
 # Deferred Work
 
+## Deferred from: code review of 3-2-unit-tests-rendering-render-context (2026-06-23)
+
+- **No-Qt import guard limited to re-import** (`tests/unit/test_rendering.py:36`, `tests/unit/test_render_context.py:140`) — Guard re-imports modules already loaded at file top; first-load Qt leak would not be detected. Same AD-8 pattern as story 3-1; shared subprocess/reload fixture deferred to story 3-4.
+- **`render()` / `render_tokens()` edge cases beyond AC** (`tests/unit/test_rendering.py`) — Malformed `str.format`, positional `{}`, multi-distinct `@KEY@` in one string, nested token substitution order. AC satisfied; extra cases are Epic 3+ hardening.
+- **Whitespace-only preprocessor/header lines** (`tests/unit/test_render_context.py:77`) — `_non_empty_lines` strips blank lines in production; whitespace-only input not explicitly tested.
+- **Unknown `plugin_type` KeyError** (`tests/unit/test_render_context.py:100`) — Explicitly deferred in story dev notes; `flags_for_type` behavior pre-existing.
+- **`copyToSystemFolders` / `copyToArtefactsDir` ON/OFF mapping** (`tests/unit/test_render_context.py:111`) — `_copy_config` bool→ON/OFF not asserted; outside epic AC.
+- **Artefact entry generation** (`tests/unit/test_render_context.py:50`) — Recommended in dev notes, not epic AC; `_artefact_entries` wiring untested here.
+- **`bundleId` sanitization** (`tests/unit/test_render_context.py`) — Covered in story 3-1 `test_plugin_settings.py`; render_context tests verify wiring only per spec.
+- **`cxxStandard` C++→numeric strip** (`tests/unit/test_render_context.py:64`) — `_extra_fields` replaces `"C++"` prefix; not in story AC.
+- **`juce_dir` paths with quotes/backslashes** (`tests/unit/test_render_context.py:125`) — Known deferred production issue since story 1-6; AD-7 empty/set cases covered.
+- **Empty `project_name` / `project_display_name` in `build_tokens`** (`tests/unit/test_render_context.py:131`) — Edge case outside AC; only two production tokens exist.
+- **`KeyError` test missing key name assertion** (`tests/unit/test_rendering.py:18`) — Asserts exception type only; minor hardening, not AC gap.
+
 ## Deferred from: code review of 3-1-test-infrastructure-unit-tests-validators-and-plugin-settings (2026-06-23)
 
 - **Validation boundary coverage gaps** (`tests/unit/test_validation.py`) — Leading `_`/`-` project names, tab chars in display name, padded version/manufacturer strings, 5-char manufacturer code, underscore in plugin code, whitespace-only optional path not covered. Story dev matrix satisfied; extra cases are Epic 3+ hardening.
