@@ -10,6 +10,7 @@ _local/
 Rules/
 
 # AI tooling (not part of the product)
+.agents/
 .claude/
 .vscode/
 _bmad/
