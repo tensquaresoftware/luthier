@@ -10,7 +10,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QListView,
     QPlainTextEdit,
-    QPushButton,
     QVBoxLayout,
     QWidget,
 )
@@ -53,30 +52,40 @@ class TemplatesPage(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 20, 24, 20)
         layout.setSpacing(10)
-        title = QLabel("Templates")
-        title.setObjectName("PageTitle")
-        selector_row = QHBoxLayout()
-        selector_row.setContentsMargins(0, 0, 0, 0)
-        selector_row.addWidget(self._selector, 1)
-        selector_row.addStretch(1)
-        layout.addWidget(title)
-        layout.addLayout(selector_row)
+        layout.addLayout(self._build_header())
         layout.addWidget(self._editor, 1)
-        layout.addLayout(self._build_buttons())
+        layout.addWidget(self._status)
 
-    def _build_buttons(self) -> QHBoxLayout:
+    def _build_header(self) -> QHBoxLayout:
         row = QHBoxLayout()
-        row.addWidget(self._status, 1)
-        row.addWidget(self._make_button("Load from file…", self._on_load_file))
-        row.addWidget(self._make_button("Reset to default", self._on_reset))
-        row.addWidget(self._make_button("Save override", self._on_save))
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(8)
+        label = QLabel("Select file :")
+        label.setObjectName("SectionTitle")
+        row.addWidget(label)
+        row.addWidget(self._selector, 1)
         return row
 
-    def _make_button(self, label: str, slot) -> QPushButton:
-        button = QPushButton(label)
-        button.setObjectName("ActionButton")
-        button.clicked.connect(slot)
-        return button
+    def save_override(self) -> None:
+        name = self._selector.currentText()
+        templates_store.save_override(name, self._editor.toPlainText())
+        self._update_status(name)
+
+    def reset_to_default(self) -> None:
+        name = self._selector.currentText()
+        templates_store.reset(name)
+        self._load_selected(name)
+
+    def load_from_file(self) -> None:
+        name = self._selector.currentText()
+        if name == templates_store.GITIGNORE_FILE:
+            path = self._pick_gitignore_file()
+        else:
+            path, _ = QFileDialog.getOpenFileName(
+                self, "Load template file", "", "C++ source (*.h *.cpp);;All files (*)"
+            )
+        if path:
+            self._editor.setPlainText(Path(path).read_text(encoding="utf-8"))
 
     def _load_selected(self, name: str) -> None:
         self._set_syntax_mode(name)
@@ -91,27 +100,6 @@ class TemplatesPage(QWidget):
             return
         if not self._highlighter:
             self._highlighter = CppHighlighter(self._editor.document())
-
-    def _on_save(self) -> None:
-        name = self._selector.currentText()
-        templates_store.save_override(name, self._editor.toPlainText())
-        self._update_status(name)
-
-    def _on_reset(self) -> None:
-        name = self._selector.currentText()
-        templates_store.reset(name)
-        self._load_selected(name)
-
-    def _on_load_file(self) -> None:
-        name = self._selector.currentText()
-        if name == templates_store.GITIGNORE_FILE:
-            path = self._pick_gitignore_file()
-        else:
-            path, _ = QFileDialog.getOpenFileName(
-                self, "Load template file", "", "C++ source (*.h *.cpp);;All files (*)"
-            )
-        if path:
-            self._editor.setPlainText(Path(path).read_text(encoding="utf-8"))
 
     def _pick_gitignore_file(self) -> str:
         dialog = QFileDialog(self, "Load template file", "")

@@ -1,4 +1,4 @@
-"""Main window: top tab bar, page stack, and the Generate action bar."""
+"""Main window: top tab bar, page stack, and dynamic action bar."""
 
 from pathlib import Path
 
@@ -28,6 +28,25 @@ from core.project_spec import ProjectSpec
 _TABS = ["Project", "Preferences", "Templates", "About"]
 
 
+def _make_btn(label: str, object_name: str, slot) -> QPushButton:
+    btn = QPushButton(label)
+    btn.setObjectName(object_name)
+    btn.clicked.connect(slot)
+    return btn
+
+
+def _make_button_bar(buttons: list[QPushButton]) -> QWidget:
+    widget = QWidget()
+    row = QHBoxLayout(widget)
+    row.setContentsMargins(0, 0, 0, 0)
+    row.setSpacing(8)
+    row.addStretch(1)
+    for btn in buttons:
+        row.addWidget(btn)
+    row.addStretch(1)
+    return widget
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -39,7 +58,8 @@ class MainWindow(QMainWindow):
         self._generator = ProjectGenerator(overrides=templates_store.overrides_dir())
         self._defaults = self._form_defaults()
         self._build_ui()
-        self._show_load_error_if_any()
+        if self._generator.error:
+            self._set_status(self._generator.error, ok=False)
         self._refresh_generate_enabled()
 
     def _form_defaults(self) -> dict:
@@ -76,6 +96,7 @@ class MainWindow(QMainWindow):
 
     def _on_section_changed(self, index: int) -> None:
         self._stack.setCurrentIndex(index)
+        self._btn_stack.setCurrentIndex(index)
 
     def _build_stack(self) -> QStackedWidget:
         stack = QStackedWidget()
@@ -96,26 +117,59 @@ class MainWindow(QMainWindow):
         bar.setObjectName("BottomBar")
         layout = QHBoxLayout(bar)
         layout.setContentsMargins(16, 8, 16, 8)
-        layout.setSpacing(12)
-        self._open = QPushButton("Open Project…")
-        self._open.setObjectName("OpenButton")
-        self._open.clicked.connect(self._on_open)
         self._status = QLabel("")
-        self._generate = QPushButton("Generate Project")
-        self._generate.setObjectName("GenerateButton")
-        self._generate.clicked.connect(self._on_generate)
-        layout.addWidget(self._open)
+        self._btn_stack = self._build_button_stack()
         layout.addWidget(self._status, 1)
-        layout.addWidget(self._generate)
+        layout.addWidget(self._btn_stack)
+        layout.addStretch(1)
         return bar
 
-    def _show_load_error_if_any(self) -> None:
-        if self._generator.error:
-            self._set_status(self._generator.error, ok=False)
+    def _build_button_stack(self) -> QStackedWidget:
+        stack = QStackedWidget()
+        stack.addWidget(self._project_buttons())
+        stack.addWidget(self._prefs_buttons())
+        stack.addWidget(self._templates_buttons())
+        stack.addWidget(QWidget())
+        return stack
+
+    def _project_buttons(self) -> QWidget:
+        self._new_btn = _make_btn("Create New Project", "ActionButton",
+                                  lambda: self._project_page.reset(self._form_defaults()))
+        self._open_btn = _make_btn("Open Project…", "OpenButton", self._on_open)
+        self._generate_btn = _make_btn("Generate Project", "GenerateButton", self._on_generate)
+        return _make_button_bar([self._new_btn, self._open_btn, self._generate_btn])
+
+    def _prefs_buttons(self) -> QWidget:
+        return _make_button_bar([
+            _make_btn("Load Preferences…", "ActionButton", self._on_prefs_load),
+            _make_btn("Save Preferences", "SaveButton", self._on_prefs_save),
+        ])
+
+    def _templates_buttons(self) -> QWidget:
+        tp = self._templates_page
+        return _make_button_bar([
+            _make_btn("Load from file…", "ActionButton", tp.load_from_file),
+            _make_btn("Reset to default", "ActionButton", tp.reset_to_default),
+            _make_btn("Save override", "SaveButton", tp.save_override),
+        ])
 
     def _refresh_generate_enabled(self, _valid: bool = False) -> None:
         ready = self._generator.error is None and self._project_page.is_valid()
-        self._generate.setEnabled(ready)
+        self._generate_btn.setEnabled(ready)
+
+    def _on_prefs_save(self) -> None:
+        if self._prefs_page.save():
+            self._set_status("Preferences saved.", ok=True)
+        else:
+            self._set_status("Fix the invalid fields before saving.", ok=False)
+
+    def _on_prefs_load(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Load Preferences", "", "JSON (*.json);;All files (*)"
+        )
+        if path:
+            self._prefs_page.load_from_file(path)
+            self._set_status(f"Preferences loaded from {Path(path).name}.", ok=True)
 
     def _on_generate(self) -> None:
         spec = self._project_page.spec()

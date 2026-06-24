@@ -51,6 +51,10 @@ class ProjectPage(QScrollArea):
     def is_valid(self) -> bool:
         return self._info.is_valid() and self._formats.is_valid() and self._artefacts.is_valid()
 
+    def reset(self, defaults: dict) -> None:
+        vals = {**defaults, "projectName": "", "projectDisplayName": "", "projectVersion": "1.0.0"}
+        self._info.load(vals)
+
     def load(self, spec: ProjectSpec) -> None:
         d = spec.to_dict()
         self._info.load(d)
@@ -63,15 +67,23 @@ class ProjectPage(QScrollArea):
         body = QWidget()
         layout = QVBoxLayout(body)
         layout.setContentsMargins(24, 20, 24, 20)
-        layout.setSpacing(18)
-        title = QLabel("Project")
-        title.setObjectName("PageTitle")
-        layout.addWidget(title)
+        layout.setSpacing(36)
+        layout.addWidget(self._hint())
         for name, widget in self._sections():
             layout.addWidget(Section(name, widget))
         layout.addStretch(1)
         self.setWidget(body)
         self.setWidgetResizable(True)
+
+    def _hint(self) -> QLabel:
+        label = QLabel(
+            "Configure your JUCE project by entering the information below. "
+            "Fields marked with an asterisk (*) are mandatory. A new project is "
+            "pre-configured based on the default settings entered in the Preferences tab."
+        )
+        label.setObjectName("FieldHint")
+        label.setWordWrap(True)
+        return label
 
     def _sections(self) -> list:
         return [

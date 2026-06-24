@@ -3,7 +3,7 @@
 from typing import Callable
 
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QHBoxLayout, QLineEdit, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QVBoxLayout, QWidget
 
 from app.widgets.validated_field import FieldSpec, make_field_label
 from app.widgets.validated_form import ValidatedForm
@@ -12,13 +12,13 @@ from core import validation
 
 def _field_specs(defaults: dict) -> list[FieldSpec]:
     return [
-        FieldSpec("projectName", "Project name",
+        FieldSpec("projectName", "Project name *",
                   validation.validate_project_name, placeholder="NewPlugin"),
         FieldSpec("projectDisplayName", "Display name",
                   validation.validate_display_name, placeholder="optional"),
-        FieldSpec("projectVersion", "Version",
+        FieldSpec("projectVersion", "Version *",
                   validation.validate_version, default="1.0.0"),
-        FieldSpec("manufacturerName", "Manufacturer",
+        FieldSpec("manufacturerName", "Manufacturer *",
                   validation.validate_manufacturer_name,
                   default=defaults.get("manufacturer", "")),
         FieldSpec("companyCopyright", "Copyright",
@@ -30,13 +30,13 @@ def _field_specs(defaults: dict) -> list[FieldSpec]:
         FieldSpec("companyEmail", "E-mail",
                   validation.validate_optional, placeholder="optional",
                   default=defaults.get("companyEmail", "")),
-        FieldSpec("manufacturerCode", "Manufacturer code",
+        FieldSpec("manufacturerCode", "Manufacturer code *",
                   validation.validate_manufacturer_code,
                   default=defaults.get("manufacturerCode", "")),
-        FieldSpec("pluginCode", "Plugin code",
+        FieldSpec("pluginCode", "Plugin code *",
                   validation.validate_plugin_code,
                   default=defaults.get("pluginCode", "")),
-        FieldSpec("destinationDir", "Destination",
+        FieldSpec("destinationDir", "Destination *",
                   validation.validate_destination,
                   default=defaults.get("destination", "")),
     ]
@@ -73,17 +73,25 @@ class ProjectInfoPage(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(2)
         layout.addWidget(self._form)
-        layout.addLayout(self._build_bundle_row())
+        layout.addWidget(self._build_bundle_row())
 
-    def _build_bundle_row(self) -> QHBoxLayout:
+    def _build_bundle_row(self) -> QWidget:
+        widget = QWidget()
+        outer = QVBoxLayout(widget)
+        outer.setContentsMargins(0, 4, 0, 4)
+        outer.setSpacing(0)
         row = QHBoxLayout()
         row.setSpacing(8)
         self._bundle = QLineEdit()
         self._bundle.setReadOnly(True)
+        mark = QLabel("")
+        mark.setObjectName("FieldMark")
+        mark.setFixedWidth(16)
         row.addWidget(make_field_label("Bundle ID"))
-        row.addWidget(self._bundle)
-        row.addSpacing(24)
-        return row
+        row.addWidget(self._bundle, 1)
+        row.addWidget(mark)
+        outer.addLayout(row)
+        return widget
 
     def _connect_signals(self) -> None:
         self._form.validityChanged.connect(self.validityChanged)

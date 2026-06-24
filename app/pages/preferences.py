@@ -1,11 +1,12 @@
 """Preferences page: edit and persist the global default values."""
 
+import json
 import sys
+from pathlib import Path
 
 from PySide6.QtWidgets import QLabel, QScrollArea, QVBoxLayout, QWidget
 
 from app.pages.artefacts import ArtefactsSection
-from app.widgets.save_bar import SaveBar
 from app.widgets.section import Section
 from app.widgets.validated_field import FieldSpec
 from app.widgets.validated_form import ValidatedForm
@@ -59,33 +60,42 @@ class PreferencesPage(QWidget):
         self._prefs = prefs
         self._form = ValidatedForm(_pref_specs(prefs))
         self._artefacts = ArtefactsSection(prefs)
-        self._bar = SaveBar("Save Preferences")
-        self._bar.saveRequested.connect(self._on_save)
         self._build_ui()
+
+    def save(self) -> bool:
+        if not (self._form.is_valid() and self._artefacts.is_valid()):
+            return False
+        self._prefs.apply_form(self._form.values(), self._artefacts.values())
+        self._prefs.save()
+        return True
+
+    def load_from_file(self, path: str) -> None:
+        try:
+            data = json.loads(Path(path).read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return
+        self._form.set_values(data)
+        self._artefacts.load(data)
 
     def _build_ui(self) -> None:
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(0)
-
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
+        scroll.setWidget(self._build_content())
+        outer.addWidget(scroll)
 
+    def _build_content(self) -> QWidget:
         content = QWidget()
         layout = QVBoxLayout(content)
         layout.setContentsMargins(24, 20, 24, 20)
-        layout.setSpacing(10)
-        title = QLabel("Preferences")
-        title.setObjectName("PageTitle")
-        layout.addWidget(title)
+        layout.setSpacing(36)
         layout.addWidget(self._intro())
-        layout.addWidget(self._form)
+        layout.addWidget(Section("Default infos", self._form))
         layout.addWidget(Section("Default artefacts", self._artefacts))
-        layout.addWidget(self._bar)
         layout.addStretch(1)
-
-        scroll.setWidget(content)
-        outer.addWidget(scroll)
+        return content
 
     def _intro(self) -> QLabel:
         label = QLabel(
@@ -97,10 +107,3 @@ class PreferencesPage(QWidget):
         label.setWordWrap(True)
         return label
 
-    def _on_save(self) -> None:
-        if not (self._form.is_valid() and self._artefacts.is_valid()):
-            self._bar.set_status("Fix the invalid fields before saving.", ok=False)
-            return
-        self._prefs.apply_form(self._form.values(), self._artefacts.values())
-        self._prefs.save()
-        self._bar.set_status("Preferences saved.", ok=True)

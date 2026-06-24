@@ -191,18 +191,19 @@ def build_stylesheet() -> str:
         color: {p.TEXT};
         border: 1px solid {p.BORDER};
         border-radius: 4px;
-        padding: 7px 16px;
+        padding: 7px 20px;
     }}
     QPushButton:hover {{ background: {p.BG_INPUT}; border: 1px solid {p.ACCENT}; }}
     QPushButton:disabled {{ color: {p.TEXT_DIM}; }}
 
     #BottomBar {{ background: {p.BG_BAR}; border-top: 1px solid {p.BORDER}; }}
+    #AboutCard {{ background: {p.BG_BAR}; border: 1px solid {p.BORDER}; border-radius: 10px; }}
     #GenerateButton {{
         background: {p.PRIMARY};
         color: white;
         border: none;
         border-radius: 5px;
-        padding: 9px 22px;
+        padding: 9px 20px;
         font-weight: bold;
     }}
     #GenerateButton:hover {{ background: {p.PRIMARY_HOVER}; }}
@@ -213,7 +214,7 @@ def build_stylesheet() -> str:
         color: white;
         border: none;
         border-radius: 5px;
-        padding: 7px 16px;
+        padding: 7px 20px;
         font-weight: bold;
     }}
     #OpenButton:hover {{ background: {p.PRIMARY_HOVER}; }}
@@ -223,15 +224,13 @@ def build_stylesheet() -> str:
         color: white;
         border: none;
         border-radius: 5px;
-        padding: 7px 16px;
+        padding: 7px 20px;
         font-weight: bold;
     }}
     #SaveButton:hover, #ActionButton:hover {{ background: {p.PRIMARY_HOVER}; }}
 
-    #PageTitle {{ font-size: 18px; font-weight: bold; }}
-    #AboutTitle {{ font-size: 15px; font-weight: bold; }}
     #SectionTitle {{
-        font-size: 14px;
+        font-size: 18px;
         font-weight: bold;
         color: {p.TEXT};
         padding: 0;
