@@ -1,19 +1,36 @@
 """About page: project identity and version."""
 
-from PySide6.QtCore import Qt, QRectF
+from PySide6.QtCore import Qt, QRectF, QUrl
+from PySide6.QtGui import QDesktopServices, QMouseEvent
 from PySide6.QtSvgWidgets import QSvgWidget
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from app.resources import resource_path
 
-_LOGO_HEIGHT = 220
+_LOGO_HEIGHT = 200
 _LOGO_OFFSET_UP = 10                                           # shift logo up vs equal stretch centering
 _LOGO_VIEWBOX = QRectF(109, 102, 281, 304)                     # tight crop; texts shifted up 36 SVG units
 _LOGO_WIDTH = round(_LOGO_HEIGHT * _LOGO_VIEWBOX.width() / _LOGO_VIEWBOX.height())
 _LINE_SPACING = 13
 _CARD_SIZE = 500
 _CARD_PADDING = 28
-_INFO_WIDTH = round((_CARD_SIZE - 2 * _CARD_PADDING) * 0.6)  # 60 % of inner width
+_INFO_WIDTH = round((_CARD_SIZE - 2 * _CARD_PADDING) * 0.6) + 20  # +20 px for full GitHub URL
+
+
+class _AboutLinkLabel(QLabel):
+    """Clickable value label; QSS handles normal/hover colours (Qt ignores QSS on <a> tags)."""
+
+    def __init__(self, text: str, url: str):
+        super().__init__(text)
+        self._url = QUrl(url)
+        self.setObjectName("AboutInfoLinkValue")
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setAttribute(Qt.WidgetAttribute.WA_Hover)
+
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        if event.button() == Qt.MouseButton.LeftButton:
+            QDesktopServices.openUrl(self._url)
+        super().mouseReleaseEvent(event)
 
 
 class AboutPage(QWidget):
@@ -75,15 +92,34 @@ class AboutPage(QWidget):
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(_LINE_SPACING)
-        for text in self._info_lines():
-            layout.addWidget(QLabel(text))
+        for text, url in self._info_lines():
+            layout.addWidget(self._make_info_line(text, url))
         return widget
 
-    def _info_lines(self) -> list[str]:
+    def _make_info_line(self, text: str, url: str | None) -> QWidget:
+        widget = QWidget()
+        row = QHBoxLayout(widget)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(0)
+        prefix, value = text.split(" : ", 1)
+        prefix_label = QLabel(f"{prefix} : ")
+        prefix_label.setObjectName("AboutInfoLine")
+        row.addWidget(prefix_label)
+        if url:
+            row.addWidget(_AboutLinkLabel(value, url))
+        else:
+            value_label = QLabel(value)
+            value_label.setObjectName("AboutInfoValue")
+            row.addWidget(value_label)
+        row.addStretch(1)
+        return widget
+
+    def _info_lines(self) -> list[tuple[str, str | None]]:
         return [
-            "Organization : Ten Square Software",
-            "Author : Guillaume DUPONT",
-            "GitHub : github.com/tensquaresoftware/Luthier",
-            "Version : 1.0.0",
-            "Revision date : 2026-06-24",
+            ("Organization : Ten Square Software", None),
+            ("Author : Guillaume DUPONT", None),
+            ("Email : tensquaresoftware@gmail.com", "mailto:tensquaresoftware@gmail.com"),
+            ("GitHub : github.com/tensquaresoftware/Luthier", "https://github.com/tensquaresoftware/Luthier"),
+            ("Version : 1.0.0", None),
+            ("Revision date : 2026-06-24", None),
         ]

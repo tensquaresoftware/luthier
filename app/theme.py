@@ -240,6 +240,10 @@ def build_stylesheet() -> str:
         background: {p.BORDER};
         border: none;
     }}
+    #AboutInfoLine {{ color: {p.TEXT_DIM}; }}
+    #AboutInfoValue {{ color: {p.TEXT}; }}
+    #AboutInfoLinkValue {{ color: {p.TEXT}; }}
+    #AboutInfoLinkValue:hover {{ color: {p.ACCENT}; }}
     #FieldLabel {{ color: {p.TEXT_DIM}; }}
     #FieldHint {{ color: {p.TEXT_DIM}; font-size: 11px; }}
     #FieldMark[state="ok"] {{ color: {p.OK}; }}
