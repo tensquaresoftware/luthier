@@ -253,7 +253,7 @@ class MainWindow(QMainWindow):
 
     def _run_generation(self, spec: ProjectSpec) -> None:
         try:
-            project_dir = self._generator.generate(spec, juce_dir=self._prefs.juce_dir)
+            project_dir = self._generator.generate(spec)
         except Exception as error:
             self._set_status(f"Generation failed: {error}", ok=False)
             return

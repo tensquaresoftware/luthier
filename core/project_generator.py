@@ -36,9 +36,9 @@ class ProjectGenerator:
     def project_exists(self, destination: str, project_name: str) -> bool:
         return (Path(destination) / project_name).exists()
 
-    def generate(self, spec: ProjectSpec, juce_dir: str = "") -> Path:
+    def generate(self, spec: ProjectSpec) -> Path:
         project_dir = Path(spec.destination_dir) / spec.project_name
-        context = render_context.build_context(spec, juce_dir=juce_dir)
+        context = render_context.build_context(spec)
         tokens = render_context.build_tokens(spec)
         ProjectWriter(self._templates, project_dir, self._overrides).write(context, tokens, spec)
         return project_dir

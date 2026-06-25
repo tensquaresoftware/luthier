@@ -57,12 +57,12 @@ def test_regenerate_produces_identical_tree(tmp_path):
 
     spec = make_spec(tmp_path)
     generator = ProjectGenerator()
-    project_dir = generator.generate(spec, juce_dir="")
+    project_dir = generator.generate(spec)
     before = all_files(project_dir)
 
     loaded = project_reader.read_project(project_dir)
     assert loaded is not None
-    project_dir = generator.generate(loaded, juce_dir="")
+    project_dir = generator.generate(loaded)
     assert_trees_equal(before, all_files(project_dir))
 
 
@@ -83,14 +83,14 @@ def test_cmake_fallback_regenerate_identical_tree(tmp_path):
 
     spec = make_spec(tmp_path)
     generator = ProjectGenerator()
-    project_dir = generator.generate(spec, juce_dir="")
+    project_dir = generator.generate(spec)
     before = all_files(project_dir)
     (project_dir / ".luthier.json").unlink()
 
     loaded = project_reader.read_project_result(project_dir)
     assert loaded.spec is not None
     assert loaded.missing_fields == ()
-    project_dir = generator.generate(loaded.spec, juce_dir="")
+    project_dir = generator.generate(loaded.spec)
     assert_trees_equal(before, all_files(project_dir))
 
 
@@ -131,6 +131,40 @@ def test_template_override_applied_at_generation(tmp_path):
     project_dir, _ = generate_project(tmp_path, overrides=overrides)
     content = (project_dir / "Source/PluginProcessor.h").read_text(encoding="utf-8")
     assert marker in content
+
+
+def test_juce_dir_sidecar_round_trip(tmp_path):
+    from core import project_reader
+
+    juce_path = "/tmp/juce-test"
+    spec = make_spec(tmp_path, juce_dir=juce_path)
+    project_dir, _ = generate_project(tmp_path, spec=spec)
+    data = json.loads((project_dir / ".luthier.json").read_text(encoding="utf-8"))
+    assert data["juceDir"] == juce_path
+    loaded = project_reader.read_project(project_dir)
+    assert loaded is not None
+    assert loaded.juce_dir == juce_path
+
+
+def test_regenerate_preserves_juce_dir(tmp_path):
+    from core import project_reader
+    from core.project_generator import ProjectGenerator
+
+    juce_path = "/Applications/JUCE"
+    spec = make_spec(tmp_path, juce_dir=juce_path)
+    generator = ProjectGenerator()
+    project_dir = generator.generate(spec)
+    cmake_before = (project_dir / "CMakeLists.txt").read_text(encoding="utf-8")
+    assert f'set(JUCE_DIR "{juce_path}")' in cmake_before
+    sidecar_before = json.loads((project_dir / ".luthier.json").read_text(encoding="utf-8"))
+
+    loaded = project_reader.read_project(project_dir)
+    assert loaded is not None
+    generator.generate(loaded)
+    sidecar_after = json.loads((project_dir / ".luthier.json").read_text(encoding="utf-8"))
+    assert sidecar_after == sidecar_before
+    cmake_after = (project_dir / "CMakeLists.txt").read_text(encoding="utf-8")
+    assert f'set(JUCE_DIR "{juce_path}")' in cmake_after
 
 
 def test_legacy_project_configuration_cmake_compat(tmp_path):

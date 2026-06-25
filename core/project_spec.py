@@ -13,6 +13,7 @@ class ProjectSpec:
     company_website: str = ""
     company_email: str = ""
     destination_dir: str = ""
+    juce_dir: str = ""
     plugin_type: str = "Instrument"
     plugin_formats: str = ""
     cxx_standard: str = "C++17"
@@ -36,6 +37,7 @@ class ProjectSpec:
             "companyWebsite": self.company_website,
             "companyEmail": self.company_email,
             "destinationDir": self.destination_dir,
+            "juceDir": self.juce_dir,
             "pluginType": self.plugin_type,
             "pluginFormats": self.plugin_formats,
             "cxxStandard": self.cxx_standard,
@@ -61,6 +63,7 @@ class ProjectSpec:
             company_website=d.get("companyWebsite", ""),
             company_email=d.get("companyEmail", ""),
             destination_dir=d.get("destinationDir", ""),
+            juce_dir=d.get("juceDir", ""),
             plugin_type=d.get("pluginType", "Instrument"),
             plugin_formats=d.get("pluginFormats", ""),
             cxx_standard=d.get("cxxStandard", "C++17"),

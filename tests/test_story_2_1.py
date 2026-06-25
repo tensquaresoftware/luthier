@@ -100,12 +100,12 @@ class TestRoundTrip(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             spec = _make_spec(destination_dir=tmp)
             generator = ProjectGenerator()
-            project_dir = generator.generate(spec, juce_dir="")
+            project_dir = generator.generate(spec)
             before = _all_files(project_dir)
 
             loaded = project_reader.read_project(project_dir)
             self.assertIsNotNone(loaded)
-            project_dir = generator.generate(loaded, juce_dir="")
+            project_dir = generator.generate(loaded)
             after = _all_files(project_dir)
 
             self.assertEqual(set(before), set(after))

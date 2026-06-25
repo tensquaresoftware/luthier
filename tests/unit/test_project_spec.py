@@ -41,6 +41,14 @@ def _assert_fields_equal(restored: ProjectSpec, original: ProjectSpec) -> None:
         assert getattr(restored, field.name) == getattr(original, field.name), field.name
 
 
+def test_juce_dir_round_trip_non_empty():
+    original = _make_spec(juce_dir="/Applications/JUCE")
+    restored = ProjectSpec.from_dict(original.to_dict())
+    assert restored.juce_dir == "/Applications/JUCE"
+    _assert_fields_equal(restored, original)
+    assert original.to_dict()["juceDir"] == "/Applications/JUCE"
+
+
 def test_to_dict_from_dict_round_trip_all_fields():
     original = _make_spec()
     restored = ProjectSpec.from_dict(original.to_dict())

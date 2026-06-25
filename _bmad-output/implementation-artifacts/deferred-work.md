@@ -1,5 +1,14 @@
 # Deferred Work
 
+## Deferred from: code review of 5-3-jucedir-on-projectspec-generation-pipeline (2026-06-25)
+
+- **Generate UI sans injection prefs `juceDir`** (`app/main_window.py:256`) — Comportement attendu AD-7 révisé ; prefs ne sont plus lues à generate time jusqu'à Story 5.2 (Project tab FolderField).
+- **Open → Generate perd `juceDir` côté UI** (`app/pages/project.py:43-49`) — `ProjectPage.spec()` reconstruit depuis les widgets sans champ JUCE ; `load()` ne préserve pas `juceDir` jusqu'à Story 5.2.
+- **Regenerate après lecture CMake-only supprime ligne `JUCE_DIR`** (`core/project_generator.py:39`) — `project_reader` ne parse pas `JUCE_DIR` depuis CMake ; spec 5.3 accepte `juce_dir` vide pour projets legacy sans sidecar.
+- **`from_dict` avec `juceDir: null` en JSON** (`core/project_spec.py:66`) — `d.get("juceDir", "")` retourne `None` si clé présente avec valeur null ; pattern pré-existant sur tous les champs depuis story 1-1.
+- **Échappement chemins spéciaux dans `_juce_dir_line`** (`core/render_context.py:35`) — Guillemets/backslashes interpolés bruts dans `set(JUCE_DIR "...")` ; pré-existant depuis story 1-6.
+- **Sidecar whitespace-only vs CMake vide** (`core/project_spec.py:66`) — `_juce_dir_line` strip pour CMake mais sidecar sérialise la valeur brute ; hors AC 5.3.
+
 ## Deferred from: code review of 5-1-preferences-model-profile-workflow (2026-06-25)
 
 - **Private-widget coupling in auto-save wiring** (`app/pages/preferences.py:168-171`) — PreferencesPage reaches into `_artefacts._checks`, `_compilation._cxx._combo`, etc. Pre-existing pattern across section widgets; refactor when sections expose unified change signals.

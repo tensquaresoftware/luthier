@@ -48,14 +48,14 @@ class TestCmakeFallback(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             spec = _make_spec(destination_dir=tmp)
             generator = ProjectGenerator()
-            project_dir = generator.generate(spec, juce_dir="")
+            project_dir = generator.generate(spec)
             before = _all_files(project_dir)
             (project_dir / ".luthier.json").unlink()
 
             loaded = project_reader.read_project_result(project_dir)
             self.assertIsNotNone(loaded.spec)
             self.assertEqual(loaded.missing_fields, ())
-            project_dir = generator.generate(loaded.spec, juce_dir="")
+            project_dir = generator.generate(loaded.spec)
             after = _all_files(project_dir)
 
             self.assertEqual(set(before), set(after))

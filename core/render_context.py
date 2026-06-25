@@ -14,7 +14,7 @@ _VALUE_KEYS = (
 )
 
 
-def build_context(spec: ProjectSpec, juce_dir: str = "") -> dict:
+def build_context(spec: ProjectSpec) -> dict:
     d = spec.to_dict()
     flags = plugin_settings.flags_for_type(d["pluginType"])
     context = {key: d[key] for key in _VALUE_KEYS}
@@ -22,7 +22,7 @@ def build_context(spec: ProjectSpec, juce_dir: str = "") -> dict:
     context.update(_categories(flags))
     context.update(_copy_config(d))
     context.update(_artefact_entries(d))
-    context.update(_juce_dir_line(juce_dir))
+    context.update(_juce_dir_line(spec.juce_dir))
     context["bundleId"] = plugin_settings.bundle_id(d["manufacturerName"], d["projectName"])
     context.update(_extra_fields(d))
     return context

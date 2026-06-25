@@ -117,14 +117,15 @@ def test_build_context_value_keys_passthrough():
 
 
 def test_build_context_juce_dir_empty():
-    spec = _make_spec()
+    spec = _make_spec(juce_dir="")
     assert build_context(spec)["juceDirSetLine"] == ""
-    assert build_context(spec, juce_dir="   ")["juceDirSetLine"] == ""
+    spec_whitespace = _make_spec(juce_dir="   ")
+    assert build_context(spec_whitespace)["juceDirSetLine"] == ""
 
 
 def test_build_context_juce_dir_set():
-    spec = _make_spec()
-    line = build_context(spec, juce_dir="/Applications/JUCE")["juceDirSetLine"]
+    spec = _make_spec(juce_dir="/Applications/JUCE")
+    line = build_context(spec)["juceDirSetLine"]
     assert line == 'set(JUCE_DIR "/Applications/JUCE")\n'
 
 

@@ -101,11 +101,11 @@ def write_project(tmp_path, spec, *, overrides=None) -> tuple[Path, ProjectSpec]
 
 
 def generate_project(
-    tmp_path, spec=None, *, overrides=None, juce_dir=""
+    tmp_path, spec=None, *, overrides=None
 ) -> tuple[Path, ProjectSpec]:
     from core.project_generator import ProjectGenerator
 
     spec = spec or make_spec(tmp_path)
     generator = ProjectGenerator(overrides=overrides)
-    project_dir = generator.generate(spec, juce_dir=juce_dir)
+    project_dir = generator.generate(spec)
     return project_dir, spec
