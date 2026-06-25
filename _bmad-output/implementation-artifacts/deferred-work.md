@@ -1,5 +1,12 @@
 # Deferred Work
 
+## Deferred from: code review of 5-1-preferences-model-profile-workflow (2026-06-25)
+
+- **Private-widget coupling in auto-save wiring** (`app/pages/preferences.py:168-171`) — PreferencesPage reaches into `_artefacts._checks`, `_compilation._cxx._combo`, etc. Pre-existing pattern across section widgets; refactor when sections expose unified change signals.
+- **No JSON schema version field** (`core/preferences.py`) — Profile import/export has no version key; future key renames require ad-hoc migration. Epic 5 sequencing defers until AD-5 lands in 5.4.
+- **Method length exceeds 15-line guideline** (`core/preferences.py`, `app/pages/preferences.py`) — `validate_profile`, `seed_dict`, `_connect_auto_save` exceed clean-code limit; project-context documents conscious exceptions for data/orchestration blocks.
+- **`test_import_validation_preserves_existing_on_failure` does not call `import_from_file`** (`tests/unit/test_preferences.py:85-94`) — AD-6 unit tier avoids Qt widget tests; test exercises `validate_profile` + manual rollback instead of the page import path.
+
 ## Deferred from: code review of 3-4-integration-tests-project-generation-round-trip (2026-06-24)
 
 - **No `plugin_type` parametrization** (`tests/integration/test_round_trip.py`) — Spec marks `@pytest.mark.parametrize("plugin_type", …)` as optional high-value coverage; synth-only golden path satisfies AC.

@@ -20,11 +20,11 @@ _COPY_FLAGS = [
 
 def _artefact_specs(prefs: Preferences) -> list[FieldSpec]:
     return [
-        FieldSpec("artefactsDirWindows", "Artefacts (Windows)",
+        FieldSpec("artefactsDirWindows", "Windows",
                   validation.validate_optional_path, default=prefs.get("artefactsDirWindows")),
-        FieldSpec("artefactsDirMacos", "Artefacts (macOS)",
+        FieldSpec("artefactsDirMacos", "macOS",
                   validation.validate_optional_path, default=prefs.get("artefactsDirMacos")),
-        FieldSpec("artefactsDirLinux", "Artefacts (Linux)",
+        FieldSpec("artefactsDirLinux", "Linux",
                   validation.validate_optional_path, default=prefs.get("artefactsDirLinux")),
     ]
 
@@ -49,6 +49,8 @@ class ArtefactsSection(QWidget):
         return values
 
     def is_valid(self) -> bool:
+        if not self._checks["copyToArtefactsDir"].isChecked():
+            return True
         return self._form.is_valid()
 
     def load(self, values: dict) -> None:

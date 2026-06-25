@@ -251,4 +251,9 @@ def build_stylesheet() -> str:
     #FieldError {{ color: {p.ERR}; font-size: 11px; }}
     #StatusOk {{ color: {p.OK}; }}
     #StatusErr {{ color: {p.ERR}; }}
+    #SavedIndicator {{
+        color: {p.ACCENT};
+        font-size: 12px;
+        padding: 0 16px 0 8px;
+    }}
     """

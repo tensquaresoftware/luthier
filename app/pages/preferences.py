@@ -4,14 +4,19 @@ import json
 import sys
 from pathlib import Path
 
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QLabel, QScrollArea, QVBoxLayout, QWidget
 
 from app.pages.artefacts import ArtefactsSection
+from app.pages.compilation import CompilationSection
+from app.pages.formats import FormatsPage
+from app.pages.plugin_type import PluginTypePage
+from app.widgets.folder_field import FolderField
 from app.widgets.section import Section
 from app.widgets.validated_field import FieldSpec
 from app.widgets.validated_form import ValidatedForm
 from core import validation
-from core.preferences import Preferences
+from core.preferences import Preferences, validate_profile
 
 
 def _juce_dir_placeholder() -> str:
@@ -22,7 +27,7 @@ def _juce_dir_placeholder() -> str:
     return "/usr/local/JUCE"
 
 
-def _pref_specs(prefs: Preferences) -> list[FieldSpec]:
+def _identity_specs(prefs: Preferences) -> list[FieldSpec]:
     return [
         FieldSpec("manufacturer", "Manufacturer",
                   validation.validate_manufacturer_name,
@@ -42,40 +47,135 @@ def _pref_specs(prefs: Preferences) -> list[FieldSpec]:
         FieldSpec("companyEmail", "E-mail",
                   validation.validate_optional,
                   default=prefs.get("companyEmail")),
-        FieldSpec("destination", "Default destination",
-                  validation.validate_destination,
-                  default=prefs.get("destination")),
-        FieldSpec("juceDir", "JUCE directory",
-                  validation.validate_optional_path,
-                  default=prefs.get("juceDir"),
-                  placeholder=_juce_dir_placeholder()),
     ]
 
 
+def _destination_spec(prefs: Preferences) -> FieldSpec:
+    return FieldSpec("destination", "Destination folder",
+                     validation.validate_destination,
+                     default=prefs.get("destination"))
+
+
+def _pref_text(prefs: Preferences, key: str) -> str:
+    value = prefs.get(key)
+    return "" if value is None else str(value)
+
+
+def _juce_spec(prefs: Preferences) -> FieldSpec:
+    return FieldSpec("juceDir", "JUCE directory",
+                     validation.validate_optional_path,
+                     default=prefs.get("juceDir"),
+                     placeholder=_juce_dir_placeholder())
+
+
 class PreferencesPage(QWidget):
-    """Edits the persisted defaults (identity + default artefact settings)."""
+    """Edits the persisted profile with auto-save and import/export."""
+
+    saved = Signal()
 
     def __init__(self, prefs: Preferences):
         super().__init__()
         self._prefs = prefs
-        self._form = ValidatedForm(_pref_specs(prefs))
+        self._identity = ValidatedForm(_identity_specs(prefs))
+        self._destination = FolderField(_destination_spec(prefs), "Choose destination folder")
+        self._juce_dir = FolderField(_juce_spec(prefs), "Choose JUCE directory")
+        self._plugin_type = PluginTypePage()
+        self._formats = FormatsPage()
+        self._compilation = CompilationSection()
         self._artefacts = ArtefactsSection(prefs)
         self._build_ui()
+        self.reload_from_prefs()
+        self._connect_auto_save()
 
-    def save(self) -> bool:
-        if not (self._form.is_valid() and self._artefacts.is_valid()):
-            return False
-        self._prefs.apply_form(self._form.values(), self._artefacts.values())
-        self._prefs.save()
-        return True
+    def reload_from_prefs(self) -> None:
+        self._identity.set_values(self._prefs.to_dict())
+        self._destination.set_value(_pref_text(self._prefs, "destination"))
+        self._juce_dir.set_value(_pref_text(self._prefs, "juceDir"))
+        self._plugin_type.set_type(_pref_text(self._prefs, "pluginType"))
+        self._formats.set_formats(_pref_text(self._prefs, "pluginFormats"))
+        self._compilation.load(self._prefs.to_dict())
+        self._artefacts.load(self._prefs.to_dict())
 
-    def load_from_file(self, path: str) -> None:
+    def import_from_file(self, path: str) -> tuple[bool, str]:
         try:
             data = json.loads(Path(path).read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
+        except (json.JSONDecodeError, OSError) as error:
+            return False, f"Could not read file: {error}"
+        if not isinstance(data, dict):
+            return False, "Preferences file must contain a JSON object."
+        ok, message = validate_profile(data)
+        if not ok:
+            return False, message
+        before = self._prefs.to_dict()
+        try:
+            self._prefs.apply_profile(data)
+            self._prefs.save()
+            self.reload_from_prefs()
+            self.saved.emit()
+            return True, ""
+        except (ValueError, OSError) as error:
+            self._prefs.apply_profile(before)
+            return False, str(error)
+
+    def export_to_file(self, path: str) -> tuple[bool, str]:
+        try:
+            Path(path).write_text(
+                json.dumps(self._prefs.to_dict(), indent=2), encoding="utf-8"
+            )
+        except OSError as error:
+            return False, f"Could not write file: {error}"
+        return True, ""
+
+    def _collect_profile(self) -> dict:
+        profile = dict(self._identity.values())
+        profile["destination"] = self._destination.value()
+        profile["juceDir"] = self._juce_dir.value()
+        profile["pluginType"] = self._plugin_type.selected_type()
+        profile["pluginFormats"] = self._formats.value()
+        profile.update(self._compilation.values())
+        profile.update(self._artefacts.values())
+        return profile
+
+    def _is_aggregate_valid(self) -> bool:
+        return (
+            self._identity.is_valid()
+            and self._destination.is_valid()
+            and self._juce_dir.is_valid()
+            and self._formats.is_valid()
+            and self._artefacts.is_valid()
+        )
+
+    def _try_auto_save(self, *_args) -> None:
+        if not self._is_aggregate_valid():
             return
-        self._form.set_values(data)
-        self._artefacts.load(data)
+        profile = self._collect_profile()
+        try:
+            self._prefs.apply_profile(profile)
+            self._prefs.save()
+            self.saved.emit()
+        except (ValueError, OSError):
+            return
+
+    def _connect_auto_save(self) -> None:
+        self._identity.validityChanged.connect(self._try_auto_save)
+        self._identity.field("manufacturer").valueChanged.connect(self._try_auto_save)
+        self._identity.field("manufacturerCode").valueChanged.connect(self._try_auto_save)
+        self._identity.field("pluginCode").valueChanged.connect(self._try_auto_save)
+        self._identity.field("companyCopyright").valueChanged.connect(self._try_auto_save)
+        self._identity.field("companyWebsite").valueChanged.connect(self._try_auto_save)
+        self._identity.field("companyEmail").valueChanged.connect(self._try_auto_save)
+        self._destination.validityChanged.connect(self._try_auto_save)
+        self._destination.valueChanged.connect(self._try_auto_save)
+        self._juce_dir.validityChanged.connect(self._try_auto_save)
+        self._juce_dir.valueChanged.connect(self._try_auto_save)
+        self._plugin_type.changed.connect(self._try_auto_save)
+        self._formats.validityChanged.connect(self._try_auto_save)
+        self._compilation.changed.connect(self._try_auto_save)
+        self._artefacts.validityChanged.connect(self._try_auto_save)
+        for box in self._artefacts._checks.values():
+            box.toggled.connect(self._try_auto_save)
+        for field in self._artefacts._form._fields.values():
+            field.valueChanged.connect(self._try_auto_save)
 
     def _build_ui(self) -> None:
         outer = QVBoxLayout(self)
@@ -92,10 +192,23 @@ class PreferencesPage(QWidget):
         layout.setContentsMargins(24, 20, 24, 20)
         layout.setSpacing(36)
         layout.addWidget(self._intro())
-        layout.addWidget(Section("Default infos", self._form))
-        layout.addWidget(Section("Default artefacts", self._artefacts))
+        layout.addWidget(Section("Identity", self._identity))
+        layout.addWidget(Section("Paths", self._paths_widget()))
+        layout.addWidget(Section("Plugin Type", self._plugin_type))
+        layout.addWidget(Section("Formats", self._formats))
+        layout.addWidget(Section("Compilation", self._compilation))
+        layout.addWidget(Section("Artefacts", self._artefacts))
         layout.addStretch(1)
         return content
+
+    def _paths_widget(self) -> QWidget:
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(2)
+        layout.addWidget(self._destination)
+        layout.addWidget(self._juce_dir)
+        return widget
 
     def _intro(self) -> QLabel:
         label = QLabel(
@@ -106,4 +219,3 @@ class PreferencesPage(QWidget):
         label.setObjectName("FieldHint")
         label.setWordWrap(True)
         return label
-

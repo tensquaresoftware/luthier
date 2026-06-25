@@ -1,5 +1,6 @@
 """Main window: top tab bar, page stack, and dynamic action bar."""
 
+from PySide6.QtCore import QTimer
 from pathlib import Path
 
 from PySide6.QtWidgets import (
@@ -54,20 +55,16 @@ class MainWindow(QMainWindow):
         self.resize(780, 680)
         self.setMinimumSize(720, 640)
         self._prefs = Preferences(Preferences.default_path())
-        self._prefs.load()
+        self._prefs.ensure_initialized()
         self._generator = ProjectGenerator(overrides=templates_store.overrides_dir())
-        self._defaults = self._form_defaults()
+        self._defaults = self._prefs.seed_dict()
         self._build_ui()
         if self._generator.error:
             self._set_status(self._generator.error, ok=False)
         self._refresh_generate_enabled()
 
     def _form_defaults(self) -> dict:
-        keys = (
-            "manufacturer", "manufacturerCode", "pluginCode", "destination",
-            "companyCopyright", "companyWebsite", "companyEmail",
-        )
-        return {key: self._prefs.get(key) for key in keys}
+        return self._prefs.seed_dict()
 
     def _build_ui(self) -> None:
         central = QWidget()
@@ -91,6 +88,10 @@ class MainWindow(QMainWindow):
             self._tab_bar.addTab(name)
         self._tab_bar.currentChanged.connect(self._on_section_changed)
         row.addWidget(self._tab_bar)
+        self._saved_indicator = QLabel("Saved")
+        self._saved_indicator.setObjectName("SavedIndicator")
+        self._saved_indicator.hide()
+        row.addWidget(self._saved_indicator)
         row.addStretch(1)
         return container
 
@@ -109,6 +110,7 @@ class MainWindow(QMainWindow):
         stack.addWidget(self._templates_page)
         stack.addWidget(self._about_page)
         self._project_page.validityChanged.connect(self._refresh_generate_enabled)
+        self._prefs_page.saved.connect(self._on_prefs_saved)
         self._stack = stack
         return stack
 
@@ -141,8 +143,8 @@ class MainWindow(QMainWindow):
 
     def _prefs_buttons(self) -> QWidget:
         return _make_button_bar([
-            _make_btn("Load Preferences…", "ActionButton", self._on_prefs_load),
-            _make_btn("Save Preferences", "SaveButton", self._on_prefs_save),
+            _make_btn("Import Preferences…", "ActionButton", self._on_prefs_import),
+            _make_btn("Export Preferences…", "ActionButton", self._on_prefs_export),
         ])
 
     def _templates_buttons(self) -> QWidget:
@@ -157,19 +159,40 @@ class MainWindow(QMainWindow):
         ready = self._generator.error is None and self._project_page.is_valid()
         self._generate_btn.setEnabled(ready)
 
-    def _on_prefs_save(self) -> None:
-        if self._prefs_page.save():
-            self._set_status("Preferences saved.", ok=True)
-        else:
-            self._set_status("Fix the invalid fields before saving.", ok=False)
+    def _on_prefs_saved(self) -> None:
+        self._flash_saved_indicator()
 
-    def _on_prefs_load(self) -> None:
+    def _flash_saved_indicator(self) -> None:
+        self._saved_indicator.show()
+        QTimer.singleShot(2000, self._saved_indicator.hide)
+
+    def _on_prefs_import(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
-            self, "Load Preferences", "", "JSON (*.json);;All files (*)"
+            self, "Import Preferences", "", "JSON (*.json);;All files (*)"
         )
-        if path:
-            self._prefs_page.load_from_file(path)
-            self._set_status(f"Preferences loaded from {Path(path).name}.", ok=True)
+        if not path:
+            return
+        ok, message = self._prefs_page.import_from_file(path)
+        if ok:
+            self._defaults = self._prefs.seed_dict()
+            self._flash_saved_indicator()
+            self._set_status(f"Preferences imported from {Path(path).name}.", ok=True)
+        else:
+            QMessageBox.warning(self, "Import Preferences", message)
+            self._set_status("Preferences import failed.", ok=False)
+
+    def _on_prefs_export(self) -> None:
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Export Preferences", "preferences.json", "JSON (*.json);;All files (*)"
+        )
+        if not path:
+            return
+        ok, message = self._prefs_page.export_to_file(path)
+        if ok:
+            self._set_status(f"Preferences exported to {Path(path).name}.", ok=True)
+        else:
+            QMessageBox.warning(self, "Export Preferences", message)
+            self._set_status("Preferences export failed.", ok=False)
 
     def _on_generate(self) -> None:
         spec = self._project_page.spec()

@@ -1,5 +1,6 @@
 """Compilation section: C++ standard, preprocessor definitions, header paths."""
 
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from app.widgets.combo_field import ComboField
@@ -12,12 +13,17 @@ _DEFAULT_CXX = "C++17"
 class CompilationSection(QWidget):
     """Per-project compilation options fed to the CMake target."""
 
+    changed = Signal()
+
     def __init__(self):
         super().__init__()
         self._cxx = ComboField("C++ standard", _CXX_CHOICES, _DEFAULT_CXX)
         self._defs = TextAreaField("Preprocessor defs", "one per line, e.g. MY_FLAG=1")
         self._headers = TextAreaField("Header search paths", "one per line, relative to the project")
         self._build_ui()
+        self._cxx._combo.currentTextChanged.connect(lambda _t: self.changed.emit())
+        self._defs._edit.textChanged.connect(lambda: self.changed.emit())
+        self._headers._edit.textChanged.connect(lambda: self.changed.emit())
 
     def values(self) -> dict:
         return {

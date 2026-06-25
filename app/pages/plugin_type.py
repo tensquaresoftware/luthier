@@ -1,5 +1,6 @@
 """Plugin Type page: exclusive choice driving the ProjectData plugin flags."""
 
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QButtonGroup,
     QLabel,
@@ -21,9 +22,12 @@ _DEFAULT_TYPE = PLUGIN_TYPES[0][0]
 class PluginTypePage(QWidget):
     """Single mutually exclusive plugin type selection."""
 
+    changed = Signal()
+
     def __init__(self):
         super().__init__()
         self._group = QButtonGroup(self)
+        self._group.buttonClicked.connect(lambda _btn: self.changed.emit())
         self._build_ui()
 
     def selected_type(self) -> str:
