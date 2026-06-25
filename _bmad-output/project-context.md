@@ -61,6 +61,7 @@ Luthier/
 │   ├── plugin_settings.py         # Pure functions: flags_for_type, bundle_id, categories
 │   ├── validation.py              # Pure field validators → (bool, str) tuples
 │   ├── preferences.py             # Preferences — JSON persistence in OS config dir
+│   ├── app_state.py               # AppState — last-used parent dir (separate from prefs)
 │   └── templates_store.py         # Read/write/reset C++ source template overrides
 ├── Templates/                     # Bundled project templates (versioned in repo)
 │   ├── CMakeLists.txt             # str.format template ({{ }} for CMake literal braces)
@@ -94,16 +95,15 @@ Luthier/
 
 ```
 User fills form (ProjectPage)
-  → ProjectPage.values() → dict of all project fields
-  → ProjectPage.config() → dict of artefact/copy settings
+  → ProjectPage.spec() → ProjectSpec
   → MainWindow._on_generate()
-      → ProjectGenerator.generate(values, config)
-          → render_context.build_context(values, config) → context dict (str.format keys)
-          → render_context.build_tokens(values) → tokens dict (@KEY@ keys)
+      → ProjectGenerator.generate(spec)
+          → render_context.build_context(spec) → context dict (str.format keys)
+          → render_context.build_tokens(spec) → tokens dict (@KEY@ keys)
           → ProjectWriter(templates_dir, project_dir, overrides).write(context, tokens)
-              → _RENDERED files: rendering.render(content, context)  [str.format]
-              → _TOKENIZED files: rendering.render_tokens(content, tokens)  [@KEY@]
-              → _VERBATIM files: copied as-is
+      → AppState.remember_parent(spec.destination_dir) + save()  [app_state.json only]
+  → MainWindow._on_open()
+      → read_project_result() → ProjectSpec → ProjectPage.load(spec)  [no prefs write]
 ```
 
 ### Two-Pass Template Rendering
@@ -140,6 +140,13 @@ Users can override the 4 Source files. Override path: `~/.../AppConfigLocation/L
 
 `core/preferences.py` — JSON at `~/.../AppConfigLocation/Luthier/preferences.json`.  
 Keys: `manufacturer`, `manufacturerCode`, `pluginCode`, `companyCopyright`, `companyWebsite`, `companyEmail`, `destination`, `juceDir`, `artefactsDirWindows/Macos/Linux`, `copyToSystemFolders`, `copyToArtefactsDir`.
+
+**AD-5 (revised):** `preferences.json` is written **only** by: (1) first-launch factory file creation, (2) Preferences tab auto-save on valid edit, (3) successful Import Preferences. `MainWindow` calls `prefs.save()` only after auto-save or import — **never** after Open Project or Generate Project. Open and Generate must not call `Preferences.update(ProjectSpec)`.
+
+### App State
+
+`core/app_state.py` — JSON at `~/.../AppConfigLocation/Luthier/app_state.json` (sibling of `preferences.json`, **not** part of Import/Export profile).  
+Schema: `{"lastUsedParentDir": "<path>"}`. Written only after successful Generate (`remember_parent` + `save`). Used by Choose… and Open Project… dialog start directories via `dialog_start_dir()` — valid field value → last parent → Desktop (OS API) → home fallback.
 
 ---
 
@@ -254,9 +261,9 @@ These were identified during brownfield analysis and represent the main refactor
 1. **No tests** — zero test coverage; validators in `core/validation.py` are pure functions and easily testable; `project_reader` regexes are fragile without tests
 2. **`project_reader.py` fragility** — regex parsing of CMake is brittle; any formatting variation in generated files can break round-trip
 3. **`ProjectWriter._reset_project_dir()` is destructive** — silently deletes and recreates the entire project dir on every generation; no backup or diff
-4. **Preferences not saved on change** — `PreferencesPage` save flow needs audit; unclear when `prefs.save()` is called after `prefs.update()`
+4. **Preferences auto-save** — `PreferencesPage` auto-saves on valid edit; Open/Generate no longer write `preferences.json` (Story 5.4)
 5. **`MainWindow` orchestration is wide** — handles generation, open, status, prefs, templates: borderline single responsibility
-6. **No JUCE dir setting exposed** — `preferences._DEFAULTS` has `juceDir` key but it's unused in the UI and never written to CMakeLists.txt (JUCE_DIR is resolved at cmake time via ENV/defaults)
+6. **JUCE dir on Project tab** — exposed via `FolderField`; persisted on `ProjectSpec` / `.luthier.json`, not synced to global prefs on Open/Generate
 7. **`_field_specs` and `_pref_specs` exceed 15 lines** — conscious deviation; acceptable as pure data (complexity 1)
 8. **`build_stylesheet()` exceeds 15 lines** — acceptable as pure data (QSS string); matches pre-existing pattern
 9. **No error boundary for template rendering** — `str.format` with a malformed template raises `KeyError`; not caught gracefully
@@ -286,4 +293,5 @@ From user requirements stated at project init:
 | JUCE installation | `/Applications/JUCE/` |
 | GitHub repo | `https://github.com/tensquaresoftware/Luthier` |
 | Preferences JSON (runtime) | `~/Library/Preferences/Luthier/preferences.json` (macOS) |
+| App state JSON (runtime) | `~/Library/Preferences/Luthier/app_state.json` (macOS) |
 | Template overrides (runtime) | `~/Library/Preferences/Luthier/templates/Source/` (macOS) |

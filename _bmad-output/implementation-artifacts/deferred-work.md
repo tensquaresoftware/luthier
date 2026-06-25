@@ -1,6 +1,22 @@
 # Deferred Work
 
-## Deferred from: code review of 5-3-jucedir-on-projectspec-generation-pipeline (2026-06-25)
+## Deferred from: code review of 5-4-decouple-open-generate-from-preferences-json (2026-06-25)
+
+- **Tests AC6 simulés, pas de parcours MainWindow e2e** (`tests/unit/test_preferences_decouple.py`) — Test construit `ProjectSpec` et `AppState` directement ; ne pilote pas `MainWindow._load_project` / `_run_generation`. Pattern AD-6 (pas de tests widget Qt).
+- **Prompt destination AC4 non couvert par tests automatisés** (`app/main_window.py:206`) — Aucun test pour le dialog pré-génération (vide/invalide, annulation, rebuild spec).
+- **`AppState.load()` avale JSON/OSError silencieusement** (`core/app_state.py:36`) — Même pattern que `Preferences._read()` ; fichier corrompu → état par défaut sans feedback utilisateur.
+- **Écriture JSON non-atomique** (`core/app_state.py:48`) — `write_text` direct ; crash mid-write peut corrompre le fichier. Même pattern que `Preferences.save()`.
+- **Pas de champ version dans `app_state.json`** (`core/app_state.py`) — Même dette que `preferences.json` (déjà différée en revue 5-1).
+- **`ARCHITECTURE-EXPLAINED.md` AD-5 obsolète** — Décrit encore l'ancien modèle `prefs.update` + `save` après Open/Generate ; `ARCHITECTURE-SPINE.md` et `project-context.md` sont à jour.
+
+## Deferred from: code review of 5-2-project-ui-choose-buttons-layout (2026-06-25)
+
+- **`reset()` ne reseed que `ProjectInfoPage`** (`app/pages/project.py:64-66`) — `reset()` appelle `_info.load()` seulement ; type/formats/compilation/artefacts restent inchangés. Pré-existant ; Story 5.5 couvrira le reset complet + dirty guard.
+- **`prefs.get()` peut propager `None` vers `FolderField`** (`app/pages/preferences.py:46-59`) — JSON null survit `validate_optional_path` via `str(None)` ; pattern pré-existant avant extraction `path_specs`.
+- **`reset()` incomplet si appelé après changement type/formats** (`app/pages/project.py:64-66`) — Même cause que ci-dessus ; Create New Project via `reset()` ne réinitialise pas les sections hors Project Info.
+- **Rollback `import_from_file` sans garde sur `ValueError`** (`app/pages/preferences.py:107-109`) — Pré-existant ; hors hunks du diff 5.2.
+- **Accès attributs privés `_artefacts._checks`** (`app/pages/preferences.py:169-172`) — Couplage widget pré-existant depuis 5.1 ; refactor quand sections exposent des signaux unifiés.
+
 
 - **Generate UI sans injection prefs `juceDir`** (`app/main_window.py:256`) — Comportement attendu AD-7 révisé ; prefs ne sont plus lues à generate time jusqu'à Story 5.2 (Project tab FolderField).
 - **Open → Generate perd `juceDir` côté UI** (`app/pages/project.py:43-49`) — `ProjectPage.spec()` reconstruit depuis les widgets sans champ JUCE ; `load()` ne préserve pas `juceDir` jusqu'à Story 5.2.

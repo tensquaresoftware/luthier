@@ -133,3 +133,28 @@ def test_seed_dict_maps_project_form_keys(tmp_path):
     assert seed["pluginFormats"] == "VST3"
     assert seed["manufacturer"] == "Seed Co"
     assert seed["destination"] == "/seed/dest"
+
+
+def test_seed_dict_round_trips_through_project_spec(tmp_path):
+    from core.project_spec import ProjectSpec
+
+    prefs = Preferences(tmp_path / "preferences.json")
+    prefs.apply_profile(_valid_profile(
+        destination="/seed/dest",
+        juceDir="/Applications/JUCE",
+        pluginType="effect",
+        pluginFormats="AU VST3",
+        cxxStandard="C++20",
+    ))
+    seed = {
+        **prefs.seed_dict(),
+        "projectName": "",
+        "projectDisplayName": "",
+        "projectVersion": "1.0.0",
+    }
+    spec = ProjectSpec.from_dict(seed)
+    assert spec.destination_dir == "/seed/dest"
+    assert spec.juce_dir == "/Applications/JUCE"
+    assert spec.plugin_type == "effect"
+    assert spec.plugin_formats == "AU VST3"
+    assert spec.cxx_standard == "C++20"

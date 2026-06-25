@@ -21,6 +21,7 @@ from app.pages.preferences import PreferencesPage
 from app.pages.project import ProjectPage
 from app.pages.templates import TemplatesPage
 from core import plugin_settings, templates_store
+from core.app_state import AppState
 from core.preferences import Preferences
 from core.project_generator import ProjectGenerator
 from core.project_reader import read_project_result
@@ -56,6 +57,9 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(720, 640)
         self._prefs = Preferences(Preferences.default_path())
         self._prefs.ensure_initialized()
+        self._app_state = AppState(AppState.default_path())
+        self._app_state.load()
+        self._folder_start = lambda value: self._app_state.dialog_start_dir(value)
         self._generator = ProjectGenerator(overrides=templates_store.overrides_dir())
         self._defaults = self._prefs.seed_dict()
         self._build_ui()
@@ -101,8 +105,10 @@ class MainWindow(QMainWindow):
 
     def _build_stack(self) -> QStackedWidget:
         stack = QStackedWidget()
-        self._project_page = ProjectPage(self._defaults, plugin_settings.bundle_id, self._prefs)
-        self._prefs_page = PreferencesPage(self._prefs)
+        self._project_page = ProjectPage(
+            self._defaults, plugin_settings.bundle_id, self._prefs, self._folder_start
+        )
+        self._prefs_page = PreferencesPage(self._prefs, self._folder_start)
         self._templates_page = TemplatesPage()
         self._about_page = AboutPage()
         stack.addWidget(self._project_page)
@@ -196,12 +202,25 @@ class MainWindow(QMainWindow):
 
     def _on_generate(self) -> None:
         spec = self._project_page.spec()
+        dest = spec.destination_dir.strip()
+        if not dest or not Path(dest).is_dir():
+            chosen = QFileDialog.getExistingDirectory(
+                self,
+                "Choose destination folder",
+                self._app_state.dialog_start_dir(dest),
+            )
+            if not chosen:
+                return
+            self._project_page.set_destination(chosen)
+            spec = self._project_page.spec()
+            if not self._project_page.is_valid():
+                return
         if not self._confirm_overwrite(spec):
             return
         self._run_generation(spec)
 
     def _on_open(self) -> None:
-        start = self._prefs.get("destination") or ""
+        start = self._app_state.dialog_start_dir()
         directory = QFileDialog.getExistingDirectory(self, "Open JUCE plugin project", start)
         if directory:
             self._load_project(Path(directory))
@@ -233,12 +252,6 @@ class MainWindow(QMainWindow):
             self._set_status(message, ok=False)
             return
         self._project_page.load(spec)
-        self._prefs.update(spec)
-        try:
-            self._prefs.save()
-        except OSError as error:
-            self._set_status(f"Loaded {spec.project_name} — preferences not saved: {error}", ok=False)
-            return
         self._set_status(f"Loaded {spec.project_name} from {project_dir}", ok=True)
 
     def _confirm_overwrite(self, spec: ProjectSpec) -> bool:
@@ -257,11 +270,14 @@ class MainWindow(QMainWindow):
         except Exception as error:
             self._set_status(f"Generation failed: {error}", ok=False)
             return
-        self._prefs.update(spec)
+        self._app_state.remember_parent(spec.destination_dir)
         try:
-            self._prefs.save()
+            self._app_state.save()
         except OSError as error:
-            self._set_status(f"Project generated at {project_dir} — preferences not saved: {error}", ok=False)
+            self._set_status(
+                f"Project generated at {project_dir} — could not remember folder: {error}",
+                ok=False,
+            )
             return
         self._set_status(f"Project generated at {project_dir}", ok=True)
 

@@ -1,7 +1,7 @@
 """Preferences page: edit and persist the global default values."""
 
 import json
-import sys
+from collections.abc import Callable
 from pathlib import Path
 
 from PySide6.QtCore import Signal
@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QLabel, QScrollArea, QVBoxLayout, QWidget
 from app.pages.artefacts import ArtefactsSection
 from app.pages.compilation import CompilationSection
 from app.pages.formats import FormatsPage
+from app.pages.path_specs import destination_field_spec, juce_field_spec
 from app.pages.plugin_type import PluginTypePage
 from app.widgets.folder_field import FolderField
 from app.widgets.section import Section
@@ -17,14 +18,6 @@ from app.widgets.validated_field import FieldSpec
 from app.widgets.validated_form import ValidatedForm
 from core import validation
 from core.preferences import Preferences, validate_profile
-
-
-def _juce_dir_placeholder() -> str:
-    if sys.platform == "win32":
-        return "C:/Program Files/JUCE"
-    if sys.platform == "darwin":
-        return "/Applications/JUCE"
-    return "/usr/local/JUCE"
 
 
 def _identity_specs(prefs: Preferences) -> list[FieldSpec]:
@@ -51,9 +44,11 @@ def _identity_specs(prefs: Preferences) -> list[FieldSpec]:
 
 
 def _destination_spec(prefs: Preferences) -> FieldSpec:
-    return FieldSpec("destination", "Destination folder",
-                     validation.validate_destination,
-                     default=prefs.get("destination"))
+    return destination_field_spec(
+        prefs.get("destination"),
+        key="destination",
+        label="Destination folder",
+    )
 
 
 def _pref_text(prefs: Preferences, key: str) -> str:
@@ -62,10 +57,7 @@ def _pref_text(prefs: Preferences, key: str) -> str:
 
 
 def _juce_spec(prefs: Preferences) -> FieldSpec:
-    return FieldSpec("juceDir", "JUCE directory",
-                     validation.validate_optional_path,
-                     default=prefs.get("juceDir"),
-                     placeholder=_juce_dir_placeholder())
+    return juce_field_spec(prefs.get("juceDir"))
 
 
 class PreferencesPage(QWidget):
@@ -73,12 +65,24 @@ class PreferencesPage(QWidget):
 
     saved = Signal()
 
-    def __init__(self, prefs: Preferences):
+    def __init__(
+        self,
+        prefs: Preferences,
+        folder_start_resolver: Callable[[str], str] | None = None,
+    ):
         super().__init__()
         self._prefs = prefs
         self._identity = ValidatedForm(_identity_specs(prefs))
-        self._destination = FolderField(_destination_spec(prefs), "Choose destination folder")
-        self._juce_dir = FolderField(_juce_spec(prefs), "Choose JUCE directory")
+        self._destination = FolderField(
+            _destination_spec(prefs),
+            "Choose destination folder",
+            start_dir_resolver=folder_start_resolver,
+        )
+        self._juce_dir = FolderField(
+            _juce_spec(prefs),
+            "Choose JUCE directory",
+            start_dir_resolver=folder_start_resolver,
+        )
         self._plugin_type = PluginTypePage()
         self._formats = FormatsPage()
         self._compilation = CompilationSection()

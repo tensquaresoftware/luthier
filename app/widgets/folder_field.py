@@ -1,5 +1,7 @@
 """Label + Choose… button + validated path field row."""
 
+from collections.abc import Callable
+
 from PySide6.QtCore import QStandardPaths, Signal
 from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLineEdit, QLabel, QPushButton, QVBoxLayout, QWidget
 
@@ -15,10 +17,17 @@ class FolderField(QWidget):
     validityChanged = Signal(bool)
     valueChanged = Signal(str)
 
-    def __init__(self, spec: FieldSpec, dialog_title: str, parent: QWidget | None = None):
+    def __init__(
+        self,
+        spec: FieldSpec,
+        dialog_title: str,
+        parent: QWidget | None = None,
+        start_dir_resolver: Callable[[str], str] | None = None,
+    ):
         super().__init__(parent)
         self._spec = spec
         self._dialog_title = dialog_title
+        self._start_dir_resolver = start_dir_resolver
         self._valid = False
         self._build_ui()
         self._edit.setText(spec.default)
@@ -64,9 +73,12 @@ class FolderField(QWidget):
         return row
 
     def _choose_directory(self) -> None:
-        start = self.value() or QStandardPaths.writableLocation(
-            QStandardPaths.StandardLocation.DesktopLocation
-        )
+        if self._start_dir_resolver is not None:
+            start = self._start_dir_resolver(self.value())
+        else:
+            start = self.value() or QStandardPaths.writableLocation(
+                QStandardPaths.StandardLocation.DesktopLocation
+            )
         path = QFileDialog.getExistingDirectory(self, self._dialog_title, start)
         if path:
             self.set_value(path)

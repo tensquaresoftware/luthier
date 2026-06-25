@@ -6,7 +6,6 @@ from pathlib import Path
 from PySide6.QtCore import QStandardPaths
 
 from core import validation
-from core.project_spec import ProjectSpec
 
 _DEFAULTS = {
     "manufacturer": "My Company",
@@ -37,14 +36,6 @@ _PROFILE_KEYS = (
     "preprocessorDefinitions", "headerSearchPaths",
     "copyToSystemFolders", "copyToArtefactsDir",
     "artefactsDirWindows", "artefactsDirMacos", "artefactsDirLinux",
-)
-
-_RENDER_KEYS = (
-    "copyToSystemFolders",
-    "copyToArtefactsDir",
-    "artefactsDirWindows",
-    "artefactsDirMacos",
-    "artefactsDirLinux",
 )
 
 _IDENTITY_KEYS = (
@@ -217,27 +208,6 @@ class Preferences:
             if key in identity:
                 profile[key] = identity[key]
         self.apply_profile(profile)
-
-    def update(self, spec: ProjectSpec) -> None:
-        """Legacy: sync prefs from an opened or generated project (removed in Story 5.4)."""
-        candidates = {
-            "manufacturer": spec.manufacturer_name,
-            "manufacturerCode": spec.manufacturer_code,
-            "pluginCode": spec.plugin_code,
-            "destination": spec.destination_dir,
-            "companyCopyright": spec.company_copyright,
-            "companyWebsite": spec.company_website,
-            "companyEmail": spec.company_email,
-            "artefactsDirWindows": spec.artefacts_dir_windows,
-            "artefactsDirMacos": spec.artefacts_dir_macos,
-            "artefactsDirLinux": spec.artefacts_dir_linux,
-            "copyToSystemFolders": spec.copy_to_system_folders,
-            "copyToArtefactsDir": spec.copy_to_artefacts_dir,
-        }
-        self._data.update({k: v for k, v in candidates.items() if isinstance(v, bool) or v})
-
-    def generation_config(self) -> dict:
-        return {key: self._data[key] for key in _RENDER_KEYS}
 
     def _read(self) -> dict:
         try:

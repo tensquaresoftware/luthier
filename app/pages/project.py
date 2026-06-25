@@ -1,6 +1,6 @@
 """The single scrollable page gathering every per-project setting."""
 
-from typing import Callable
+from collections.abc import Callable
 
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QLabel, QScrollArea, QVBoxLayout, QWidget
@@ -20,15 +20,33 @@ class ProjectPage(QScrollArea):
 
     validityChanged = Signal(bool)
 
-    def __init__(self, defaults: dict, bundle_id_fn: Callable[[str, str], str], prefs: Preferences):
+    def __init__(
+        self,
+        defaults: dict,
+        bundle_id_fn: Callable[[str, str], str],
+        prefs: Preferences,
+        folder_start_resolver: Callable[[str], str] | None = None,
+    ):
         super().__init__()
-        self._info = ProjectInfoPage(defaults, bundle_id_fn)
+        self._info = ProjectInfoPage(
+            defaults, bundle_id_fn, folder_start_resolver=folder_start_resolver
+        )
         self._type = PluginTypePage()
         self._formats = FormatsPage()
         self._compilation = CompilationSection()
         self._artefacts = ArtefactsSection(prefs)
         self._build_ui()
         self._connect_signals()
+        self._seed_new_project(defaults)
+
+    def _seed_new_project(self, defaults: dict) -> None:
+        seed = {
+            **defaults,
+            "projectName": "",
+            "projectDisplayName": "",
+            "projectVersion": "1.0.0",
+        }
+        self.load(ProjectSpec.from_dict(seed))
 
     def values(self) -> dict:
         values = dict(self._info.values())
@@ -62,6 +80,9 @@ class ProjectPage(QScrollArea):
         self._formats.set_formats(spec.plugin_formats)
         self._compilation.load(d)
         self._artefacts.load(d)
+
+    def set_destination(self, value: str) -> None:
+        self._info.set_destination(value)
 
     def _build_ui(self) -> None:
         body = QWidget()
