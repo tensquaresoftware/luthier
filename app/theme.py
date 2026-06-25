@@ -196,6 +196,14 @@ def build_stylesheet() -> str:
     QPushButton:disabled {{ color: {p.TEXT_DIM}; }}
 
     #BottomBar {{ background: {p.BG_BAR}; border-top: 1px solid {p.BORDER}; }}
+    #StatusBar {{
+        background: {p.BG_INPUT};
+        border-top: 1px solid {p.BORDER};
+    }}
+    #StatusOk, #StatusErr {{
+        padding: 4px 0;
+        min-height: 28px;
+    }}
     #AboutCard {{ background: {p.BG_BAR}; border: 1px solid {p.BORDER}; border-radius: 10px; }}
     #GenerateButton {{
         background: {p.PRIMARY};

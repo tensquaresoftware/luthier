@@ -41,7 +41,7 @@
 # - Retrospective appends its action items to action_items; sprint-status surfaces open ones
 
 generated: 2026-06-23
-last_updated: 2026-06-26 # story 4.4 done (code review patches applied)
+last_updated: 2026-06-26 # story 6.1 done
 project: Luthier
 project_key: NOKEY
 tracking_system: file-system
@@ -89,3 +89,8 @@ development_status:
   4-3-cross-platform-cmake-configuration-validation: done
   4-4-contributor-documentation: done
   epic-4-retrospective: optional
+
+  # Epic 6: UX Polish (post–Epic 4)
+  epic-6: in-progress
+  6-1-dedicated-status-message-bar: done
+  epic-6-retrospective: optional

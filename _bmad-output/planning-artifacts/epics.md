@@ -96,6 +96,10 @@ A JUCE developer can manage global defaults and the active project as separate c
 Any JUCE developer can download Luthier and run it without installing Python, on their OS of choice.
 **FRs covered:** FR9, NFR3, NFR4
 
+### Epic 6: UX Polish
+Small user-visible improvements that make daily use clearer without changing core generation behaviour.
+**FRs covered:** — (quality-of-life; derived from deferred UX feedback)
+
 ---
 
 ## Epic 1: Core Architecture & Project Generation
@@ -780,3 +784,37 @@ So that I can configure my dev environment, run the test suite, and build a bund
 **Given** the `_bmad-output/` folder,
 **When** any team member refers to it,
 **Then** the finalized PRD, Architecture Spine, and Epics documents are present as the authoritative product reference.
+
+---
+
+## Epic 6: UX Polish
+
+Small, user-visible improvements that do not change core generation behaviour but make Luthier clearer and more pleasant to use day to day.
+
+### Story 6.1: Dedicated Status Message Bar
+
+As a JUCE developer using Luthier,
+I want operation feedback (success and errors) shown in a dedicated, readable status area,
+So that I can see what just happened without the message competing with action buttons.
+
+**Acceptance Criteria:**
+
+**Given** the main window layout,
+**When** I perform any action that sets a status message (Generate, Open, Create New Project, Import/Export Preferences),
+**Then** the message appears in a dedicated horizontal bar above the action button row, centred, with full width — not beside the buttons.
+
+**Given** a successful operation,
+**When** the status message is shown,
+**Then** the text uses the accent colour (orange/magenta success tone per theme).
+
+**Given** a failed operation,
+**When** the status message is shown,
+**Then** the text uses the error colour (red per theme).
+
+**Given** the dedicated status bar,
+**When** the window is at minimum width,
+**Then** long messages wrap or ellipsize gracefully without overlapping buttons.
+
+**Given** Preferences auto-save,
+**When** a field saves successfully,
+**Then** the inline "Saved" badge on the edited field still appears (unchanged behaviour); global operation messages use the new bar only.

@@ -1,5 +1,10 @@
 # Deferred Work
 
+## Deferred from: code review of 6-1-dedicated-status-message-bar (2026-06-26)
+
+- **Accessibilité live-region du status label** — Aucun `accessibleName` / annonce assistive pour les changements de statut ; pattern identique avant le refactor, hors scope story 6.1.
+- **Croissance verticale du status bar au word wrap** — Messages multi-lignes agrandissent la barre ; comportement accepté par la story (word wrap choisi vs elide ; Dev Notes L212).
+
 ## Deferred from: code review of 4-4-contributor-documentation (2026-06-26)
 
 - **`Docs/Luthier.png` / dossier `Docs/` absent du dépôt** (`README.md:5`, `CONTRIBUTING.md:121`) — Lien image README pré-existant ; table CONTRIBUTING documente une convention pas encore matérialisée dans git.
@@ -31,7 +36,7 @@
 
 ## Deferred from: manual smoke 5-5-create-new-project-full-reset-dirty-guard (2026-06-25)
 
-- **Barre de statut / messages utilisateur** (`app/main_window.py`) — Message Create New Project à gauche des boutons, manque de place ; souhait : barre dédiée au-dessus de la barre d’actions (#262F34), texte centré orange (succès) / rouge (erreur) ; libellé « New project created — defaults from Preferences. »
+- **Barre de statut / messages utilisateur** (`app/main_window.py`) — Message Create New Project à gauche des boutons, manque de place ; souhait : barre dédiée au-dessus de la barre d’actions (#262F34), texte centré orange (succès) / rouge (erreur) ; libellé « New project created — defaults from Preferences. » → **Story 6.1** (`6-1-dedicated-status-message-bar.md`, epic-6 backlog).
 - **Bouton No dialog dirty guard peu visible** (`MainWindow._on_create_new_project`) — Default `QMessageBox.No` non perceptible visuellement ; suggéré : style orange pour l’action par défaut.
 - **Persistance géométrie fenêtre** — À l’ouverture, fenêtre en (0,0) ; taille/position non mémorisées (hors scope story 5.5).
 

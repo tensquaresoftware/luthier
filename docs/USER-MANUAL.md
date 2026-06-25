@@ -1,367 +1,625 @@
-# Luthier — Manuel utilisateur
+---
+Organization: Ten Square Software
+Author: Guillaume DUPONT
+Project: Luthier
+Title: Luthier User Manual
+Version: 1.0
+Product-Version: 1.0.0
+Created: 2026-06-26
+Updated: 2026-06-26
+References:
+  - docs/ARCHITECTURE.md
+  - CONTRIBUTING.md
+  - docs/MANUEL-UTILISATEUR.md
+  - README.md
+---
 
-> **Statut de ce document** — Ce manuel décrit la **vision cible** de Luthier, incluant des comportements et des libellés **en cours de formalisation** (user stories à venir). Il sert de référence pour valider la cohérence du produit avant implémentation. L’interface de l’application est en **anglais** ; les libellés cités ci-dessous reprennent les intitulés prévus dans l’UI.
+# Luthier User Manual
+
+This manual describes Luthier as shipped today: a desktop app for creating, reopening, and regenerating CMake-based JUCE audio plugin projects. The interface is in **English**. All UI labels cited below match what you see on screen.
+
+> **French translation** — See [MANUEL-UTILISATEUR.md](MANUEL-UTILISATEUR.md) for the French edition of this manual.
 
 ---
 
-## 1. Qu’est-ce que Luthier ?
+## Table of contents
 
-Luthier est une application de bureau qui permet de **créer**, **configurer** et **régénérer** des projets JUCE basés sur **CMake** (plugins AU, VST3, Standalone, ou combinaisons). Elle s’inspire de l’esprit de Projucer, orienté CMake portable et rechargement de projet.
-
-En pratique, Luthier vous aide à :
-
-- remplir un formulaire validé en direct ;
-- générer un dossier de projet complet (`CMakeLists.txt`, `CMakeUserPresets.json`, sources, `.gitignore`, sidecar `.luthier.json`) ;
-- rouvrir un projet déjà généré, modifier sa configuration et le régénérer ;
-- conserver vos **habitudes de travail** (identité éditeur, chemins, templates) sans les mélanger avec un projet particulier.
-
----
-
-## 2. Les trois domaines de réglages
-
-Luthier organise l’interface autour de **trois périmètres distincts**. Les comprendre évite la plupart des ambiguïtés d’usage.
-
-| Domaine | Onglet | Portée | Question à laquelle il répond |
-|--------|--------|--------|-------------------------------|
-| **Projet en cours** | **Project** | Un seul projet à la fois | *Comment est configuré **ce** plugin ?* |
-| **Réglages globaux** | **Preferences** | Toute l’application, tous projets | *Quelles valeurs par défaut veux-je réutiliser ?* |
-| **Modèles globaux** | **Templates** | Toute l’application, tous projets | *Quels fichiers sources modèle utiliser à la génération ?* |
-
-**Project** correspond au travail du moment : noms, type, formats, compilation, chemins propres à **ce** projet.
-
-**Preferences** et **Templates** se comportent comme des réglages d’application (comparable à un menu *Settings* sur macOS), partagés entre tous vos projets. Modifier les préférences **ne modifie pas** le projet ouvert tant que vous n’agissez pas explicitement sur l’onglet Project (par exemple via **Create New Project**).
+1. [What is Luthier?](#1-what-is-luthier)
+2. [Before you start](#2-before-you-start)
+3. [Installing and running Luthier](#3-installing-and-running-luthier)
+4. [The main window](#4-the-main-window)
+5. [Three kinds of settings](#5-three-kinds-of-settings)
+6. [First launch](#6-first-launch)
+7. [Project tab](#7-project-tab)
+8. [Preferences tab](#8-preferences-tab)
+9. [Templates tab](#9-templates-tab)
+10. [About tab](#10-about-tab)
+11. [Typical workflows](#11-typical-workflows)
+12. [What Luthier generates](#12-what-luthier-generates)
+13. [Where your data is stored](#13-where-your-data-is-stored)
+14. [Field validation rules](#14-field-validation-rules)
+15. [Messages, errors, and troubleshooting](#15-messages-errors-and-troubleshooting)
+16. [Using the standalone app](#16-using-the-standalone-app)
 
 ---
 
-## 3. Navigation
+## 1. What is Luthier?
 
-Quatre onglets en haut de la fenêtre :
+Luthier helps you **create JUCE plugin projects** without hand-editing CMake files. You fill in a form, Luthier validates your input as you type, and when you click **Generate Project** it writes a complete project folder ready to open in your IDE and build with CMake.
 
-- **Project** — formulaire du projet en cours et actions **Create New Project**, **Open Project…**, **Generate Project**.
-- **Preferences** — valeurs par défaut réutilisables ; actions **Import Preferences…**, **Export Preferences…**.
-- **Templates** — édition des modèles C++ et `.gitignore` ; actions **Load from file…**, **Reset to default**, **Save override**.
-- **About** — crédits et version.
+Luthier can also **reopen** a project it created earlier, let you change settings, and **regenerate** the files in place.
 
-Une **barre d’actions** en bas change selon l’onglet actif. Une **ligne de statut** confirme les opérations réussies ou signale les erreurs.
+Think of it as a Projucer-style workflow (which Luthier is largely inspired by), oriented toward **portable CMake projects** and **repeatable regeneration**.
 
-Lors de l’enregistrement automatique des préférences, une **étiquette furtive** (couleur accent orange) apparaît brièvement à droite de la barre d’onglets pour confirmer que les changements ont bien été enregistrés.
+### What Luthier does
+
+- Builds AU, VST3, and/or Standalone plugin projects from a single form.
+- Writes `CMakeLists.txt`, `CMakeUserPresets.json`, source files, IDE helpers, and a `.luthier.json` sidecar.
+- Stores your **default values** (manufacturer, paths, plugin type, and so on) in a preferences file on your machine.
+- Lets you customize the **C++ source templates** used for every new project.
+- Reopens existing projects via `.luthier.json`, or by reading legacy `CMakeLists.txt` when no sidecar is present.
+
+### What Luthier does not do
+
+- It does not compile your plugin — you still use CMake and your IDE or toolchain (Cursor, Xcode, Visual Studio, Ninja, etc.).
+- It does not download or install JUCE for you — you point Luthier at an existing JUCE folder on disk.
+- It does not sync settings across machines automatically — use **Export Preferences…** / **Import Preferences…** to move profiles manually.
 
 ---
 
-## 4. Premier lancement et source des defaults
+## 2. Before you start
 
-### 4.1 Principe : code → `preferences.json` → tout le reste
+### You will need
 
-Luthier ne maintient **qu’une seule source de defaults** une fois l’application installée :
+- A **JUCE SDK** installed somewhere on your computer (or a path you plan to use).
+- A **destination folder** where new project folders should be created (for example your Documents folder or Desktop).
+- Basic familiarity with **plugin formats** on your platform (AU on macOS, VST3 everywhere, Standalone for a desktop app build).
 
-1. **À la toute première exécution**, le fichier `preferences.json` est **créé** à partir de valeurs **hardcodées dans le code** (usine).
-2. **Ensuite**, tout ce qui seed l’onglet Project — au démarrage, via **Create New Project**, ou après **Import Preferences…** — provient **exclusivement** de `preferences.json`.
+### Supported platforms
 
-Les widgets de l’interface ne portent plus leurs propres defaults « métier » : ils affichent ce que contient le profil actif.
+Luthier runs on **macOS**, **Windows**, and **Linux**. You can run it from source (Python + PySide6) or as a **standalone app** built with PyInstaller on each platform — see [§16](#16-using-the-standalone-app).
 
-### 4.2 Valeurs usine (création initiale de `preferences.json`)
+---
 
-Au **tout premier démarrage**, Luthier écrit `preferences.json` avec :
+## 3. Installing and running Luthier
 
-| Champ | Valeur initiale (code) |
-|-------|------------------------|
+### From source (developers)
+
+See [CONTRIBUTING.md](../CONTRIBUTING.md) in the repository for full setup. In short:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -r requirements-dev.txt
+.venv/bin/python main.py           # Windows: .venv\Scripts\python main.py
+```
+
+### Standalone app (end users)
+
+Download or build the bundle for your OS. Launch the app like any native application — no Python installation required. See [§16](#16-using-the-standalone-app).
+
+---
+
+## 4. The main window
+
+When Luthier opens, you see four areas:
+
+```
+┌──────────────────────────────────────────────────┐
+│  Project │ Preferences │ Templates │ About       │  ← Tab bar
+├──────────────────────────────────────────────────┤
+│                                                  │
+│              Active tab content                  │  ← Scrollable form or editor
+│                                                  │
+├──────────────────────────────────────────────────┤
+│        Status message (centred, full width)     │  ← Dedicated status bar
+├──────────────────────────────────────────────────┤
+│          [Action buttons for this tab]           │  ← Bottom action bar
+└──────────────────────────────────────────────────┘
+```
+
+### Tab bar
+
+| Tab | Purpose |
+|-----|---------|
+| **Project** | Configure the plugin you are working on right now. |
+| **Preferences** | Edit global defaults that pre-fill new projects. |
+| **Templates** | View and customize the C++ / `.gitignore` templates used at generation time. |
+| **About** | Credits, version, and links. |
+
+### Bottom action bar
+
+The buttons at the bottom **change with the active tab**:
+
+| Tab | Buttons |
+|-----|---------|
+| **Project** | **Create New Project**, **Open Project…**, **Generate Project** |
+| **Preferences** | **Import Preferences…**, **Export Preferences…** |
+| **Templates** | **Load from file…**, **Reset to default**, **Save override** |
+| **About** | *(none)* |
+
+### Status line
+
+After most operations, a short message appears in a **dedicated bar above the action buttons**, centred across the full window width:
+
+- **Success** messages use the accent colour (magenta).
+- **Error** messages use red.
+- Long paths wrap to multiple lines instead of crowding the buttons.
+
+Examples: *"Project generated at /Users/you/Documents/MySynth"*, *"Loaded MySynth from …"*, *"Preferences imported from client-a.json"*.
+
+Preferences auto-save shows a small **Saved** badge on the edited field only — it does not use this global status bar.
+
+### Window size and position
+
+Luthier remembers your window size, position, and maximized state between sessions. If the saved position is no longer valid (for example you unplugged a monitor), the window opens centred at a comfortable default size.
+
+---
+
+## 5. Three kinds of settings
+
+Understanding these three areas prevents most confusion.
+
+| Area | Tab | Scope | Answers the question |
+|------|-----|-------|----------------------|
+| **Current project** | Project | One plugin at a time | *How is **this** plugin configured?* |
+| **Global defaults** | Preferences | Whole app, all future projects | *What values should I reuse every time?* |
+| **Global templates** | Templates | Whole app, all generated projects | *What boilerplate source code should new projects start from?* |
+
+**Important rules:**
+
+- Editing **Preferences** does **not** change the **Project** tab until you click **Create New Project** (or restart the app for the initial seed).
+- **Open Project…** and **Generate Project** never write to `preferences.json`.
+- **Templates** overrides apply to every generation but are not included when you export preferences.
+
+---
+
+## 6. First launch
+
+### What happens automatically
+
+1. Luthier creates **`preferences.json`** in your OS application config folder (first run only).
+2. Factory defaults are written — see the table below.
+3. The **Project** tab opens as a **new project**: identity fields empty, everything else copied from preferences.
+
+### Factory defaults (first `preferences.json`)
+
+| Setting | Initial value |
+|---------|---------------|
 | Manufacturer | `My Company` |
 | Manufacturer code | `Myco` |
 | Plugin code | `Mypl` |
-| Copyright, Website, E-mail | vides |
-| **Destination folder** | dossier **Bureau** (résolu via l’API OS, selon la plateforme) |
-| **JUCE directory** | vide (placeholder adapté à l’OS, ex. `/Applications/JUCE` sur macOS) |
+| Copyright, Website, E-mail | empty |
+| Destination folder | your **Desktop** (via the OS API) |
+| JUCE directory | empty (placeholder hints per OS, e.g. `/Applications/JUCE` on macOS) |
 | Plugin type | Instrument (Synth) |
-| Formats | AU, VST3 et Standalone cochés |
+| Formats | AU, VST3, Standalone — all checked |
 | C++ standard | C++17 |
-| Preprocessor defs, Header search paths | vides |
-| Copy to central artefacts folder | **décochée** |
-| Chemins d’artefacts (Windows, macOS, Linux) | vides |
-| Copy to system plugin folders | décochée |
+| Preprocessor defs, Header search paths | empty |
+| Copy to system plugin folders | off |
+| Copy to central artefacts folder | off |
+| Artefact paths (Windows / macOS / Linux) | empty |
 
-L’onglet **Project** s’ouvre comme un **nouveau projet** : identité du plugin vide (noms, version `1.0.0`), **tous les autres champs** pré-remplis depuis `preferences.json`.
+### Recommended first steps
 
-Vous pouvez ensuite adapter **Preferences** (auto-save), ou importer un profil client (voir § 8).
+1. Open **Preferences** and set your **Manufacturer**, codes, **Destination folder**, and **JUCE directory**.
+2. Switch to **Project**, enter a **Project name**, and click **Generate Project**.
+3. Open the generated folder in your IDE and run CMake configure + build.
 
 ---
 
-## 5. Onglet Project — le projet en cours
+## 7. Project tab
 
-Texte d’introduction (en haut de la vue) :
+Intro text at the top:
 
 > *Configure your JUCE project by entering the information below. Fields marked with an asterisk (\*) are mandatory. A new project is pre-configured based on the default settings entered in the Preferences tab.*
 
-### 5.1 Project Info
+The tab is one scrollable page divided into five sections.
 
-Champs d’identité et de publication du plugin :
+### 7.1 Project Info
 
-- **Project name** * — nom technique (dossier, cibles CMake).
-- **Display name** — nom affiché ; si vide, le project name est utilisé.
-- **Version** *
-- **Manufacturer** *, **Manufacturer code** *, **Plugin code** *
-- **Copyright**, **Website**, **E-mail**
-- **Bundle ID** — calculé automatiquement à partir du manufacturer et du project name.
+Identity and paths for **this** plugin.
 
-**Destination folder** * et **JUCE directory** (ordre prévu dans l’UI) :
+| Field | Required | Description |
+|-------|----------|-------------|
+| **Project name** * | Yes | Technical name — folder name and CMake target. Must start with a letter; letters, digits, `-`, `_` only. |
+| **Display name** | No | Shown name in hosts. If empty, the project name is used. |
+| **Version** * | Yes | Plugin version string (default `1.0.0` for new projects). |
+| **Manufacturer** * | Yes | Your company or personal name. |
+| **Copyright** | No | Copyright line in generated metadata. |
+| **Website** | No | Optional URL. |
+| **E-mail** | No | Optional contact. |
+| **Manufacturer code** * | Yes | Exactly 4 letters (JUCE four-char code). |
+| **Plugin code** * | Yes | Exactly 4 alphanumeric characters. |
+| **Bundle ID** | — | Read-only. Computed from manufacturer + project name. |
+| **Destination folder** * | Yes | **Parent** folder where Luthier creates the project subfolder named after **Project name**. Example: `~/Documents` + `MySynth` → `~/Documents/MySynth`. |
+| **JUCE directory** | No | Path to your JUCE SDK **for this project**. Pre-filled from Preferences on a new project; can differ per project (multiple JUCE versions). |
 
-- **Destination folder** * — dossier **parent** dans lequel Luthier crée (ou régénère) le sous-dossier portant le **Project name**.  
-  Exemple : destination `~/Documents` + project name `MySynth` → projet dans `~/Documents/MySynth`.  
-  Disposition : **label → bouton Choose… → champ texte**. **Choose…** ouvre le sélecteur de dossier natif de l’OS ; le champ reste éditable (collage, correction manuelle).
+Each path row is laid out as **label → Choose… → text field**. **Choose…** opens the native folder picker. You can still type or paste a path manually.
 
-- **JUCE directory** — chemin vers le SDK JUCE **utilisé pour ce projet**. À la création d’un nouveau projet, il est pré-rempli depuis **Preferences** ; vous pouvez le remplacer pour épingler une version de JUCE **spécifique à ce projet** (plusieurs projets peuvent ainsi viser des versions différentes de JUCE).  
-  Même disposition **label → Choose… → champ texte** que pour Destination folder.
+### 7.2 Plugin Type
 
-### 5.2 Plugin Type
+Pick exactly one:
 
-Choix exclusif :
+| Type | Meaning |
+|------|---------|
+| **Instrument** (Synth) | Receives MIDI, produces audio. |
+| **Audio Effect** | Processes incoming audio. |
+| **MIDI Effect** | Processes MIDI only — no audio I/O. |
 
-- **Instrument** (Synth)
-- **Audio Effect**
-- **MIDI Effect**
+### 7.3 Formats
 
-### 5.3 Formats
+Select **at least one**:
 
-Au moins un format requis :
+- **AU** (macOS Audio Unit)
+- **VST3**
+- **Standalone**
 
-- AU, VST3, Standalone
+If none are checked, **Generate Project** stays disabled and a hint appears under the checkboxes.
 
-### 5.4 Compilation
+### 7.4 Compilation
 
-- **C++ standard** (17, 20 ou 23)
-- **Preprocessor defs** (une par ligne)
-- **Header search paths** (une par ligne, relatives au projet)
+| Field | Description |
+|-------|-------------|
+| **C++ standard** | C++17, C++20, or C++23. |
+| **Preprocessor defs** | One definition per line (e.g. `MY_FLAG=1`). |
+| **Header search paths** | One path per line, relative to the project root. |
 
-### 5.5 Artefacts
+### 7.5 Artefacts
 
-Options de copie post-build :
+Controls where built plugins are **copied after each build** (written into CMake cache variables).
 
-- **Copy to system plugin folders**
-- **Copy to central artefacts folder** — lorsque cochée, les trois champs **Windows**, **macOS** et **Linux** deviennent actifs.
+| Option | Description |
+|--------|-------------|
+| **Copy to system plugin folders** | Install-style copy to standard OS plugin locations when enabled in CMake. |
+| **Copy to central artefacts folder** | When checked, enables the three directory fields below. |
 
-Ces chemins décrivent où les binaires seront copiés **sur chaque OS au moment du build** (valeurs injectées dans CMake). Ils se saisissent **au clavier** — pas de bouton **Choose…** : depuis une machine donnée, un sélecteur local ne peut pas produire un chemin valide pour une autre plateforme (ex. `D:\Plugins` depuis macOS).
+When **Copy to central artefacts folder** is on:
 
-Ces réglages sont **propres au projet en cours**. Ils peuvent diverger des préférences globales après un **Create New Project** ou un **Open Project…**.
+| Field | Description |
+|-------|-------------|
+| **Windows** | Target path used on Windows builds. |
+| **macOS** | Target path used on macOS builds. |
+| **Linux** | Target path used on Linux builds. |
 
-### 5.6 Actions (barre du bas)
+These paths are typed **manually** — there is no **Choose…** button, because a folder picker on your current machine cannot produce a valid path for another OS (for example `D:\Plugins` while running on macOS).
+
+Artefact settings belong to **this project**. They may differ from your global Preferences defaults.
+
+### 7.6 Project actions
 
 #### Create New Project
 
-Remet l’application dans l’état d’un **nouveau projet**, identique au démarrage à froid après chargement de `preferences.json` :
+Starts a fresh project form:
 
-- **effacé** : identité propre au plugin (project name, display name vides ; version `1.0.0`) ;
-- **re-seedé depuis `preferences.json`** : tout le reste — manufacturer, codes, copyright, destination folder, JUCE directory, plugin type, formats, compilation, artefacts.
+- **Cleared:** project name, display name (version reset to `1.0.0`).
+- **Re-seeded from `preferences.json`:** everything else — manufacturer, codes, destination, JUCE directory, type, formats, compilation, artefacts.
 
-Si le formulaire a été modifié depuis le dernier état « stable » (projet chargé ou dernier reset), Luthier demande confirmation avant d’abandonner les changements.
+If you edited the form since the last stable state (open, reset, or cold start), Luthier asks:
 
-**Create New Project** ne modifie **pas** `preferences.json` : il **lit** le profil actif pour remplir Project.
+> *The project form has unsaved changes. Discard them and start a new project?*
+
+**No** keeps your edits; **Yes** resets. The default button is **No**.
+
+**Create New Project** does **not** modify `preferences.json`.
 
 #### Open Project…
 
-Ouvre un dossier de projet **déjà généré par Luthier** (celui qui contient `.luthier.json` et `CMakeLists.txt`).
+Opens a folder picker. Select a **project directory** previously generated by Luthier (contains `CMakeLists.txt` and ideally `.luthier.json`).
 
-- Seul l’onglet **Project** est mis à jour.
-- **Preferences** et **Templates** ne sont **pas** modifiés.
+- Only the **Project** tab updates.
+- **Preferences** and **Templates** are unchanged.
 
-**Destination folder après déplacement du projet**
+**Reading your project:**
 
-Si vous avez créé un projet sur le Bureau, fermé Luthier, puis **déplacé** le dossier du projet vers Documents avant de le rouvrir :
+1. If `.luthier.json` exists and is valid, Luthier loads the full configuration from it.
+2. Otherwise Luthier tries to parse `CMakeLists.txt` (legacy projects).
 
-- vous sélectionnez le dossier du projet à son **nouvel emplacement** (ex. `~/Documents/MySynth`) ;
-- **Destination folder** affiche le **parent** de ce dossier : `~/Documents` ;
-- l’ancien chemin (Bureau) n’est **pas** conservé : **l’emplacement réel du dossier ouvert fait foi**.
-
-Cela garantit qu’une régénération écrit au bon endroit.
+**After moving a project folder:** open it at the **new location**. **Destination folder** updates to the parent of the folder you selected — the old path is not kept.
 
 #### Generate Project
 
-Génère (ou régénère) le projet CMake à partir **uniquement** des réglages de l’onglet **Project** :
+Creates or regenerates the project from the **Project** tab only:
 
-- écrit ou met à jour le dossier `Destination folder` / `Project name` ;
-- injecte le **JUCE directory** du projet dans `CMakeLists.txt` lorsqu’il est renseigné ;
-- applique les **Templates** globaux (overrides utilisateur s’il y en a) ;
-- écrit le sidecar `.luthier.json` à la racine du projet.
+- Writes to `Destination folder` / `Project name`.
+- Embeds **JUCE directory** in `CMakeLists.txt` when set.
+- Applies your **Templates** overrides if any.
+- Writes `.luthier.json` with a full snapshot of the configuration.
 
-**Generate Project** ne lit ni ne modifie **Preferences** (`preferences.json`).  
-Les **Templates** sont lus au moment de la génération mais ne sont pas modifiés par cette action.
+**Generate Project** does **not** read or write **Preferences**.
 
-**Destination folder** reste un champ du formulaire (et non une modale systématique au clic sur Generate) afin de garder une **régénération en un clic** après **Open Project…**, et de laisser le chemin visible avant génération. Si le champ est vide ou pointe vers un dossier inexistant, Luthier peut proposer **Choose…** ou le sélecteur de dossier avant de continuer.
+**Destination folder behaviour:**
 
-Après chaque génération réussie, Luthier mémorise le **dernier dossier parent** utilisé (confort pour les prochains **Choose…** et pour le dossier de départ de **Open Project…**). Si ce chemin n’est plus valide (dossier supprimé, autre machine), le **Bureau** (résolu via l’API OS) sert de repli.
+- The field stays visible so you can regenerate in one click after **Open Project…**.
+- If empty or pointing to a non-existent folder, Luthier opens a folder picker before continuing.
+- If a folder with the same project name already exists, Luthier asks before overwriting.
 
-Si un dossier du même nom existe déjà à l’emplacement cible, Luthier demande confirmation avant écrasement.
+After a successful generation, Luthier remembers the destination parent folder for the next **Choose…** dialog.
+
+**Generate Project** is enabled only when all required fields are valid and templates are available.
 
 ---
 
-## 6. Onglet Preferences — valeurs par défaut globales
+## 8. Preferences tab
 
-Texte d’introduction (en haut de la vue) :
+Intro text:
 
 > *These are reusable defaults: they pre-fill the matching fields when you create a new project, so you don't retype them each time. They are saved on this machine only and are never imposed on the projects you generate.*
 
-### 6.1 Contenu
+### 8.1 Sections
 
-Les mêmes familles de champs que sur Project, **sans** identité propre au plugin (pas de project name, display name, version, bundle ID). Les libellés reprennent ceux de Project (**Destination folder**, pas « Default destination » — le texte d’introduction en haut de la vue porte déjà le concept de defaults).
+| Section | Contents |
+|---------|----------|
+| **Identity** | Manufacturer, codes, Copyright, Website, E-mail |
+| **Paths** | Destination folder, JUCE directory — both with **Choose…** |
+| **Plugin Type** | Default synth / effect / MIDI |
+| **Formats** | Default AU / VST3 / Standalone checkboxes |
+| **Compilation** | Default C++ standard, preprocessor defs, header paths |
+| **Artefacts** | Same copy options and per-OS paths as Project (text entry only for artefact paths) |
 
-- identité éditeur : Manufacturer, codes, Copyright, Website, E-mail ;
-- **Destination folder** — **label → Choose… → champ** ;
-- **JUCE directory** — **label → Choose… → champ** ;
-- **Plugin type**, **Formats**, **Compilation** (C++ standard, preprocessor defs, header search paths) ;
-- section artefacts : cases à cocher + champs **Windows**, **macOS**, **Linux** (saisie texte uniquement, sans **Choose…** — voir § 5.5).
+There are **no** project-specific fields here (no project name, version, or bundle ID).
 
-Toutes ces valeurs sont persistées dans `preferences.json` et constituent le **seul** jeu de defaults pour **Create New Project** et le premier affichage de Project au lancement.
+### 8.2 Auto-save
 
-### 6.1.1 Boutons Choose… (chemins locaux)
+Every valid change is **saved immediately** to `preferences.json`. You do not click a Save button.
 
-| Champ | Choose… | Remarque |
-|-------|---------|----------|
-| Destination folder (Project et Preferences) | Oui | Dossier sur **cette** machine |
-| JUCE directory (Project et Preferences) | Oui | Installation JUCE **locale** |
-| Windows / macOS / Linux (artefacts) | **Non** | Chemins **cibles par OS** pour CMake ; saisie manuelle |
+When a field saves, a small **"Saved"** badge flashes briefly on that field (orange accent).
 
-**Choose…** utilise le sélecteur de dossier natif (syntaxe correcte pour l’OS courant). Le champ texte associé reste modifiable. Quand la case **Copy to central artefacts folder** est décochée, les champs artefacts (et leurs validations) sont inactifs.
+Invalid fields block saving until corrected.
 
-### 6.2 Enregistrement automatique
+### 8.3 Import Preferences…
 
-Toute modification **valide** dans Preferences est **enregistrée automatiquement** dans `preferences.json` sur votre machine. Une étiquette furtive dans la barre d’onglets confirme l’enregistrement.
+1. Choose a JSON file (exported profile, backup, another machine).
+2. If valid, it **replaces** the entire current preferences profile and updates `preferences.json`.
+3. The Preferences tab reloads.
 
-Si un champ est invalide, l’enregistrement n’a pas lieu tant que la validation n’est pas corrigée.
+**Import does not change the Project tab.** Use **Create New Project** to apply the new defaults to a fresh form.
 
-### 6.3 Import Preferences…
+If the file is invalid, an error dialog appears and your previous profile is kept.
 
-Importe un fichier JSON (profil client, machine, etc.) et :
+### 8.4 Export Preferences…
 
-1. remplace **intégralement** le contenu actuel de Preferences ;
-2. met à jour `preferences.json` ;
-3. recharge l’affichage de l’onglet Preferences.
+Saves the **current** preferences to a JSON file you choose. Does **not** modify `preferences.json` on disk.
 
-**Import Preferences…** ne modifie **pas** l’onglet Project ouvert. Les nouvelles valeurs s’appliqueront au prochain **Create New Project** (ou au prochain démarrage de l’app pour l’affichage des prefs).
+Use this to back up profiles or share them between machines (one file per client, per studio, etc.).
 
-### 6.4 Export Preferences…
+Export is blocked if any preference field is currently invalid.
 
-Exporte les préférences **actuellement affichées** vers un fichier JSON au nom de votre choix.
+### 8.5 Multi-client workflow
 
-- **Export** ne modifie **pas** `preferences.json`.
-- sert à sauvegarder, partager ou versionner des profils (ex. un fichier par client).
+1. Configure Preferences for **Client A** → **Export Preferences…** → `client-a.json`.
+2. Repeat for **Client B** → `client-b.json`.
+3. Before starting a plugin for a client → **Import Preferences…** → pick the right file.
+4. **Create New Project** → form matches that profile.
 
-### 6.5 Cas d’usage : plusieurs clients
-
-1. Configurez Preferences pour le **Client A** → **Export Preferences…** → `client-a.json`.
-2. Répétez pour le **Client B** → `client-b.json`.
-3. Avant de démarrer un nouveau plugin pour un client → **Import Preferences…** → choisissez le bon fichier.
-4. **Create New Project** → le formulaire Project est seedé avec ce profil.
-
-Le projet déjà ouvert, le cas échéant, reste inchangé jusqu’à ce que vous créiez un nouveau projet ou en ouvriez un autre.
+The project you had open stays unchanged until you create or open another one.
 
 ---
 
-## 7. Onglet Templates — modèles globaux
+## 9. Templates tab
 
-Les templates sont **globaux** : les mêmes modèles s’appliquent à **tous** les projets générés.
+Templates are **global**: the same files are used for **every** project you generate.
 
-Fichiers personnalisables :
+### Editable files
 
-- `Source/PluginProcessor.h` / `.cpp`
-- `Source/PluginEditor.h` / `.cpp`
-- `.gitignore`
+| File | Role |
+|------|------|
+| `PluginProcessor.h` / `.cpp` | Main audio/MIDI processor skeleton |
+| `PluginEditor.h` / `.cpp` | Plugin editor UI skeleton |
+| `.gitignore` | Git ignore rules for new projects |
 
-Actions :
+Select a file from the dropdown, edit in the syntax-highlighted editor, then **Save override** to persist your version.
 
-| Bouton | Effet |
+### Actions
+
+| Button | Effect |
 |--------|--------|
-| **Load from file…** | Charge un fichier externe dans l’éditeur (sans l’enregistrer tant que vous n’avez pas sauvé l’override). |
-| **Reset to default** | Supprime votre override pour le fichier sélectionné ; le modèle fourni avec Luthier est rétabli. |
-| **Save override** | Persiste le contenu de l’éditeur comme override utilisateur. |
+| **Load from file…** | Loads an external file into the editor **without saving**. Use **Save override** to persist. |
+| **Reset to default** | Removes your override; the built-in Luthier template is restored. |
+| **Save override** | Stores the editor content as your personal override. |
 
-Les overrides sont stockés dans le répertoire de configuration de l’application sur votre machine, **séparément** de `preferences.json`. Importer un profil de préférences **n’inclut pas** les overrides de templates.
+Status line under the editor:
+
+- *"Override active — used for new projects."* when you have a custom version.
+- *"Showing the built-in default."* otherwise.
+
+Overrides live in the application config directory, **separate from** `preferences.json`. Importing preferences does **not** import template overrides.
 
 ---
 
-## 8. Workflows typiques
+## 10. About tab
 
-### 8.1 Nouveau plugin, un seul JUCE sur la machine
+Displays the Luthier logo, organization (**Ten Square Software**), author, contact e-mail, GitHub link, version, and revision date.
 
-1. Renseignez **Preferences** une fois (Destination folder, JUCE directory, identité).
-2. Onglet **Project** → complétez Project name et options spécifiques.
-3. **Generate Project**.
-4. Pour un autre plugin : **Create New Project** → ajustez → **Generate Project**.
+Click the e-mail or GitHub line to open your browser or mail client.
 
-### 8.2 Nouveau plugin, version JUCE dédiée
+---
 
-1. **Create New Project** (JUCE directory seedé depuis Preferences).
-2. Remplacez **JUCE directory** sur l’onglet **Project** par le chemin de la branche JUCE voulue.
-3. **Generate Project** — le chemin est enregistré dans le projet (sidecar + `CMakeLists.txt`).
+## 11. Typical workflows
 
-### 8.3 Reprendre un projet existant
+### 11.1 Brand-new plugin (one JUCE install)
 
-1. **Open Project…** → sélectionnez le dossier du projet.
-2. Modifiez les champs souhaités sur **Project**.
-3. **Generate Project** pour régénérer sur place.
+1. Set **Preferences** once (manufacturer, destination, JUCE path).
+2. On **Project**, enter **Project name** and adjust options.
+3. Click **Generate Project**.
+4. Open the output folder in your IDE; configure and build with CMake.
 
-Si vous avez déplacé le projet, ouvrez-le à son **nouvel emplacement** : **Destination folder** reflétera le parent actuel.
+For another plugin: **Create New Project** → adjust → **Generate Project**.
 
-### 8.4 Changer de client entre deux projets
+### 11.2 Plugin using a specific JUCE version
 
-1. **Import Preferences…** → profil du client.
+1. **Create New Project** (JUCE directory seeded from Preferences).
+2. Change **JUCE directory** on the **Project** tab to the branch or copy you need.
+3. **Generate Project** — the path is stored in the project and sidecar.
+
+### 11.3 Resume and tweak an existing project
+
+1. **Open Project…** → select the project folder.
+2. Edit fields on **Project**.
+3. **Generate Project** to rewrite files in place.
+
+If you moved the folder, open it at the new path first.
+
+### 11.4 Switch client profile between projects
+
+1. **Import Preferences…** → client profile JSON.
 2. **Create New Project**.
-3. Complétez et **Generate Project**.
+3. Fill identity fields → **Generate Project**.
 
-Le projet précédemment ouvert (autre client) n’est pas modifié tant que vous ne l’avez pas régénéré vous-même.
+Your previously open project is untouched.
 
----
+### 11.5 Customize starting source code
 
-## 9. Fichiers et persistance — où est stocké quoi ?
-
-| Fichier / emplacement | Contenu | Modifié par |
-|----------------------|---------|-------------|
-| `preferences.json` (config OS) | Profil actif : **tous** les defaults qui seed Project (identité éditeur, chemins, type, formats, compilation, artefacts, JUCE) | Création initiale (valeurs usine du code), auto-save Preferences, Import |
-| Dernier dossier parent utilisé (dans la config app) | Raccourci pour **Choose…** et dossier de départ de **Open Project…** ; repli Bureau si invalide | Generate Project réussi |
-| Fichiers exportés (`*.json`) | Copies de profils | Export Preferences… (lecture seule côté app) |
-| Overrides Templates (config OS) | Sources / `.gitignore` personnalisés | Save override, Reset |
-| Dossier généré du projet | CMake, sources, `.luthier.json` | Generate Project |
-| `.luthier.json` (dans le projet) | Snapshot du **ProjectSpec** (config complète du projet, incl. JUCE directory et destination folder au moment de la génération) | Generate Project ; **Destination folder** recalculé à l’Open depuis l’emplacement du dossier |
-
-**Principe clé :** ce qui est **global** vit dans la config Luthier (Preferences, Templates). Ce qui est **par projet** vit dans le formulaire Project et, après génération, dans le dossier du projet et son sidecar.
+1. Open **Templates** → select `PluginProcessor.cpp` (or another file).
+2. Edit → **Save override**.
+3. **Generate Project** on any new or existing project — your override is used.
 
 ---
 
-## 10. Validation et messages d’erreur
+## 12. What Luthier generates
 
-- Les champs obligatoires (*) doivent être valides pour activer **Generate Project**.
-- Les erreurs de validation sont signalées inline sur les champs concernés.
-- **Open Project…** échoue avec un message explicite si le dossier n’est pas un projet Luthier lisible (sidecar invalide, CMake illisible, champs manquants, etc.).
-- **Import Preferences…** signale un JSON invalide ou des valeurs rejetées par la validation ; en cas d’échec, le profil précédent est conservé.
+Given a valid **Project name** `MySynth` and **Destination folder** `~/Documents`, Luthier creates `~/Documents/MySynth/` containing:
 
----
+| Output | Description |
+|--------|-------------|
+| `CMakeLists.txt` | Main JUCE plugin CMake project |
+| `CMakeUserPresets.json` | Multi-platform CMake presets (debug/release per OS) |
+| `Source/` | Processor and editor `.h` / `.cpp` from templates |
+| `.luthier.json` | Full configuration snapshot for reopen |
+| `.gitignore` | From template (customizable) |
+| `.vscode/` | Settings, tasks, launch configs for VS Code |
+| `.cursorrules` | Cursor IDE hints |
+| `CMake/CopyVst3Elevated.ps1` | Windows VST3 copy helper |
+| `README.md` | Generated project readme |
 
-## 11. Rappels utiles
-
-- **Destination folder** = dossier **parent**, pas le chemin complet du dossier du projet. Le nom du sous-dossier vient du **Project name**. Un champ explicite (plutôt qu’une modale à chaque Generate) privilégie la **régénération** et les **profils Import/Export** par client.
-- **Choose…** pour les chemins **locaux** (destination, JUCE) ; saisie manuelle pour les chemins d’**artefacts par OS cible**.
-- **`preferences.json`** est la **seule** source de defaults après le premier lancement ; les valeurs usine ne vivent que dans le code pour **créer** ce fichier une fois.
-- **Preferences** seedent un **nouveau** projet ; elles ne « poussent » pas leurs changements vers un projet déjà ouvert.
-- **Open** et **Generate** n’écrivent **pas** dans `preferences.json`.
-- **JUCE directory** existe à deux niveaux : default global (Preferences) et chemin **par projet** (Project), utile pour travailler avec plusieurs versions de JUCE.
-- Les **Templates** sont partagés entre tous les projets ; les profils Import/Export ne les incluent pas.
-
----
-
-## 12. Évolutions prévues (non encore toutes implémentées)
-
-Ce manuel anticipe les changements suivants, discutés et validés conceptuellement :
-
-- Libellés : **Destination folder** (Project et Preferences) ; **JUCE directory** sur Project ; artefacts **Windows** / **macOS** / **Linux**.
-- Boutons **Choose…** : Destination folder et JUCE directory (Project + Preferences) ; **pas** sur les chemins d’artefacts.
-- **Import Preferences…** / **Export Preferences…** (remplacement de Load / Save).
-- Auto-save des Preferences avec étiquette furtive (accent orange) dans la barre d’onglets.
-- **Create New Project** : reset complet seedé **intégralement** depuis `preferences.json` + modale si formulaire modifié.
-- Extension de `preferences.json` et de l’onglet Preferences : plugin type, formats, compilation.
-- `juceDir` sur **ProjectSpec** / sidecar (révision AD-7) ; Generate lit le JUCE du projet, pas un paramètre séparé depuis prefs.
-- Découplage Open / Generate ↔ `preferences.json` (révision AD-5).
-- Defaults usine à la création initiale de `preferences.json` ; mémorisation du **dernier dossier parent** après Generate.
-- Réorganisation UI Project Info : Destination folder et JUCE directory sous Bundle ID.
-
-Lors de la relecture, comparez votre usage réel à ce document : toute friction restante indique probablement une user story ou une phrase d’introduction à ajuster.
+Generation uses atomic writes: files are built in a temporary folder and swapped in place to reduce the risk of a half-written project.
 
 ---
 
-*Luthier — Ten Square Software — Manuel utilisateur (brouillon de vision produit)*
+## 13. Where your data is stored
+
+| Location | Contents | Changed by |
+|----------|----------|------------|
+| `preferences.json` | Global defaults profile | First launch, Preferences auto-save, Import |
+| `app_state.json` | Last destination parent, last import/export folder, window geometry | Successful Generate, Import/Export paths, window resize/move |
+| Exported `*.json` files | Preference profile copies | Export Preferences… (manual files you choose) |
+| Template overrides (config dir) | Custom template content | Save override, Reset |
+| Generated project folder | CMake project + `.luthier.json` | Generate Project |
+
+Config file paths depend on your OS (standard *application config* location for Luthier).
+
+**Key idea:** global settings live in Luthier's config. Per-project settings live in the **Project** tab and, after generation, in the project folder and `.luthier.json`.
+
+---
+
+## 14. Field validation rules
+
+Luthier validates fields as you type. Invalid fields show an error hint; **Generate Project** stays disabled until everything required is valid.
+
+| Field | Rule |
+|-------|------|
+| Project name | Starts with a letter; only letters, digits, `-`, `_`. |
+| Display name | Letters, digits, space, `-`, `_` only. |
+| Version | Non-empty. |
+| Manufacturer | Non-empty. |
+| Manufacturer code | Exactly 4 letters. |
+| Plugin code | Exactly 4 alphanumeric characters. |
+| Destination folder | Non-empty; no accented characters in the path. |
+| JUCE directory | Optional; if set, no accented characters. |
+| Formats | At least one checked. |
+| Artefact paths | When central copy is enabled, paths must not contain accented characters. |
+
+Optional text fields (Copyright, Website, E-mail, preprocessor defs) accept any content unless otherwise noted.
+
+---
+
+## 15. Messages, errors, and troubleshooting
+
+Global operation feedback (Generate, Open, Create New Project, Import/Export Preferences) appears in the **dedicated status bar** above the action buttons — see [§4 Status line](#status-line). The table below lists typical messages.
+
+### Status messages (success)
+
+| Action | Typical message |
+|--------|-----------------|
+| Generate | `Project generated at /path/to/ProjectName` |
+| Open | `Loaded ProjectName from /path/to/folder` |
+| Create New Project | `New project — defaults from Preferences.` |
+| Import preferences | `Preferences imported from filename.json.` |
+| Export preferences | `Preferences exported to filename.json.` |
+
+### Common errors
+
+| Situation | What happens |
+|-----------|--------------|
+| Open non-Luthier folder | Dialog: *Not a JUCE plugin project* or parse error with missing fields listed. |
+| Invalid `.luthier.json` | Dialog: sidecar invalid or unreadable. |
+| No plugin formats in opened project | Dialog: no formats detected. |
+| Import invalid JSON | Warning dialog; previous preferences kept. |
+| Export with invalid fields | Error message; file not written. |
+| Templates missing (broken install) | Generate disabled; error at startup in the status bar. |
+| Overwrite existing project | Confirmation dialog before replacing folder. |
+| Unsaved Project edits + Create New Project | Confirmation dialog; default **No**. |
+
+### Tips
+
+- **"Generate Project" is greyed out** — check required fields (*), formats, and artefact paths when central copy is on.
+- **Wrong destination after move** — use **Open Project…** at the new folder location; do not rely on an old destination path.
+- **Preferences change not on Project tab** — expected; click **Create New Project** to apply.
+- **Regenerate without edits** — Open → **Generate Project** should produce an consistent project; the sidecar preserves full state.
+
+---
+
+## 16. Using the standalone app
+
+Luthier can be packaged as a self-contained application (no Python on the target machine).
+
+| Platform | Typical output |
+|----------|----------------|
+| macOS | `Luthier.app` |
+| Windows | `Luthier.exe` inside a `Luthier/` folder with `_internal/` |
+| Linux | `Luthier` executable inside a `Luthier/` folder with `_internal/` |
+
+**Important:** distribute the **entire** folder — the executable alone is not enough; templates and Qt libraries live alongside it.
+
+### First run on Windows (unsigned builds)
+
+Windows SmartScreen may warn on first launch. Use **More info** → **Run anyway** for local builds. Windows Defender may scan files on first start — this can add a short delay, not a failure.
+
+### First run on Linux
+
+If the binary is not executable: `chmod +x Luthier/Luthier`. You may need X11 or Wayland display server for the GUI.
+
+### Headless check
+
+From a terminal (useful for CI or verifying a bundle):
+
+```bash
+# macOS
+Dist/Luthier.app/Contents/MacOS/Luthier --check
+
+# Windows
+Dist\Luthier\Luthier.exe --check
+
+# Linux
+Dist/Luthier/Luthier --check
+```
+
+Exit code `0` means the bundled templates are reachable.
+
+---
+
+## Quick reference card
+
+| I want to… | Do this |
+|------------|---------|
+| Start a fresh plugin | **Create New Project** → fill name → **Generate Project** |
+| Reopen existing work | **Open Project…** → edit → **Generate Project** |
+| Change default manufacturer / paths | **Preferences** (auto-saves) |
+| Use defaults on a new form | **Create New Project** after editing Preferences |
+| Move prefs to another machine | **Export Preferences…** / **Import Preferences…** |
+| Custom processor boilerplate | **Templates** → edit → **Save override** |
+| Pin a JUCE version to one project | Set **JUCE directory** on **Project** tab |
+
+---
+
+*Luthier — Ten Square Software — User Manual*

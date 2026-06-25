@@ -2,7 +2,7 @@
 
 Thank you for contributing to Luthier. This guide walks you through environment setup, running the test suite, launching the app, and building a standalone bundle.
 
-For architecture and module contracts, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). For end-user documentation, see [docs/USER-MANUAL.md](docs/USER-MANUAL.md).
+For architecture and module contracts, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). For end-user documentation, see [docs/USER-MANUAL.md](docs/USER-MANUAL.md) (English) or [docs/MANUEL-UTILISATEUR.md](docs/MANUEL-UTILISATEUR.md) (French).
 
 ## Prerequisites
 
@@ -117,7 +117,7 @@ If `Rules/process-clean-code.md` is present in your checkout, follow it for the 
 
 | Path | Casing | Contents |
 |------|--------|----------|
-| `docs/` | lowercase | Markdown documentation (USER-MANUAL, ARCHITECTURE) |
+| `docs/` | lowercase | Markdown documentation (USER-MANUAL, MANUEL-UTILISATEUR, ARCHITECTURE) |
 | `Docs/` | PascalCase | Images (`Luthier.png`) |
 | `Templates/` | PascalCase | Bundled JUCE project templates |
 | `Build/` | PascalCase | `luthier.spec` |
@@ -142,7 +142,8 @@ The `_bmad-output/` folder is the BMad planning and implementation artifact stor
 ## Further reading
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — three-layer design, module contracts, two-pass rendering
-- [docs/USER-MANUAL.md](docs/USER-MANUAL.md) — end-user manual
+- [docs/USER-MANUAL.md](docs/USER-MANUAL.md) — end-user manual (English)
+- [docs/MANUEL-UTILISATEUR.md](docs/MANUEL-UTILISATEUR.md) — manuel utilisateur (français)
 - [README.md](README.md) — project overview and quick start
 
 ## CI
