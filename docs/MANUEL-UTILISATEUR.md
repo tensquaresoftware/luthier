@@ -16,9 +16,9 @@ References:
 
 # Luthier — Manuel utilisateur
 
-> **Langue de l’interface** — Luthier s’affiche en **anglais**. Les libellés de boutons et de champs cités ci-dessous reprennent exactement le texte à l’écran. Ce document est la traduction française du [manuel anglais](USER-MANUAL.md), qui reste la référence officielle du produit.
+Ce manuel vous guide dans l’utilisation de Luthier, une application de bureau pour **créer**, **rouvrir** et **régénérer** des projets de plugins audio JUCE basés sur CMake.
 
-Ce manuel décrit Luthier tel qu’il est livré aujourd’hui : une application de bureau pour **créer**, **rouvrir** et **régénérer** des projets de plugins audio JUCE basés sur CMake.
+> **Langue de l’interface** — Luthier s’affiche en **anglais**. Les libellés de boutons et de champs cités ci-dessous reprennent exactement le texte à l’écran. Ce document est la traduction française du [manuel anglais](USER-MANUAL.md), qui reste la référence officielle du produit.
 
 ---
 

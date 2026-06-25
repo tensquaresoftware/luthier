@@ -16,8 +16,10 @@ References:
 
 # Luthier User Manual
 
-This manual describes Luthier as shipped today: a desktop app for creating, reopening, and regenerating CMake-based JUCE audio plugin projects. The interface is in **English**. All UI labels cited below match what you see on screen.
+This manual guides you through Luthier, a desktop app for **creating**, **reopening**, and **regenerating** CMake-based JUCE audio plugin projects.
 
+> **Interface language** — Luthier displays in **English**. All UI labels cited below match what you see on screen exactly.
+>
 > **French translation** — See [MANUEL-UTILISATEUR.md](MANUEL-UTILISATEUR.md) for the French edition of this manual.
 
 ---
