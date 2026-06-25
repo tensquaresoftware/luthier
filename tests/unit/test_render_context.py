@@ -1,5 +1,6 @@
 """Unit tests for core.render_context — build_context and build_tokens."""
 
+import json
 import sys
 import tempfile
 from pathlib import Path
@@ -144,3 +145,16 @@ def test_render_context_import_without_qt():
 
     after = {k for k in sys.modules if "PySide6" in k or "PyQt" in k}
     assert before == after
+
+
+def test_artefact_entry_normalizes_windows_backslashes():
+    spec = _make_spec(
+        copy_to_artefacts_dir=True,
+        artefacts_dir_windows=r"C:\Plugins\out",
+    )
+    entry = build_context(spec)["windowsArtefactEntry"]
+    assert r"C:\Plugins" not in entry
+    assert "C:/Plugins/out" in entry
+    fragment = "{" + entry.lstrip(",\n ") + "}"
+    parsed = json.loads(fragment)
+    assert parsed["ARTEFACTS_DIR_WINDOWS"] == "C:/Plugins/out"

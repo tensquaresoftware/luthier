@@ -1,6 +1,8 @@
 """Shared helpers for integration and pytest tests."""
 
+import os
 import re
+import shutil
 from dataclasses import fields
 from pathlib import Path
 
@@ -109,3 +111,34 @@ def generate_project(
     generator = ProjectGenerator(overrides=overrides)
     project_dir = generator.generate(spec)
     return project_dir, spec
+
+
+def cmake_available() -> bool:
+    return shutil.which("cmake") is not None
+
+
+def juce_dir_for_tests() -> str | None:
+    env_path = os.environ.get("JUCE_DIR", "").strip()
+    if env_path and Path(env_path).is_dir():
+        return env_path
+    for candidate in (
+        "/Applications/JUCE",
+        "C:/Program Files/JUCE",
+        "/usr/local/JUCE",
+    ):
+        if Path(candidate).is_dir():
+            return candidate
+    return None
+
+
+def canonical_cross_platform_spec(tmp_path, **kwargs) -> ProjectSpec:
+    juce = kwargs.pop("juce_dir", None) or juce_dir_for_tests() or "/Applications/JUCE"
+    return make_spec(
+        tmp_path,
+        juce_dir=juce,
+        artefacts_dir_windows="C:/out/win",
+        artefacts_dir_macos="/out/mac",
+        artefacts_dir_linux="/out/linux",
+        copy_to_artefacts_dir=True,
+        **kwargs,
+    )

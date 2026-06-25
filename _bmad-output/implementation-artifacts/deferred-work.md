@@ -1,5 +1,13 @@
 # Deferred Work
 
+## Deferred from: code review of 4-3-cross-platform-cmake-configuration-validation (2026-06-26)
+
+- **Échappement JSON (`"`, caractères de contrôle) dans `_artefact_entry`** (`core/render_context.py:71-72`) — Pattern f-string pré-existant ; story 4.3 limitée à la normalisation backslash.
+- **AD-3 optionnel incomplet : chemins Windows partiels via fallback CMake** (`tests/integration/test_cmake_cross_platform.py:197-200`) — Sans sidecar, `artefactsDirWindows` peut être restauré depuis `project-configuration.cmake` ; test ne vérifie que `juce_dir`.
+- **Gate AC2 sur `linux` et non `x86_64`** (`tests/integration/test_cmake_cross_platform.py:113`) — Linux ARM non exclu ; acceptable pour infra dev actuelle.
+- **`JUCE_DIR` env invalide ignoré silencieusement** (`tests/conftest.py:121-123`) — Chemin non-répertoire ignoré sans skip explicite.
+- **stderr première tentative configure perdu si retry réussit** (`tests/integration/test_cmake_cross_platform.py:76-86`) — Diagnostic uniquement ; retry autorisé par Dev Notes story.
+
 ## Deferred from: code review of 4-2-pyinstaller-bundle-windows-and-linux (2026-06-25)
 
 - **Résolution chemins bundle à l'import du module** (`tests/integration/test_frozen_bundle.py:28-29`) — `bundle_exists` et constantes figés à l'import pytest ; pattern hérité 4.1 ; rebuild bundle après collect nécessite re-run pytest.

@@ -68,7 +68,8 @@ def _artefact_entries(d: dict) -> dict:
 def _artefact_entry(enabled: bool, key: str, path: str) -> str:
     if not enabled or not path:
         return ""
-    return f',\n        "{key}": "{path}"'
+    normalized = path.replace("\\", "/")
+    return f',\n        "{key}": "{normalized}"'
 
 
 def build_tokens(spec: ProjectSpec) -> dict:
