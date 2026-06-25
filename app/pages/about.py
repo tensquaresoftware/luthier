@@ -1,7 +1,7 @@
 """About page: project identity and version."""
 
 from PySide6.QtCore import Qt, QRectF, QUrl
-from PySide6.QtGui import QDesktopServices, QMouseEvent
+from PySide6.QtGui import QDesktopServices, QFontMetrics, QMouseEvent
 from PySide6.QtSvgWidgets import QSvgWidget
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
@@ -11,19 +11,36 @@ _LOGO_HEIGHT = 200
 _LOGO_OFFSET_UP = 10                                           # shift logo up vs equal stretch centering
 _LOGO_VIEWBOX = QRectF(109, 102, 281, 304)                     # tight crop; texts shifted up 36 SVG units
 _LOGO_WIDTH = round(_LOGO_HEIGHT * _LOGO_VIEWBOX.width() / _LOGO_VIEWBOX.height())
-_LINE_SPACING = 13
 _CARD_SIZE = 500
 _CARD_PADDING = 28
-_INFO_WIDTH = round((_CARD_SIZE - 2 * _CARD_PADDING) * 0.6) + 20  # +20 px for full GitHub URL
+_CREDIT_INTERLINE_EM = 0.5
+_BMAD_PREFIX = "Yet another project successfully completed with "
+
+
+def _credit_font_px(font) -> int:
+    px = font.pixelSize()
+    if px > 0:
+        return px
+    return max(1, round(font.pointSizeF() * 96.0 / 72.0))
+
+
+def _credit_line_height(font) -> int:
+    metrics = QFontMetrics(font)
+    return metrics.ascent() + metrics.descent()
+
+
+def _align_credit_label(label: QLabel, line_height: int) -> None:
+    label.setFixedHeight(line_height)
+    label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
 
 
 class _AboutLinkLabel(QLabel):
     """Clickable value label; QSS handles normal/hover colours (Qt ignores QSS on <a> tags)."""
 
-    def __init__(self, text: str, url: str):
+    def __init__(self, text: str, url: str, *, object_name: str = "AboutInfoLinkValue"):
         super().__init__(text)
         self._url = QUrl(url)
-        self.setObjectName("AboutInfoLinkValue")
+        self.setObjectName(object_name)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setAttribute(Qt.WidgetAttribute.WA_Hover)
 
@@ -69,8 +86,9 @@ class AboutPage(QWidget):
         return logo
 
     def _make_info(self) -> QWidget:
+        bmad_line = self._make_bmad_line()
         widget = QWidget()
-        widget.setFixedWidth(_INFO_WIDTH)
+        widget.setFixedWidth(bmad_line.sizeHint().width())
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
@@ -78,39 +96,77 @@ class AboutPage(QWidget):
         title.setObjectName("SectionTitle")
         layout.addWidget(title)
         layout.addSpacing(4)
+        layout.addWidget(self._make_divider())
+        layout.addSpacing(8)
+        layout.addWidget(self._make_info_body())
+        layout.addSpacing(8)
+        layout.addWidget(self._make_divider())
+        layout.addSpacing(6)
+        layout.addWidget(bmad_line)
+        return widget
+
+    def _make_divider(self) -> QFrame:
         divider = QFrame()
         divider.setFrameShape(QFrame.Shape.HLine)
         divider.setFixedHeight(1)
         divider.setObjectName("SectionDivider")
-        layout.addWidget(divider)
-        layout.addSpacing(8)
-        layout.addWidget(self._make_info_body())
-        return widget
+        return divider
 
     def _make_info_body(self) -> QWidget:
         widget = QWidget()
+        widget.setObjectName("AboutCreditsBody")
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(_LINE_SPACING)
+        probe = QLabel()
+        probe.setObjectName("AboutInfoLine")
+        font = probe.font()
+        layout.setSpacing(max(1, round(_credit_font_px(font) * _CREDIT_INTERLINE_EM)))
         for text, url in self._info_lines():
-            layout.addWidget(self._make_info_line(text, url))
+            layout.addWidget(self._make_info_line(text, url, font))
         return widget
 
-    def _make_info_line(self, text: str, url: str | None) -> QWidget:
+    def _make_info_line(self, text: str, url: str | None, font) -> QWidget:
+        line_height = _credit_line_height(font)
         widget = QWidget()
+        widget.setObjectName("AboutCreditsRow")
+        widget.setFixedHeight(line_height)
         row = QHBoxLayout(widget)
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(0)
         prefix, value = text.split(" : ", 1)
         prefix_label = QLabel(f"{prefix} : ")
         prefix_label.setObjectName("AboutInfoLine")
+        _align_credit_label(prefix_label, line_height)
         row.addWidget(prefix_label)
         if url:
-            row.addWidget(_AboutLinkLabel(value, url))
+            link = _AboutLinkLabel(value, url)
+            _align_credit_label(link, line_height)
+            row.addWidget(link)
         else:
             value_label = QLabel(value)
             value_label.setObjectName("AboutInfoValue")
+            _align_credit_label(value_label, line_height)
             row.addWidget(value_label)
+        row.addStretch(1)
+        return widget
+
+    def _make_bmad_line(self) -> QWidget:
+        widget = QWidget()
+        row = QHBoxLayout(widget)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(0)
+        prefix = QLabel(_BMAD_PREFIX)
+        prefix.setObjectName("AboutFieldHint")
+        link = _AboutLinkLabel(
+            "BMad",
+            "https://github.com/bmad-code-org/bmad-method",
+            object_name="AboutHintLink",
+        )
+        suffix = QLabel("!")
+        suffix.setObjectName("AboutFieldHint")
+        row.addWidget(prefix)
+        row.addWidget(link)
+        row.addWidget(suffix)
         row.addStretch(1)
         return widget
 

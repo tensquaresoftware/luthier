@@ -251,6 +251,9 @@ def build_stylesheet() -> str:
     #AboutInfoValue {{ color: {p.TEXT}; }}
     #AboutInfoLinkValue {{ color: {p.TEXT}; }}
     #AboutInfoLinkValue:hover {{ color: {p.ACCENT}; }}
+    #AboutFieldHint {{ color: {p.TEXT_DIM}; font-size: 11px; font-style: italic; }}
+    #AboutHintLink {{ color: {p.TEXT_DIM}; font-size: 11px; font-style: italic; }}
+    #AboutHintLink:hover {{ color: {p.ACCENT}; }}
     #FieldLabel {{ color: {p.TEXT_DIM}; }}
     #FieldHint {{ color: {p.TEXT_DIM}; font-size: 11px; }}
     #FieldMark[state="ok"] {{ color: {p.ACCENT}; }}
