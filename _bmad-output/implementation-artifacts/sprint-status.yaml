@@ -41,7 +41,7 @@
 # - Retrospective appends its action items to action_items; sprint-status surfaces open ones
 
 generated: 2026-06-23
-last_updated: 2026-06-25 # story 4.1 done (code review)
+last_updated: 2026-06-25 # story 4.2 code review → in-progress
 project: Luthier
 project_key: NOKEY
 tracking_system: file-system
@@ -85,7 +85,7 @@ development_status:
   # Epic 4: Cross-Platform Distribution
   epic-4: in-progress
   4-1-pyinstaller-bundle-macos: done
-  4-2-pyinstaller-bundle-windows-and-linux: backlog
+  4-2-pyinstaller-bundle-windows-and-linux: in-progress
   4-3-cross-platform-cmake-configuration-validation: backlog
   4-4-contributor-documentation: backlog
   epic-4-retrospective: optional

@@ -1,28 +1,48 @@
-"""Integration tests for PyInstaller frozen macOS bundle (Story 4.1)."""
+"""Integration tests for PyInstaller frozen bundle (Stories 4.1–4.2)."""
 
+import os
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-MACOS_BUNDLE = REPO_ROOT / "Dist" / "Luthier.app"
-MACOS_BINARY = MACOS_BUNDLE / "Contents" / "MacOS" / "Luthier"
-
-bundle_exists = MACOS_BINARY.is_file()
 
 
-def _require_macos_bundle() -> None:
-    if not MACOS_BINARY.is_file():
-        pytest.skip("Dist/Luthier.app not built")
+def _frozen_bundle_layout() -> tuple[Path, Path, Path, str]:
+    """Return (bundle_root, binary, bundled_assets_root, meipass_stdout_marker)."""
+    if sys.platform == "darwin":
+        bundle = REPO_ROOT / "Dist" / "Luthier.app"
+        binary = bundle / "Contents" / "MacOS" / "Luthier"
+        assets_root = bundle / "Contents" / "Frameworks"
+        return bundle, binary, assets_root, "Contents/Frameworks"
+    bundle = REPO_ROOT / "Dist" / "Luthier"
+    if sys.platform == "win32":
+        binary = bundle / "Luthier.exe"
+    else:
+        binary = bundle / "Luthier"
+    assets_root = bundle / "_internal"
+    return bundle, binary, assets_root, "_internal"
 
 
-@pytest.mark.skipif(not bundle_exists, reason="Dist/Luthier.app not built")
+FROZEN_BUNDLE, FROZEN_BINARY, BUNDLED_ASSETS_ROOT, MEIPASS_MARKER = _frozen_bundle_layout()
+bundle_exists = FROZEN_BINARY.is_file()
+
+
+def _require_frozen_bundle() -> None:
+    if not FROZEN_BINARY.is_file():
+        pytest.skip(f"Frozen bundle not built ({FROZEN_BINARY})")
+    if sys.platform != "win32" and not os.access(FROZEN_BINARY, os.X_OK):
+        pytest.skip(f"Frozen binary not executable ({FROZEN_BINARY})")
+
+
+@pytest.mark.skipif(not bundle_exists, reason="Frozen bundle not built")
 def test_frozen_self_check_exits_zero():
-    _require_macos_bundle()
+    _require_frozen_bundle()
     try:
         result = subprocess.run(
-            [str(MACOS_BINARY), "--check"],
+            [str(FROZEN_BINARY), "--check"],
             capture_output=True,
             text=True,
             timeout=30,
@@ -34,32 +54,31 @@ def test_frozen_self_check_exits_zero():
     assert "frozen: True" in result.stdout
     assert "error: None" in result.stdout
     assert "_MEIPASS:" in result.stdout
-    assert "Contents/Frameworks" in result.stdout
+    assert MEIPASS_MARKER in result.stdout
     assert "templates_dir:" in result.stdout
     assert "exists: True" in result.stdout
 
 
-@pytest.mark.skipif(not bundle_exists, reason="Dist/Luthier.app not built")
+@pytest.mark.skipif(not bundle_exists, reason="Frozen bundle not built")
 def test_frozen_bundle_assets_present():
-    _require_macos_bundle()
-    frameworks = MACOS_BUNDLE / "Contents" / "Frameworks"
-    assert (frameworks / "Templates" / "CMakeLists.txt").is_file()
-    assert (frameworks / "Templates" / "Source").is_dir()
-    assert (frameworks / "Templates" / "CMakeUserPresets.json").is_file()
-    assert (frameworks / "Templates" / ".gitignore").is_file()
-    assert (frameworks / "Resources" / "luthier.svg").is_file()
+    _require_frozen_bundle()
+    assert (BUNDLED_ASSETS_ROOT / "Templates" / "CMakeLists.txt").is_file()
+    assert (BUNDLED_ASSETS_ROOT / "Templates" / "Source").is_dir()
+    assert (BUNDLED_ASSETS_ROOT / "Templates" / "CMakeUserPresets.json").is_file()
+    assert (BUNDLED_ASSETS_ROOT / "Templates" / ".gitignore").is_file()
+    assert (BUNDLED_ASSETS_ROOT / "Resources" / "luthier.svg").is_file()
 
 
-@pytest.mark.skipif(not bundle_exists, reason="Dist/Luthier.app not built")
+@pytest.mark.skipif(not bundle_exists, reason="Frozen bundle not built")
 def test_generate_project_from_bundled_templates(tmp_path):
-    """Validate bundled Templates/ tree under the .app (not the frozen GUI Generate path)."""
-    _require_macos_bundle()
+    """Validate bundled Templates/ tree in the frozen bundle (not the frozen GUI Generate path)."""
+    _require_frozen_bundle()
     from core import project_reader, render_context
     from core.project_writer import ProjectWriter
 
     from tests.conftest import make_spec
 
-    bundled_templates = MACOS_BUNDLE / "Contents" / "Frameworks" / "Templates"
+    bundled_templates = BUNDLED_ASSETS_ROOT / "Templates"
     spec = make_spec(tmp_path)
     dest = Path(spec.destination_dir) / spec.project_name
     writer = ProjectWriter(bundled_templates, dest, overrides=None)

@@ -1,5 +1,16 @@
 # Deferred Work
 
+## Deferred from: code review of 4-2-pyinstaller-bundle-windows-and-linux (2026-06-25)
+
+- **Résolution chemins bundle à l'import du module** (`tests/integration/test_frozen_bundle.py:28-29`) — `bundle_exists` et constantes figés à l'import pytest ; pattern hérité 4.1 ; rebuild bundle après collect nécessite re-run pytest.
+- **Couplage assertions stdout `--check` au format debug** (`tests/integration/test_frozen_bundle.py:51-56`) — Déjà différé en revue 4.1 ; inchangé par refactor cross-platform.
+- **`test_generate_project_from_bundled_templates` n'invoque pas le binaire frozen** (`tests/integration/test_frozen_bundle.py:69-90`) — Valide l'arbre Templates embarqué via `ProjectWriter` in-process ; docstring explicite ; AC3 frozen-binary compare hors scope de ce test.
+- **`subprocess.run(..., text=True)` sans politique encoding explicite** (`tests/integration/test_frozen_bundle.py:41-47`) — Pattern 4.1 ; locale Windows non testée.
+- **Timeout 30s fixe sans marge plateforme** (`tests/integration/test_frozen_bundle.py:45`) — Pattern 4.1 ; premier lancement Windows (Defender) peut être lent.
+- **Chemins `Dist/` hard-codés sans override env/pytest** (`tests/integration/test_frozen_bundle.py:15-24`) — Layout PyInstaller documenté ; pas de `--distpath` alternatif en tests.
+- **Layout PyInstaller 6.0.x onedir plat sans `_internal`** (`tests/integration/test_frozen_bundle.py:24-25`) — Pin `pyinstaller>=6.0` ; `_internal` depuis 6.1+ ; fallback non implémenté.
+- **Branche `sys.platform` cygwin non couverte** (`tests/integration/test_frozen_bundle.py:20-23`) — Hors scope story Win/Linux x86_64.
+
 ## Deferred from: code review of 4-1-pyinstaller-bundle-macos (2026-06-25)
 
 - **Assertions stdout `--check` couplées au format debug** (`tests/integration/test_frozen_bundle.py:25-29`) — Chaînes `frozen: True`, `error: None` verrouillent le contrat de `main._self_check()` ; changement cosmétique casserait le test sans régression utilisateur. Accepté tant que le contrat headless reste stable.
