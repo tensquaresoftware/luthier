@@ -31,9 +31,12 @@ def main() -> None:
         sys.exit(_self_check())
     app.setStyle("Fusion")
     app.setStyleSheet(build_stylesheet())
-    icon_path = resource_path("luthier.png")
-    if Path(icon_path).is_file():
-        app.setWindowIcon(QIcon(icon_path))
+    # macOS applies the squircle mask to the bundle .icns; setWindowIcon() would
+    # override the Dock icon with a raw square PNG.
+    if sys.platform != "darwin":
+        icon_path = resource_path("luthier.png")
+        if Path(icon_path).is_file():
+            app.setWindowIcon(QIcon(icon_path))
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
