@@ -4,7 +4,7 @@ from pathlib import Path
 
 from PySide6.QtCore import QStandardPaths
 
-kMainColor_ = "#FF6633"
+kMainColor_ = "#A45C94"
 
 _CHECK_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">'
               '<path d="M3.5 8.4 L6.6 11.4 L12.5 4.8" fill="none" stroke="{color}" '
@@ -42,8 +42,7 @@ class Palette:
     TEXT_DIM = "#9aa6ac"
     ACCENT = kMainColor_
     PRIMARY = kMainColor_
-    PRIMARY_HOVER = "#FF6600"
-    OK = "#5fbf73"
+    PRIMARY_HOVER = _lighten(kMainColor_, 0.12)
     ERR = "#e2686d"
 
 
@@ -246,14 +245,19 @@ def build_stylesheet() -> str:
     #AboutInfoLinkValue:hover {{ color: {p.ACCENT}; }}
     #FieldLabel {{ color: {p.TEXT_DIM}; }}
     #FieldHint {{ color: {p.TEXT_DIM}; font-size: 11px; }}
-    #FieldMark[state="ok"] {{ color: {p.OK}; }}
+    #FieldMark[state="ok"] {{ color: {p.ACCENT}; }}
     #FieldMark[state="err"] {{ color: {p.ERR}; }}
     #FieldError {{ color: {p.ERR}; font-size: 11px; }}
-    #StatusOk {{ color: {p.OK}; }}
+    #StatusOk {{ color: {p.ACCENT}; }}
     #StatusErr {{ color: {p.ERR}; }}
     #SavedIndicator {{
-        color: {p.ACCENT};
-        font-size: 12px;
-        padding: 0 16px 0 8px;
+        background-color: {p.ACCENT};
+        color: white;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 0 14px;
+        min-height: 20px;
+        max-height: 20px;
+        border-radius: 10px;
     }}
     """

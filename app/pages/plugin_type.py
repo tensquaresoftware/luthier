@@ -1,8 +1,9 @@
 """Plugin Type page: exclusive choice driving the ProjectData plugin flags."""
 
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QButtonGroup,
+    QHBoxLayout,
     QLabel,
     QRadioButton,
     QVBoxLayout,
@@ -48,23 +49,17 @@ class PluginTypePage(QWidget):
             layout.addWidget(self._make_option(key, label))
 
     def _make_option(self, key: str, label: str) -> QWidget:
-        container = QWidget()
-        box = QVBoxLayout(container)
-        box.setContentsMargins(0, 0, 0, 0)
-        box.setSpacing(2)
-        box.addWidget(self._make_radio(key, label))
-        box.addWidget(self._make_description(key))
-        return container
-
-    def _make_radio(self, key: str, label: str) -> QRadioButton:
+        row = QWidget()
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
         radio = QRadioButton(label)
         radio.setProperty("typeKey", key)
         radio.setChecked(key == _DEFAULT_TYPE)
         self._group.addButton(radio)
-        return radio
-
-    def _make_description(self, key: str) -> QLabel:
-        desc = QLabel(_DESCRIPTIONS[key])
+        desc = QLabel(f"— {_DESCRIPTIONS[key]}")
         desc.setObjectName("FieldHint")
-        desc.setContentsMargins(22, 0, 0, 6)
-        return desc
+        desc.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        layout.addWidget(radio)
+        layout.addWidget(desc, 1)
+        return row

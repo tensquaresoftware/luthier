@@ -59,6 +59,19 @@ class ArtefactsSection(QWidget):
                 box.setChecked(bool(values[key]))
         self._form.set_values(values)
 
+    def flash_saved(self, sender) -> None:
+        for field in self._form._fields.values():
+            if field.is_saved_sender(sender):
+                field.flash_saved()
+                return
+        if sender in self._checks.values() and self._checks["copyToArtefactsDir"].isChecked():
+            next(iter(self._form._fields.values())).flash_saved()
+
+    def is_saved_sender(self, sender) -> bool:
+        if sender in self._checks.values():
+            return True
+        return any(field.is_saved_sender(sender) for field in self._form._fields.values())
+
     def _build_ui(self) -> None:
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)

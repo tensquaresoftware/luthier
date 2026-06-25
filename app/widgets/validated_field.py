@@ -1,4 +1,4 @@
-"""Reusable form field with inline green/red validation feedback."""
+"""Reusable form field with inline orange/red validation feedback."""
 
 from dataclasses import dataclass
 from typing import Callable
@@ -7,18 +7,23 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QVBoxLayout, QWidget
 
 from app.qss import repolish
+from app.widgets.saved_badge import BadgedInputHost
 
 Validator = Callable[[str], tuple[bool, str]]
 
 _LABEL_WIDTH = 150
 
 
-def make_field_label(text: str) -> QLabel:
-    """Right-aligned fixed-width label, shared by all form rows."""
+def make_field_label(text: str, *, align_top: bool = False) -> QLabel:
+    """Fixed-width label shared by form rows; top-aligned for multi-line fields."""
     label = QLabel(text)
     label.setObjectName("FieldLabel")
     label.setFixedWidth(_LABEL_WIDTH)
-    label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+    if align_top:
+        label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+        label.setContentsMargins(0, 8, 0, 0)
+    else:
+        label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
     return label
 
 
@@ -58,6 +63,12 @@ class ValidatedField(QWidget):
     def focus(self) -> None:
         self._edit.setFocus()
 
+    def flash_saved(self) -> None:
+        self._edit_host.flash_saved()
+
+    def is_saved_sender(self, sender) -> bool:
+        return sender in (self, self._edit)
+
     def _build_ui(self) -> None:
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 4, 0, 4)
@@ -72,13 +83,15 @@ class ValidatedField(QWidget):
     def _build_input_row(self) -> QHBoxLayout:
         row = QHBoxLayout()
         row.setSpacing(8)
-        self._edit = QLineEdit()
-        self._edit.setPlaceholderText(self._spec.placeholder)
+        edit = QLineEdit()
+        edit.setPlaceholderText(self._spec.placeholder)
+        self._edit_host = BadgedInputHost(edit)
+        self._edit = edit
         self._mark = QLabel("")
         self._mark.setObjectName("FieldMark")
         self._mark.setFixedWidth(16)
         row.addWidget(make_field_label(self._spec.label))
-        row.addWidget(self._edit)
+        row.addWidget(self._edit_host, 1)
         row.addWidget(self._mark)
         return row
 

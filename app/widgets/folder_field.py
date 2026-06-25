@@ -6,6 +6,7 @@ from PySide6.QtCore import QStandardPaths, Signal
 from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLineEdit, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from app.qss import repolish
+from app.widgets.saved_badge import BadgedInputHost
 from app.widgets.validated_field import FieldSpec, make_field_label
 
 _LABEL_WIDTH = 150
@@ -43,6 +44,12 @@ class FolderField(QWidget):
     def is_valid(self) -> bool:
         return self._valid
 
+    def flash_saved(self) -> None:
+        self._edit_host.flash_saved()
+
+    def is_saved_sender(self, sender) -> bool:
+        return sender in (self, self._edit)
+
     def _build_ui(self) -> None:
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 4, 0, 4)
@@ -57,9 +64,11 @@ class FolderField(QWidget):
     def _build_input_row(self) -> QHBoxLayout:
         row = QHBoxLayout()
         row.setSpacing(8)
-        self._edit = QLineEdit()
-        self._edit.setPlaceholderText(self._spec.placeholder)
-        self._edit.textChanged.connect(self._on_text_changed)
+        edit = QLineEdit()
+        edit.setPlaceholderText(self._spec.placeholder)
+        edit.textChanged.connect(self._on_text_changed)
+        self._edit_host = BadgedInputHost(edit)
+        self._edit = edit
         choose = QPushButton("Choose…")
         choose.setObjectName("ActionButton")
         choose.clicked.connect(self._choose_directory)
@@ -68,7 +77,7 @@ class FolderField(QWidget):
         self._mark.setFixedWidth(16)
         row.addWidget(make_field_label(self._spec.label))
         row.addWidget(choose)
-        row.addWidget(self._edit, 1)
+        row.addWidget(self._edit_host, 1)
         row.addWidget(self._mark)
         return row
 
