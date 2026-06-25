@@ -20,43 +20,44 @@ Luthier is a self-contained [PySide6](https://doc.qt.io/qtforpython/) desktop ap
 ## Requirements
 
 - Python 3.11+
-- PySide6 (`pip install -r requirements.txt`)
+- Dev setup: `pip install -r requirements-dev.txt` (includes PySide6, pytest, PyInstaller — see [CONTRIBUTING.md](CONTRIBUTING.md))
+- Runtime-only install: `pip install -r requirements.txt` (PySide6 only)
 - No external dependencies beyond PySide6: the CMake project templates ship inside Luthier (`Templates/`) and the generation engine is built in (`core/`).
 
 ## Run from source
 
 ```bash
-python -m venv .venv
-.venv/bin/pip install -r requirements.txt
-.venv/bin/python main.py
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -r requirements-dev.txt
+.venv/bin/python main.py           # Windows: .venv\Scripts\python main.py
 ```
 
 Check that the bundled templates are reachable (headless):
 
 ```bash
-.venv/bin/python main.py --check
+.venv/bin/python main.py --check     # Windows: .venv\Scripts\python main.py --check
 ```
+
+## Contributing
+
+See **[CONTRIBUTING.md](CONTRIBUTING.md)** for full developer setup (venv, pytest, bundle build) and **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the three-layer design and module contracts.
 
 ## Build a standalone app
 
-PyInstaller bundles the templates and resources into a self-contained app.
-It does not cross-compile — build on each target OS.
+PyInstaller bundles templates and resources into a self-contained app (build on each target OS — no cross-compilation):
 
 ```bash
-.venv/bin/pip install -r requirements-dev.txt
 .venv/bin/pyinstaller Build/luthier.spec --noconfirm --distpath Dist --workpath Build
 ```
 
-The same `Build/luthier.spec` works on all platforms:
+| OS      | Output                                      |
+| ------- | ------------------------------------------- |
+| macOS   | `Dist/Luthier.app`                          |
+| Windows | `Dist/Luthier/Luthier.exe` + `_internal/`   |
+| Linux   | `Dist/Luthier/Luthier` + `_internal/`       |
 
-| OS      | Output                       |
-| ------- | ---------------------------- |
-| macOS   | `Dist/Luthier.app`           |
-| Windows | `Dist/Luthier/Luthier.exe`   |
-| Linux   | `Dist/Luthier/Luthier`       |
-
-On Windows, activate the virtual environment with `.venv\Scripts\activate` and
-run `pyinstaller Build\luthier.spec`.
+Platform variants, headless bundle checks, and timings: see **[CONTRIBUTING.md](CONTRIBUTING.md#build-a-standalone-bundle-optional-extended-step)**.
 
 ## License
 

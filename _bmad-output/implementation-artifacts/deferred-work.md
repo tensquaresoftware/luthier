@@ -1,5 +1,10 @@
 # Deferred Work
 
+## Deferred from: code review of 4-4-contributor-documentation (2026-06-26)
+
+- **`Docs/Luthier.png` / dossier `Docs/` absent du dépôt** (`README.md:5`, `CONTRIBUTING.md:121`) — Lien image README pré-existant ; table CONTRIBUTING documente une convention pas encore matérialisée dans git.
+- **Collision `docs/` vs `Docs/` sur macOS case-insensitive** (`CONTRIBUTING.md:119-121`) — Seul `docs/` existe dans git ; table de convention pour contributeurs, pas introduite par story 4.4.
+
 ## Deferred from: code review of 4-3-cross-platform-cmake-configuration-validation (2026-06-26)
 
 - **Échappement JSON (`"`, caractères de contrôle) dans `_artefact_entry`** (`core/render_context.py:71-72`) — Pattern f-string pré-existant ; story 4.3 limitée à la normalisation backslash.
