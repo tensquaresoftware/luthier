@@ -2,10 +2,13 @@
 """Luthier: GUI front-end for the JUCE Project Generator."""
 
 import sys
+from pathlib import Path
 
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
 from app.main_window import MainWindow
+from app.resources import resource_path
 from app.theme import build_stylesheet
 
 
@@ -28,6 +31,9 @@ def main() -> None:
         sys.exit(_self_check())
     app.setStyle("Fusion")
     app.setStyleSheet(build_stylesheet())
+    icon_path = resource_path("luthier.png")
+    if Path(icon_path).is_file():
+        app.setWindowIcon(QIcon(icon_path))
     window = MainWindow()
     window.show()
     sys.exit(app.exec())

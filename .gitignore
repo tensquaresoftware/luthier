@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 Build/Luthier/
+Build/luthier.iconset/
 Dist/
 .DS_Store
 

@@ -25,6 +25,7 @@ def collect_tree(src_root, dest_prefix):
 datas = (
     collect_tree(os.path.join(PROJECT_ROOT, "Templates"), "Templates")
     + [(os.path.join(PROJECT_ROOT, "Resources", "luthier.svg"), "Resources")]
+    + [(os.path.join(PROJECT_ROOT, "Resources", "luthier.png"), "Resources")]
 )
 
 a = Analysis(
@@ -34,6 +35,9 @@ a = Analysis(
     noarchive=False,
 )
 _IS_MACOS = sys.platform == "darwin"
+_icon = os.path.join(PROJECT_ROOT, "Resources", "luthier.icns" if _IS_MACOS else "luthier.png")
+if not os.path.isfile(_icon):
+    _icon = None
 
 pyz = PYZ(a.pure)
 exe = EXE(
@@ -44,6 +48,7 @@ exe = EXE(
     name="Luthier",
     console=False,
     argv_emulation=_IS_MACOS,
+    icon=_icon if not _IS_MACOS else None,
 )
 # COLLECT builds the one-folder distribution (Dist/Luthier/) on every OS:
 # the Luthier executable plus its dependencies and bundled data. On Windows it
@@ -54,6 +59,6 @@ if _IS_MACOS:
     app = BUNDLE(
         coll,
         name="Luthier.app",
-        icon=None,
+        icon=_icon,
         bundle_identifier="com.tensquaresoftware.luthier",
     )
