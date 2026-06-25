@@ -3,9 +3,10 @@
 from collections.abc import Callable
 
 from PySide6.QtCore import QStandardPaths, Signal
-from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLineEdit, QLabel, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from app.qss import repolish
+from app.widgets.elided_line_edit import ElidedLineEdit
 from app.widgets.saved_badge import BadgedInputHost
 from app.widgets.validated_field import FieldSpec, make_field_label
 
@@ -64,7 +65,7 @@ class FolderField(QWidget):
     def _build_input_row(self) -> QHBoxLayout:
         row = QHBoxLayout()
         row.setSpacing(8)
-        edit = QLineEdit()
+        edit = ElidedLineEdit()
         edit.setPlaceholderText(self._spec.placeholder)
         edit.textChanged.connect(self._on_text_changed)
         self._edit_host = BadgedInputHost(edit)

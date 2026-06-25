@@ -4,9 +4,10 @@ from dataclasses import dataclass
 from typing import Callable
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from app.qss import repolish
+from app.widgets.elided_line_edit import ElidedLineEdit
 from app.widgets.saved_badge import BadgedInputHost
 
 Validator = Callable[[str], tuple[bool, str]]
@@ -83,7 +84,7 @@ class ValidatedField(QWidget):
     def _build_input_row(self) -> QHBoxLayout:
         row = QHBoxLayout()
         row.setSpacing(8)
-        edit = QLineEdit()
+        edit = ElidedLineEdit()
         edit.setPlaceholderText(self._spec.placeholder)
         self._edit_host = BadgedInputHost(edit)
         self._edit = edit

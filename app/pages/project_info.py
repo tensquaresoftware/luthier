@@ -3,9 +3,10 @@
 from typing import Callable
 
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from app.pages.path_specs import destination_field_spec, juce_field_spec
+from app.widgets.elided_line_edit import ElidedLineEdit
 from app.widgets.folder_field import FolderField
 from app.widgets.validated_field import FieldSpec, make_field_label
 from app.widgets.validated_form import ValidatedForm
@@ -117,7 +118,7 @@ class ProjectInfoPage(QWidget):
         outer.setSpacing(0)
         row = QHBoxLayout()
         row.setSpacing(8)
-        self._bundle = QLineEdit()
+        self._bundle = ElidedLineEdit()
         self._bundle.setReadOnly(True)
         mark = QLabel("")
         mark.setObjectName("FieldMark")
