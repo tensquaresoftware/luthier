@@ -2,7 +2,7 @@
 title: Luthier PRD
 status: approved
 created: 2026-06-22
-updated: 2026-06-22
+updated: 2026-06-25
 ---
 
 # PRD — Luthier
@@ -196,7 +196,8 @@ Luthier generates the following files in the target directory:
   - macOS artefacts path
   - Windows artefacts path
   - Linux artefacts path
-- Paths are stored in Preferences and injected into `CMakeUserPresets.json`.
+- Default artefact paths and copy flags are stored in **Preferences** and seed new projects.
+- At generation time, artefact values on the **Project** tab (which may differ from Preferences after Open or manual edit) are written to `CMakeUserPresets.json`.
 - When central artefacts mode is disabled, the three path fields are grayed out.
 
 ### F6 — Customizable Templates
@@ -221,18 +222,55 @@ At generation time, Luthier uses the user override if present, otherwise the bun
 
 ### F7 — Preferences
 
-- Default values for all company identity fields.
-- Default artefacts configuration (paths + mode).
-- Preference values seed all fields when creating a new project.
+Preferences hold **global reusable defaults** for the active machine. They are persisted in `preferences.json` under the OS application config directory.
+
+**Scope — fields stored in Preferences (not project identity):**
+- Company identity defaults: manufacturer, manufacturer code, plugin code, copyright, website, e-mail
+- **Destination folder** — parent directory for new project folders (not the project path itself)
+- **JUCE directory** — default SDK path used to **seed** new projects only
+- Plugin type, formats, C++ standard, preprocessor definitions, header search paths
+- Artefacts configuration: copy-to-system flag, copy-to-central flag, per-OS artefact paths (Windows, macOS, Linux)
+
+**Factory defaults (first launch):** On the very first application run, Luthier creates `preferences.json` from hardcoded factory values in code (e.g. manufacturer "My Company", destination folder = Desktop via OS API, plugin type = Instrument, formats = AU + VST3 + Standalone, C++17, copy-to-central = off). After this one-time creation, **code factory defaults are never used again** — all Project seeding reads exclusively from `preferences.json`.
+
+**Persistence rules:**
+- Valid field edits in the Preferences tab are **auto-saved** immediately to `preferences.json`.
+- **Import Preferences…** replaces the entire profile and writes `preferences.json`.
+- **Export Preferences…** writes a copy to a user-chosen file; it does **not** modify `preferences.json`.
+- **Open Project…** and **Generate Project** must **never** read from or write to `preferences.json`.
+
+**Seeding rule:** Preferences values pre-fill matching Project fields at app startup, after **Create New Project**, and after **Import Preferences…** (Project tab is not modified by import — new values apply on next Create New Project or cold start).
+
+**Design note — separation from project:** Changing Preferences does not push changes to an already-open project. Templates overrides remain global and are not included in Import/Export profiles.
 
 ### F8 — User Interface
 
-- **Tab bar**: horizontal tab bar at the top of the window for navigation between the three views (Project, Preferences, Templates, About).
+- **Tab bar**: horizontal tab bar (Project, Preferences, Templates, About). A **transient saved indicator** (orange accent label) appears briefly in the tab bar after Preferences auto-save confirms persistence.
+
+- **Per-tab action bar** (bottom of window, changes with active tab):
+  - **Project:** Create New Project, Open Project…, Generate Project
+  - **Preferences:** Import Preferences…, Export Preferences… (replaces Load/Save)
+  - **Templates:** Load from file…, Reset to default, Save override
+  - **About:** no actions
+
 - **Project view**: scrollable form with sections (Project Info, Plugin Type, Formats, Compilation, Artefacts).
-- **Preferences view**: same sections as a project, scoped to default values.
-- **Templates view**: file selector combo, editor, Save Override / Load File / Reset buttons.
-- **Bottom bar**: "Open Project…" button (loads an existing project) + "Generate Project" button (generates or regenerates).
-- **Theme**: dark, with a configurable accent color (`kAccentColor` constant, finalized during UI polish phase).
+  - **Project Info order:** identity fields → Bundle ID → **Destination folder** * → **JUCE directory**
+  - **Destination folder** and **JUCE directory** use layout: **label → Choose… → text field** (field remains editable). Choose… opens the native OS folder picker.
+  - **Create New Project:** resets plugin identity (empty names, version 1.0.0); re-seeds all other fields from `preferences.json`; prompts for confirmation if the form is dirty; does **not** write `preferences.json`.
+  - **Open Project…** updates Project tab only; Preferences and Templates unchanged. After open, Destination folder = parent of the opened project directory.
+  - **Generate Project** reads Project tab only; after success, remembers last-used parent folder for Choose… / Open starting directory (Desktop fallback if invalid).
+
+- **Preferences view**: same field families as Project (excluding project identity), scoped to global defaults.
+  - Labels match Project (**Destination folder**, not "Default destination").
+  - Choose… on Destination folder and JUCE directory only — **not** on Windows/macOS/Linux artefact path fields (cross-OS target paths).
+  - Artefact section labels: **Windows**, **macOS**, **Linux**.
+  - Auto-save on valid edit (no manual Save button).
+
+- **Templates view**: file selector combo, editor, Load from file… / Reset to default / Save override buttons.
+
+- **Theme**: dark, orange accent (`kAccentColor`).
+
+**Design note — Destination folder as form field (not Generate modal):** Keeping destination visible and editable (rather than a mandatory folder dialog on every Generate) supports one-click regeneration after Open and clean Import/Export profiles per client. Generate may still prompt Choose… when destination is empty or invalid.
 
 ### F9 — Luthier Application Portability
 

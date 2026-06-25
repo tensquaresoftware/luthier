@@ -1,5 +1,15 @@
 # Deferred Work
 
+## Deferred from: manual smoke 5-5-create-new-project-full-reset-dirty-guard (2026-06-25)
+
+- **Barre de statut / messages utilisateur** (`app/main_window.py`) — Message Create New Project à gauche des boutons, manque de place ; souhait : barre dédiée au-dessus de la barre d’actions (#262F34), texte centré orange (succès) / rouge (erreur) ; libellé « New project created — defaults from Preferences. »
+- **Bouton No dialog dirty guard peu visible** (`MainWindow._on_create_new_project`) — Default `QMessageBox.No` non perceptible visuellement ; suggéré : style orange pour l’action par défaut.
+- **Persistance géométrie fenêtre** — À l’ouverture, fenêtre en (0,0) ; taille/position non mémorisées (hors scope story 5.5).
+
+## Deferred from: code review of 5-5-create-new-project-full-reset-dirty-guard (2026-06-25)
+
+- **Manual smoke AC2 dialog not verified** — Five UI scenarios in story Tasks/Subtasks (dirty/clean dialog, No/Yes, prefs mtime) not run before merge; code in `MainWindow._on_create_new_project()` matches spec; AD-6 defers dialog UX to manual tier. *(Partially addressed 2026-06-25: scenarios 1/2/3/5 PASS on `Dist/Luthier.app`.)*
+
 ## Deferred from: code review of 5-4-decouple-open-generate-from-preferences-json (2026-06-25)
 
 - **Tests AC6 simulés, pas de parcours MainWindow e2e** (`tests/unit/test_preferences_decouple.py`) — Test construit `ProjectSpec` et `AppState` directement ; ne pilote pas `MainWindow._load_project` / `_run_generation`. Pattern AD-6 (pas de tests widget Qt).

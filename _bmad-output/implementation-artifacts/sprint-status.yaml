@@ -41,7 +41,7 @@
 # - Retrospective appends its action items to action_items; sprint-status surfaces open ones
 
 generated: 2026-06-23
-last_updated: 2026-06-25 # story 5.4 review
+last_updated: 2026-06-25 # story 5.5 review
 project: Luthier
 project_key: NOKEY
 tracking_system: file-system
@@ -74,12 +74,12 @@ development_status:
   epic-3-retrospective: done
 
   # Epic 5: Project & Preferences Workflows (priority before Epic 4)
-  epic-5: in-progress
+  epic-5: done
   5-1-preferences-model-profile-workflow: done
   5-2-project-ui-choose-buttons-layout: done
   5-3-jucedir-on-projectspec-generation-pipeline: done
   5-4-decouple-open-generate-from-preferences-json: done
-  5-5-create-new-project-full-reset-dirty-guard: backlog
+  5-5-create-new-project-full-reset-dirty-guard: done
   epic-5-retrospective: optional
 
   # Epic 4: Cross-Platform Distribution

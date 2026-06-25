@@ -7,7 +7,7 @@ paradigm: 'strict-layered'
 scope: 'Luthier — PySide6 GUI JUCE project generator'
 status: final
 created: '2026-06-22'
-updated: '2026-06-22'
+updated: '2026-06-25'
 binds: []
 sources:
   - _bmad-output/project-context.md
@@ -49,7 +49,7 @@ graph TD
 
 - **Binds:** `ProjectPage`, `ProjectGenerator`, `ProjectWriter`, `project_reader`, `Preferences`
 - **Prevents:** the two-dict split (`values` + `config`) that forced callers to assemble project data from two incompatible halves
-- **Rule:** `ProjectSpec` carries both identity fields (plugin name, type, formats…) and artefact config fields (copy flags, per-OS paths). `ProjectPage.spec()` replaces `values()` + `config()`. [ADOPTED]
+- **Rule:** `ProjectSpec` carries both identity fields (plugin name, type, formats…) and artefact config fields (copy flags, per-OS paths), **including `juce_dir` and destination folder**. The same field set appears on Project and Preferences tabs, but **sources differ**: an opened or generated project populates Project from disk/sidecar; a new project seeds from `preferences.json`. `ProjectPage.spec()` replaces `values()` + `config()`. [ADOPTED]
 
 ### AD-3 — Sidecar `.luthier.json` for round-trip; regex as fallback
 
@@ -63,11 +63,11 @@ graph TD
 - **Prevents:** a half-written, corrupted project directory when generation fails mid-way
 - **Rule:** `ProjectWriter.write()` writes to a sibling temp directory (`<name>.tmp/`) then renames atomically to the final path — replacing the existing directory if present. On error, the temp directory is cleaned up and the original is left untouched. The old directory is never archived; the rename is the commit point and the overwrite is intentional (confirmed via the existing `MainWindow._confirm_overwrite()` guard). [ADOPTED]
 
-### AD-5 — Preferences save-on-update; save is app-layer only
+### AD-5 — Preferences persistence is Preferences-driven only; save is app-layer only
 
-- **Binds:** `MainWindow`, `Preferences`
-- **Prevents:** in-memory preference state diverging from disk; `core/` acquiring a hidden app-layer side-effect
-- **Rule:** every call to `prefs.update(spec)` at a user-facing commit point (generate success, open success) is immediately followed by `prefs.save()`. Both calls are made by `MainWindow` only — `core/` never calls `prefs.save()` directly (would violate AD-8 and introduce a hidden side-effect in generation logic). [ADOPTED]
+- **Binds:** `MainWindow`, `PreferencesPage`, `Preferences`
+- **Prevents:** global defaults being overwritten by project-specific state; `core/` acquiring hidden app-layer side-effects
+- **Rule:** `preferences.json` is written **only** by: (1) first-launch factory file creation, (2) Preferences tab auto-save on valid edit, (3) successful Import Preferences. `MainWindow` calls `prefs.save()` only after auto-save or import — **never** after Open Project or Generate Project. Open and Generate must not call `Preferences.update(ProjectSpec)`. `core/` never calls `prefs.save()` directly. [ADOPTED — revised 2026-06-25, supersedes Epic 1 Story 1.3 AD-5 AC]
 
 ### AD-6 — Test strategy: pytest, two tiers, no Qt
 
@@ -75,11 +75,11 @@ graph TD
 - **Prevents:** untested pure functions and fragile regex going undetected
 - **Rule:** `tests/unit/` covers every public `core/` function with no Qt dependency (pure functions, no I/O). `tests/integration/` covers the full `ProjectSpec → write → read` round-trip using pytest's `tmp_path` fixture. No Qt widget tests. pytest is a dev-only dependency (`requirements-dev.txt`). [ADOPTED]
 
-### AD-7 — `juce_dir` is Preferences-only
+### AD-7 — `juce_dir` is a ProjectSpec field; Preferences holds the default seed only
 
-- **Binds:** `ProjectSpec`, `Preferences`, `render_context`
-- **Prevents:** per-project JUCE path drift and unnecessary sidecar bloat
-- **Rule:** `juce_dir` is never a field on `ProjectSpec`. It describes the dev environment, not the plugin. It is read from `Preferences` at generation time and passed separately to `render_context`; it does not participate in the round-trip. [ADOPTED]
+- **Binds:** `ProjectSpec`, `Preferences`, `render_context`, `ProjectWriter`, `project_reader`
+- **Prevents:** per-project JUCE version pinning being lost on reload; environment default conflated with project configuration
+- **Rule:** `ProjectSpec` includes `juce_dir` (JSON key `juceDir`). It is written to `.luthier.json` and participates in round-trip. `render_context.build_context(spec)` reads `spec.juce_dir` — no separate `juce_dir=` parameter. `Preferences.juce_dir` is the **default seed** only: copied into new Project forms at startup and Create New Project, not read at Generate time. [ADOPTED — revised 2026-06-25, supersedes Epic 1 Story 1.6 AD-7 AC]
 
 ### AD-8 — Dependency direction is enforced by import discipline
 
@@ -127,7 +127,7 @@ Luthier/
     project_writer.py          # atomic write + .luthier.json sidecar
     project_reader.py          # .luthier.json first, CMake regex fallback
     render_context.py          # ProjectSpec → template context dict
-    preferences.py             # Preferences — juce_dir lives here, not on ProjectSpec
+    preferences.py             # Preferences — juce_dir default seed; ProjectSpec carries per-project juce_dir
     plugin_settings.py         # pure: flags, bundle_id, categories
     validation.py              # pure: field validators → (bool, str)
     rendering.py               # render() [str.format] + render_tokens() [@KEY@]
