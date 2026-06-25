@@ -1,5 +1,10 @@
 # Deferred Work
 
+## Deferred from: code review of 4-1-pyinstaller-bundle-macos (2026-06-25)
+
+- **Assertions stdout `--check` couplées au format debug** (`tests/integration/test_frozen_bundle.py:25-29`) — Chaînes `frozen: True`, `error: None` verrouillent le contrat de `main._self_check()` ; changement cosmétique casserait le test sans régression utilisateur. Accepté tant que le contrat headless reste stable.
+- **Validation contenu assets bundle (taille, checksum, Source complets)** (`tests/integration/test_frozen_bundle.py:33-39`) — Tests optionnels story 4.1 ; présence de fichiers suffit pour AC4 spot-check spec ; durcissement reporté si CI bundle devient obligatoire.
+
 ## Deferred from: manual smoke 5-5-create-new-project-full-reset-dirty-guard (2026-06-25)
 
 - **Barre de statut / messages utilisateur** (`app/main_window.py`) — Message Create New Project à gauche des boutons, manque de place ; souhait : barre dédiée au-dessus de la barre d’actions (#262F34), texte centré orange (succès) / rouge (erreur) ; libellé « New project created — defaults from Preferences. »
