@@ -4,7 +4,7 @@ baseline_commit: 72b5972
 
 # Story 5.1: Preferences Model & Profile Workflow
 
-Status: in-progress
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -367,8 +367,8 @@ Claude (Cursor Agent)
 
 ### Review Findings
 
-- [ ] [Review][Decision] Export when UI differs from disk — `export_to_file` writes `prefs.to_dict()` (last persisted state). If the form has invalid pending edits, export omits them silently. AC6 says "current profile" — should export live `_collect_profile()` when valid, warn when invalid, or always export disk?
-- [ ] [Review][Decision] `FolderField` composition vs spec — Story task requires wrapping `ValidatedField` + Choose button; implementation reimplements validation UI (`QLineEdit`/mark/error). Functionally equivalent but diverges from spec sketch. Refactor to wrap `ValidatedField` or accept current composition?
+- [x] [Review][Decision] Export when UI differs from disk — **1A**: export `_collect_profile()` when valid; block with error when invalid.
+- [x] [Review][Decision] `FolderField` composition vs spec — **2B**: keep current composition; functionally equivalent, avoids awkward ValidatedField wrap.
 - [x] [Review][Patch] Import does not full-replace profile (AC5) [`core/preferences.py:154-160`] — fixed via `_complete_profile()` filling missing keys from `_DEFAULTS`.
 - [x] [Review][Patch] No validation on startup load [`core/preferences.py:129-138`] — `load()` validates and resets to factory defaults on failure.
 - [x] [Review][Patch] Empty desktop from QStandardPaths [`core/preferences.py:69-77`] — falls back to `Path.home()`.

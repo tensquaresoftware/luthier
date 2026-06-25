@@ -118,9 +118,12 @@ class PreferencesPage(QWidget):
             return False, str(error)
 
     def export_to_file(self, path: str) -> tuple[bool, str]:
+        if not self._is_aggregate_valid():
+            return False, "Fix the invalid fields before exporting preferences."
+        profile = self._collect_profile()
         try:
             Path(path).write_text(
-                json.dumps(self._prefs.to_dict(), indent=2), encoding="utf-8"
+                json.dumps(profile, indent=2), encoding="utf-8"
             )
         except OSError as error:
             return False, f"Could not write file: {error}"
