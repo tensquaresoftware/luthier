@@ -12,6 +12,7 @@ from app.pages.plugin_type import PluginTypePage
 from app.pages.project_info import ProjectInfoPage
 from app.widgets.section import Section
 from core.preferences import Preferences
+from core.project_form_state import form_snapshots_equal, new_project_seed
 from core.project_spec import ProjectSpec
 
 
@@ -37,16 +38,11 @@ class ProjectPage(QScrollArea):
         self._artefacts = ArtefactsSection(prefs)
         self._build_ui()
         self._connect_signals()
+        self._baseline: dict = {}
         self._seed_new_project(defaults)
 
     def _seed_new_project(self, defaults: dict) -> None:
-        seed = {
-            **defaults,
-            "projectName": "",
-            "projectDisplayName": "",
-            "projectVersion": "1.0.0",
-        }
-        self.load(ProjectSpec.from_dict(seed))
+        self.load(ProjectSpec.from_dict(new_project_seed(defaults)))
 
     def values(self) -> dict:
         values = dict(self._info.values())
@@ -70,8 +66,10 @@ class ProjectPage(QScrollArea):
         return self._info.is_valid() and self._formats.is_valid() and self._artefacts.is_valid()
 
     def reset(self, defaults: dict) -> None:
-        vals = {**defaults, "projectName": "", "projectDisplayName": "", "projectVersion": "1.0.0"}
-        self._info.load(vals)
+        self.load(ProjectSpec.from_dict(new_project_seed(defaults)))
+
+    def is_dirty(self) -> bool:
+        return not form_snapshots_equal(self._baseline, self.spec().to_dict())
 
     def load(self, spec: ProjectSpec) -> None:
         d = spec.to_dict()
@@ -80,6 +78,10 @@ class ProjectPage(QScrollArea):
         self._formats.set_formats(spec.plugin_formats)
         self._compilation.load(d)
         self._artefacts.load(d)
+        self._capture_baseline()
+
+    def _capture_baseline(self) -> None:
+        self._baseline = self.spec().to_dict()
 
     def set_destination(self, value: str) -> None:
         self._info.set_destination(value)

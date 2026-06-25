@@ -87,18 +87,23 @@ class PreferencesPage(QWidget):
         self._formats = FormatsPage()
         self._compilation = CompilationSection()
         self._artefacts = ArtefactsSection(prefs)
+        self._reload_guard = False
         self._build_ui()
         self.reload_from_prefs()
         self._connect_auto_save()
 
     def reload_from_prefs(self) -> None:
-        self._identity.set_values(self._prefs.to_dict())
-        self._destination.set_value(_pref_text(self._prefs, "destination"))
-        self._juce_dir.set_value(_pref_text(self._prefs, "juceDir"))
-        self._plugin_type.set_type(_pref_text(self._prefs, "pluginType"))
-        self._formats.set_formats(_pref_text(self._prefs, "pluginFormats"))
-        self._compilation.load(self._prefs.to_dict())
-        self._artefacts.load(self._prefs.to_dict())
+        self._reload_guard = True
+        try:
+            self._identity.set_values(self._prefs.to_dict())
+            self._destination.set_value(_pref_text(self._prefs, "destination"))
+            self._juce_dir.set_value(_pref_text(self._prefs, "juceDir"))
+            self._plugin_type.set_type(_pref_text(self._prefs, "pluginType"))
+            self._formats.set_formats(_pref_text(self._prefs, "pluginFormats"))
+            self._compilation.load(self._prefs.to_dict())
+            self._artefacts.load(self._prefs.to_dict())
+        finally:
+            self._reload_guard = False
 
     def import_from_file(self, path: str) -> tuple[bool, str]:
         try:
@@ -153,15 +158,37 @@ class PreferencesPage(QWidget):
         )
 
     def _try_auto_save(self, *_args) -> None:
+        if self._reload_guard:
+            return
         if not self._is_aggregate_valid():
             return
         profile = self._collect_profile()
         try:
             self._prefs.apply_profile(profile)
             self._prefs.save()
+            self._flash_saved_for_sender(self.sender())
             self.saved.emit()
         except (ValueError, OSError):
             return
+
+    def _flash_saved_for_sender(self, sender) -> None:
+        if sender is None:
+            return
+        targets = [
+            *self._identity._fields.values(),
+            self._destination,
+            self._juce_dir,
+            self._compilation,
+            self._artefacts,
+        ]
+        for target in targets:
+            if hasattr(target, "is_saved_sender") and target.is_saved_sender(sender):
+                if hasattr(target, "flash_saved"):
+                    if target is self._compilation or target is self._artefacts:
+                        target.flash_saved(sender)
+                    else:
+                        target.flash_saved()
+                return
 
     def _connect_auto_save(self) -> None:
         self._identity.validityChanged.connect(self._try_auto_save)

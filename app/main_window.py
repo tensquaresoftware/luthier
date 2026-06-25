@@ -1,6 +1,7 @@
 """Main window: top tab bar, page stack, and dynamic action bar."""
 
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QByteArray, QEvent, QTimer, QRect
+from PySide6.QtGui import QGuiApplication
 from pathlib import Path
 
 from PySide6.QtWidgets import (
@@ -53,7 +54,6 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Luthier")
-        self.resize(780, 680)
         self.setMinimumSize(720, 640)
         self._prefs = Preferences(Preferences.default_path())
         self._prefs.ensure_initialized()
@@ -62,7 +62,11 @@ class MainWindow(QMainWindow):
         self._folder_start = lambda value: self._app_state.dialog_start_dir(value)
         self._generator = ProjectGenerator(overrides=templates_store.overrides_dir())
         self._defaults = self._prefs.seed_dict()
+        self._geom_timer = QTimer(self)
+        self._geom_timer.setSingleShot(True)
+        self._geom_timer.timeout.connect(self._persist_geometry_to_disk)
         self._build_ui()
+        self._restore_window_geometry()
         if self._generator.error:
             self._set_status(self._generator.error, ok=False)
         self._refresh_generate_enabled()
@@ -92,10 +96,6 @@ class MainWindow(QMainWindow):
             self._tab_bar.addTab(name)
         self._tab_bar.currentChanged.connect(self._on_section_changed)
         row.addWidget(self._tab_bar)
-        self._saved_indicator = QLabel("Saved")
-        self._saved_indicator.setObjectName("SavedIndicator")
-        self._saved_indicator.hide()
-        row.addWidget(self._saved_indicator)
         row.addStretch(1)
         return container
 
@@ -116,7 +116,6 @@ class MainWindow(QMainWindow):
         stack.addWidget(self._templates_page)
         stack.addWidget(self._about_page)
         self._project_page.validityChanged.connect(self._refresh_generate_enabled)
-        self._prefs_page.saved.connect(self._on_prefs_saved)
         self._stack = stack
         return stack
 
@@ -141,8 +140,7 @@ class MainWindow(QMainWindow):
         return stack
 
     def _project_buttons(self) -> QWidget:
-        self._new_btn = _make_btn("Create New Project", "ActionButton",
-                                  lambda: self._project_page.reset(self._form_defaults()))
+        self._new_btn = _make_btn("Create New Project", "ActionButton", self._on_create_new_project)
         self._open_btn = _make_btn("Open Project…", "OpenButton", self._on_open)
         self._generate_btn = _make_btn("Generate Project", "GenerateButton", self._on_generate)
         return _make_button_bar([self._new_btn, self._open_btn, self._generate_btn])
@@ -165,36 +163,117 @@ class MainWindow(QMainWindow):
         ready = self._generator.error is None and self._project_page.is_valid()
         self._generate_btn.setEnabled(ready)
 
-    def _on_prefs_saved(self) -> None:
-        self._flash_saved_indicator()
+    def _schedule_geometry_save(self) -> None:
+        self._geom_timer.start(300)
 
-    def _flash_saved_indicator(self) -> None:
-        self._saved_indicator.show()
-        QTimer.singleShot(2000, self._saved_indicator.hide)
+    def _persist_window_geometry(self) -> None:
+        if self.isMinimized():
+            return
+        self._app_state.set_window_maximized(self.isMaximized())
+        if self.isMaximized() or self.isFullScreen():
+            return
+        geo = self.geometry()
+        self._app_state.set_window_rect(geo.x(), geo.y(), geo.width(), geo.height())
+
+    def _persist_geometry_to_disk(self) -> None:
+        self._persist_window_geometry()
+        try:
+            self._app_state.save()
+        except OSError:
+            pass
+
+    def _restore_window_geometry(self) -> None:
+        if self._app_state.window_maximized():
+            self.showMaximized()
+            return
+        rect = self._app_state.window_rect()
+        if rect and self._rect_is_usable(rect):
+            self.setGeometry(rect["x"], rect["y"], rect["width"], rect["height"])
+            return
+        encoded = self._app_state.window_geometry_b64()
+        if encoded and self.restoreGeometry(QByteArray.fromBase64(encoded.encode("ascii"))):
+            return
+        self.resize(780, 680)
+        self._center_on_screen()
+
+    def _rect_is_usable(self, rect: dict) -> bool:
+        if rect["width"] < self.minimumWidth() or rect["height"] < self.minimumHeight():
+            return False
+        target = QRect(rect["x"], rect["y"], rect["width"], rect["height"])
+        for screen in QGuiApplication.screens():
+            if screen.availableGeometry().intersects(target):
+                return True
+        return False
+
+    def _center_on_screen(self) -> None:
+        screen = QGuiApplication.primaryScreen()
+        if screen is None:
+            return
+        frame = self.frameGeometry()
+        frame.moveCenter(screen.availableGeometry().center())
+        self.move(frame.topLeft())
+
+    def changeEvent(self, event) -> None:
+        super().changeEvent(event)
+        if event.type() == QEvent.Type.WindowStateChange:
+            self._schedule_geometry_save()
+
+    def resizeEvent(self, event) -> None:
+        super().resizeEvent(event)
+        self._schedule_geometry_save()
+
+    def moveEvent(self, event) -> None:
+        super().moveEvent(event)
+        self._schedule_geometry_save()
+
+    def closeEvent(self, event) -> None:
+        self._geom_timer.stop()
+        self._persist_window_geometry()
+        try:
+            self._app_state.save()
+        except OSError:
+            pass
+        super().closeEvent(event)
 
     def _on_prefs_import(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
-            self, "Import Preferences", "", "JSON (*.json);;All files (*)"
+            self,
+            "Import Preferences",
+            self._app_state.prefs_profile_dir(),
+            "JSON (*.json);;All files (*)",
         )
         if not path:
             return
         ok, message = self._prefs_page.import_from_file(path)
         if ok:
             self._defaults = self._prefs.seed_dict()
-            self._flash_saved_indicator()
+            self._app_state.remember_prefs_profile_dir(path)
+            try:
+                self._app_state.save()
+            except OSError:
+                pass
             self._set_status(f"Preferences imported from {Path(path).name}.", ok=True)
         else:
             QMessageBox.warning(self, "Import Preferences", message)
             self._set_status("Preferences import failed.", ok=False)
 
     def _on_prefs_export(self) -> None:
+        start_dir = self._app_state.prefs_profile_dir()
         path, _ = QFileDialog.getSaveFileName(
-            self, "Export Preferences", "preferences.json", "JSON (*.json);;All files (*)"
+            self,
+            "Export Preferences",
+            str(Path(start_dir) / "preferences.json"),
+            "JSON (*.json);;All files (*)",
         )
         if not path:
             return
         ok, message = self._prefs_page.export_to_file(path)
         if ok:
+            self._app_state.remember_prefs_profile_dir(path)
+            try:
+                self._app_state.save()
+            except OSError:
+                pass
             self._set_status(f"Preferences exported to {Path(path).name}.", ok=True)
         else:
             QMessageBox.warning(self, "Export Preferences", message)
@@ -218,6 +297,20 @@ class MainWindow(QMainWindow):
         if not self._confirm_overwrite(spec):
             return
         self._run_generation(spec)
+
+    def _on_create_new_project(self) -> None:
+        if self._project_page.is_dirty():
+            answer = QMessageBox.question(
+                self,
+                "Create New Project",
+                "The project form has unsaved changes. Discard them and start a new project?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if answer != QMessageBox.Yes:
+                return
+        self._project_page.reset(self._form_defaults())
+        self._set_status("New project — defaults from Preferences.", ok=True)
 
     def _on_open(self) -> None:
         start = self._app_state.dialog_start_dir()
