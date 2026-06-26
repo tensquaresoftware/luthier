@@ -39,6 +39,26 @@ pip install -r requirements-dev.txt
 .venv/bin/python main.py
 ```
 
+On **macOS**, `main.py` sets the Dock icon from `Resources/luthier.png` during development. The squircle mask comes from `luthier.icns` in `Dist/Luthier.app` only after a PyInstaller build. If you see the generic Python icon, you are likely running the interpreter directly without an app icon — relaunch after pulling assets, or open `Dist/Luthier.app`.
+
+### App icons
+
+Source artwork: `Resources/luthier-icon.svg`. Generated assets (committed):
+
+| File | Use |
+|------|-----|
+| `luthier.png` | Qt window/Dock icon in dev; Linux PyInstaller executable |
+| `luthier.icns` | macOS `Luthier.app` bundle |
+| `luthier.ico` | Windows `Luthier.exe` |
+
+Regenerate after editing the SVG:
+
+```bash
+.venv/bin/python Build/generate_icons.py
+```
+
+PyInstaller **fails fast** if the platform icon file is missing (`Build/luthier.spec`). Run the generator before building on any OS; on macOS it also produces `.ico` for Windows commits.
+
 **Observed timings (macOS, maintainer machine, 2026-06-26):**
 
 | Step | Duration |

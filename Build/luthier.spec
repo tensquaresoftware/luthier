@@ -35,9 +35,19 @@ a = Analysis(
     noarchive=False,
 )
 _IS_MACOS = sys.platform == "darwin"
-_icon = os.path.join(PROJECT_ROOT, "Resources", "luthier.icns" if _IS_MACOS else "luthier.png")
+_IS_WINDOWS = sys.platform == "win32"
+if _IS_MACOS:
+    _icon_name = "luthier.icns"
+elif _IS_WINDOWS:
+    _icon_name = "luthier.ico"
+else:
+    _icon_name = "luthier.png"
+_icon = os.path.join(PROJECT_ROOT, "Resources", _icon_name)
 if not os.path.isfile(_icon):
-    _icon = None
+    raise SystemExit(
+        f"Missing app icon Resources/{_icon_name}. "
+        "Run: .venv/bin/python Build/generate_icons.py"
+    )
 
 pyz = PYZ(a.pure)
 exe = EXE(

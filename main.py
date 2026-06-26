@@ -24,6 +24,16 @@ def _self_check() -> int:
     return 0 if generator.error is None else 1
 
 
+def _apply_app_icon(app: QApplication) -> None:
+    """Set window/Dock icon from bundled PNG except on frozen macOS (.icns in bundle)."""
+    icon_path = resource_path("luthier.png")
+    if not Path(icon_path).is_file():
+        return
+    if sys.platform == "darwin" and getattr(sys, "frozen", False):
+        return
+    app.setWindowIcon(QIcon(icon_path))
+
+
 def main() -> None:
     app = QApplication(sys.argv)
     app.setApplicationName("Luthier")
@@ -31,12 +41,7 @@ def main() -> None:
         sys.exit(_self_check())
     app.setStyle("Fusion")
     app.setStyleSheet(build_stylesheet())
-    # macOS applies the squircle mask to the bundle .icns; setWindowIcon() would
-    # override the Dock icon with a raw square PNG.
-    if sys.platform != "darwin":
-        icon_path = resource_path("luthier.png")
-        if Path(icon_path).is_file():
-            app.setWindowIcon(QIcon(icon_path))
+    _apply_app_icon(app)
     window = MainWindow()
     window.show()
     sys.exit(app.exec())

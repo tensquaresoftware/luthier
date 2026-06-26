@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import struct
 import subprocess
 import sys
 from pathlib import Path
@@ -44,6 +45,39 @@ def _render_png(svg_path: Path, size: int, out_path: Path) -> None:
         raise RuntimeError(f"failed to write {out_path}")
 
 
+def _write_ico(png_paths: list[Path], out_path: Path) -> None:
+    """Pack PNGs into a Windows .ico (Vista+ embedded PNG)."""
+    entries: list[tuple[int, bytes]] = []
+    for path in png_paths:
+        data = path.read_bytes()
+        image = QImage()
+        if not image.load(str(path)):
+            raise RuntimeError(f"failed to read {path}")
+        size = image.width()
+        entries.append((size, data))
+
+    header = struct.pack("<HHH", 0, 1, len(entries))
+    offset = 6 + 16 * len(entries)
+    directory = bytearray()
+    blobs = bytearray()
+    for size, data in entries:
+        dim = 0 if size >= 256 else size
+        directory.extend(struct.pack(
+            "<BBBBHHII",
+            dim,
+            dim,
+            0,
+            0,
+            1,
+            32,
+            len(data),
+            offset,
+        ))
+        blobs.extend(data)
+        offset += len(data)
+    out_path.write_bytes(header + directory + blobs)
+
+
 def main() -> int:
     if not SVG_PATH.is_file():
         print(f"missing {SVG_PATH}", file=sys.stderr)
@@ -66,8 +100,14 @@ def main() -> int:
         ["iconutil", "-c", "icns", str(ICONSET), "-o", str(icns_path)],
         check=True,
     )
+    ico_path = RESOURCES / "luthier.ico"
+    _write_ico(
+        [ICONSET / "icon_16x16.png", ICONSET / "icon_32x32.png", ICONSET / "icon_256x256.png"],
+        ico_path,
+    )
     print(f"wrote {RESOURCES / 'luthier.png'}")
     print(f"wrote {icns_path}")
+    print(f"wrote {ico_path}")
     return 0
 
 
