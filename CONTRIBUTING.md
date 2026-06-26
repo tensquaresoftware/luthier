@@ -43,7 +43,7 @@ On **macOS**, `main.py` sets the Dock icon from `Resources/luthier.png` during d
 
 ### App icons
 
-Source artwork: `Resources/luthier-icon.svg`. Generated assets (committed):
+Source artwork: `Resources/luthier-icon.png` (**1024×1024**, square, background included — export from Figma at 1x) and `Resources/luthier-logo.png` / `luthier-logo@2x.png` (About tab). Generated assets (committed):
 
 | File | Use |
 |------|-----|
@@ -51,7 +51,7 @@ Source artwork: `Resources/luthier-icon.svg`. Generated assets (committed):
 | `luthier.icns` | macOS `Luthier.app` bundle |
 | `luthier.ico` | Windows `Luthier.exe` |
 
-Regenerate after editing the SVG:
+Regenerate after editing `luthier-icon.png`:
 
 ```bash
 .venv/bin/python Build/generate_icons.py

@@ -39,6 +39,7 @@ from core.project_reader import read_project_result
 from core.project_spec import ProjectSpec
 
 _TABS = ["Project", "Preferences", "Templates", "About"]
+_ABOUT_TAB_INDEX = _TABS.index("About")
 
 
 def _make_btn(label: str, object_name: str, slot) -> QPushButton:
@@ -94,7 +95,8 @@ class MainWindow(QMainWindow):
         layout.addWidget(self._build_tab_bar())
         layout.addWidget(self._build_stack(), 1)
         layout.addWidget(self._build_status_bar())
-        layout.addWidget(self._build_bottom_bar())
+        self._bottom_bar = self._build_bottom_bar()
+        layout.addWidget(self._bottom_bar)
         self.setCentralWidget(central)
 
     def _build_tab_bar(self) -> QWidget:
@@ -115,6 +117,7 @@ class MainWindow(QMainWindow):
     def _on_section_changed(self, index: int) -> None:
         self._stack.setCurrentIndex(index)
         self._btn_stack.setCurrentIndex(index)
+        self._bottom_bar.setVisible(index != _ABOUT_TAB_INDEX)
 
     def _build_stack(self) -> QStackedWidget:
         stack = QStackedWidget()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate app icon assets from Resources/luthier-icon.svg."""
+"""Generate app icon assets from Resources/luthier-icon.png."""
 
 from __future__ import annotations
 
@@ -9,12 +9,12 @@ import sys
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QImage, QPainter
-from PySide6.QtSvg import QSvgRenderer
+from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-SVG_PATH = PROJECT_ROOT / "Resources" / "luthier-icon.svg"
+SOURCE_PATH = PROJECT_ROOT / "Resources" / "luthier-icon.png"
+SOURCE_SIZE = 1024                                              # master icon from Figma (square)
 RESOURCES = PROJECT_ROOT / "Resources"
 ICONSET = PROJECT_ROOT / "Build" / "luthier.iconset"
 
@@ -33,15 +33,29 @@ _ICONSET_SIZES = {
 }
 
 
-def _render_png(svg_path: Path, size: int, out_path: Path) -> None:
-    renderer = QSvgRenderer(str(svg_path))
-    image = QImage(size, size, QImage.Format.Format_ARGB32_Premultiplied)
-    image.fill(Qt.GlobalColor.transparent)
-    painter = QPainter(image)
-    renderer.render(painter)
-    painter.end()
+def _load_source() -> QImage:
+    image = QImage(str(SOURCE_PATH))
+    if image.isNull():
+        raise RuntimeError(f"failed to read {SOURCE_PATH}")
+    if image.width() != image.height():
+        raise RuntimeError(f"{SOURCE_PATH} must be square, got {image.width()}x{image.height()}")
+    if image.width() != SOURCE_SIZE:
+        raise RuntimeError(
+            f"{SOURCE_PATH} must be {SOURCE_SIZE}x{SOURCE_SIZE} "
+            f"(export from Figma at 1x), got {image.width()}x{image.height()}"
+        )
+    return image
+
+
+def _render_png(source: QImage, size: int, out_path: Path) -> None:
+    scaled = source.scaled(
+        size,
+        size,
+        Qt.AspectRatioMode.IgnoreAspectRatio,
+        Qt.TransformationMode.SmoothTransformation,
+    )
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    if not image.save(str(out_path)):
+    if not scaled.save(str(out_path)):
         raise RuntimeError(f"failed to write {out_path}")
 
 
@@ -79,12 +93,13 @@ def _write_ico(png_paths: list[Path], out_path: Path) -> None:
 
 
 def main() -> int:
-    if not SVG_PATH.is_file():
-        print(f"missing {SVG_PATH}", file=sys.stderr)
+    if not SOURCE_PATH.is_file():
+        print(f"missing {SOURCE_PATH}", file=sys.stderr)
         return 1
 
     app = QApplication([])
-    _render_png(SVG_PATH, 512, RESOURCES / "luthier.png")
+    source = _load_source()
+    _render_png(source, 512, RESOURCES / "luthier.png")
 
     if ICONSET.exists():
         for child in ICONSET.iterdir():
@@ -93,7 +108,7 @@ def main() -> int:
         ICONSET.mkdir(parents=True)
 
     for name, size in _ICONSET_SIZES.items():
-        _render_png(SVG_PATH, size, ICONSET / name)
+        _render_png(source, size, ICONSET / name)
 
     icns_path = RESOURCES / "luthier.icns"
     subprocess.run(

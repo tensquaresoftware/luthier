@@ -8,7 +8,9 @@ RESOURCES = PROJECT_ROOT / "Resources"
 
 def test_app_icon_assets_present():
     required = (
-        "luthier-icon.svg",
+        "luthier-logo.png",
+        "luthier-logo@2x.png",
+        "luthier-icon.png",
         "luthier.png",
         "luthier.icns",
         "luthier.ico",

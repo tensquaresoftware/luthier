@@ -1,18 +1,16 @@
 """About page: project identity and version."""
 
-from PySide6.QtCore import Qt, QRectF, QUrl
+from PySide6.QtCore import QEvent, Qt, QUrl
 from PySide6.QtGui import QDesktopServices, QFontMetrics, QMouseEvent
-from PySide6.QtSvgWidgets import QSvgWidget
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
-from app.resources import resource_path
+from app.resources import load_about_logo_pixmap
 
-_LOGO_HEIGHT = 160                                              # 80% of original 200px
-_LOGO_VIEWBOX = QRectF(109, 102, 281, 304)                     # tight crop; texts shifted up 36 SVG units
-_LOGO_WIDTH = round(_LOGO_HEIGHT * _LOGO_VIEWBOX.width() / _LOGO_VIEWBOX.height())
+_LOGO_WIDTH = 152
+_LOGO_HEIGHT = 203
 _LOGO_TOP_OFFSET = 10
 _LOGO_TO_CREDITS_GAP = 28                                        # below logo, above "Credits" title
-_CARD_SIZE = 500
+_CARD_SIZE = 544                                                 # 500 + (203 - 160) logo height delta
 _CARD_PADDING = 28
 _CREDIT_INTERLINE_EM = 1.0
 _CREDITS_EXTRA_WIDTH = 20
@@ -29,8 +27,7 @@ def _credit_font_px(font) -> int:
 
 def _credit_line_height(font) -> int:
     metrics = QFontMetrics(font)
-    px = _credit_font_px(font)
-    return max(metrics.height(), px)
+    return metrics.lineSpacing()
 
 
 def _align_credit_label(label: QLabel, line_height: int) -> None:
@@ -54,6 +51,27 @@ class _AboutLinkLabel(QLabel):
         super().mouseReleaseEvent(event)
 
 
+class _AboutLogo(QLabel):
+    """About logo from pre-rendered @1x / @2x PNG assets (no scaling)."""
+
+    def __init__(self):
+        super().__init__()
+        self.setFixedSize(_LOGO_WIDTH, _LOGO_HEIGHT)
+        self._apply_pixmap()
+
+    def event(self, event: QEvent) -> bool:
+        if event.type() == QEvent.Type.DevicePixelRatioChange:
+            self._apply_pixmap()
+        return super().event(event)
+
+    def _apply_pixmap(self) -> None:
+        pixmap = load_about_logo_pixmap(self.devicePixelRatioF())
+        if pixmap.isNull():
+            self.clear()
+            return
+        self.setPixmap(pixmap)
+
+
 class AboutPage(QWidget):
     def __init__(self):
         super().__init__()
@@ -61,12 +79,10 @@ class AboutPage(QWidget):
 
     def _build_ui(self) -> None:
         outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
         outer.addStretch(1)
-        row = QHBoxLayout()
-        row.addStretch(1)
-        row.addWidget(self._make_card())
-        row.addStretch(1)
-        outer.addLayout(row)
+        card = self._make_card()
+        outer.addWidget(card, 0, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         outer.addStretch(1)
 
     def _make_card(self) -> QFrame:
@@ -78,17 +94,13 @@ class AboutPage(QWidget):
         layout.setSpacing(0)
         layout.addStretch(2)
         layout.addSpacing(_LOGO_TOP_OFFSET)
-        layout.addWidget(self._make_logo(), 0, Qt.AlignmentFlag.AlignHCenter)
+        layout.addWidget(_AboutLogo(), 0, Qt.AlignmentFlag.AlignHCenter)
         layout.addSpacing(_LOGO_TO_CREDITS_GAP)
         layout.addStretch(1)
-        layout.addWidget(self._make_info(), 0, Qt.AlignmentFlag.AlignHCenter)
+        info = self._make_info()
+        info.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+        layout.addWidget(info, 0, Qt.AlignmentFlag.AlignHCenter)
         return card
-
-    def _make_logo(self) -> QSvgWidget:
-        logo = QSvgWidget(resource_path("luthier.svg"))
-        logo.renderer().setViewBox(_LOGO_VIEWBOX)
-        logo.setFixedSize(_LOGO_WIDTH, _LOGO_HEIGHT)
-        return logo
 
     def _make_info(self) -> QWidget:
         bmad_line = self._make_bmad_line()
@@ -112,7 +124,7 @@ class AboutPage(QWidget):
 
     def _make_divider(self) -> QFrame:
         divider = QFrame()
-        divider.setFrameShape(QFrame.Shape.HLine)
+        divider.setFrameShape(QFrame.Shape.NoFrame)
         divider.setFixedHeight(1)
         divider.setObjectName("SectionDivider")
         return divider

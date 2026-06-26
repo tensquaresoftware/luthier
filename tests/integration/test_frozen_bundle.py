@@ -66,7 +66,8 @@ def test_frozen_bundle_assets_present():
     assert (BUNDLED_ASSETS_ROOT / "Templates" / "Source").is_dir()
     assert (BUNDLED_ASSETS_ROOT / "Templates" / "CMakeUserPresets.json").is_file()
     assert (BUNDLED_ASSETS_ROOT / "Templates" / ".gitignore").is_file()
-    assert (BUNDLED_ASSETS_ROOT / "Resources" / "luthier.svg").is_file()
+    assert (BUNDLED_ASSETS_ROOT / "Resources" / "luthier-logo.png").is_file()
+    assert (BUNDLED_ASSETS_ROOT / "Resources" / "luthier-logo@2x.png").is_file()
 
 
 @pytest.mark.skipif(not bundle_exists, reason="Frozen bundle not built")

@@ -24,8 +24,11 @@ def collect_tree(src_root, dest_prefix):
 
 datas = (
     collect_tree(os.path.join(PROJECT_ROOT, "Templates"), "Templates")
-    + [(os.path.join(PROJECT_ROOT, "Resources", "luthier.svg"), "Resources")]
-    + [(os.path.join(PROJECT_ROOT, "Resources", "luthier.png"), "Resources")]
+    + [
+        (os.path.join(PROJECT_ROOT, "Resources", "luthier-logo.png"), "Resources"),
+        (os.path.join(PROJECT_ROOT, "Resources", "luthier-logo@2x.png"), "Resources"),
+        (os.path.join(PROJECT_ROOT, "Resources", "luthier.png"), "Resources"),
+    ]
 )
 
 a = Analysis(
