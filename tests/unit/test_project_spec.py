@@ -28,7 +28,7 @@ def _make_spec(**kwargs):
         header_search_paths="/extra/include",
         copy_to_system_folders=True,
         copy_to_artefacts_dir=False,
-        artefacts_dir_windows="C:\\out",
+        artefacts_dir_windows="C:/out",
         artefacts_dir_macos="/out/mac",
         artefacts_dir_linux="/out/linux",
     )
@@ -47,6 +47,11 @@ def test_juce_dir_round_trip_non_empty():
     assert restored.juce_dir == "/Applications/JUCE"
     _assert_fields_equal(restored, original)
     assert original.to_dict()["juceDir"] == "/Applications/JUCE"
+
+
+def test_from_dict_normalizes_windows_path_separators():
+    restored = ProjectSpec.from_dict({"artefactsDirWindows": r"C:\team\out"})
+    assert restored.artefacts_dir_windows == "C:/team/out"
 
 
 def test_to_dict_from_dict_round_trip_all_fields():

@@ -65,7 +65,7 @@ On Windows, activate the venv first (`.venv\Scripts\activate`) and run `pyinstal
 | Windows | `Dist/Luthier/Luthier.exe` + `_internal/` | `Dist\Luthier\Luthier.exe --check` |
 | Linux | `Dist/Luthier/Luthier` + `_internal/` | `Dist/Luthier/Luthier --check` |
 
-PyInstaller 6+ uses an onedir layout on Windows and Linux (`_internal/` subdirectory). A full bundle build may take several minutes — treat it as an optional extended step after the core dev loop.
+PyInstaller 6+ uses an onedir layout on Windows and Linux (`_internal/` subdirectory). A full bundle build may take several minutes — treat it as an optional extended step after the core dev loop. Windows x64 and Linux x86_64 bundles were validated manually in Story 4.2 (2026-06-26).
 
 ## Test suite
 
@@ -81,7 +81,7 @@ PyInstaller 6+ uses an onedir layout on Windows and Linux (`_internal/` subdirec
 - Legacy `tests/test_story_*.py` unittest modules are still collected by pytest — no need to run them separately.
 - Configuration: `pytest.ini` sets `testpaths = tests` and `pythonpath = .`.
 
-Cross-platform CMake validation (`cmake -B build` on generated projects) is covered by Story 4.3 integration tests — see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#testing).
+Cross-platform CMake validation (`cmake -B build` on generated projects) is covered by `tests/integration/test_cmake_cross_platform.py` — Windows x64 and Linux x86_64 configure tests run on matching hosts only (`@pytest.mark.skipif` by platform). Validated on all three OS families (2026-06-26). See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#testing).
 
 ## Code style and contribution norms
 

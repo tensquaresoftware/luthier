@@ -6,6 +6,7 @@ from PySide6.QtCore import QStandardPaths, Signal
 from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from app.qss import repolish
+from core.paths import normalize_portable_path
 from app.widgets.elided_line_edit import ElidedLineEdit
 from app.widgets.saved_badge import BadgedInputHost
 from app.widgets.validated_field import FieldSpec, make_field_label
@@ -39,6 +40,7 @@ class FolderField(QWidget):
         return self._edit.text()
 
     def set_value(self, value: str) -> None:
+        value = normalize_portable_path(value)
         self._edit.setText(value)
         self._on_text_changed(value)
 

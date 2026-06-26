@@ -7,13 +7,15 @@ from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from app.resources import resource_path
 
-_LOGO_HEIGHT = 200
-_LOGO_OFFSET_UP = 10                                           # shift logo up vs equal stretch centering
+_LOGO_HEIGHT = 160                                              # 80% of original 200px
 _LOGO_VIEWBOX = QRectF(109, 102, 281, 304)                     # tight crop; texts shifted up 36 SVG units
 _LOGO_WIDTH = round(_LOGO_HEIGHT * _LOGO_VIEWBOX.width() / _LOGO_VIEWBOX.height())
+_LOGO_TO_CREDITS_GAP = 28                                        # below logo, above "Credits" title
 _CARD_SIZE = 500
 _CARD_PADDING = 28
-_CREDIT_INTERLINE_EM = 0.5
+_CREDIT_INTERLINE_EM = 1.0
+_CREDITS_EXTRA_WIDTH = 20
+_CREDITS_BEFORE_BOTTOM_RULE = 10                                  # room above bottom divider (descenders)
 _BMAD_PREFIX = "Yet another project successfully completed with "
 
 
@@ -26,7 +28,8 @@ def _credit_font_px(font) -> int:
 
 def _credit_line_height(font) -> int:
     metrics = QFontMetrics(font)
-    return metrics.ascent() + metrics.descent()
+    px = _credit_font_px(font)
+    return max(metrics.height(), px)
 
 
 def _align_credit_label(label: QLabel, line_height: int) -> None:
@@ -72,9 +75,9 @@ class AboutPage(QWidget):
         layout = QVBoxLayout(card)
         layout.setContentsMargins(_CARD_PADDING, _CARD_PADDING, _CARD_PADDING, _CARD_PADDING)
         layout.setSpacing(0)
-        layout.addStretch(1)
+        layout.addStretch(2)
         layout.addWidget(self._make_logo(), 0, Qt.AlignmentFlag.AlignHCenter)
-        layout.addSpacing(_LOGO_OFFSET_UP * 2)
+        layout.addSpacing(_LOGO_TO_CREDITS_GAP)
         layout.addStretch(1)
         layout.addWidget(self._make_info(), 0, Qt.AlignmentFlag.AlignHCenter)
         return card
@@ -88,7 +91,7 @@ class AboutPage(QWidget):
     def _make_info(self) -> QWidget:
         bmad_line = self._make_bmad_line()
         widget = QWidget()
-        widget.setFixedWidth(bmad_line.sizeHint().width())
+        widget.setFixedWidth(bmad_line.sizeHint().width() + _CREDITS_EXTRA_WIDTH)
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
@@ -99,7 +102,7 @@ class AboutPage(QWidget):
         layout.addWidget(self._make_divider())
         layout.addSpacing(8)
         layout.addWidget(self._make_info_body())
-        layout.addSpacing(8)
+        layout.addSpacing(_CREDITS_BEFORE_BOTTOM_RULE)
         layout.addWidget(self._make_divider())
         layout.addSpacing(6)
         layout.addWidget(bmad_line)

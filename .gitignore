@@ -13,5 +13,8 @@ Rules/
 # AI tooling (not part of the product)
 .agents/
 .claude/
-.vscode/
+.vscode/*
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
 _bmad/

@@ -6,6 +6,7 @@ from pathlib import Path
 from PySide6.QtCore import QStandardPaths
 
 from core import validation
+from core.paths import normalize_path_dict_values, normalize_portable_path
 
 _DEFAULTS = {
     "manufacturer": "My Company",
@@ -67,7 +68,7 @@ def factory_defaults(desktop: str | None = None) -> dict:
         )
     if not str(desktop).strip():
         desktop = str(Path.home())
-    data["destination"] = desktop
+    data["destination"] = normalize_portable_path(desktop)
     return data
 
 
@@ -162,7 +163,7 @@ class Preferences:
         return {key: self.get(key) for key in _PROFILE_KEYS}
 
     def apply_profile(self, data: dict) -> None:
-        profile = _complete_profile(data)
+        profile = _complete_profile(normalize_path_dict_values(data))
         ok, message = validate_profile(profile)
         if not ok:
             raise ValueError(message)

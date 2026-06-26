@@ -55,7 +55,7 @@ So that I can see what just happened without the message competing with action b
 
 ### Epic 6 Context
 
-Epic 6 is **UX Polish** — small, user-visible improvements that do not change core generation behaviour. Story 6.1 is the first (and currently only) story in this epic. No cross-story dependencies within Epic 6; all prior epics (1–5) are done except Epic 4 story 4.2 (Win/Linux bundle — unrelated to this UI change).
+Epic 6 is **UX Polish** — small, user-visible improvements that do not change core generation behaviour. Story 6.1 is the first (and currently only) story in this epic. No cross-story dependencies within Epic 6; Epic 4 (cross-platform distribution) is complete.
 
 ### Origin — Deferred from Manual Smoke 5-5 (2026-06-25)
 

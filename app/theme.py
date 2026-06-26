@@ -22,6 +22,13 @@ def _lighten(color: str, amount: float) -> str:
     return "#" + "".join(f"{value:02X}" for value in mixed)
 
 
+def _darken(color: str, amount: float) -> str:
+    """Mix a hex colour toward black by `amount` (0..1)."""
+    channels = (int(color[i:i + 2], 16) for i in (1, 3, 5))
+    mixed = (round(c * (1.0 - amount)) for c in channels)
+    return "#" + "".join(f"{value:02X}" for value in mixed)
+
+
 def _icon_url(name: str, svg: str, color: str) -> str:
     """Write a colour-themed SVG into the cache dir and return its file URL path."""
     cache = Path(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.CacheLocation))
@@ -43,7 +50,9 @@ class Palette:
     ACCENT = kMainColor_
     PRIMARY = kMainColor_
     PRIMARY_HOVER = _lighten(kMainColor_, 0.12)
+    PRIMARY_DARK = _darken(kMainColor_, 0.28)
     ERR = "#e2686d"
+    ERR_DARK = _darken("#e2686d", 0.22)
 
 
 def build_stylesheet() -> str:
@@ -201,8 +210,33 @@ def build_stylesheet() -> str:
         border-top: 1px solid {p.BORDER};
     }}
     #StatusOk, #StatusErr {{
-        padding: 4px 0;
-        min-height: 28px;
+        color: white;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 6px 14px;
+        border-radius: 10px;
+    }}
+    #StatusOk {{ background-color: {p.PRIMARY}; }}
+    #StatusErr {{ background-color: {p.ERR}; }}
+    #StatusCapsule[state="ok"] {{
+        background-color: {p.PRIMARY};
+        border-radius: 10px;
+    }}
+    #StatusCapsule[state="err"] {{
+        background-color: {p.ERR};
+        border-radius: 10px;
+    }}
+    #StatusCapsuleText {{
+        color: white;
+        background: transparent;
+        font-size: 11px;
+        font-weight: 600;
+    }}
+    #StatusDismiss {{
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin: 0;
     }}
     #AboutCard {{ background: {p.BG_BAR}; border: 1px solid {p.BORDER}; border-radius: 10px; }}
     #GenerateButton {{
@@ -259,8 +293,6 @@ def build_stylesheet() -> str:
     #FieldMark[state="ok"] {{ color: {p.ACCENT}; }}
     #FieldMark[state="err"] {{ color: {p.ERR}; }}
     #FieldError {{ color: {p.ERR}; font-size: 11px; }}
-    #StatusOk {{ color: {p.ACCENT}; }}
-    #StatusErr {{ color: {p.ERR}; }}
     #SavedIndicator {{
         background-color: {p.ACCENT};
         color: white;

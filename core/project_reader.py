@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Optional
 
 from core import plugin_settings
+from core.paths import normalize_portable_path
 from core.project_spec import ProjectSpec
 
 _SIDECAR = ".luthier.json"
@@ -87,7 +88,7 @@ def _read_sidecar(sidecar: Path, project_dir: Path) -> Optional[ProjectSpec]:
         return None
     if not isinstance(data, dict):
         return None
-    data["destinationDir"] = str(project_dir.parent)
+    data["destinationDir"] = normalize_portable_path(str(project_dir.parent))
     return ProjectSpec.from_dict(data)
 
 
@@ -106,7 +107,7 @@ def _read_from_cmake_result(project_dir: Path) -> ProjectReadResult:
     values, missing_labels = _parse_cmakelists(text)
     if values is None or missing_labels:
         return ProjectReadResult(spec=None, missing_fields=tuple(missing_labels))
-    values["destinationDir"] = str(project_dir.parent)
+    values["destinationDir"] = normalize_portable_path(str(project_dir.parent))
     values.update(_parse_build_settings(project_dir))
     return ProjectReadResult(spec=ProjectSpec.from_dict(values))
 

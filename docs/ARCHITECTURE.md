@@ -160,8 +160,8 @@ Strategy (AD-6):
 | Integration | `tests/integration/` | Full `ProjectSpec → write → read` round-trip with `tmp_path` |
 
 - **158 tests** collected; no display required for the default suite.
-- `tests/integration/test_frozen_bundle.py` — validates PyInstaller output when `Dist/` exists; skipped otherwise.
-- `tests/integration/test_cmake_cross_platform.py` — CMake configure validation on generated projects.
+- `tests/integration/test_frozen_bundle.py` — validates PyInstaller output when `Dist/` exists on the current host; skipped when no bundle is present.
+- `tests/integration/test_cmake_cross_platform.py` — CMake configure validation on generated projects; Windows and Linux configure tests run only on matching hosts (validated 2026-06-26).
 - Legacy `tests/test_story_*.py` unittest modules remain collected.
 - Dev dependency: `pytest>=8.0` in `requirements-dev.txt`.
 

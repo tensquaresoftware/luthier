@@ -21,7 +21,7 @@ from app.pages.about import AboutPage
 from app.pages.preferences import PreferencesPage
 from app.pages.project import ProjectPage
 from app.pages.templates import TemplatesPage
-from app.qss import repolish
+from app.widgets.status_capsule import BAR_MIN_HEIGHT, StatusCapsule
 from core import plugin_settings, templates_store
 from core.app_state import AppState
 from core.preferences import Preferences
@@ -67,6 +67,7 @@ class MainWindow(QMainWindow):
         self._geom_timer.setSingleShot(True)
         self._geom_timer.timeout.connect(self._persist_geometry_to_disk)
         self._status_text = ""
+        self._status_ok = True
         self._build_ui()
         self._restore_window_geometry()
         if self._generator.error:
@@ -125,13 +126,19 @@ class MainWindow(QMainWindow):
     def _build_status_bar(self) -> QWidget:
         bar = QWidget()
         bar.setObjectName("StatusBar")
+        bar.setMinimumHeight(BAR_MIN_HEIGHT)
+        bar.setMaximumHeight(BAR_MIN_HEIGHT)
         layout = QHBoxLayout(bar)
         layout.setContentsMargins(16, 6, 16, 6)
-        self._status = QLabel("")
-        self._status.setWordWrap(True)
-        self._status.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self._status, 1)
+        self._status = StatusCapsule()
+        self._status.dismissed.connect(self._clear_status_message)
+        layout.addStretch(1)
+        layout.addWidget(self._status, 0, Qt.AlignmentFlag.AlignCenter)
+        layout.addStretch(1)
         return bar
+
+    def _clear_status_message(self) -> None:
+        self._status_text = ""
 
     def _build_bottom_bar(self) -> QWidget:
         bar = QWidget()
@@ -388,30 +395,15 @@ class MainWindow(QMainWindow):
 
     def _set_status(self, text: str, ok: bool) -> None:
         self._status_text = text
-        self._status.setObjectName("StatusOk" if ok else "StatusErr")
+        self._status_ok = ok
+        self._status.set_message(text, ok)
         self._refresh_status_display()
-        repolish(self._status)
 
     def _refresh_status_display(self) -> None:
-        text = self._status_text
-        if not text:
-            self._status.setText("")
-            return
-        width = self._status.width()
-        if width <= 0:
-            self._status.setWordWrap(True)
-            self._status.setText(text)
-            return
-        metrics = self._status.fontMetrics()
-        max_token = max(
-            (metrics.horizontalAdvance(part) for part in text.split()),
-            default=0,
-        )
-        if max_token <= width:
-            self._status.setWordWrap(True)
-            self._status.setText(text)
-            return
-        self._status.setWordWrap(False)
-        self._status.setText(
-            metrics.elidedText(text, Qt.TextElideMode.ElideMiddle, width)
-        )
+        bar = self._status.parentWidget()
+        bar_width = bar.width() if bar is not None else 0
+        max_width = max(120, bar_width - 32) if bar_width > 0 else 0
+        if max_width > 0:
+            self._status.set_max_width(max_width)
+        elif self._status_text:
+            self._status.set_message(self._status_text, self._status_ok)

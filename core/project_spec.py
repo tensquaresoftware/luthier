@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from core.paths import normalize_path_dict_values
+
 
 @dataclass
 class ProjectSpec:
@@ -52,6 +54,7 @@ class ProjectSpec:
 
     @classmethod
     def from_dict(cls, d):
+        d = normalize_path_dict_values(d)
         return cls(
             project_name=d.get("projectName", ""),
             project_display_name=d.get("projectDisplayName", ""),

@@ -7,6 +7,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from app.qss import repolish
+from core.paths import is_path_validator, normalize_portable_path
 from app.widgets.elided_line_edit import ElidedLineEdit
 from app.widgets.saved_badge import BadgedInputHost
 
@@ -56,7 +57,14 @@ class ValidatedField(QWidget):
         return self._edit.text()
 
     def set_value(self, value: str) -> None:
+        if is_path_validator(self._spec.validator):
+            value = normalize_portable_path(value)
         self._edit.setText(value)
+
+    def _normalize_path_text(self) -> None:
+        normalized = normalize_portable_path(self._edit.text())
+        if normalized != self._edit.text():
+            self._edit.setText(normalized)
 
     def is_valid(self) -> bool:
         return self._valid
@@ -86,6 +94,8 @@ class ValidatedField(QWidget):
         row.setSpacing(8)
         edit = ElidedLineEdit()
         edit.setPlaceholderText(self._spec.placeholder)
+        if is_path_validator(self._spec.validator):
+            edit.editingFinished.connect(self._normalize_path_text)
         self._edit_host = BadgedInputHost(edit)
         self._edit = edit
         self._mark = QLabel("")

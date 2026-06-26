@@ -315,6 +315,7 @@ Composer (Cursor Agent)
 ### Change Log
 
 - 2026-06-26: Story 4.4 implementation — contributor documentation (CONTRIBUTING.md, docs/ARCHITECTURE.md, README cross-links).
+- 2026-06-26: Follow-up — Win/Linux bundle and CMake configure validation completed (stories 4.2/4.3); CONTRIBUTING and ARCHITECTURE testing sections updated.
 
 ### Review Findings
 

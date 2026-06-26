@@ -1,6 +1,7 @@
 """Build the str.format context that fills the project templates."""
 
 from core import plugin_settings
+from core.paths import normalize_portable_path
 from core.project_spec import ProjectSpec
 
 _VALUE_KEYS = (
@@ -29,7 +30,7 @@ def build_context(spec: ProjectSpec) -> dict:
 
 
 def _juce_dir_line(juce_dir: str) -> dict:
-    path = (juce_dir or "").strip()
+    path = normalize_portable_path((juce_dir or "").strip())
     if not path:
         return {"juceDirSetLine": ""}
     return {"juceDirSetLine": f'set(JUCE_DIR "{path}")\n'}
@@ -68,7 +69,7 @@ def _artefact_entries(d: dict) -> dict:
 def _artefact_entry(enabled: bool, key: str, path: str) -> str:
     if not enabled or not path:
         return ""
-    normalized = path.replace("\\", "/")
+    normalized = normalize_portable_path(path)
     return f',\n        "{key}": "{normalized}"'
 
 

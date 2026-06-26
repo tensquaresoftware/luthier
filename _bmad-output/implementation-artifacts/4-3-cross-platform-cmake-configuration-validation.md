@@ -86,7 +86,7 @@ Story 4.3 validates **NFR3**: projects generated on any OS must configure on all
 | Story | Focus | Status |
 |-------|-------|--------|
 | 4.1 | macOS PyInstaller bundle | done |
-| 4.2 | Windows + Linux PyInstaller | in-progress (Win/Linux hosts SKIP) |
+| 4.2 | Windows + Linux PyInstaller | done |
 | 4.3 | **`cmake -B build` cross-platform** | **this story** |
 | 4.4 | Contributor documentation | ready-for-dev |
 
@@ -292,17 +292,17 @@ claude-4.6-sonnet-medium-thinking (Cursor)
 - Extended `tests/conftest.py`: `cmake_available()`, `juce_dir_for_tests()`, `canonical_cross_platform_spec()`.
 - Fixed `_artefact_entry` in `core/render_context.py` to normalize Windows backslashes → forward slashes (NFR3 JSON portability).
 - Added unit test `test_artefact_entry_normalizes_windows_backslashes` in `tests/unit/test_render_context.py`.
-- **Configure matrix (dev machine — macOS ARM64):**
+- **Configure matrix (validated 2026-06-26 on target hosts):**
 
 | AC | Host | Result | Notes |
 |----|------|--------|-------|
-| AC1 | Windows x64 | SKIP | `@pytest.mark.skipif(sys.platform != "win32")` — requires Windows CI/host |
-| AC2 | Linux x86_64 | SKIP | `@pytest.mark.skipif(sys.platform != "linux")` — requires Linux CI/host |
+| AC1 | Windows x64 | PASS | `test_cmake_configure_windows` — `cmake -B build`, Visual Studio 17 2022, x64 |
+| AC2 | Linux x86_64 | PASS | `test_cmake_configure_linux` — `cmake -B build`, Ninja |
 | AC3 | any | PASS | JSON parse + `windows-debug` preset structure validated |
 | AC4 | any | PASS | Sidecar round-trip via `project_reader.read_project` after `copytree` |
 | Dev baseline | macOS | PASS | `test_cmake_configure_macos_dev_baseline` — CMake 4.1.2, JUCE `/Applications/JUCE`, Ninja |
 
-- Full suite: **156 passed, 2 skipped** (was 150; +6 new tests, +2 OS-gated skips for AC1/AC2).
+- Full suite on macOS dev machine: **156 passed, 2 skipped** (OS-gated AC1/AC2 run only on matching host). Win/Linux hosts: AC1/AC2 **PASS** (2026-06-26).
 - No template changes required — configure and preset tests pass with existing `Templates/`.
 - AC4 manual GUI smoke (Open Project…) not run; AD-6 satisfied via `project_reader` automation.
 
@@ -317,6 +317,7 @@ claude-4.6-sonnet-medium-thinking (Cursor)
 ### Change Log
 
 - 2026-06-26: Story 4.3 — cross-platform CMake configure tests, Windows preset JSON validation, sidecar round-trip, `_artefact_entry` path normalization (NFR3).
+- 2026-06-26: AC1 (Windows x64) and AC2 (Linux x86_64) configure validation PASS on target hosts — NFR3 fully verified.
 
 ## References
 
@@ -342,4 +343,4 @@ claude-4.6-sonnet-medium-thinking (Cursor)
 ## Story Completion Status
 
 - **Status:** done
-- **Completion note:** NFR3 validation complete — AC3/AC4 automated PASS; macOS configure PASS; AC1/AC2 skip-gated for Win/Linux hosts (infra-first pattern from 4.2).
+- **Completion note:** NFR3 validation complete — AC1–AC4 PASS on all target hosts (Windows x64, Linux x86_64, macOS baseline); configure matrix closed 2026-06-26.

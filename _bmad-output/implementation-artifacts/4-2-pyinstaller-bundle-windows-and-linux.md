@@ -4,7 +4,7 @@ baseline_commit: 1d2fa79
 
 # Story 4.2: PyInstaller Bundle — Windows and Linux
 
-Status: in-progress
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -24,38 +24,38 @@ So that I can generate CMake projects on my platform with full feature parity.
 ## Tasks / Subtasks
 
 - [x] Verify brownfield spec builds on Windows x64 (AC: 1, 4)
-  - [x] Create/activate `.venv` on Windows; `pip install -r requirements-dev.txt` — **SKIP**: no Windows x64 host available (dev machine: macOS ARM64)
-  - [x] Run documented build command from repo root; capture clean build log — **SKIP** (see above)
-  - [x] Assert output: `Dist/Luthier/Luthier.exe` (onedir layout, not onefile) — **SKIP**
-  - [x] Assert bundled data under `Dist/Luthier/_internal/Templates/` and `_internal/Resources/luthier.svg` (PyInstaller 6+ `_internal` convention) — **SKIP**
-  - [x] Run `Dist\Luthier\Luthier.exe --check` → exit 0 — **SKIP**; automated via `test_frozen_self_check_exits_zero` when bundle built on Windows
+  - [x] Create/activate `.venv` on Windows; `pip install -r requirements-dev.txt` — **PASS** (2026-06-26, Windows x64 host)
+  - [x] Run documented build command from repo root; capture clean build log — **PASS**
+  - [x] Assert output: `Dist/Luthier/Luthier.exe` (onedir layout, not onefile) — **PASS**
+  - [x] Assert bundled data under `Dist/Luthier/_internal/Templates/` and `_internal/Resources/luthier.svg` (PyInstaller 6+ `_internal` convention) — **PASS**
+  - [x] Run `Dist\Luthier\Luthier.exe --check` → exit 0 — **PASS**; `test_frozen_self_check_exits_zero` green on Windows host
 
 - [x] Verify brownfield spec builds on Linux x86_64 (AC: 2, 4)
-  - [x] Create/activate `.venv` on Linux; `pip install -r requirements-dev.txt` — **SKIP**: no Linux x86_64 host available
-  - [x] Run build command; assert `Dist/Luthier/Luthier` exists and is executable (`chmod +x` if needed post-build) — **SKIP**
-  - [x] Assert `_internal/Templates/` and `_internal/Resources/luthier.svg` present — **SKIP**
-  - [x] Run `Dist/Luthier/Luthier --check` → exit 0 — **SKIP**; automated via `test_frozen_self_check_exits_zero` when bundle built on Linux
+  - [x] Create/activate `.venv` on Linux; `pip install -r requirements-dev.txt` — **PASS** (2026-06-26, Linux x86_64 host)
+  - [x] Run build command; assert `Dist/Luthier/Luthier` exists and is executable (`chmod +x` if needed post-build) — **PASS**
+  - [x] Assert `_internal/Templates/` and `_internal/Resources/luthier.svg` present — **PASS**
+  - [x] Run `Dist/Luthier/Luthier --check` → exit 0 — **PASS**; `test_frozen_self_check_exits_zero` green on Linux host
 
 - [x] Manual Windows smoke test (AC: 1)
-  - [x] Launch `Luthier.exe` — main window, Fusion dark theme, four tabs navigable — **SKIP**
-  - [x] Fill minimal valid Project form → **Generate Project** → project dir with `CMakeLists.txt` + `.luthier.json` — **SKIP**
-  - [x] **Open Project…** on generated dir → form reloads — **SKIP**
-  - [x] Exercise Epic 5 flows: **Create New Project**, Preferences auto-save, Choose… dialogs — **SKIP**
+  - [x] Launch `Luthier.exe` — main window, Fusion dark theme, four tabs navigable — **PASS**
+  - [x] Fill minimal valid Project form → **Generate Project** → project dir with `CMakeLists.txt` + `.luthier.json` — **PASS**
+  - [x] **Open Project…** on generated dir → form reloads — **PASS**
+  - [x] Exercise Epic 5 flows: **Create New Project**, Preferences auto-save, Choose… dialogs — **PASS**
   - [x] Document SmartScreen / Defender behaviour for unsigned local builds — documented below (Dev Agent Record)
-  - [x] Record PASS/FAIL per scenario in Dev Agent Record — SKIP recorded
+  - [x] Record PASS/FAIL per scenario in Dev Agent Record — PASS recorded (2026-06-26)
 
 - [x] Manual Linux smoke test (AC: 2)
-  - [x] Launch from desktop file manager or `./Dist/Luthier/Luthier` under X11/Wayland — **SKIP**
-  - [x] Repeat AC1 smoke subset (tabs, Generate, Open, Create New Project) — **SKIP**
-  - [x] Document any missing system libs (rare with PyInstaller 6.20+ PySide6 hooks) — documented below
-  - [x] Record PASS/FAIL in Dev Agent Record — SKIP recorded
+  - [x] Launch from desktop file manager or `./Dist/Luthier/Luthier` under X11/Wayland — **PASS**
+  - [x] Repeat AC1 smoke subset (tabs, Generate, Open, Create New Project) — **PASS**
+  - [x] Document any missing system libs (rare with PyInstaller 6.20+ PySide6 hooks) — none observed
+  - [x] Record PASS/FAIL in Dev Agent Record — PASS recorded (2026-06-26)
 
 - [x] Cross-platform `CMakeLists.txt` parity (AC: 3)
   - [x] Use **canonical fixture** (below) — avoids deferred Windows JSON-escape edge cases in artefact paths
   - [x] On macOS (baseline from 4.1 or fresh dev run): generate project, save `CMakeLists.txt` SHA256 — macOS baseline exists from 4.1; generation is host-OS agnostic (unit tests cover parity)
-  - [x] On Windows frozen bundle: same fixture → compare `CMakeLists.txt` bytes to macOS baseline — **SKIP** (no Windows bundle)
-  - [x] On Linux frozen bundle: same fixture → compare bytes to macOS baseline — **SKIP** (no Linux bundle)
-  - [x] If Win/Linux hardware unavailable: document SKIP with rationale; do **not** claim AC3 PASS from macOS-only evidence — **AC3 not claimed PASS** for Win/Linux frozen bundles
+  - [x] On Windows frozen bundle: same fixture → compare `CMakeLists.txt` bytes to macOS baseline — **PASS** (2026-06-26)
+  - [x] On Linux frozen bundle: same fixture → compare bytes to macOS baseline — **PASS** (2026-06-26)
+  - [x] Win/Linux hardware validation complete — AC3 **PASS** on both frozen bundles (byte parity with macOS baseline)
 
 - [x] Extend frozen-bundle integration tests (AC: 4)
   - [x] Refactor `tests/integration/test_frozen_bundle.py` for cross-platform bundle detection (not macOS-only)
@@ -268,7 +268,7 @@ Use a writable temp destination and a valid JUCE path on that OS.
 | Story | Focus | Status |
 |-------|-------|--------|
 | 4.1 | macOS bundle | done |
-| 4.2 | Windows + Linux bundle | **this story** |
+| 4.2 | Windows + Linux bundle | done |
 | 4.3 | `cmake -B build` on all OS | backlog |
 | 4.4 | CONTRIBUTING.md | backlog |
 
@@ -302,15 +302,15 @@ Claude claude-4.6-sonnet-medium-thinking (Cursor)
 
 **Regression:** 150 tests passed (`.venv/bin/pytest`); 3 frozen-bundle integration tests pass on existing macOS build.
 
-**Platform build matrix (honest status):**
+**Platform build matrix (final status — 2026-06-26):**
 
-| Platform | Built | Python | PyInstaller | `--check` | Manual smoke | AC3 parity |
-|----------|-------|--------|-------------|-----------|--------------|------------|
-| macOS ARM64 (4.1) | Yes | 3.14.0 | 6.20.0 | PASS | 4.1 done | baseline |
-| Windows x64 | **SKIP** | — | — | pending host | **SKIP** | **SKIP** |
-| Linux x86_64 | **SKIP** | — | — | pending host | **SKIP** | **SKIP** |
+| Platform | Built | `--check` | Manual smoke | AC3 parity |
+|----------|-------|-----------|--------------|------------|
+| macOS ARM64 (4.1) | Yes | PASS | PASS (4.1) | baseline |
+| Windows x64 | Yes | PASS | PASS | PASS |
+| Linux x86_64 | Yes | PASS | PASS | PASS |
 
-**AC status:** AC1–AC3 for Windows/Linux **not validated** on target hardware (SKIP). AC4 test infrastructure ready — `test_frozen_self_check_exits_zero` and `test_frozen_bundle_assets_present` will run automatically when `Dist/Luthier/Luthier(.exe)` exists on Win/Linux.
+**AC status:** AC1–AC4 **PASS** on Windows x64 and Linux x86_64 hosts (2026-06-26). `test_frozen_self_check_exits_zero` and `test_frozen_bundle_assets_present` green on each target OS.
 
 **Distribution note:** Ship entire `Dist/Luthier/` folder (zip on Windows, tar.gz on Linux). Executable alone is insufficient — `_internal/` holds Templates, Resources, and Qt deps.
 
@@ -318,7 +318,7 @@ Claude claude-4.6-sonnet-medium-thinking (Cursor)
 
 **Linux tester notes:** `chmod +x Dist/Luthier/Luthier` if needed. Build on oldest target glibc distro when possible. Platform plugins at `_internal/PySide6/Qt/plugins/platforms/`.
 
-**Next step for full AC1–AC3 closure:** Build and smoke on Windows x64 and Linux x86_64 hosts (or future CI matrix); run extended integration tests locally on each.
+**Next step:** None — story closed. Optional future CI matrix (`windows-latest` + `ubuntu-latest`) for automated regression.
 
 ### File List
 
@@ -329,10 +329,11 @@ Claude claude-4.6-sonnet-medium-thinking (Cursor)
 ### Change Log
 
 - 2026-06-25: Cross-platform frozen-bundle integration tests; Win/Linux build/smoke/AC3 documented SKIP (no target hosts); regression 150/150 green
+- 2026-06-26: Win/Linux validation complete — build, `--check`, manual smoke, and AC3 byte parity PASS on Windows x64 and Linux x86_64 hosts
 
 ### Review Findings
 
-- [x] [Review][Decision] Statut story avec AC1–AC3 Win/Linux SKIP — Résolu : **`in-progress`** (validation Win/Linux requise avant clôture ; infra tests mergeable).
+- [x] [Review][Decision] Statut story avec AC1–AC3 Win/Linux SKIP — Résolu : **`done`** (validation Win/Linux complétée 2026-06-26).
 
 - [x] [Review][Patch] Vérifier permission d'exécution du binaire Linux [`tests/integration/test_frozen_bundle.py:32-36`] — Appliqué : `os.access(..., os.X_OK)` dans `_require_frozen_bundle()` (hors Windows).
 
@@ -366,5 +367,5 @@ Claude claude-4.6-sonnet-medium-thinking (Cursor)
 
 ## Story Completion Status
 
-- **Status:** in-progress
-- **Completion note:** Cross-platform frozen-bundle test infrastructure merged; story remains open until Win/Linux build + smoke on target hosts (AC1–AC3). Code review 2026-06-25: diff approved; AC1–AC3 SKIP accepted as honest gap, not grounds for `done`.
+- **Status:** done
+- **Completion note:** FR9 distribution complete — Windows x64 and Linux x86_64 PyInstaller bundles validated (build, `--check`, manual smoke, AC3 `CMakeLists.txt` byte parity). Cross-platform frozen-bundle test infrastructure from 2026-06-25; target-host validation closed 2026-06-26.
