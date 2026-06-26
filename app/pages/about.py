@@ -1,7 +1,7 @@
 """About page: project identity and version."""
 
 from PySide6.QtCore import QEvent, Qt, QUrl
-from PySide6.QtGui import QDesktopServices, QFontMetrics, QMouseEvent
+from PySide6.QtGui import QDesktopServices, QMouseEvent
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 from app.resources import load_about_logo_pixmap
@@ -12,7 +12,8 @@ _LOGO_TOP_OFFSET = 10
 _LOGO_TO_CREDITS_GAP = 28                                        # below logo, above "Credits" title
 _CARD_SIZE = 544                                                 # 500 + (203 - 160) logo height delta
 _CARD_PADDING = 28
-_CREDIT_INTERLINE_EM = 1.0
+_CREDIT_INTERLINE_EM = 0.5
+_CREDIT_PROBE_TEXT = "Hg"  # ascenders + descenders for QLabel sizeHint, not raw font metrics
 _CREDITS_EXTRA_WIDTH = 20
 _CREDITS_BEFORE_BOTTOM_RULE = 10                                  # room above bottom divider (descenders)
 _BMAD_PREFIX = "Yet another project successfully completed with "
@@ -25,9 +26,9 @@ def _credit_font_px(font) -> int:
     return max(1, round(font.pointSizeF() * 96.0 / 72.0))
 
 
-def _credit_line_height(font) -> int:
-    metrics = QFontMetrics(font)
-    return metrics.lineSpacing()
+def _credit_line_height(probe: QLabel) -> int:
+    """QLabel sizeHint includes style padding beyond QFontMetrics (e.g. +2 px on Windows)."""
+    return probe.sizeHint().height()
 
 
 def _align_credit_label(label: QLabel, line_height: int) -> None:
@@ -134,16 +135,16 @@ class AboutPage(QWidget):
         widget.setObjectName("AboutCreditsBody")
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
-        probe = QLabel()
+        probe = QLabel(_CREDIT_PROBE_TEXT)
         probe.setObjectName("AboutInfoLine")
         font = probe.font()
+        line_height = _credit_line_height(probe)
         layout.setSpacing(max(1, round(_credit_font_px(font) * _CREDIT_INTERLINE_EM)))
         for text, url in self._info_lines():
-            layout.addWidget(self._make_info_line(text, url, font))
+            layout.addWidget(self._make_info_line(text, url, line_height))
         return widget
 
-    def _make_info_line(self, text: str, url: str | None, font) -> QWidget:
-        line_height = _credit_line_height(font)
+    def _make_info_line(self, text: str, url: str | None, line_height: int) -> QWidget:
         widget = QWidget()
         widget.setObjectName("AboutCreditsRow")
         widget.setFixedHeight(line_height)
