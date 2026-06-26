@@ -10,6 +10,7 @@ from app.resources import resource_path
 _LOGO_HEIGHT = 160                                              # 80% of original 200px
 _LOGO_VIEWBOX = QRectF(109, 102, 281, 304)                     # tight crop; texts shifted up 36 SVG units
 _LOGO_WIDTH = round(_LOGO_HEIGHT * _LOGO_VIEWBOX.width() / _LOGO_VIEWBOX.height())
+_LOGO_TOP_OFFSET = 10
 _LOGO_TO_CREDITS_GAP = 28                                        # below logo, above "Credits" title
 _CARD_SIZE = 500
 _CARD_PADDING = 28
@@ -76,6 +77,7 @@ class AboutPage(QWidget):
         layout.setContentsMargins(_CARD_PADDING, _CARD_PADDING, _CARD_PADDING, _CARD_PADDING)
         layout.setSpacing(0)
         layout.addStretch(2)
+        layout.addSpacing(_LOGO_TOP_OFFSET)
         layout.addWidget(self._make_logo(), 0, Qt.AlignmentFlag.AlignHCenter)
         layout.addSpacing(_LOGO_TO_CREDITS_GAP)
         layout.addStretch(1)
