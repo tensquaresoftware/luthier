@@ -21,7 +21,16 @@ from app.pages.about import AboutPage
 from app.pages.preferences import PreferencesPage
 from app.pages.project import ProjectPage
 from app.pages.templates import TemplatesPage
-from app.widgets.status_capsule import BAR_MIN_HEIGHT, StatusCapsule
+from app.widgets.status_capsule import (
+    BAR_MIN_HEIGHT,
+    STATUS_BAR_MARGIN_LEFT,
+    STATUS_BAR_MARGIN_RIGHT,
+    STATUS_BAR_V_PAD,
+    ROW_SPACING,
+    StatusCapsule,
+    StatusMessageHeading,
+    status_capsule_max_width,
+)
 from core import plugin_settings, templates_store
 from core.app_state import AppState
 from core.preferences import Preferences
@@ -126,19 +135,34 @@ class MainWindow(QMainWindow):
     def _build_status_bar(self) -> QWidget:
         bar = QWidget()
         bar.setObjectName("StatusBar")
-        bar.setMinimumHeight(BAR_MIN_HEIGHT)
-        bar.setMaximumHeight(BAR_MIN_HEIGHT)
+        self._status_bar = bar
+        bar.setFixedHeight(0)
+        bar.setMaximumHeight(0)
         layout = QHBoxLayout(bar)
-        layout.setContentsMargins(16, 6, 16, 6)
+        layout.setContentsMargins(
+            STATUS_BAR_MARGIN_LEFT,
+            STATUS_BAR_V_PAD,
+            STATUS_BAR_MARGIN_RIGHT,
+            STATUS_BAR_V_PAD,
+        )
+        layout.setSpacing(ROW_SPACING)
+        self._status_heading = StatusMessageHeading()
         self._status = StatusCapsule()
         self._status.dismissed.connect(self._clear_status_message)
-        layout.addStretch(1)
-        layout.addWidget(self._status, 0, Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self._status_heading, 0, Qt.AlignmentFlag.AlignVCenter)
+        layout.addWidget(self._status, 0, Qt.AlignmentFlag.AlignVCenter)
         layout.addStretch(1)
         return bar
 
+    def _set_status_bar_open(self, open_: bool) -> None:
+        height = BAR_MIN_HEIGHT if open_ else 0
+        self._status_bar.setFixedHeight(height)
+        self._status_bar.setMaximumHeight(height)
+
     def _clear_status_message(self) -> None:
         self._status_text = ""
+        self._status.clear()
+        self._set_status_bar_open(False)
 
     def _build_bottom_bar(self) -> QWidget:
         bar = QWidget()
@@ -396,13 +420,18 @@ class MainWindow(QMainWindow):
     def _set_status(self, text: str, ok: bool) -> None:
         self._status_text = text
         self._status_ok = ok
+        if not text:
+            self._clear_status_message()
+            return
+        self._set_status_bar_open(True)
         self._status.set_message(text, ok)
         self._refresh_status_display()
 
     def _refresh_status_display(self) -> None:
-        bar = self._status.parentWidget()
-        bar_width = bar.width() if bar is not None else 0
-        max_width = max(120, bar_width - 32) if bar_width > 0 else 0
+        if not self._status_text or self._status_bar.height() == 0:
+            return
+        bar_width = self._status_bar.width()
+        max_width = status_capsule_max_width(bar_width)
         if max_width > 0:
             self._status.set_max_width(max_width)
         elif self._status_text:

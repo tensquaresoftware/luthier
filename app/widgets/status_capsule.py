@@ -1,18 +1,114 @@
 """Centred status capsule with single-line message and dismiss control."""
 
-from PySide6.QtCore import QPointF, QRectF, Qt, Signal
+from PySide6.QtCore import QByteArray, QPointF, QRectF, Qt, Signal, QVariantAnimation
 from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPen
+from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QSizePolicy, QWidget
 
 from app.qss import repolish
 from app.theme import Palette
 
 BADGE_HEIGHT = 20                                              # matches #SavedIndicator
-BAR_MIN_HEIGHT = BADGE_HEIGHT + 12                             # 6 px StatusBar padding each side
+STATUS_BAR_V_PAD = 10                                          # vertical padding each side in StatusBar
+BAR_MIN_HEIGHT = BADGE_HEIGHT + STATUS_BAR_V_PAD * 2
+FIELD_LABEL_WIDTH = 150                                          # matches form field labels
+STATUS_BAR_MARGIN_LEFT = 24                                    # matches Project / Preferences pages
+STATUS_BAR_MARGIN_RIGHT = 16
+ROW_SPACING = 8                                                # label column → content (Choose… gap)
+_PENDING_MSG_COLOR = "#ffffff"
+_PENDING_MSG_ICON_SIZE = 16
+_PENDING_MSG_PULSE_MS = 1200
+_PENDING_MSG_PULSE_MIN = 0.1
+_PENDING_MSG_PULSE_MAX = 0.7
+# Lucide "message-square-text" (ISC) — https://lucide.dev/icons/message-square-text
+_LUCIDE_MESSAGE_SQUARE_TEXT_SVG = (
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"'
+    ' stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+    '<path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5'
+    'a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>'
+    '<path d="M7 11h10"/><path d="M7 15h6"/><path d="M7 7h8"/>'
+    '</svg>'
+)
+_pending_msg_icon_renderer: QSvgRenderer | None = None
+
+
+def status_capsule_max_width(bar_width: int) -> int:
+    """Width available for the pill after heading column and margins."""
+    if bar_width <= 0:
+        return 0
+    used = (
+        STATUS_BAR_MARGIN_LEFT
+        + FIELD_LABEL_WIDTH
+        + ROW_SPACING
+        + STATUS_BAR_MARGIN_RIGHT
+    )
+    return max(120, bar_width - used)
+
+
 _PAD_LEFT = 14
 _PAD_RIGHT = 6
 _TEXT_GAP = 6
 _DISMISS_SIZE = 12
+
+
+def _pending_message_icon_renderer() -> QSvgRenderer:
+    global _pending_msg_icon_renderer
+    if _pending_msg_icon_renderer is None:
+        svg = _LUCIDE_MESSAGE_SQUARE_TEXT_SVG.format(color=_PENDING_MSG_COLOR)
+        _pending_msg_icon_renderer = QSvgRenderer(QByteArray(svg.encode("utf-8")))
+    return _pending_msg_icon_renderer
+
+
+class _PendingMessageIcon(QWidget):
+    """Lucide message-square-text with a gentle opacity pulse."""
+
+    def __init__(self, parent: QWidget | None = None):
+        super().__init__(parent)
+        self._pulse = _PENDING_MSG_PULSE_MAX
+        self._renderer = _pending_message_icon_renderer()
+        self.setFixedSize(_PENDING_MSG_ICON_SIZE, _PENDING_MSG_ICON_SIZE)
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self._anim = QVariantAnimation(self)
+        self._anim.setDuration(_PENDING_MSG_PULSE_MS)
+        self._anim.setKeyValueAt(0.0, _PENDING_MSG_PULSE_MAX)
+        self._anim.setKeyValueAt(0.5, _PENDING_MSG_PULSE_MIN)
+        self._anim.setKeyValueAt(1.0, _PENDING_MSG_PULSE_MAX)
+        self._anim.setLoopCount(-1)
+        self._anim.valueChanged.connect(self._on_pulse)
+        self._anim.start()
+
+    def _on_pulse(self, value) -> None:
+        self._pulse = float(value)
+        self.update()
+
+    def paintEvent(self, _event) -> None:
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setOpacity(self._pulse)
+        side = float(min(self.width(), self.height()))
+        ox = (self.width() - side) / 2.0
+        oy = (self.height() - side) / 2.0
+        self._renderer.render(painter, QRectF(ox, oy, side, side))
+
+
+class StatusMessageHeading(QWidget):
+    """User Message label + pending-message icon, aligned with form field labels."""
+
+    def __init__(self, parent: QWidget | None = None):
+        super().__init__(parent)
+        self.setFixedWidth(FIELD_LABEL_WIDTH)
+        row = QHBoxLayout(self)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(6)
+        text = QLabel("User Message")
+        text.setObjectName("FieldLabel")
+        text.setAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+        )
+        icon = _PendingMessageIcon()
+        row.addWidget(text, 0, Qt.AlignmentFlag.AlignVCenter)
+        row.addWidget(icon, 0, Qt.AlignmentFlag.AlignVCenter)
+        row.addStretch(1)
 
 
 class _DismissButton(QWidget):
