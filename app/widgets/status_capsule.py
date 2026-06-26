@@ -17,6 +17,7 @@ STATUS_BAR_MARGIN_RIGHT = 16
 ROW_SPACING = 8                                                # label column → content (Choose… gap)
 _PENDING_MSG_COLOR = "#ffffff"
 _PENDING_MSG_ICON_SIZE = 16
+_PENDING_MSG_ICON_OFFSET_X = 5
 _PENDING_MSG_PULSE_MS = 1200
 _PENDING_MSG_PULSE_MIN = 0.1
 _PENDING_MSG_PULSE_MAX = 0.7
@@ -64,18 +65,32 @@ class _PendingMessageIcon(QWidget):
 
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
-        self._pulse = _PENDING_MSG_PULSE_MAX
+        self._pulse = _PENDING_MSG_PULSE_MIN
         self._renderer = _pending_message_icon_renderer()
-        self.setFixedSize(_PENDING_MSG_ICON_SIZE, _PENDING_MSG_ICON_SIZE)
+        self.setFixedSize(
+            _PENDING_MSG_ICON_SIZE + _PENDING_MSG_ICON_OFFSET_X,
+            _PENDING_MSG_ICON_SIZE,
+        )
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self._anim = QVariantAnimation(self)
         self._anim.setDuration(_PENDING_MSG_PULSE_MS)
-        self._anim.setKeyValueAt(0.0, _PENDING_MSG_PULSE_MAX)
-        self._anim.setKeyValueAt(0.5, _PENDING_MSG_PULSE_MIN)
-        self._anim.setKeyValueAt(1.0, _PENDING_MSG_PULSE_MAX)
+        self._anim.setKeyValueAt(0.0, _PENDING_MSG_PULSE_MIN)
+        self._anim.setKeyValueAt(0.5, _PENDING_MSG_PULSE_MAX)
+        self._anim.setKeyValueAt(1.0, _PENDING_MSG_PULSE_MIN)
         self._anim.setLoopCount(-1)
         self._anim.valueChanged.connect(self._on_pulse)
+
+    def restart_pulse(self) -> None:
+        self._anim.stop()
+        self._anim.setCurrentTime(0)
+        self._pulse = _PENDING_MSG_PULSE_MIN
+        self.update()
         self._anim.start()
+
+    def stop_pulse(self) -> None:
+        self._anim.stop()
+        self._pulse = _PENDING_MSG_PULSE_MIN
+        self.update()
 
     def _on_pulse(self, value) -> None:
         self._pulse = float(value)
@@ -106,9 +121,16 @@ class StatusMessageHeading(QWidget):
             Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
         )
         icon = _PendingMessageIcon()
+        self._icon = icon
         row.addWidget(text, 0, Qt.AlignmentFlag.AlignVCenter)
         row.addWidget(icon, 0, Qt.AlignmentFlag.AlignVCenter)
         row.addStretch(1)
+
+    def restart_pulse(self) -> None:
+        self._icon.restart_pulse()
+
+    def stop_pulse(self) -> None:
+        self._icon.stop_pulse()
 
 
 class _DismissButton(QWidget):

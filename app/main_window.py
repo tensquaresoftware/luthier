@@ -158,6 +158,10 @@ class MainWindow(QMainWindow):
         height = BAR_MIN_HEIGHT if open_ else 0
         self._status_bar.setFixedHeight(height)
         self._status_bar.setMaximumHeight(height)
+        if open_:
+            self._status_heading.restart_pulse()
+        else:
+            self._status_heading.stop_pulse()
 
     def _clear_status_message(self) -> None:
         self._status_text = ""
