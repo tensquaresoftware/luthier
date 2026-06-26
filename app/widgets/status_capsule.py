@@ -100,8 +100,8 @@ class _PendingMessageIcon(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setOpacity(self._pulse)
-        side = float(min(self.width(), self.height()))
-        ox = (self.width() - side) / 2.0
+        side = float(_PENDING_MSG_ICON_SIZE)
+        ox = float(_PENDING_MSG_ICON_OFFSET_X)
         oy = (self.height() - side) / 2.0
         self._renderer.render(painter, QRectF(ox, oy, side, side))
 
