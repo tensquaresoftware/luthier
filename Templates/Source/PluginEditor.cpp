@@ -1,14 +1,9 @@
-#include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-PluginEditor::PluginEditor(PluginProcessor& p)
-    : AudioProcessorEditor(&p), pluginProcessor_(p)
+PluginEditor::PluginEditor(PluginProcessor& processor)
+    : AudioProcessorEditor(&processor), pluginProcessor_(processor)
 {
     setSize(400, 300);
-}
-
-PluginEditor::~PluginEditor()
-{
 }
 
 void PluginEditor::paint(juce::Graphics& g)
@@ -21,5 +16,5 @@ void PluginEditor::paint(juce::Graphics& g)
 
 void PluginEditor::resized()
 {
-    // Layout your GUI components here
+    // Position and size child components here.
 }

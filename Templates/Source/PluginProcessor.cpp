@@ -1,19 +1,21 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-PluginProcessor::PluginProcessor()
-    : AudioProcessor(BusesProperties()
-#if !JucePlugin_IsMidiEffect
-#if !JucePlugin_IsSynth
-                         .withInput("Input", juce::AudioChannelSet::stereo(), true)
-#endif
-                         .withOutput("Output", juce::AudioChannelSet::stereo(), true)
-#endif
-    )
+juce::AudioProcessor::BusesProperties PluginProcessor::createBusesProperties()
 {
+#if JucePlugin_IsMidiEffect
+    return {};
+#else
+    juce::AudioProcessor::BusesProperties properties;
+#if !JucePlugin_IsSynth
+    properties = properties.withInput("Input", juce::AudioChannelSet::stereo(), true);
+#endif
+    return properties.withOutput("Output", juce::AudioChannelSet::stereo(), true);
+#endif
 }
 
-PluginProcessor::~PluginProcessor()
+PluginProcessor::PluginProcessor()
+    : AudioProcessor(createBusesProperties())
 {
 }
 
@@ -83,10 +85,12 @@ void PluginProcessor::changeProgramName(int index, const juce::String& newName)
 void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     juce::ignoreUnused(sampleRate, samplesPerBlock);
+    // Allocate buffers and initialize DSP state here (never in processBlock).
 }
 
 void PluginProcessor::releaseResources()
 {
+    // Release anything allocated in prepareToPlay().
 }
 
 void PluginProcessor::clearOrphanOutputChannels(juce::AudioBuffer<float>& buffer)
@@ -102,10 +106,12 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float>& audioBuffer,
                                    juce::MidiBuffer& midiBuffer)
 {
     juce::ignoreUnused(midiBuffer);
-    
+
+    // Restores FPU flags automatically when this block ends (RAII).
     juce::ScopedNoDenormals noDenormals;
     clearOrphanOutputChannels(audioBuffer);
 
+    // Input and output share the same buffer (in-place). Unmodified channels pass through.
     // Your audio processing code goes here
 }
 
@@ -117,13 +123,16 @@ juce::AudioProcessorEditor* PluginProcessor::createEditor()
 void PluginProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
     juce::ignoreUnused(destData);
+    // Serialize plugin state (parameters, presets) for host save/restore.
 }
 
 void PluginProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
     juce::ignoreUnused(data, sizeInBytes);
+    // Restore plugin state from a previous getStateInformation() call.
 }
 
+// JUCE plugin entry point — the host calls this to instantiate your processor.
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new PluginProcessor();
