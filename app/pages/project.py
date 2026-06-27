@@ -35,7 +35,9 @@ class ProjectPage(QScrollArea):
         self._type = PluginTypePage()
         self._formats = FormatsPage()
         self._compilation = CompilationSection()
-        self._artefacts = ArtefactsSection(prefs)
+        self._artefacts = ArtefactsSection(
+            prefs, folder_start_resolver=folder_start_resolver
+        )
         self._build_ui()
         self._connect_signals()
         self._baseline: dict = {}

@@ -14,6 +14,15 @@ def juce_dir_placeholder() -> str:
     return "/usr/local/JUCE"
 
 
+def host_artefact_field_key() -> str:
+    """Preference/spec key for the artefact path of the OS Luthier is running on."""
+    if sys.platform == "win32":
+        return "artefactsDirWindows"
+    if sys.platform == "darwin":
+        return "artefactsDirMacos"
+    return "artefactsDirLinux"
+
+
 def destination_field_spec(
     default: str,
     *,

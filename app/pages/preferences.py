@@ -86,7 +86,9 @@ class PreferencesPage(QWidget):
         self._plugin_type = PluginTypePage()
         self._formats = FormatsPage()
         self._compilation = CompilationSection()
-        self._artefacts = ArtefactsSection(prefs)
+        self._artefacts = ArtefactsSection(
+            prefs, folder_start_resolver=folder_start_resolver
+        )
         self._reload_guard = False
         self._build_ui()
         self.reload_from_prefs()
@@ -208,7 +210,7 @@ class PreferencesPage(QWidget):
         self._artefacts.validityChanged.connect(self._try_auto_save)
         for box in self._artefacts._checks.values():
             box.toggled.connect(self._try_auto_save)
-        for field in self._artefacts._form._fields.values():
+        for field in self._artefacts.path_fields().values():
             field.valueChanged.connect(self._try_auto_save)
 
     def _build_ui(self) -> None:

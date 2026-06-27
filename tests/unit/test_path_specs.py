@@ -1,7 +1,13 @@
 """Unit tests for shared path field specs."""
 
-from app.pages.path_specs import destination_field_spec, juce_dir_placeholder, juce_field_spec
-from core import validation
+import sys
+
+from app.pages.path_specs import (
+    destination_field_spec,
+    host_artefact_field_key,
+    juce_dir_placeholder,
+    juce_field_spec,
+)
 
 
 def test_destination_field_spec_project_defaults():
@@ -33,3 +39,14 @@ def test_juce_field_spec_accepts_empty_path():
     spec = juce_field_spec("")
     ok, _ = spec.validator("")
     assert ok
+
+
+def test_host_artefact_field_key_matches_platform(monkeypatch):
+    monkeypatch.setattr(sys, "platform", "darwin")
+    assert host_artefact_field_key() == "artefactsDirMacos"
+
+    monkeypatch.setattr(sys, "platform", "win32")
+    assert host_artefact_field_key() == "artefactsDirWindows"
+
+    monkeypatch.setattr(sys, "platform", "linux")
+    assert host_artefact_field_key() == "artefactsDirLinux"

@@ -1,14 +1,18 @@
 """Artefacts section: where built plugins are copied after each build.
 
 Live per-project fields, seeded from preferences. The three directory fields
-are disabled while "Copy to central artefacts folder" is off.
+are disabled while "Copy to central artefacts folder" is off. A native Choose…
+button is shown only for the artefact path matching the host OS.
 """
+
+from collections.abc import Callable
 
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QCheckBox, QVBoxLayout, QWidget
 
-from app.widgets.validated_field import FieldSpec
-from app.widgets.validated_form import ValidatedForm
+from app.pages.path_specs import host_artefact_field_key
+from app.widgets.folder_field import FolderField
+from app.widgets.validated_field import FieldSpec, ValidatedField
 from core import validation
 from core.preferences import Preferences
 
@@ -34,51 +38,79 @@ class ArtefactsSection(QWidget):
 
     validityChanged = Signal(bool)
 
-    def __init__(self, prefs: Preferences):
+    def __init__(
+        self,
+        prefs: Preferences,
+        folder_start_resolver: Callable[[str], str] | None = None,
+    ):
         super().__init__()
         self._prefs = prefs
-        self._form = ValidatedForm(_artefact_specs(prefs))
+        self._path_fields: dict[str, ValidatedField | FolderField] = {}
+        self._paths_host = QWidget()
         self._checks: dict[str, QCheckBox] = {}
-        self._build_ui()
-        self._form.validityChanged.connect(self.validityChanged)
+        self._build_ui(folder_start_resolver)
         self._sync_paths_enabled()
 
+    def path_fields(self) -> dict[str, ValidatedField | FolderField]:
+        return dict(self._path_fields)
+
     def values(self) -> dict:
-        values = self._form.values()
+        values = {key: field.value() for key, field in self._path_fields.items()}
         values.update({key: box.isChecked() for key, box in self._checks.items()})
         return values
 
     def is_valid(self) -> bool:
         if not self._checks["copyToArtefactsDir"].isChecked():
             return True
-        return self._form.is_valid()
+        return all(field.is_valid() for field in self._path_fields.values())
 
     def load(self, values: dict) -> None:
         for key, box in self._checks.items():
             if key in values:
                 box.setChecked(bool(values[key]))
-        self._form.set_values(values)
+        for key, field in self._path_fields.items():
+            if key in values:
+                field.set_value(str(values[key]))
 
     def flash_saved(self, sender) -> None:
-        for field in self._form._fields.values():
+        for field in self._path_fields.values():
             if field.is_saved_sender(sender):
                 field.flash_saved()
                 return
         if sender in self._checks.values() and self._checks["copyToArtefactsDir"].isChecked():
-            next(iter(self._form._fields.values())).flash_saved()
+            next(iter(self._path_fields.values())).flash_saved()
 
     def is_saved_sender(self, sender) -> bool:
         if sender in self._checks.values():
             return True
-        return any(field.is_saved_sender(sender) for field in self._form._fields.values())
+        return any(field.is_saved_sender(sender) for field in self._path_fields.values())
 
-    def _build_ui(self) -> None:
+    def _build_ui(self, folder_start_resolver: Callable[[str], str] | None) -> None:
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
         for key, label in _COPY_FLAGS:
             layout.addWidget(self._make_check(key, label))
-        layout.addWidget(self._form)
+        self._build_path_fields(folder_start_resolver)
+        layout.addWidget(self._paths_host)
+
+    def _build_path_fields(self, folder_start_resolver: Callable[[str], str] | None) -> None:
+        host_key = host_artefact_field_key()
+        paths_layout = QVBoxLayout(self._paths_host)
+        paths_layout.setContentsMargins(0, 0, 0, 0)
+        paths_layout.setSpacing(2)
+        for spec in _artefact_specs(self._prefs):
+            if spec.key == host_key:
+                field = FolderField(
+                    spec,
+                    f"Choose {spec.label} artefacts folder",
+                    start_dir_resolver=folder_start_resolver,
+                )
+            else:
+                field = ValidatedField(spec)
+            field.validityChanged.connect(self.validityChanged)
+            self._path_fields[spec.key] = field
+            paths_layout.addWidget(field)
 
     def _make_check(self, key: str, label: str) -> QCheckBox:
         box = QCheckBox(label)
@@ -89,4 +121,4 @@ class ArtefactsSection(QWidget):
         return box
 
     def _sync_paths_enabled(self, _checked: bool = False) -> None:
-        self._form.setEnabled(self._checks["copyToArtefactsDir"].isChecked())
+        self._paths_host.setEnabled(self._checks["copyToArtefactsDir"].isChecked())
