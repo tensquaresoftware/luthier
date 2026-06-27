@@ -331,18 +331,18 @@ Le chemin correspondant à **votre OS actuel** dispose d’un bouton **Choose…
 
 #### Dossier dans le cloud (Dropbox, OneDrive, NAS…)
 
-Un cas d’usage intéressant consiste à pointer chaque chemin vers le **même dossier logique** au sein d’un service cloud ou d’un partage réseau — par exemple un dossier `Artefacts` à la racine de votre Dropbox, OneDrive ou montage NAS. Il faut malgré tout renseigner **trois chemins** (un par OS), car chaque système exprime cet emplacement différemment :
+Un cas d’usage intéressant consiste à pointer chaque chemin vers le **même dossier logique** au sein d’un service cloud ou d’un partage réseau — par exemple `Dev/Artefacts/JUCE` dans votre Dropbox, OneDrive ou montage NAS. Il faut malgré tout renseigner **trois chemins** (un par OS), car chaque système exprime cet emplacement différemment :
 
 | OS | Exemple de chemin |
 |----|-------------------|
-| macOS | `/Users/vous/Dropbox/Artefacts` |
-| Windows | `C:\Users\vous\Dropbox\Artefacts` |
-| Linux | `/home/vous/Dropbox/Artefacts` |
+| macOS | `/Users/vous/Dropbox/Dev/Artefacts/JUCE` |
+| Windows | `C:\Users\vous\Dropbox\Dev\Artefacts\JUCE` |
+| Linux | `/home/vous/Dropbox/Dev/Artefacts/JUCE` |
 
 Après chaque build, Luthier copie les binaires dans des **sous-dossiers par plateforme** sous cette racine : `macOS/` (avec un sous-dossier d’architecture tel que `ARM/` ou `Universal/`), `Windows/` et `Linux/`. Lorsque vous compilez le même projet sur plusieurs machines, la synchronisation fusionne ces branches en une arborescence unique — pratique pour archiver ou préparer une release sans tri manuel :
 
 ```
-Artefacts/
+Dev/Artefacts/JUCE/
 ├── macOS/
 │   ├── ARM/
 │   │   ├── AU/
@@ -354,7 +354,7 @@ Artefacts/
     └── VST3/
 ```
 
-Workflow typique : créer le projet sur une machine et définir le chemin d’artefacts avec **Choose…** ; cloner le dépôt sur vos autres systèmes, rouvrir le projet dans Luthier, puis saisir le **chemin local équivalent** pour chaque OS avant d’y lancer un build.
+Workflow typique : créer le projet sur une machine et définir le chemin d’artefacts avecle bouton  `Choose…`. Sur vos autres systèmes, clonez le dépôt, rouvrez le projet dans Luthier, puis saisissez le **chemin local équivalent** pour chaque OS avant d’y lancer un build.
 
 Les réglages d’artefacts appartiennent à **ce projet**. Ils peuvent différer des defaults globaux de Preferences.
 
@@ -499,7 +499,7 @@ Sélectionnez un fichier dans la liste déroulante, modifiez-le dans l’éditeu
 | Bouton | Effet |
 |--------|--------|
 | **Load from file…** | Charge un fichier externe dans l’éditeur **sans enregistrer**. Utilisez **Save override** pour persister. |
-| **Reset to default** | Supprime votre override ; le modèle fourni avec Luthier est rétabli. |
+| **Reset to default** | Supprime votre override. Le modèle fourni avec Luthier est rétabli. |
 | **Save override** | Enregistre le contenu de l’éditeur comme override personnel. |
 
 Ligne de statut sous l’éditeur :
@@ -654,8 +654,8 @@ Luthier enregistre et affiche les chemins de dossiers avec des **slashs avant** 
 
 **Quand la normalisation s’applique :**
 
-- lorsque vous **quittez** un champ de chemin (Tab ou clic ailleurs) — les antislashs deviennent des slashs avant et les espaces en début/fin sont supprimés ;
-- lorsque vous choisissez un dossier avec **Choose…** ;
+- lorsque vous **quittez** un champ de chemin (Tab ou clic ailleurs) — les antislashs deviennent des slashs avant et les espaces en début/fin sont supprimés.
+- lorsque vous choisissez un dossier avec **Choose…**.
 - lorsque Luthier **enregistre** les préférences, **génère** un projet, **ouvre** un projet ou **importe** un profil.
 
 **Exemples** (ce que vous saisissez → ce que Luthier enregistre) :
@@ -693,11 +693,11 @@ Les retours d’opération globaux (Generate, Open, Create New Project, Import/E
 | Ouverture d’un dossier non-Luthier | Dialogue : *Not a JUCE plugin project* ou erreur d’analyse avec champs manquants listés. |
 | `.luthier.json` invalide | Dialogue : fichier compagnon invalide ou illisible. |
 | Aucun format dans le projet ouvert | Dialogue : aucun format détecté. |
-| Import JSON invalide | Dialogue d’avertissement ; préférences précédentes conservées. |
-| Export avec champs invalides | Message d’erreur ; fichier non écrit. |
-| Templates manquants (installation cassée) | Generate désactivé ; erreur au démarrage dans la ligne de statut. |
+| Import JSON invalide | Dialogue d’avertissement. Préférences précédentes conservées. |
+| Export avec champs invalides | Message d’erreur. Fichier non écrit. |
+| Templates manquants (installation cassée) | Generate désactivé. Erreur au démarrage dans la ligne de statut. |
 | Écrasement d’un projet existant | Dialogue de confirmation avant remplacement du dossier. |
-| Modifications Project non enregistrées + Create New Project | Dialogue de confirmation ; défaut **No**. |
+| Modifications Project non enregistrées + Create New Project | Dialogue de confirmation. Défaut **No**. |
 
 ### Conseils
 

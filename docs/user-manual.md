@@ -334,18 +334,18 @@ The path for **your current OS** has a **Choose…** button. The other two are t
 
 #### Cloud and shared storage (Dropbox, OneDrive, NAS…)
 
-A practical setup is to point each path at the **same logical folder** inside a cloud or network sync service — for example a folder named `Artefacts` at the root of your Dropbox, OneDrive, or NAS mount. You still enter **three paths** (one per OS), because each system expresses that location differently:
+A practical setup is to point each path at the **same logical folder** inside a cloud or network sync service — for example `Dev/Artefacts/JUCE` within your Dropbox, OneDrive, or NAS mount. You still enter **three paths** (one per OS), because each system expresses that location differently:
 
 | OS | Example path |
 |----|----------------|
-| macOS | `/Users/you/Dropbox/Artefacts` |
-| Windows | `C:\Users\you\Dropbox\Artefacts` |
-| Linux | `/home/you/Dropbox/Artefacts` |
+| macOS | `/Users/you/Dropbox/Dev/Artefacts/JUCE` |
+| Windows | `C:\Users\you\Dropbox\Dev\Artefacts\JUCE` |
+| Linux | `/home/you/Dropbox/Dev/Artefacts/JUCE` |
 
 After each build, Luthier copies binaries into **platform subfolders** under that root: `macOS/` (with an architecture subfolder such as `ARM/` or `Universal/`), `Windows/`, and `Linux/`. When you build the same project on several machines, sync merges those branches into one tree — useful for archiving or preparing a release without manual sorting:
 
 ```
-Artefacts/
+Dev/Artefacts/JUCE/
 ├── macOS/
 │   ├── ARM/
 │   │   ├── AU/
@@ -357,7 +357,7 @@ Artefacts/
     └── VST3/
 ```
 
-Typical workflow: create the project on one machine and set the artefact path with **Choose…**; clone the repository on your other systems, reopen the project in Luthier, and enter the **equivalent local path** for each OS before building there.
+Typical workflow: create the project on one machine and set the artefact path with the `Choose…` button. Clone the repository on your other systems, reopen the project in Luthier, and enter the **equivalent local path** for each OS before building there.
 
 Artefact settings belong to **this project**. They may differ from your global Preferences defaults.
 
@@ -500,7 +500,7 @@ Select a file from the dropdown, edit in the syntax-highlighted editor, then **S
 | Button | Effect |
 |--------|--------|
 | **Load from file…** | Loads an external file into the editor **without saving**. Use **Save override** to persist. |
-| **Reset to default** | Removes your override; the built-in Luthier template is restored. |
+| **Reset to default** | Removes your override. The built-in Luthier template is restored. |
 | **Save override** | Stores the editor content as your personal override. |
 
 Status line under the editor:
@@ -655,8 +655,8 @@ Luthier stores and displays folder paths with **forward slashes** (`/`) on every
 
 **When normalization runs:**
 
-- when you **leave** a path field (Tab or click elsewhere) — backslashes become forward slashes and leading/trailing spaces are trimmed;
-- when you pick a folder with **Choose…**;
+- when you **leave** a path field (Tab or click elsewhere) — backslashes become forward slashes and leading/trailing spaces are trimmed.
+- when you pick a folder with **Choose…**.
 - when Luthier **saves** preferences, **generates** a project, **opens** a project, or **imports** a profile.
 
 **Examples** (what you enter → what Luthier stores):
@@ -694,11 +694,11 @@ Global operation feedback (Generate, Open, Create New Project, Import/Export Pre
 | Open non-Luthier folder | Dialog: *Not a JUCE plugin project* or parse error with missing fields listed. |
 | Invalid `.luthier.json` | Dialog: companion file invalid or unreadable. |
 | No plugin formats in opened project | Dialog: no formats detected. |
-| Import invalid JSON | Warning dialog; previous preferences kept. |
-| Export with invalid fields | Error message; file not written. |
-| Templates missing (broken install) | Generate disabled; error at startup in the status bar. |
+| Import invalid JSON | Warning dialog. Previous preferences kept. |
+| Export with invalid fields | Error message. File not written. |
+| Templates missing (broken install) | Generate disabled. Error at startup in the status bar. |
 | Overwrite existing project | Confirmation dialog before replacing folder. |
-| Unsaved Project edits + Create New Project | Confirmation dialog; default **No**. |
+| Unsaved Project edits + Create New Project | Confirmation dialog. Default **No**. |
 
 ### Tips
 
@@ -714,7 +714,7 @@ A few pointers when behaviour surprises you. Most follow the logic in [§5](#5-t
 
 ## 17. Using the standalone app
 
-Besides running from Python sources, Luthier can be distributed as a **standalone application** — convenient if you do not want to install Python or clone the repository. The interface behaves the same; only installation and the install folder differ.
+Besides running from Python sources, Luthier can be distributed as a **standalone application** — convenient if you do not want to install Python or clone the repository. The interface behaves the same. Only installation and the install folder differ.
 
 | Platform | Typical output |
 |----------|----------------|
