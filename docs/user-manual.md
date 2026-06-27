@@ -586,8 +586,8 @@ Typical **Luthier config directory** locations:
 | Platform | Path |
 |----------|------|
 | Windows | `%LOCALAPPDATA%\Luthier\` (e.g. `C:/Users/You/AppData/Local/Luthier/`) |
-| macOS | `~/Library/Application Support/Luthier/` |
-| Linux | `~/.local/share/Luthier/` |
+| macOS | `~/Library/Preferences/Luthier/` |
+| Linux | `~/.config/Luthier/` |
 
 You will find `preferences.json`, `app_state.json`, and the `templates/` subfolder ( **Templates** tab overrides) there.
 

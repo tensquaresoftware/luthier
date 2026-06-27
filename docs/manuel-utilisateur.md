@@ -585,8 +585,8 @@ Emplacements typiques du **répertoire de configuration** Luthier :
 | Plateforme | Chemin |
 |------------|--------|
 | Windows | `%LOCALAPPDATA%\Luthier\` (ex. `C:/Users/Vous/AppData/Local/Luthier/`) |
-| macOS | `~/Library/Application Support/Luthier/` |
-| Linux | `~/.local/share/Luthier/` |
+| macOS | `~/Library/Preferences/Luthier/` |
+| Linux | `~/.config/Luthier/` |
 
 Vous y trouverez notamment `preferences.json`, `app_state.json`, et le sous-dossier `templates/` (overrides de l’onglet **Templates**).
 
