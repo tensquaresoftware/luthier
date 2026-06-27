@@ -62,7 +62,7 @@ class TestProjectWriterAtomicWrite(unittest.TestCase):
     def _make_writer(self, project_dir: Path):
         from core.project_writer import ProjectWriter
 
-        templates = Path(__file__).resolve().parent.parent / "Templates"
+        templates = Path(__file__).resolve().parent.parent / "templates"
         return ProjectWriter(templates, project_dir)
 
     def test_write_creates_sidecar(self):
@@ -122,7 +122,7 @@ class TestProjectReaderReturnsSpec(unittest.TestCase):
             from core import render_context
             from core.project_writer import ProjectWriter
 
-            templates = Path(__file__).resolve().parent.parent / "Templates"
+            templates = Path(__file__).resolve().parent.parent / "templates"
             writer = ProjectWriter(templates, dest)
             ctx = render_context.build_context(spec)
             tokens = render_context.build_tokens(spec)

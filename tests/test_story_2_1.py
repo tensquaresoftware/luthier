@@ -52,7 +52,7 @@ class TestReadSidecar(unittest.TestCase):
         dest_parent = Path(tmp)
         spec = spec or _make_spec(destination_dir=tmp)
         dest = dest_parent / spec.project_name
-        templates = Path(__file__).resolve().parent.parent / "Templates"
+        templates = Path(__file__).resolve().parent.parent / "templates"
         writer = ProjectWriter(templates, dest)
         ctx = render_context.build_context(spec)
         tokens = render_context.build_tokens(spec)

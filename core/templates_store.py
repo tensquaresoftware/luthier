@@ -1,6 +1,6 @@
 """Read and override the editable C++ source templates.
 
-Defaults ship in Templates/Source/. User overrides live in the app config
+Defaults ship in templates/Source/. User overrides live in the app config
 directory so a packaged (read-only) install can still be customized.
 """
 

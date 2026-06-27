@@ -14,10 +14,10 @@ from core.project_writer import ProjectWriter
 
 
 def templates_dir() -> Path:
-    """Bundled Templates when frozen (PyInstaller), the repo copy otherwise."""
+    """Bundled templates when frozen (PyInstaller), the repo copy otherwise."""
     bundle = getattr(sys, "_MEIPASS", None)
     root = Path(bundle) if bundle else Path(__file__).resolve().parent.parent
-    return root / "Templates"
+    return root / "templates"
 
 
 class ProjectGenerator:
@@ -31,7 +31,7 @@ class ProjectGenerator:
     def error(self) -> Optional[str]:
         if self._templates.is_dir():
             return None
-        return f"Templates not found at {self._templates}"
+        return f"templates not found at {self._templates}"
 
     def project_exists(self, destination: str, project_name: str) -> bool:
         return (Path(destination) / project_name).exists()

@@ -1,4 +1,4 @@
-# PyInstaller spec for Luthier. Build: pyinstaller Build/luthier.spec
+# PyInstaller spec for Luthier. Build: pyinstaller build/luthier.spec
 import os
 import sys
 
@@ -23,11 +23,11 @@ def collect_tree(src_root, dest_prefix):
 
 
 datas = (
-    collect_tree(os.path.join(PROJECT_ROOT, "Templates"), "Templates")
+    collect_tree(os.path.join(PROJECT_ROOT, "templates"), "templates")
     + [
-        (os.path.join(PROJECT_ROOT, "Resources", "luthier-logo.png"), "Resources"),
-        (os.path.join(PROJECT_ROOT, "Resources", "luthier-logo@2x.png"), "Resources"),
-        (os.path.join(PROJECT_ROOT, "Resources", "luthier.png"), "Resources"),
+        (os.path.join(PROJECT_ROOT, "resources", "luthier-logo.png"), "resources"),
+        (os.path.join(PROJECT_ROOT, "resources", "luthier-logo@2x.png"), "resources"),
+        (os.path.join(PROJECT_ROOT, "resources", "icons", "luthier.png"), "resources/icons"),
     ]
 )
 
@@ -45,11 +45,11 @@ elif _IS_WINDOWS:
     _icon_name = "luthier.ico"
 else:
     _icon_name = "luthier.png"
-_icon = os.path.join(PROJECT_ROOT, "Resources", _icon_name)
+_icon = os.path.join(PROJECT_ROOT, "resources", "icons", _icon_name)
 if not os.path.isfile(_icon):
     raise SystemExit(
-        f"Missing app icon Resources/{_icon_name}. "
-        "Run: .venv/bin/python Build/generate_icons.py"
+        f"Missing app icon resources/icons/{_icon_name}. "
+        "Run: .venv/bin/python build/generate_icons.py"
     )
 
 pyz = PYZ(a.pure)
@@ -63,7 +63,7 @@ exe = EXE(
     argv_emulation=_IS_MACOS,
     icon=_icon if not _IS_MACOS else None,
 )
-# COLLECT builds the one-folder distribution (Dist/Luthier/) on every OS:
+# COLLECT builds the one-folder distribution (dist/Luthier/) on every OS:
 # the Luthier executable plus its dependencies and bundled data. On Windows it
 # yields Luthier.exe, on Linux the Luthier binary. macOS additionally wraps it
 # into a .app. PyInstaller does not cross-compile: build on each target OS.

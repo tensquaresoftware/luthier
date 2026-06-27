@@ -26,7 +26,7 @@ def _self_check() -> int:
 
 def _apply_app_icon(app: QApplication) -> None:
     """Set window/Dock icon from bundled PNG except on frozen macOS (.icns in bundle)."""
-    icon_path = resource_path("luthier.png")
+    icon_path = resource_path("icons/luthier.png")
     if not Path(icon_path).is_file():
         return
     if sys.platform == "darwin" and getattr(sys, "frozen", False):

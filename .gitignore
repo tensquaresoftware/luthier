@@ -1,14 +1,14 @@
 .venv/
 __pycache__/
 *.pyc
-Build/Luthier/
-Build/luthier.iconset/
-Dist/
+build/Luthier/
+build/luthier.iconset/
+dist/
 .DS_Store
 
 # Local workspace (notes, screenshots, personal files)
 _local/
-Rules/
+rules/
 
 # AI tooling (not part of the product)
 .agents/

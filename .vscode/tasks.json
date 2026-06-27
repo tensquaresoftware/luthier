@@ -39,18 +39,18 @@
       "problemMatcher": []
     },
     {
-      "label": "Build Dist (PyInstaller)",
+      "label": "Build dist (PyInstaller)",
       "type": "shell",
       "command": "${command:python.interpreterPath}",
       "args": [
         "-m",
         "PyInstaller",
-        "Build/luthier.spec",
+        "build/luthier.spec",
         "--noconfirm",
         "--distpath",
-        "Dist",
+        "dist",
         "--workpath",
-        "Build"
+        "build"
       ],
       "options": {
         "cwd": "${workspaceFolder}"

@@ -13,11 +13,11 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 def _frozen_bundle_layout() -> tuple[Path, Path, Path, str]:
     """Return (bundle_root, binary, bundled_assets_root, meipass_stdout_marker)."""
     if sys.platform == "darwin":
-        bundle = REPO_ROOT / "Dist" / "Luthier.app"
+        bundle = REPO_ROOT / "dist" / "Luthier.app"
         binary = bundle / "Contents" / "MacOS" / "Luthier"
         assets_root = bundle / "Contents" / "Frameworks"
         return bundle, binary, assets_root, "Contents/Frameworks"
-    bundle = REPO_ROOT / "Dist" / "Luthier"
+    bundle = REPO_ROOT / "dist" / "Luthier"
     if sys.platform == "win32":
         binary = bundle / "Luthier.exe"
     else:
@@ -62,24 +62,24 @@ def test_frozen_self_check_exits_zero():
 @pytest.mark.skipif(not bundle_exists, reason="Frozen bundle not built")
 def test_frozen_bundle_assets_present():
     _require_frozen_bundle()
-    assert (BUNDLED_ASSETS_ROOT / "Templates" / "CMakeLists.txt").is_file()
-    assert (BUNDLED_ASSETS_ROOT / "Templates" / "Source").is_dir()
-    assert (BUNDLED_ASSETS_ROOT / "Templates" / "CMakeUserPresets.json").is_file()
-    assert (BUNDLED_ASSETS_ROOT / "Templates" / ".gitignore").is_file()
-    assert (BUNDLED_ASSETS_ROOT / "Resources" / "luthier-logo.png").is_file()
-    assert (BUNDLED_ASSETS_ROOT / "Resources" / "luthier-logo@2x.png").is_file()
+    assert (BUNDLED_ASSETS_ROOT / "templates" / "CMakeLists.txt").is_file()
+    assert (BUNDLED_ASSETS_ROOT / "templates" / "Source").is_dir()
+    assert (BUNDLED_ASSETS_ROOT / "templates" / "CMakeUserPresets.json").is_file()
+    assert (BUNDLED_ASSETS_ROOT / "templates" / ".gitignore").is_file()
+    assert (BUNDLED_ASSETS_ROOT / "resources" / "luthier-logo.png").is_file()
+    assert (BUNDLED_ASSETS_ROOT / "resources" / "luthier-logo@2x.png").is_file()
 
 
 @pytest.mark.skipif(not bundle_exists, reason="Frozen bundle not built")
 def test_generate_project_from_bundled_templates(tmp_path):
-    """Validate bundled Templates/ tree in the frozen bundle (not the frozen GUI Generate path)."""
+    """Validate bundled templates/ tree in the frozen bundle (not the frozen GUI Generate path)."""
     _require_frozen_bundle()
     from core import project_reader, render_context
     from core.project_writer import ProjectWriter
 
     from tests.conftest import make_spec
 
-    bundled_templates = BUNDLED_ASSETS_ROOT / "Templates"
+    bundled_templates = BUNDLED_ASSETS_ROOT / "templates"
     spec = make_spec(tmp_path)
     dest = Path(spec.destination_dir) / spec.project_name
     writer = ProjectWriter(bundled_templates, dest, overrides=None)

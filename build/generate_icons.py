@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate app icon assets from Resources/luthier-icon.png."""
+"""Generate app icon assets from resources/icons/luthier-icon.png."""
 
 from __future__ import annotations
 
@@ -13,10 +13,10 @@ from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-SOURCE_PATH = PROJECT_ROOT / "Resources" / "luthier-icon.png"
+ICONS = PROJECT_ROOT / "resources" / "icons"
+SOURCE_PATH = ICONS / "luthier-icon.png"
 SOURCE_SIZE = 1024                                              # master icon from Figma (square)
-RESOURCES = PROJECT_ROOT / "Resources"
-ICONSET = PROJECT_ROOT / "Build" / "luthier.iconset"
+ICONSET = PROJECT_ROOT / "build" / "luthier.iconset"
 
 # macOS iconset sizes (px): name suffix -> side length
 _ICONSET_SIZES = {
@@ -99,7 +99,7 @@ def main() -> int:
 
     app = QApplication([])
     source = _load_source()
-    _render_png(source, 512, RESOURCES / "luthier.png")
+    _render_png(source, 512, ICONS / "luthier.png")
 
     if ICONSET.exists():
         for child in ICONSET.iterdir():
@@ -110,17 +110,17 @@ def main() -> int:
     for name, size in _ICONSET_SIZES.items():
         _render_png(source, size, ICONSET / name)
 
-    icns_path = RESOURCES / "luthier.icns"
+    icns_path = ICONS / "luthier.icns"
     subprocess.run(
         ["iconutil", "-c", "icns", str(ICONSET), "-o", str(icns_path)],
         check=True,
     )
-    ico_path = RESOURCES / "luthier.ico"
+    ico_path = ICONS / "luthier.ico"
     _write_ico(
         [ICONSET / "icon_16x16.png", ICONSET / "icon_32x32.png", ICONSET / "icon_256x256.png"],
         ico_path,
     )
-    print(f"wrote {RESOURCES / 'luthier.png'}")
+    print(f"wrote {ICONS / 'luthier.png'}")
     print(f"wrote {icns_path}")
     print(f"wrote {ico_path}")
     return 0
