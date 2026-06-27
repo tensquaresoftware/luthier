@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from core.paths import normalize_path_dict_values
+from core.plugin_settings import TYPE_INSTRUMENT
 
 
 @dataclass
@@ -16,7 +17,7 @@ class ProjectSpec:
     company_email: str = ""
     destination_dir: str = ""
     juce_dir: str = ""
-    plugin_type: str = "Instrument"
+    plugin_type: str = TYPE_INSTRUMENT
     plugin_formats: str = ""
     cxx_standard: str = "C++17"
     preprocessor_definitions: str = ""
@@ -67,7 +68,7 @@ class ProjectSpec:
             company_email=d.get("companyEmail", ""),
             destination_dir=d.get("destinationDir", ""),
             juce_dir=d.get("juceDir", ""),
-            plugin_type=d.get("pluginType", "Instrument"),
+            plugin_type=d.get("pluginType", TYPE_INSTRUMENT),
             plugin_formats=d.get("pluginFormats", ""),
             cxx_standard=d.get("cxxStandard", "C++17"),
             preprocessor_definitions=d.get("preprocessorDefinitions", ""),

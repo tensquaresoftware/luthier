@@ -10,12 +10,17 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from core.plugin_settings import PLUGIN_TYPES
+from core.plugin_settings import (
+    PLUGIN_TYPES,
+    TYPE_AUDIO_EFFECT,
+    TYPE_INSTRUMENT,
+    TYPE_MIDI_EFFECT,
+)
 
 _DESCRIPTIONS = {
-    "synth": "Receives MIDI, produces audio.",
-    "effect": "Processes incoming audio.",
-    "midi": "Processes MIDI. No audio input or output.",
+    TYPE_INSTRUMENT: "Receives MIDI, produces audio.",
+    TYPE_AUDIO_EFFECT: "Processes incoming audio.",
+    TYPE_MIDI_EFFECT: "Processes MIDI. No audio input or output.",
 }
 _DEFAULT_TYPE = PLUGIN_TYPES[0][0]
 

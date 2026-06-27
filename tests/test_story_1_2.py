@@ -8,6 +8,7 @@ from pathlib import Path
 
 
 def _make_spec(**kwargs):
+    from core.plugin_settings import TYPE_INSTRUMENT
     from core.project_spec import ProjectSpec
 
     defaults = dict(
@@ -18,7 +19,7 @@ def _make_spec(**kwargs):
         manufacturer_code="Acme",
         plugin_code="Mypl",
         destination_dir=str(Path(tempfile.gettempdir())),
-        plugin_type="synth",
+        plugin_type=TYPE_INSTRUMENT,
         plugin_formats="VST3",
     )
     defaults.update(kwargs)

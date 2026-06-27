@@ -7,6 +7,7 @@ from pathlib import Path
 
 
 def _make_spec(**kwargs):
+    from core.plugin_settings import TYPE_INSTRUMENT
     from core.project_spec import ProjectSpec
 
     defaults = dict(
@@ -20,7 +21,7 @@ def _make_spec(**kwargs):
         company_website="https://acme.example",
         company_email="dev@acme.example",
         destination_dir=str(Path(tempfile.gettempdir())),
-        plugin_type="synth",
+        plugin_type=TYPE_INSTRUMENT,
         plugin_formats="VST3",
         cxx_standard="C++20",
         preprocessor_definitions="FOO=1",

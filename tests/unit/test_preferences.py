@@ -7,6 +7,7 @@ from unittest.mock import patch
 import pytest
 
 from core.preferences import Preferences, factory_defaults, validate_profile
+from core.plugin_settings import TYPE_AUDIO_EFFECT, TYPE_INSTRUMENT
 
 
 def _valid_profile(**overrides) -> dict:
@@ -19,7 +20,7 @@ def _valid_profile(**overrides) -> dict:
         "companyEmail": "",
         "destination": "/tmp/projects",
         "juceDir": "",
-        "pluginType": "synth",
+        "pluginType": TYPE_INSTRUMENT,
         "pluginFormats": "AU VST3 Standalone",
         "cxxStandard": "C++17",
         "preprocessorDefinitions": "",
@@ -41,7 +42,7 @@ def test_factory_defaults_include_extended_schema():
     ):
         defaults = factory_defaults()
     assert defaults["destination"] == "/mock/Desktop"
-    assert defaults["pluginType"] == "synth"
+    assert defaults["pluginType"] == TYPE_INSTRUMENT
     assert defaults["pluginFormats"] == "AU VST3 Standalone"
     assert defaults["cxxStandard"] == "C++17"
     assert defaults["preprocessorDefinitions"] == ""
@@ -69,19 +70,19 @@ def test_ensure_initialized_creates_file_with_desktop_destination(tmp_path):
     assert path.exists()
     data = json.loads(path.read_text(encoding="utf-8"))
     assert data["destination"] == "/mock/Desktop"
-    assert data["pluginType"] == "synth"
+    assert data["pluginType"] == TYPE_INSTRUMENT
 
 
 def test_to_dict_apply_profile_round_trip(tmp_path):
     path = tmp_path / "preferences.json"
     prefs = Preferences(path)
-    profile = _valid_profile(destination="/projects/out", pluginType="effect")
+    profile = _valid_profile(destination="/projects/out", pluginType=TYPE_AUDIO_EFFECT)
     prefs.apply_profile(profile)
     prefs.save()
     reloaded = Preferences(path)
     reloaded.load()
     assert reloaded.to_dict() == prefs.to_dict()
-    assert reloaded.get("pluginType") == "effect"
+    assert reloaded.get("pluginType") == TYPE_AUDIO_EFFECT
     assert reloaded.get("destination") == "/projects/out"
 
 
@@ -142,7 +143,7 @@ def test_seed_dict_round_trips_through_project_spec(tmp_path):
     prefs.apply_profile(_valid_profile(
         destination="/seed/dest",
         juceDir="/Applications/JUCE",
-        pluginType="effect",
+        pluginType=TYPE_AUDIO_EFFECT,
         pluginFormats="AU VST3",
         cxxStandard="C++20",
     ))
@@ -155,6 +156,6 @@ def test_seed_dict_round_trips_through_project_spec(tmp_path):
     spec = ProjectSpec.from_dict(seed)
     assert spec.destination_dir == "/seed/dest"
     assert spec.juce_dir == "/Applications/JUCE"
-    assert spec.plugin_type == "effect"
+    assert spec.plugin_type == TYPE_AUDIO_EFFECT
     assert spec.plugin_formats == "AU VST3"
     assert spec.cxx_standard == "C++20"

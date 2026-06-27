@@ -7,6 +7,7 @@ from dataclasses import fields
 from pathlib import Path
 
 from core.project_spec import ProjectSpec
+from core.plugin_settings import TYPE_INSTRUMENT
 
 _LEGACY_COPY_CONFIG = """\
 set(USER_COPY_TO_SYSTEM_FOLDERS ON)
@@ -31,7 +32,7 @@ def _default_spec_fields(tmp_path) -> dict:
         company_website="https://acme.example",
         company_email="dev@acme.example",
         destination_dir=str(tmp_path),
-        plugin_type="synth",
+        plugin_type=TYPE_INSTRUMENT,
         plugin_formats="VST3",
         cxx_standard="C++20",
         preprocessor_definitions="FOO=1",

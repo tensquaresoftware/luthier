@@ -3,6 +3,7 @@
 import json
 
 from core.app_state import AppState
+from core.plugin_settings import TYPE_INSTRUMENT
 from core.preferences import Preferences
 from core.project_spec import ProjectSpec
 
@@ -17,7 +18,7 @@ def _valid_profile(**overrides) -> dict:
         "companyEmail": "",
         "destination": "/tmp/prefs-dest",
         "juceDir": "",
-        "pluginType": "synth",
+        "pluginType": TYPE_INSTRUMENT,
         "pluginFormats": "AU VST3 Standalone",
         "cxxStandard": "C++17",
         "preprocessorDefinitions": "",

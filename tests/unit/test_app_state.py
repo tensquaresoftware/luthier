@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from core.app_state import AppState
+from core.plugin_settings import TYPE_INSTRUMENT
 from core.preferences import Preferences
 
 
@@ -69,7 +70,7 @@ def test_app_state_save_does_not_touch_preferences_json(tmp_path):
         "companyEmail": "",
         "destination": "/tmp/projects",
         "juceDir": "",
-        "pluginType": "synth",
+        "pluginType": TYPE_INSTRUMENT,
         "pluginFormats": "AU VST3 Standalone",
         "cxxStandard": "C++17",
         "preprocessorDefinitions": "",

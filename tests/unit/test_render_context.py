@@ -7,6 +7,11 @@ from pathlib import Path
 
 import pytest
 
+from core.plugin_settings import (
+    TYPE_AUDIO_EFFECT,
+    TYPE_INSTRUMENT,
+    TYPE_MIDI_EFFECT,
+)
 from core.project_spec import ProjectSpec
 from core.render_context import build_context, build_tokens
 
@@ -21,19 +26,19 @@ _VALUE_KEYS = (
 )
 
 _EXPECTED_FLAGS = {
-    "synth": {
+    TYPE_INSTRUMENT: {
         "isSynth": "TRUE",
         "isMidiEffect": "FALSE",
         "needsMidiInput": "TRUE",
         "needsMidiOutput": "FALSE",
     },
-    "effect": {
+    TYPE_AUDIO_EFFECT: {
         "isSynth": "FALSE",
         "isMidiEffect": "FALSE",
         "needsMidiInput": "FALSE",
         "needsMidiOutput": "FALSE",
     },
-    "midi": {
+    TYPE_MIDI_EFFECT: {
         "isSynth": "FALSE",
         "isMidiEffect": "TRUE",
         "needsMidiInput": "TRUE",
@@ -42,9 +47,9 @@ _EXPECTED_FLAGS = {
 }
 
 _EXPECTED_CATEGORIES = {
-    "synth": ("kAudioUnitType_MusicDevice", "Instrument|Synth"),
-    "effect": ("kAudioUnitType_Effect", "Fx"),
-    "midi": ("kAudioUnitType_MIDIProcessor", "Fx|MIDI"),
+    TYPE_INSTRUMENT: ("kAudioUnitType_MusicDevice", "Instrument|Synth"),
+    TYPE_AUDIO_EFFECT: ("kAudioUnitType_Effect", "Fx"),
+    TYPE_MIDI_EFFECT: ("kAudioUnitType_MIDIProcessor", "Fx|MIDI"),
 }
 
 
@@ -60,7 +65,7 @@ def _make_spec(**kwargs):
         company_website="https://acme.example",
         company_email="dev@acme.example",
         destination_dir=str(Path(tempfile.gettempdir())),
-        plugin_type="synth",
+        plugin_type=TYPE_INSTRUMENT,
         plugin_formats="VST3",
         cxx_standard="C++20",
         preprocessor_definitions="FOO=1",
@@ -77,7 +82,7 @@ def _make_spec(**kwargs):
 
 def test_build_context_empty_optional_cmake_blocks():
     spec = _make_spec(
-        plugin_type="synth",
+        plugin_type=TYPE_INSTRUMENT,
         preprocessor_definitions="",
         header_search_paths="",
     )
@@ -98,7 +103,10 @@ def test_build_context_populated_cmake_blocks():
     assert "MyPlugin" in ctx["headerSearchPathsBlock"]
 
 
-@pytest.mark.parametrize("plugin_type", ["synth", "effect", "midi"])
+@pytest.mark.parametrize(
+    "plugin_type",
+    [TYPE_INSTRUMENT, TYPE_AUDIO_EFFECT, TYPE_MIDI_EFFECT],
+)
 def test_build_context_plugin_type_flags_and_categories(plugin_type):
     spec = _make_spec(plugin_type=plugin_type)
     ctx = build_context(spec)

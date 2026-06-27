@@ -6,6 +6,9 @@ import pytest
 
 from core.plugin_settings import (
     PLUGIN_TYPES,
+    TYPE_AUDIO_EFFECT,
+    TYPE_INSTRUMENT,
+    TYPE_MIDI_EFFECT,
     au_and_vst3_categories,
     bundle_id,
     flags_for_type,
@@ -13,19 +16,19 @@ from core.plugin_settings import (
 )
 
 _EXPECTED_FLAGS = {
-    "synth": {
+    TYPE_INSTRUMENT: {
         "isSynth": "TRUE",
         "isMidiEffect": "FALSE",
         "needsMidiInput": "TRUE",
         "needsMidiOutput": "FALSE",
     },
-    "effect": {
+    TYPE_AUDIO_EFFECT: {
         "isSynth": "FALSE",
         "isMidiEffect": "FALSE",
         "needsMidiInput": "FALSE",
         "needsMidiOutput": "FALSE",
     },
-    "midi": {
+    TYPE_MIDI_EFFECT: {
         "isSynth": "FALSE",
         "isMidiEffect": "TRUE",
         "needsMidiInput": "TRUE",
@@ -34,9 +37,9 @@ _EXPECTED_FLAGS = {
 }
 
 _EXPECTED_CATEGORIES = {
-    "synth": ("kAudioUnitType_MusicDevice", "Instrument|Synth"),
-    "effect": ("kAudioUnitType_Effect", "Fx"),
-    "midi": ("kAudioUnitType_MIDIProcessor", "Fx|MIDI"),
+    TYPE_INSTRUMENT: ("kAudioUnitType_MusicDevice", "Instrument|Synth"),
+    TYPE_AUDIO_EFFECT: ("kAudioUnitType_Effect", "Fx"),
+    TYPE_MIDI_EFFECT: ("kAudioUnitType_MIDIProcessor", "Fx|MIDI"),
 }
 
 

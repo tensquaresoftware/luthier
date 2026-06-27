@@ -5,17 +5,21 @@ Pure functions shared by the form, the project reader and the generator.
 
 import re
 
+TYPE_INSTRUMENT = "instrument"
+TYPE_AUDIO_EFFECT = "audio-effect"
+TYPE_MIDI_EFFECT = "midi-effect"
+
 PLUGIN_TYPES = [
-    ("synth", "Instrument"),
-    ("effect", "Audio Effect"),
-    ("midi", "MIDI Effect"),
+    (TYPE_INSTRUMENT, "Instrument"),
+    (TYPE_AUDIO_EFFECT, "Audio Effect"),
+    (TYPE_MIDI_EFFECT, "MIDI Effect"),
 ]
 
 # type_key -> (isSynth, isMidiEffect, needsMidiInput, needsMidiOutput)
 _FLAGS = {
-    "synth": ("TRUE", "FALSE", "TRUE", "FALSE"),
-    "effect": ("FALSE", "FALSE", "FALSE", "FALSE"),
-    "midi": ("FALSE", "TRUE", "TRUE", "TRUE"),
+    TYPE_INSTRUMENT: ("TRUE", "FALSE", "TRUE", "FALSE"),
+    TYPE_AUDIO_EFFECT: ("FALSE", "FALSE", "FALSE", "FALSE"),
+    TYPE_MIDI_EFFECT: ("FALSE", "TRUE", "TRUE", "TRUE"),
 }
 
 
@@ -31,10 +35,10 @@ def flags_for_type(type_key: str) -> dict:
 
 def type_for_flags(is_synth: str, is_midi_effect: str) -> str:
     if is_synth == "TRUE":
-        return "synth"
+        return TYPE_INSTRUMENT
     if is_midi_effect == "TRUE":
-        return "midi"
-    return "effect"
+        return TYPE_MIDI_EFFECT
+    return TYPE_AUDIO_EFFECT
 
 
 def bundle_id(manufacturer_name: str, project_name: str) -> str:

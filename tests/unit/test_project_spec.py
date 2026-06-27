@@ -6,6 +6,7 @@ from dataclasses import fields
 
 import pytest
 
+from core.plugin_settings import TYPE_INSTRUMENT
 from core.project_spec import ProjectSpec
 
 
@@ -21,7 +22,7 @@ def _make_spec(**kwargs):
         company_website="https://acme.example",
         company_email="dev@acme.example",
         destination_dir="/tmp/out",
-        plugin_type="synth",
+        plugin_type=TYPE_INSTRUMENT,
         plugin_formats="VST3 AU",
         cxx_standard="C++20",
         preprocessor_definitions="FOO=1",

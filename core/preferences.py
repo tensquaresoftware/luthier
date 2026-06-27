@@ -7,6 +7,7 @@ from PySide6.QtCore import QStandardPaths
 
 from core import validation
 from core.paths import normalize_path_dict_values, normalize_portable_path
+from core.plugin_settings import PLUGIN_TYPES, TYPE_INSTRUMENT
 
 _DEFAULTS = {
     "manufacturer": "My Company",
@@ -17,7 +18,7 @@ _DEFAULTS = {
     "companyEmail": "",
     "destination": "",
     "juceDir": "",
-    "pluginType": "synth",
+    "pluginType": TYPE_INSTRUMENT,
     "pluginFormats": "AU VST3 Standalone",
     "cxxStandard": "C++17",
     "preprocessorDefinitions": "",
@@ -54,7 +55,7 @@ _COMPILATION_KEYS = ("cxxStandard", "preprocessorDefinitions", "headerSearchPath
 
 _PLUGIN_KEYS = ("pluginType", "pluginFormats")
 
-_VALID_PLUGIN_TYPES = frozenset({"synth", "effect", "midi"})
+_VALID_PLUGIN_TYPES = frozenset(key for key, _ in PLUGIN_TYPES)
 _VALID_PLUGIN_FORMATS = frozenset({"AU", "VST3", "Standalone"})
 _VALID_CXX = frozenset({"C++17", "C++20", "C++23"})
 
@@ -100,7 +101,9 @@ def validate_profile(data: dict) -> tuple[bool, str]:
             return False, message
     plugin_type = str(data.get("pluginType", ""))
     if plugin_type not in _VALID_PLUGIN_TYPES:
-        return False, "Plugin type must be synth, effect, or midi."
+        return False, (
+            "Plugin type must be instrument, audio-effect, or midi-effect."
+        )
     formats = str(data.get("pluginFormats", "")).split()
     if not formats:
         return False, "Select at least one plugin format."
