@@ -1,7 +1,7 @@
 #include "PluginEditor.h"
 
-PluginEditor::PluginEditor(PluginProcessor& processor)
-    : AudioProcessorEditor(&processor), pluginProcessor_(processor)
+PluginEditor::PluginEditor(PluginProcessor& p)
+    : AudioProcessorEditor(p), pluginProcessor_(p)
 {
     setSize(400, 300);
 }
