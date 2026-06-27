@@ -1,10 +1,13 @@
 """Pure field validators for the Luthier form.
 
-Self-contained and dependency-free so the form stays testable. The rules
-mirror JUCE's plugin identity constraints (4-char codes, ASCII-only paths).
+Self-contained and dependency-free so the form stays testable. Plugin identity
+codes follow the GarageBand 10.3 / JUCE AU convention (4-char codes, ASCII-only
+paths).
 """
 
+import random
 import re
+import string
 
 ValidationResult = tuple[bool, str]
 
@@ -12,7 +15,9 @@ _PROJECT_NAME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9_-]*$")
 _DISPLAY_NAME_CHARS = set(
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -_"
 )
-_CODE_LENGTH = 4
+_MANUFACTURER_CODE_RE = re.compile(r"^[A-Z][a-z]{3}$")
+_PLUGIN_CODE_RE = re.compile(r"^[A-Z][a-z0-9]{3}$")
+_RESERVED_PLUGIN_CODE = "DEMO"
 
 
 def _ok() -> ValidationResult:
@@ -46,15 +51,35 @@ def validate_manufacturer_name(value: str) -> ValidationResult:
 
 
 def validate_manufacturer_code(value: str) -> ValidationResult:
-    if len(value) == _CODE_LENGTH and value.isalpha():
+    if _MANUFACTURER_CODE_RE.match(value):
         return _ok()
-    return False, f"Exactly {_CODE_LENGTH} alphabetic characters."
+    return False, "First uppercase letter, then 3 lowercase letters."
 
 
 def validate_plugin_code(value: str) -> ValidationResult:
-    if len(value) == _CODE_LENGTH and value.isalnum():
+    if value.upper() == _RESERVED_PLUGIN_CODE:
+        return False, f"'{_RESERVED_PLUGIN_CODE}' is reserved by Apple."
+    if _PLUGIN_CODE_RE.match(value):
         return _ok()
-    return False, f"Exactly {_CODE_LENGTH} alphanumeric characters."
+    return False, "First uppercase letter, then 3 lowercase letters or digits."
+
+
+def generate_manufacturer_code() -> str:
+    """Return a random GarageBand-compatible manufacturer code."""
+    first = random.choice(string.ascii_uppercase)
+    rest = "".join(random.choices(string.ascii_lowercase, k=3))
+    return first + rest
+
+
+def generate_plugin_code() -> str:
+    """Return a random GarageBand-compatible plugin code."""
+    alphabet = string.ascii_lowercase + string.digits
+    while True:
+        first = random.choice(string.ascii_uppercase)
+        rest = "".join(random.choices(alphabet, k=3))
+        code = first + rest
+        if code.upper() != _RESERVED_PLUGIN_CODE:
+            return code
 
 
 def _no_accents(value: str) -> ValidationResult:

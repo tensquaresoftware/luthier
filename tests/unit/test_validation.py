@@ -5,6 +5,8 @@ import sys
 import pytest
 
 from core.validation import (
+    generate_manufacturer_code,
+    generate_plugin_code,
     validate_destination,
     validate_display_name,
     validate_manufacturer_code,
@@ -91,9 +93,11 @@ def test_validate_manufacturer_name(value, expect_ok):
 @pytest.mark.parametrize(
     "value, expect_ok",
     [
+        ("Myco", True),
         ("Abcd", True),
-        ("abc", False),
+        ("abcd", False),
         ("Ab12", False),
+        ("MYCO", False),
         ("", False),
     ],
 )
@@ -101,14 +105,18 @@ def test_validate_manufacturer_code(value, expect_ok):
     result = validate_manufacturer_code(value)
     _assert_result(result, expect_ok=expect_ok)
     if not expect_ok:
-        assert "Exactly 4" in result[1]
+        assert "uppercase" in result[1].lower()
 
 
 @pytest.mark.parametrize(
     "value, expect_ok",
     [
         ("Mypl", True),
-        ("1234", True),
+        ("Dem0", True),
+        ("DEMO", False),
+        ("1234", False),
+        ("MYPL", False),
+        ("mypl", False),
         ("abc", False),
         ("toolong", False),
         ("", False),
@@ -117,8 +125,25 @@ def test_validate_manufacturer_code(value, expect_ok):
 def test_validate_plugin_code(value, expect_ok):
     result = validate_plugin_code(value)
     _assert_result(result, expect_ok=expect_ok)
-    if not expect_ok:
-        assert "Exactly 4" in result[1]
+    if not expect_ok and value.upper() != "DEMO":
+        assert "uppercase" in result[1].lower()
+    if value.upper() == "DEMO":
+        assert "reserved" in result[1].lower()
+
+
+def test_generate_manufacturer_code_produces_valid_codes():
+    for _ in range(30):
+        code = generate_manufacturer_code()
+        assert len(code) == 4
+        assert validate_manufacturer_code(code)[0]
+
+
+def test_generate_plugin_code_produces_valid_codes():
+    for _ in range(30):
+        code = generate_plugin_code()
+        assert len(code) == 4
+        assert code.upper() != "DEMO"
+        assert validate_plugin_code(code)[0]
 
 
 @pytest.mark.parametrize(
