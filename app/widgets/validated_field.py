@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from app.qss import repolish
 from core.paths import is_path_validator, normalize_portable_path
@@ -36,6 +36,7 @@ class FieldSpec:
     validator: Validator
     default: str = ""
     placeholder: str = ""
+    generator: Callable[[], str] | None = None
 
 
 class ValidatedField(QWidget):
@@ -102,9 +103,18 @@ class ValidatedField(QWidget):
         self._mark.setObjectName("FieldMark")
         self._mark.setFixedWidth(16)
         row.addWidget(make_field_label(self._spec.label))
+        if self._spec.generator is not None:
+            generate = QPushButton("Generate")
+            generate.setObjectName("ActionButton")
+            generate.clicked.connect(self._generate_value)
+            row.addWidget(generate)
         row.addWidget(self._edit_host, 1)
         row.addWidget(self._mark)
         return row
+
+    def _generate_value(self) -> None:
+        if self._spec.generator is not None:
+            self.set_value(self._spec.generator())
 
     def _on_text_changed(self, text: str) -> None:
         ok, message = self._spec.validator(text)

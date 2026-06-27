@@ -36,10 +36,12 @@ def _field_specs(defaults: dict) -> list[FieldSpec]:
                   default=defaults.get("companyEmail", "")),
         FieldSpec("manufacturerCode", "Manufacturer code *",
                   validation.validate_manufacturer_code,
-                  default=defaults.get("manufacturerCode", "")),
+                  default=defaults.get("manufacturerCode", ""),
+                  generator=validation.generate_manufacturer_code),
         FieldSpec("pluginCode", "Plugin code *",
                   validation.validate_plugin_code,
-                  default=defaults.get("pluginCode", "")),
+                  default=defaults.get("pluginCode", ""),
+                  generator=validation.generate_plugin_code),
     ]
 
 
