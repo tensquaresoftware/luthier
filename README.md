@@ -10,7 +10,7 @@ Luthier is a self-contained [PySide6](https://doc.qt.io/qtforpython/) desktop ap
 
 - **Project** — one scrollable page for the whole plugin:
   - identity: technical/display names, version, manufacturer, copyright, website, e-mail, plugin & manufacturer codes, auto-computed bundle ID, with live inline validation;
-  - plugin type (Synthesizer, Audio Effect, MIDI Effect) and formats (AU, VST3, Standalone);
+  - plugin type (Instrument, Audio Effect, MIDI Effect) and formats (AU, VST3, Standalone);
   - compilation: C++ standard, preprocessor definitions, header search paths;
   - artefacts: copy to system plugin folders and/or a central per-OS directory.
 - **Preferences** — persistent defaults (identity + default artefact settings) stored as JSON in the OS configuration directory.

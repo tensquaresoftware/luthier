@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
 from core.plugin_settings import PLUGIN_TYPES
 
 _DESCRIPTIONS = {
-    "synth": "Instrument. Receives MIDI, produces audio.",
+    "synth": "Receives MIDI, produces audio.",
     "effect": "Processes incoming audio.",
     "midi": "Processes MIDI. No audio input or output.",
 }

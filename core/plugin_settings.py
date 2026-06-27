@@ -6,7 +6,7 @@ Pure functions shared by the form, the project reader and the generator.
 import re
 
 PLUGIN_TYPES = [
-    ("synth", "Synthesizer"),
+    ("synth", "Instrument"),
     ("effect", "Audio Effect"),
     ("midi", "MIDI Effect"),
 ]
