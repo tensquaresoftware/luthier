@@ -329,6 +329,33 @@ Lorsque **Copy to central artefacts folder** est activée :
 
 Le chemin correspondant à **votre OS actuel** dispose d’un bouton **Choose…**. Les deux autres se saisissent au clavier (ou par collage), car un sélecteur sur votre machine ne peut pas produire un chemin valide pour un autre OS (par exemple `D:\Plugins` depuis macOS). C’est normal si vous développez sur une seule plateforme : vous pouvez laisser les autres champs vides pour l’instant.
 
+#### Dossier dans le cloud (Dropbox, OneDrive, NAS…)
+
+Un cas d’usage intéressant consiste à pointer chaque chemin vers le **même dossier logique** au sein d’un service cloud ou d’un partage réseau — par exemple un dossier `Artefacts` à la racine de votre Dropbox, OneDrive ou montage NAS. Il faut malgré tout renseigner **trois chemins** (un par OS), car chaque système exprime cet emplacement différemment :
+
+| OS | Exemple de chemin |
+|----|-------------------|
+| macOS | `/Users/vous/Dropbox/Artefacts` |
+| Windows | `C:\Users\vous\Dropbox\Artefacts` |
+| Linux | `/home/vous/Dropbox/Artefacts` |
+
+Après chaque build, Luthier copie les binaires dans des **sous-dossiers par plateforme** sous cette racine : `macOS/` (avec un sous-dossier d’architecture tel que `ARM/` ou `Universal/`), `Windows/` et `Linux/`. Lorsque vous compilez le même projet sur plusieurs machines, la synchronisation fusionne ces branches en une arborescence unique — pratique pour archiver ou préparer une release sans tri manuel :
+
+```
+Artefacts/
+├── macOS/
+│   ├── ARM/
+│   │   ├── AU/
+│   │   └── VST3/
+│   └── Universal/
+├── Windows/
+│   └── VST3/
+└── Linux/
+    └── VST3/
+```
+
+Workflow typique : créer le projet sur une machine et définir le chemin d’artefacts avec **Choose…** ; cloner le dépôt sur vos autres systèmes, rouvrir le projet dans Luthier, puis saisir le **chemin local équivalent** pour chaque OS avant d’y lancer un build.
+
 Les réglages d’artefacts appartiennent à **ce projet**. Ils peuvent différer des defaults globaux de Preferences.
 
 ### 7.6 Actions du projet

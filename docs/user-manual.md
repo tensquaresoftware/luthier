@@ -332,6 +332,33 @@ When **Copy to central artefacts folder** is on:
 
 The path for **your current OS** has a **Choose…** button. The other two are typed or pasted manually, because a folder picker on your machine cannot produce a valid path for another OS (for example `D:\Plugins` while running on macOS). It is fine to leave the other fields empty if you develop on a single platform for now.
 
+#### Cloud and shared storage (Dropbox, OneDrive, NAS…)
+
+A practical setup is to point each path at the **same logical folder** inside a cloud or network sync service — for example a folder named `Artefacts` at the root of your Dropbox, OneDrive, or NAS mount. You still enter **three paths** (one per OS), because each system expresses that location differently:
+
+| OS | Example path |
+|----|----------------|
+| macOS | `/Users/you/Dropbox/Artefacts` |
+| Windows | `C:\Users\you\Dropbox\Artefacts` |
+| Linux | `/home/you/Dropbox/Artefacts` |
+
+After each build, Luthier copies binaries into **platform subfolders** under that root: `macOS/` (with an architecture subfolder such as `ARM/` or `Universal/`), `Windows/`, and `Linux/`. When you build the same project on several machines, sync merges those branches into one tree — useful for archiving or preparing a release without manual sorting:
+
+```
+Artefacts/
+├── macOS/
+│   ├── ARM/
+│   │   ├── AU/
+│   │   └── VST3/
+│   └── Universal/
+├── Windows/
+│   └── VST3/
+└── Linux/
+    └── VST3/
+```
+
+Typical workflow: create the project on one machine and set the artefact path with **Choose…**; clone the repository on your other systems, reopen the project in Luthier, and enter the **equivalent local path** for each OS before building there.
+
 Artefact settings belong to **this project**. They may differ from your global Preferences defaults.
 
 ### 7.6 Project actions
