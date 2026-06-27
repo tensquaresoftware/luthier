@@ -32,5 +32,7 @@ public:
     void setStateInformation(const void* data, int sizeInBytes) override;
 
 private:
+    void clearOrphanOutputChannels(juce::AudioBuffer<float>& buffer);
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)
 };
