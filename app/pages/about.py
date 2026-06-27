@@ -193,7 +193,7 @@ class AboutPage(QWidget):
             ("Organization : Ten Square Software", None),
             ("Author : Guillaume DUPONT", None),
             ("Email : tensquaresoftware@gmail.com", "mailto:tensquaresoftware@gmail.com"),
-            ("GitHub : github.com/tensquaresoftware/Luthier", "https://github.com/tensquaresoftware/Luthier"),
+            ("GitHub : github.com/tensquaresoftware/luthier", "https://github.com/tensquaresoftware/luthier"),
             ("Version : 1.0.0", None),
             ("Revision date : 2026-06-25", None),
         ]

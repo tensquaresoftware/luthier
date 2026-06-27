@@ -20,7 +20,7 @@ These steps should complete in **under 15 minutes** on a typical machine (verifi
 
 ```bash
 # 1. Clone and enter the repo
-git clone https://github.com/tensquaresoftware/Luthier.git && cd Luthier
+git clone https://github.com/tensquaresoftware/luthier.git && cd luthier
 
 # 2. Virtual environment
 python3 -m venv .venv

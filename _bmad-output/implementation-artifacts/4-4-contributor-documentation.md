@@ -103,7 +103,7 @@ Document this exact sequence (platform variants in parentheses):
 
 ```bash
 # 1. Clone and enter repo
-git clone https://github.com/tensquaresoftware/Luthier.git && cd Luthier
+git clone https://github.com/tensquaresoftware/luthier.git && cd luthier
 
 # 2. Virtual environment
 python3 -m venv .venv

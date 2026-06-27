@@ -291,7 +291,7 @@ From user requirements stated at project init:
 | Prototype generator (reference only, do not modify) | `/Volumes/Guillaume/Dev/SDKs/JUCE/Tools/Juce-Project-Generator/` |
 | Projucer sources (UX/feature inspiration) | `/Applications/JUCE/extras/Projucer/` |
 | JUCE installation | `/Applications/JUCE/` |
-| GitHub repo | `https://github.com/tensquaresoftware/Luthier` |
+| GitHub repo | `https://github.com/tensquaresoftware/luthier` |
 | Preferences JSON (runtime) | `~/Library/Preferences/Luthier/preferences.json` (macOS) |
 | App state JSON (runtime) | `~/Library/Preferences/Luthier/app_state.json` (macOS) |
 | Template overrides (runtime) | `~/Library/Preferences/Luthier/templates/Source/` (macOS) |

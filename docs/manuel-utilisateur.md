@@ -91,7 +91,7 @@ Avant d’ouvrir Luthier, assurez-vous d’avoir les éléments ci-dessous. Inut
 
 Luthier génère des projets qui *utilisent* JUCE, mais ne l’inclut pas dans le dépôt : vous devez disposer du SDK sur votre machine. Téléchargez-le sur [juce.com](https://juce.com) ou clonez le [dépôt JUCE](https://github.com/juce-framework/JUCE), décompressez-le où vous voulez, puis indiquez ce dossier dans **JUCE directory**. Ce chemin sert de valeur par défaut pour que CMake sache où trouver JUCE lors de la génération.
 
-Rien ne vous empêche d’utiliser une **copie de JUCE distincte par projet JUCE** : renseignez un **JUCE directory** propre à chaque projet dans l’onglet **Project** (voir [§11.2](#112-projet-avec-une-version-juce-spécifique)). Beaucoup d’équipes placent cette copie **dans le dossier du projet** (par exemple `MonSynth/JUCE/`) pour figer la version du framework et éviter qu’une mise à jour globale de JUCE ne perturbe les autres projets.
+Rien ne vous empêche d’utiliser une **copie de JUCE distincte par projet JUCE** : renseignez un **JUCE directory** propre à chaque projet dans l’onglet **Project** (voir [§11.2](#112-projet-avec-une-version-juce-spécifique)). Beaucoup d’équipes placent cette copie **dans le dossier du projet** (par exemple `MySynth/JUCE/`) pour figer la version du framework et éviter qu’une mise à jour globale de JUCE ne perturbe les autres projets.
 
 ### Plateformes prises en charge
 
