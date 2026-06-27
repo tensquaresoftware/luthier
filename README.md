@@ -22,7 +22,7 @@ Luthier is a self-contained [PySide6](https://doc.qt.io/qtforpython/) desktop ap
 - Python 3.11+
 - Dev setup: `pip install -r requirements-dev.txt` (includes PySide6, pytest, PyInstaller — see [CONTRIBUTING.md](CONTRIBUTING.md))
 - Runtime-only install: `pip install -r requirements.txt` (PySide6 only)
-- No external dependencies beyond PySide6: the CMake project templates ship inside Luthier (`Templates/`) and the generation engine is built in (`core/`).
+- No external dependencies beyond PySide6: the CMake project templates ship inside Luthier (`templates/`) and the generation engine is built in (`core/`).
 
 ## Run from source
 
@@ -41,21 +41,21 @@ Check that the bundled templates are reachable (headless):
 
 ## Contributing
 
-See **[CONTRIBUTING.md](CONTRIBUTING.md)** for full developer setup (venv, pytest, bundle build) and **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the three-layer design and module contracts.
+See **[CONTRIBUTING.md](CONTRIBUTING.md)** for full developer setup (venv, pytest, bundle build) and **[docs/architecture.md](docs/architecture.md)** for the three-layer design and module contracts.
 
 ## Build a standalone app
 
 PyInstaller bundles templates and resources into a self-contained app (build on each target OS — no cross-compilation):
 
 ```bash
-.venv/bin/pyinstaller Build/luthier.spec --noconfirm --distpath Dist --workpath Build
+.venv/bin/pyinstaller build/luthier.spec --noconfirm --distpath dist --workpath build
 ```
 
 | OS      | Output                                      |
 | ------- | ------------------------------------------- |
-| macOS   | `Dist/Luthier.app`                          |
-| Windows | `Dist/Luthier/Luthier.exe` + `_internal/`   |
-| Linux   | `Dist/Luthier/Luthier` + `_internal/`       |
+| macOS   | `dist/Luthier.app`                          |
+| Windows | `dist/Luthier/Luthier.exe` + `_internal/`   |
+| Linux   | `dist/Luthier/Luthier` + `_internal/`       |
 
 Platform variants, headless bundle checks, and timings: see **[CONTRIBUTING.md](CONTRIBUTING.md#build-a-standalone-bundle-optional-extended-step)**.
 

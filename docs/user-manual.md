@@ -8,9 +8,9 @@ Product-Version: 1.0.0
 Created: 2026-06-26
 Updated: 2026-06-27
 References:
-  - docs/ARCHITECTURE.md
+  - docs/architecture.md
   - CONTRIBUTING.md
-  - docs/MANUEL-UTILISATEUR.md
+  - docs/manuel-utilisateur.md
   - README.md
 ---
 
@@ -22,7 +22,7 @@ It is written for people new to JUCE or the audio-project build toolchain: each 
 
 > **Interface language** — Luthier displays in **English**. All UI labels cited below match what you see on screen exactly.
 >
-> **French translation** — See [MANUEL-UTILISATEUR.md](MANUEL-UTILISATEUR.md) for the French edition of this manual.
+> **French translation** — See [manuel-utilisateur.md](manuel-utilisateur.md) for the French edition of this manual.
 
 ---
 
@@ -711,13 +711,13 @@ From a terminal (useful for CI or verifying a bundle):
 
 ```bash
 # Windows
-Dist\Luthier\Luthier.exe --check
+dist\Luthier\Luthier.exe --check
 
 # macOS
-Dist/Luthier.app/Contents/MacOS/Luthier --check
+dist/Luthier.app/Contents/MacOS/Luthier --check
 
 # Linux
-Dist/Luthier/Luthier --check
+dist/Luthier/Luthier --check
 ```
 
 Exit code `0` means the bundled templates are reachable.

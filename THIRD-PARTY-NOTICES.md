@@ -17,7 +17,7 @@ Luthier's own code remains under the MIT License and may be used, modified, and 
 
 ## Logo fonts
 
-The Luthier logo (`Resources/luthier-logo.png`) uses typography derived from two fonts under the SIL Open Font License 1.1:
+The Luthier logo (`resources/luthier-logo.png`) uses typography derived from two fonts under the SIL Open Font License 1.1:
 
 - **Orbitron** — © The Orbitron Project Authors (the "LUTHIER" wordmark)
 - **Montserrat** — © The Montserrat Project Authors (the "JUCE PROJECT GENERATOR" subtitle)

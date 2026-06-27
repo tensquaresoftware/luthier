@@ -8,8 +8,8 @@ Product-Version: 1.0.0
 Created: 2026-06-26
 Updated: 2026-06-27
 References:
-  - docs/USER-MANUAL.md
-  - docs/ARCHITECTURE.md
+  - docs/user-manual.md
+  - docs/architecture.md
   - CONTRIBUTING.md
   - README.md
 ---
@@ -20,7 +20,7 @@ Ce manuel vous guide dans l’utilisation de Luthier, une application de bureau 
 
 Un soin particulier a été apporté à ce document rédigé pour les personnes qui découvrent JUCE ou la chaîne de build d’un projet audio. Chaque section explique d’abord *à quoi sert* un réglage, puis *comment* l’utiliser dans l’interface. Les tableaux et listes restent là pour la consultation rapide. Les textes qui les accompagnent visent à vous éviter les fausses pistes les plus courantes.
 
-> **Langue de l’interface** — Luthier s’affiche en **anglais**. Les libellés de boutons et de champs cités ci-dessous reprennent exactement le texte à l’écran. Ce document est la traduction française du [manuel anglais](USER-MANUAL.md), qui reste la référence officielle du produit.
+> **Langue de l’interface** — Luthier s’affiche en **anglais**. Les libellés de boutons et de champs cités ci-dessous reprennent exactement le texte à l’écran. Ce document est la traduction française du [manuel anglais](user-manual.md), qui reste la référence officielle du produit.
 
 ---
 
@@ -710,13 +710,13 @@ Depuis un terminal (utile pour la CI ou vérifier un bundle) :
 
 ```bash
 # Windows
-Dist\Luthier\Luthier.exe --check
+dist\Luthier\Luthier.exe --check
 
 # macOS
-Dist/Luthier.app/Contents/MacOS/Luthier --check
+dist/Luthier.app/Contents/MacOS/Luthier --check
 
 # Linux
-Dist/Luthier/Luthier --check
+dist/Luthier/Luthier --check
 ```
 
 Un code de sortie `0` signifie que les templates embarqués sont accessibles.

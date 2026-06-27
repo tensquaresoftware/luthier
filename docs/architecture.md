@@ -12,7 +12,7 @@ Luthier uses a **strict layered architecture** with a typed central model. Depen
 graph TD
   app["app/ — UI (PySide6)"]
   core["core/ — Business logic"]
-  tmpl["Templates/ — File templates"]
+  tmpl["templates/ — File templates"]
   tests["tests/ — pytest"]
 
   app --> core
@@ -25,7 +25,7 @@ graph TD
 
 **`core/` never imports from `app/`.** Violations collapse the layer boundary and make core untestable without a display. Some `core/` modules use `QStandardPaths` for OS config paths only — no `QWidget` imports and no import from `app/`.
 
-**`app/` never imports from `Templates/` directly.** All template access goes through `core/ProjectGenerator` and `core/ProjectWriter`.
+**`app/` never imports from `templates/` directly.** All template access goes through `core/ProjectGenerator` and `core/ProjectWriter`.
 
 ## ProjectSpec — cross-layer contract (AD-1, AD-2)
 
@@ -104,7 +104,7 @@ C++ templates must remain **valid C++ without substitution** — tokens are opti
 
 ### Verbatim — `_VERBATIM`
 
-Copied unchanged from `Templates/` (or user override):
+Copied unchanged from `templates/` (or user override):
 
 - `.vscode/extensions.json`
 - `.cursorrules`
@@ -160,7 +160,7 @@ Strategy (AD-6):
 | Integration | `tests/integration/` | Full `ProjectSpec → write → read` round-trip with `tmp_path` |
 
 - **158 tests** collected; no display required for the default suite.
-- `tests/integration/test_frozen_bundle.py` — validates PyInstaller output when `Dist/` exists on the current host; skipped when no bundle is present.
+- `tests/integration/test_frozen_bundle.py` — validates PyInstaller output when `dist/` exists on the current host; skipped when no bundle is present.
 - `tests/integration/test_cmake_cross_platform.py` — CMake configure validation on generated projects; Windows and Linux configure tests run only on matching hosts (validated 2026-06-26).
 - Legacy `tests/test_story_*.py` unittest modules remain collected.
 - Dev dependency: `pytest>=8.0` in `requirements-dev.txt`.

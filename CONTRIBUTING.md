@@ -2,7 +2,7 @@
 
 Thank you for contributing to Luthier. This guide walks you through environment setup, running the test suite, launching the app, and building a standalone bundle.
 
-For architecture and module contracts, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). For end-user documentation, see [docs/USER-MANUAL.md](docs/USER-MANUAL.md) (English) or [docs/MANUEL-UTILISATEUR.md](docs/MANUEL-UTILISATEUR.md) (French).
+For architecture and module contracts, see [docs/architecture.md](docs/architecture.md). For end-user documentation, see [docs/user-manual.md](docs/user-manual.md) (English) or [docs/manuel-utilisateur.md](docs/manuel-utilisateur.md) (French).
 
 ## Prerequisites
 
@@ -29,7 +29,7 @@ source .venv/bin/activate          # Windows: .venv\Scripts\activate
 # 3. Dev dependencies (PySide6 + pytest + PyInstaller)
 pip install -r requirements-dev.txt
 
-# 4. Test suite (158 tests collected; frozen-bundle tests skip when Dist/ is absent)
+# 4. Test suite (158 tests collected; frozen-bundle tests skip when dist/ is absent)
 .venv/bin/pytest                     # Windows: .venv\Scripts\pytest
 
 # 5. Headless template check (exit 0, error: None)
@@ -39,25 +39,25 @@ pip install -r requirements-dev.txt
 .venv/bin/python main.py
 ```
 
-On **macOS**, `main.py` sets the Dock icon from `Resources/luthier.png` during development. The squircle mask comes from `luthier.icns` in `Dist/Luthier.app` only after a PyInstaller build. If you see the generic Python icon, you are likely running the interpreter directly without an app icon — relaunch after pulling assets, or open `Dist/Luthier.app`.
+On **macOS**, `main.py` sets the Dock icon from `resources/icons/luthier.png` during development. The squircle mask comes from `luthier.icns` in `dist/Luthier.app` only after a PyInstaller build. If you see the generic Python icon, you are likely running the interpreter directly without an app icon — relaunch after pulling assets, or open `dist/Luthier.app`.
 
 ### App icons
 
-Source artwork: `Resources/luthier-icon.png` (**1024×1024**, square, background included — export from Figma at 1x) and `Resources/luthier-logo.png` / `luthier-logo@2x.png` (About tab). Generated assets (committed):
+Source artwork: `resources/icons/luthier-icon.png` (**1024×1024**, square, background included — export from Figma at 1x) and `resources/luthier-logo.png` / `luthier-logo@2x.png` (About tab). Generated assets (committed):
 
 | File | Use |
 |------|-----|
-| `luthier.png` | Qt window/Dock icon in dev; Linux PyInstaller executable |
-| `luthier.icns` | macOS `Luthier.app` bundle |
-| `luthier.ico` | Windows `Luthier.exe` |
+| `resources/icons/luthier.png` | Qt window/Dock icon in dev; Linux PyInstaller executable |
+| `resources/icons/luthier.icns` | macOS `Luthier.app` bundle |
+| `resources/icons/luthier.ico` | Windows `Luthier.exe` |
 
 Regenerate after editing `luthier-icon.png`:
 
 ```bash
-.venv/bin/python Build/generate_icons.py
+.venv/bin/python build/generate_icons.py
 ```
 
-PyInstaller **fails fast** if the platform icon file is missing (`Build/luthier.spec`). Run the generator before building on any OS; on macOS it also produces `.ico` for Windows commits.
+PyInstaller **fails fast** if the platform icon file is missing (`build/luthier.spec`). Run the generator before building on any OS; on macOS it also produces `.ico` for Windows commits.
 
 **Observed timings (macOS, maintainer machine, 2026-06-26):**
 
@@ -74,16 +74,16 @@ Steps 2–5 (venv → pip → pytest → `--check`) fit comfortably within the 1
 PyInstaller bundles templates and resources into a self-contained app. Build on each target OS — there is no cross-compilation.
 
 ```bash
-.venv/bin/pyinstaller Build/luthier.spec --noconfirm --distpath Dist --workpath Build
+.venv/bin/pyinstaller build/luthier.spec --noconfirm --distpath dist --workpath build
 ```
 
-On Windows, activate the venv first (`.venv\Scripts\activate`) and run `pyinstaller Build\luthier.spec`.
+On Windows, activate the venv first (`.venv\Scripts\activate`) and run `pyinstaller build\luthier.spec`.
 
 | OS | Output | Headless check |
 |----|--------|----------------|
-| macOS | `Dist/Luthier.app` | `Dist/Luthier.app/Contents/MacOS/Luthier --check` |
-| Windows | `Dist/Luthier/Luthier.exe` + `_internal/` | `Dist\Luthier\Luthier.exe --check` |
-| Linux | `Dist/Luthier/Luthier` + `_internal/` | `Dist/Luthier/Luthier --check` |
+| macOS | `dist/Luthier.app` | `dist/Luthier.app/Contents/MacOS/Luthier --check` |
+| Windows | `dist/Luthier/Luthier.exe` + `_internal/` | `dist\Luthier\Luthier.exe --check` |
+| Linux | `dist/Luthier/Luthier` + `_internal/` | `dist/Luthier/Luthier --check` |
 
 PyInstaller 6+ uses an onedir layout on Windows and Linux (`_internal/` subdirectory). A full bundle build may take several minutes — treat it as an optional extended step after the core dev loop. Windows x64 and Linux x86_64 bundles were validated manually in Story 4.2 (2026-06-26).
 
@@ -97,11 +97,11 @@ PyInstaller 6+ uses an onedir layout on Windows and Linux (`_internal/` subdirec
 - **No display required** — default suite runs headless; most tests exercise `core/` directly (a few unit tests import lightweight `app/` field-spec helpers).
 - **`tests/unit/`** — primarily pure `core/` logic; some modules use `tmp_path` for file I/O.
 - **`tests/integration/`** — round-trip generation with pytest's `tmp_path` fixture.
-- **`tests/integration/test_frozen_bundle.py`** — validates the PyInstaller bundle when `Dist/` exists; **skipped automatically** when no bundle is present. Do not be alarmed by these skips during normal development.
+- **`tests/integration/test_frozen_bundle.py`** — validates the PyInstaller bundle when `dist/` exists; **skipped automatically** when no bundle is present. Do not be alarmed by these skips during normal development.
 - Legacy `tests/test_story_*.py` unittest modules are still collected by pytest — no need to run them separately.
 - Configuration: `pytest.ini` sets `testpaths = tests` and `pythonpath = .`.
 
-Cross-platform CMake validation (`cmake -B build` on generated projects) is covered by `tests/integration/test_cmake_cross_platform.py` — Windows x64 and Linux x86_64 configure tests run on matching hosts only (`@pytest.mark.skipif` by platform). Validated on all three OS families (2026-06-26). See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#testing).
+Cross-platform CMake validation (`cmake -B build` on generated projects) is covered by `tests/integration/test_cmake_cross_platform.py` — Windows x64 and Linux x86_64 configure tests run on matching hosts only (`@pytest.mark.skipif` by platform). Validated on all three OS families (2026-06-26). See [docs/architecture.md](docs/architecture.md#testing).
 
 ## Code style and contribution norms
 
@@ -117,7 +117,7 @@ Luthier follows a mandatory **3-phase process** (Design → Implementation → A
 
 Principles: KISS, YAGNI, ETC, DRY/WET, CQS, Boy Scout. Priority when conflicts arise: **correctness > KISS/YAGNI > SOLID > premature DRY**.
 
-If `Rules/process-clean-code.md` is present in your checkout, follow it for the full process. Comments document **non-obvious why** only — never restate what the code does.
+If `rules/process-clean-code.md` is present in your checkout, follow it for the full process. Comments document **non-obvious why** only — never restate what the code does.
 
 ### Language conventions
 
@@ -130,17 +130,20 @@ If `Rules/process-clean-code.md` is present in your checkout, follow it for the 
 ### Layer boundaries
 
 - `core/` must **never** import from `app/` (AD-8).
-- `app/` must **never** import from `Templates/` directly — all generation goes through `core/`.
-- See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full architecture.
+- `app/` must **never** import from `templates/` directly — all generation goes through `core/`.
+- See [docs/architecture.md](docs/architecture.md) for the full architecture.
 
 ## Folder casing
 
 | Path | Casing | Contents |
 |------|--------|----------|
-| `docs/` | lowercase | Markdown documentation (USER-MANUAL, MANUEL-UTILISATEUR, ARCHITECTURE) |
+| `docs/` | lowercase | Markdown documentation (`user-manual.md`, `manuel-utilisateur.md`, `architecture.md`) |
 | `Docs/` | PascalCase | Images (`Luthier.png`) |
-| `Templates/` | PascalCase | Bundled JUCE project templates |
-| `Build/` | PascalCase | `luthier.spec` |
+| `templates/` | lowercase | Bundled JUCE project templates (`Source/`, `CMake/` stay PascalCase) |
+| `resources/` | lowercase | Logos and static assets (`icons/` for app icon files) |
+| `build/` | lowercase | `luthier.spec`, PyInstaller workpath |
+| `dist/` | lowercase | PyInstaller output (`Luthier.app`, `Luthier/` onedir) |
+| `rules/` | lowercase | Local dev rules (gitignored) |
 | `app/`, `core/` | lowercase | Python packages |
 
 Do not conflate `docs/` and `Docs/` in links.
@@ -157,13 +160,13 @@ The `_bmad-output/` folder is the BMad planning and implementation artifact stor
 | Epics & stories | [`_bmad-output/planning-artifacts/epics.md`](_bmad-output/planning-artifacts/epics.md) |
 | Project context (AI/dev quick reference) | [`_bmad-output/project-context.md`](_bmad-output/project-context.md) |
 
-> **Note:** `ARCHITECTURE-EXPLAINED.md` Decision 5 (prefs.save after Open/Generate) and Decision 7 (juce_dir in Preferences only) are **superseded**. Use **ARCHITECTURE-SPINE** and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for AD-5 and AD-7.
+> **Note:** `ARCHITECTURE-EXPLAINED.md` Decision 5 (prefs.save after Open/Generate) and Decision 7 (juce_dir in Preferences only) are **superseded**. Use **ARCHITECTURE-SPINE** and [docs/architecture.md](docs/architecture.md) for AD-5 and AD-7.
 
 ## Further reading
 
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — three-layer design, module contracts, two-pass rendering
-- [docs/USER-MANUAL.md](docs/USER-MANUAL.md) — end-user manual (English)
-- [docs/MANUEL-UTILISATEUR.md](docs/MANUEL-UTILISATEUR.md) — manuel utilisateur (français)
+- [docs/architecture.md](docs/architecture.md) — three-layer design, module contracts, two-pass rendering
+- [docs/user-manual.md](docs/user-manual.md) — end-user manual (English)
+- [docs/manuel-utilisateur.md](docs/manuel-utilisateur.md) — manuel utilisateur (français)
 - [README.md](README.md) — project overview and quick start
 
 ## CI
