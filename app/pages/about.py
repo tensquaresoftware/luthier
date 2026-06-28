@@ -6,12 +6,13 @@ from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QSizePolicy, QVBoxLay
 
 from app.resources import load_about_logo_pixmap
 
-_LOGO_WIDTH = 152
-_LOGO_HEIGHT = 203
-_LOGO_TOP_OFFSET = 10
-_LOGO_TO_CREDITS_GAP = 28                                        # below logo, above "Credits" title
-_CARD_SIZE = 544                                                 # 500 + (203 - 160) logo height delta
-_CARD_PADDING = 28
+_LOGO_WIDTH = 193
+_LOGO_HEIGHT = 280
+_CARD_SIZE = 600
+_LOGO_ZONE_HEIGHT = 360                                           # 40 + logo + 40
+_CREDITS_ZONE_HEIGHT = 240
+_LOGO_ZONE_PADDING_V = 40
+_CREDITS_H_PADDING = 28
 _CREDIT_INTERLINE_EM = 0.5
 _CREDIT_PROBE_TEXT = "Hg"  # ascenders + descenders for QLabel sizeHint, not raw font metrics
 _CREDITS_EXTRA_WIDTH = 20
@@ -91,17 +92,32 @@ class AboutPage(QWidget):
         card.setObjectName("AboutCard")
         card.setFixedSize(_CARD_SIZE, _CARD_SIZE)
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(_CARD_PADDING, _CARD_PADDING, _CARD_PADDING, _CARD_PADDING)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
-        layout.addStretch(2)
-        layout.addSpacing(_LOGO_TOP_OFFSET)
+        layout.addWidget(self._make_logo_zone())
+        layout.addWidget(self._make_credits_zone())
+        return card
+
+    def _make_logo_zone(self) -> QWidget:
+        zone = QWidget()
+        zone.setFixedHeight(_LOGO_ZONE_HEIGHT)
+        layout = QVBoxLayout(zone)
+        layout.setContentsMargins(0, _LOGO_ZONE_PADDING_V, 0, _LOGO_ZONE_PADDING_V)
+        layout.setSpacing(0)
         layout.addWidget(_AboutLogo(), 0, Qt.AlignmentFlag.AlignHCenter)
-        layout.addSpacing(_LOGO_TO_CREDITS_GAP)
-        layout.addStretch(1)
+        return zone
+
+    def _make_credits_zone(self) -> QWidget:
+        zone = QWidget()
+        zone.setFixedHeight(_CREDITS_ZONE_HEIGHT)
+        layout = QVBoxLayout(zone)
+        layout.setContentsMargins(_CREDITS_H_PADDING, 0, _CREDITS_H_PADDING, 0)
+        layout.setSpacing(0)
         info = self._make_info()
         info.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
-        layout.addWidget(info, 0, Qt.AlignmentFlag.AlignHCenter)
-        return card
+        layout.addWidget(info, 0, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
+        layout.addStretch(1)
+        return zone
 
     def _make_info(self) -> QWidget:
         bmad_line = self._make_bmad_line()

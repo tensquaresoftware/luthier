@@ -40,6 +40,7 @@ from core.project_spec import ProjectSpec
 
 _TABS = ["Project", "Preferences", "Templates", "About"]
 _ABOUT_TAB_INDEX = _TABS.index("About")
+_MIN_WINDOW_HEIGHT = 720
 
 
 def _make_btn(label: str, object_name: str, slot) -> QPushButton:
@@ -65,7 +66,6 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Luthier")
-        self.setMinimumSize(720, 640)
         self._prefs = Preferences(Preferences.default_path())
         self._prefs.ensure_initialized()
         self._app_state = AppState(AppState.default_path())
@@ -79,6 +79,7 @@ class MainWindow(QMainWindow):
         self._status_text = ""
         self._status_ok = True
         self._build_ui()
+        self.setMinimumSize(720, _MIN_WINDOW_HEIGHT)
         self._restore_window_geometry()
         if self._generator.error:
             self._set_status(self._generator.error, ok=False)

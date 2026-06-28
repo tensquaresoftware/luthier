@@ -11,9 +11,9 @@ def test_app_icon_assets_present():
     logos = (
         "luthier-logo.png",
         "luthier-logo@2x.png",
+        "luthier-icon.png",
     )
     icons = (
-        "luthier-icon.png",
         "luthier.png",
         "luthier.icns",
         "luthier.ico",

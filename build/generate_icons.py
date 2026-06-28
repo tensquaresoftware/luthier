@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate app icon assets from resources/icons/luthier-icon.png."""
+"""Generate app icon assets from resources/luthier-icon.png."""
 
 from __future__ import annotations
 
@@ -13,8 +13,9 @@ from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-ICONS = PROJECT_ROOT / "resources" / "icons"
-SOURCE_PATH = ICONS / "luthier-icon.png"
+RESOURCES = PROJECT_ROOT / "resources"
+ICONS = RESOURCES / "icons"
+SOURCE_PATH = RESOURCES / "luthier-icon.png"
 SOURCE_SIZE = 1024                                              # master icon from Figma (square)
 ICONSET = PROJECT_ROOT / "build" / "luthier.iconset"
 
