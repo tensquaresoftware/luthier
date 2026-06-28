@@ -121,6 +121,14 @@ Copied unchanged from `templates/` (or user override):
 - **Open Project** and **Generate Project** never call `prefs.save()`.
 - `core/` never calls `prefs.save()` directly.
 
+## Atomic JSON persistence (AD-10)
+
+`preferences.json` and `app_state.json` are written via [`core/json_files.py`](../core/json_files.py) `atomic_write_text()` — content goes to a sibling `{filename}.tmp`, then `Path.replace()` commits atomically (same semantics as AD-4 for a single file). On write failure after the temp file is created, the temp file is removed and the live file is never truncated.
+
+On read failure (`JSONDecodeError`, `OSError`, or non-`dict` root), `Preferences.load()` and `AppState.load()` reset in-memory state to factory defaults, rewrite a clean file, and expose a `load_warning` string for the app layer. Valid JSON with invalid profile values still follows the existing `validate_profile` / `accent_color_warning` paths — no corrupt-file notification for that case.
+
+`MainWindow` surfaces `load_warning` via the status bar at startup (after generator errors, before accent warnings).
+
 ## juce_dir (AD-7 revised)
 
 - `ProjectSpec.juce_dir` is written to `.luthier.json` and participates in round-trip.
@@ -145,8 +153,9 @@ Each `core/*.py` module follows the schema: **Purpose | Inputs | Outputs | Invar
 | [`rendering.py`](../core/rendering.py) | Template substitution | template str + dict | rendered str | Two mechanisms: `format` vs `@KEY@` replace |
 | [`validation.py`](../core/validation.py) | Field validators | `str` field value | `(bool, str)` tuple | Pure functions; no I/O |
 | [`plugin_settings.py`](../core/plugin_settings.py) | JUCE flag/category helpers | type strings / flags | dicts, bundle_id, categories | Pure; no side effects |
-| [`preferences.py`](../core/preferences.py) | Global profile JSON | dict / file I/O | `Preferences` object | Save only via app layer (AD-5); factory defaults on first launch |
-| [`app_state.py`](../core/app_state.py) | Last-used parent dir | path strings | `AppState` JSON | Separate from Import/Export profile |
+| [`preferences.py`](../core/preferences.py) | Global profile JSON | dict / file I/O | `Preferences` object | Atomic save (AD-10); save only via app layer (AD-5); corrupt load → defaults + `load_warning` |
+| [`app_state.py`](../core/app_state.py) | Last-used parent dir | path strings | `AppState` JSON | Atomic save (AD-10); corrupt load → defaults + `load_warning`; separate from Import/Export profile |
+| [`json_files.py`](../core/json_files.py) | Atomic text writes | `Path`, content str | file on disk | Temp sibling + `replace()`; cleanup on failure |
 | [`templates_store.py`](../core/templates_store.py) | User C++ template overrides | filename, content | read/write override files | Overrides under `QStandardPaths`; not in ProjectSpec |
 | [`project_form_state.py`](../core/project_form_state.py) | Dirty guard for Create New Project | form snapshots | bool equality | Used by `app/` and unit tests |
 

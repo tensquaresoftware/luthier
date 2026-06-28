@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from core.app_state import AppState
 from core.plugin_settings import TYPE_INSTRUMENT
 from core.preferences import Preferences
@@ -159,3 +161,80 @@ def test_window_maximized_flag_persists(tmp_path):
     reloaded = AppState(tmp_path / "app_state.json")
     reloaded.load()
     assert reloaded.window_maximized() is True
+
+
+def test_save_uses_atomic_write(tmp_path):
+    state_path = tmp_path / "app_state.json"
+    state = AppState(state_path)
+    dest = tmp_path / "projects"
+    dest.mkdir()
+    state.remember_parent(str(dest))
+    state.save()
+    assert state_path.exists()
+    assert json.loads(state_path.read_text(encoding="utf-8"))
+    assert not (tmp_path / "app_state.json.tmp").exists()
+
+
+def test_save_leaves_original_unchanged_on_crash(tmp_path):
+    state_path = tmp_path / "app_state.json"
+    state = AppState(state_path)
+    dest = tmp_path / "projects"
+    dest.mkdir()
+    state.remember_parent(str(dest))
+    state.save()
+    original = state_path.read_bytes()
+    state.remember_parent(str(tmp_path / "other"))
+    (tmp_path / "other").mkdir()
+    with patch.object(Path, "replace", side_effect=OSError("simulated crash")):
+        with pytest.raises(OSError):
+            state.save()
+    assert state_path.read_bytes() == original
+    assert not (tmp_path / "app_state.json.tmp").exists()
+
+
+def test_load_corrupt_json_resets_and_sets_warning(tmp_path):
+    state_path = tmp_path / "app_state.json"
+    state_path.write_text("not json", encoding="utf-8")
+    state = AppState(state_path)
+    state.load()
+    assert state.load_warning is not None
+    assert "corrupt" in state.load_warning.lower()
+    data = json.loads(state_path.read_text(encoding="utf-8"))
+    assert data["lastUsedParentDir"] == ""
+
+
+def test_load_non_dict_root_resets_and_sets_warning(tmp_path):
+    state_path = tmp_path / "app_state.json"
+    state_path.write_text('"hello"', encoding="utf-8")
+    state = AppState(state_path)
+    state.load()
+    assert state.load_warning is not None
+    assert json.loads(state_path.read_text(encoding="utf-8"))["lastUsedParentDir"] == ""
+
+
+def test_load_missing_file_sets_no_warning(tmp_path):
+    state = AppState(tmp_path / "app_state.json")
+    state.load()
+    assert state.load_warning is None
+
+
+def test_load_read_oserror_resets_and_sets_warning(tmp_path):
+    state_path = tmp_path / "app_state.json"
+    state_path.write_text("{}", encoding="utf-8")
+    state = AppState(state_path)
+    with patch.object(Path, "read_text", side_effect=OSError("read failed")):
+        state.load()
+    assert state.load_warning is not None
+    assert "corrupt" in state.load_warning.lower()
+
+
+def test_reset_corrupt_file_survives_save_failure(tmp_path):
+    state_path = tmp_path / "app_state.json"
+    state_path.write_text("not json", encoding="utf-8")
+    state = AppState(state_path)
+    with patch(
+        "core.app_state.atomic_write_text",
+        side_effect=OSError("disk full"),
+    ):
+        state.load()
+    assert state.load_warning is not None

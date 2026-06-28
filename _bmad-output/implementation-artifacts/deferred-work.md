@@ -16,11 +16,16 @@ Items **retirés** depuis la purge précédente : géométrie fenêtre (`app_sta
 - apt-get update has no retry on transient network failures — consider `nick-fields/retry` if flaky CI observed.
 - Test helpers `make_spec` / `_make_spec` still allow backslash Windows path overrides via kwargs — normalize in helper if cross-platform test drift recurs.
 
+## Deferred from: code review of 7-2-atomic-json-persistence-corrupt-file-feedback (2026-06-28)
+
+- No `fsync` after temp write in `atomic_write_text` — same durability level as AD-4 `ProjectWriter`; add if crash/power-loss persistence becomes a requirement.
+- Orphaned `.tmp` files after SIGKILL or power loss — inherent atomic-write limitation; no automatic recovery path beyond manual cleanup.
+
 ## Persistance JSON (prefs + app_state)
 
-- **Écriture non atomique** — Crash pendant `write_text` peut corrompre le fichier.
+- ~~**Écriture non atomique** — Crash pendant `write_text` peut corrompre le fichier.~~ *(Résolu — Story 7.2, AD-10)*
 - **Pas de champ version** — Migrations futures ad hoc si les clés changent.
-- **Chargement silencieux** — JSON corrompu → defaults sans message utilisateur.
+- ~~**Chargement silencieux** — JSON corrompu → defaults sans message utilisateur.~~ *(Résolu — Story 7.2, `load_warning` + status bar)*
 
 ## Génération et rechargement (cas limites)
 

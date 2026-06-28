@@ -195,6 +195,7 @@ def test_accent_color_survives_invalid_profile_reset(tmp_path):
     reloaded = Preferences(path)
     reloaded.load()
     assert reloaded.accent_color == "#D959B9"
+    assert reloaded.load_warning is None
 
 
 def test_export_profile_includes_accent_color(tmp_path):
@@ -272,3 +273,107 @@ def test_apply_profile_rejects_invalid_accent_color(tmp_path):
     prefs = Preferences(tmp_path / "preferences.json")
     with pytest.raises(ValueError, match="accentColor"):
         prefs.apply_profile({**_valid_profile(), "accentColor": "not-a-color"})
+
+
+def test_save_uses_atomic_write(tmp_path):
+    path = tmp_path / "preferences.json"
+    prefs = Preferences(path)
+    prefs.apply_profile(_valid_profile())
+    prefs.save()
+    assert path.exists()
+    assert json.loads(path.read_text(encoding="utf-8"))
+    assert not (tmp_path / "preferences.json.tmp").exists()
+
+
+def test_save_leaves_original_unchanged_on_crash(tmp_path):
+    path = tmp_path / "preferences.json"
+    prefs = Preferences(path)
+    prefs.apply_profile(_valid_profile())
+    prefs.save()
+    original = path.read_bytes()
+    prefs.apply_profile(_valid_profile(manufacturer="After Crash"))
+    with patch.object(Path, "replace", side_effect=OSError("simulated crash")):
+        with pytest.raises(OSError, match="simulated crash"):
+            prefs.save()
+    assert path.read_bytes() == original
+    assert not (tmp_path / "preferences.json.tmp").exists()
+
+
+def test_load_corrupt_json_resets_and_sets_warning(tmp_path):
+    path = tmp_path / "preferences.json"
+    path.write_text("{ truncated", encoding="utf-8")
+    prefs = Preferences(path)
+    with patch(
+        "core.preferences.QStandardPaths.writableLocation",
+        return_value="/mock/Desktop",
+    ):
+        prefs.load()
+    assert prefs.load_warning is not None
+    assert "corrupt" in prefs.load_warning.lower()
+    data = json.loads(path.read_text(encoding="utf-8"))
+    assert data["manufacturer"] == "My Company"
+    assert data["accentColor"] == DEFAULT_ACCENT_COLOR
+
+
+def test_load_non_dict_root_resets_and_sets_warning(tmp_path):
+    path = tmp_path / "preferences.json"
+    path.write_text("[1, 2, 3]", encoding="utf-8")
+    prefs = Preferences(path)
+    with patch(
+        "core.preferences.QStandardPaths.writableLocation",
+        return_value="/mock/Desktop",
+    ):
+        prefs.load()
+    assert prefs.load_warning is not None
+    assert json.loads(path.read_text(encoding="utf-8"))["manufacturer"] == "My Company"
+
+
+def test_load_missing_file_sets_no_warning(tmp_path):
+    path = tmp_path / "preferences.json"
+    prefs = Preferences(path)
+    prefs.load()
+    assert prefs.load_warning is None
+
+
+def test_load_read_oserror_resets_and_sets_warning(tmp_path):
+    path = tmp_path / "preferences.json"
+    path.write_text("{}", encoding="utf-8")
+    prefs = Preferences(path)
+    with patch.object(Path, "read_text", side_effect=OSError("read failed")):
+        with patch(
+            "core.preferences.QStandardPaths.writableLocation",
+            return_value="/mock/Desktop",
+        ):
+            prefs.load()
+    assert prefs.load_warning is not None
+    assert "corrupt" in prefs.load_warning.lower()
+
+
+def test_load_warning_survives_second_ensure_initialized(tmp_path):
+    path = tmp_path / "preferences.json"
+    path.write_text("{ truncated", encoding="utf-8")
+    prefs = Preferences(path)
+    with patch(
+        "core.preferences.QStandardPaths.writableLocation",
+        return_value="/mock/Desktop",
+    ):
+        prefs.ensure_initialized()
+        assert prefs.load_warning is not None
+        prefs.ensure_initialized()
+    assert prefs.load_warning is not None
+
+
+def test_reset_corrupt_file_survives_save_failure(tmp_path):
+    path = tmp_path / "preferences.json"
+    path.write_text("not json", encoding="utf-8")
+    prefs = Preferences(path)
+    with patch(
+        "core.preferences.QStandardPaths.writableLocation",
+        return_value="/mock/Desktop",
+    ):
+        with patch(
+            "core.preferences.atomic_write_text",
+            side_effect=OSError("disk full"),
+        ):
+            prefs.load()
+    assert prefs.load_warning is not None

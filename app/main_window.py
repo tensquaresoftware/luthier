@@ -89,8 +89,13 @@ class MainWindow(QMainWindow):
         self._build_ui()
         self.setMinimumSize(_MIN_WINDOW_WIDTH, _MIN_WINDOW_HEIGHT)
         self._restore_window_geometry()
+        config_warnings = [
+            w for w in (self._prefs.load_warning, self._app_state.load_warning) if w
+        ]
         if self._generator.error:
             self._set_status(self._generator.error, ok=False)
+        elif config_warnings:
+            self._set_status(" ".join(config_warnings), ok=False)
         elif self._prefs.accent_color_warning:
             self._set_status(self._prefs.accent_color_warning, ok=False)
         self._refresh_generate_enabled()

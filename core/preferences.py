@@ -13,6 +13,7 @@ from core.accent_colors import (
     normalize_accent_color,
     validate_accent_color,
 )
+from core.json_files import atomic_write_text
 from core.paths import normalize_path_dict_values, normalize_portable_path
 from core.plugin_settings import PLUGIN_TYPES, TYPE_INSTRUMENT
 
@@ -65,6 +66,10 @@ _PLUGIN_KEYS = ("pluginType", "pluginFormats")
 _VALID_PLUGIN_TYPES = frozenset(key for key, _ in PLUGIN_TYPES)
 _VALID_PLUGIN_FORMATS = frozenset({"AU", "VST3", "Standalone"})
 _VALID_CXX = frozenset({"C++17", "C++20", "C++23"})
+
+LOAD_WARNING_MESSAGE = (
+    "Preferences file was corrupt and has been reset to defaults."
+)
 
 
 def factory_defaults(desktop: str | None = None) -> dict:
@@ -136,6 +141,8 @@ class Preferences:
         self._path = path
         self._data = dict(_DEFAULTS)
         self._accent_color_warning: str | None = None
+        self._load_warning: str | None = None
+        self._initialized = False
 
     @staticmethod
     def default_path() -> Path:
@@ -144,6 +151,8 @@ class Preferences:
         return Path(base) / "preferences.json"
 
     def ensure_initialized(self) -> None:
+        if self._initialized:
+            return
         if self._path.exists():
             self.load()
         else:
@@ -155,18 +164,32 @@ class Preferences:
                 raise OSError(
                     f"Could not create preferences at {self._path}: {error}"
                 ) from error
+        self._initialized = True
 
     @property
     def accent_color_warning(self) -> str | None:
         return self._accent_color_warning
 
+    @property
+    def load_warning(self) -> str | None:
+        return self._load_warning
+
     def load(self) -> None:
         self._accent_color_warning = None
-        raw = self._read() if self._path.exists() else {}
+        self._load_warning = None
+        if not self._path.exists():
+            return
+        try:
+            raw = json.loads(self._path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            self._reset_corrupt_file()
+            return
+        if not isinstance(raw, dict):
+            self._reset_corrupt_file()
+            return
         raw_accent = raw.get("accentColor")
         accent = normalize_accent_color(raw_accent)
-        if self._path.exists():
-            self._data.update(raw)
+        self._data.update(raw)
         ok, _message = validate_profile(self.to_dict())
         if not ok:
             self._data = factory_defaults()
@@ -181,8 +204,16 @@ class Preferences:
             self.save()
 
     def save(self) -> None:
-        self._path.parent.mkdir(parents=True, exist_ok=True)
-        self._path.write_text(json.dumps(self._data, indent=2), encoding="utf-8")
+        atomic_write_text(self._path, json.dumps(self._data, indent=2))
+
+    def _reset_corrupt_file(self) -> None:
+        self._load_warning = LOAD_WARNING_MESSAGE
+        self._data = factory_defaults()
+        self._data["accentColor"] = DEFAULT_ACCENT_COLOR
+        try:
+            self.save()
+        except OSError:
+            pass
 
     def get(self, key: str):
         return self._data.get(key, _DEFAULTS.get(key))
@@ -254,8 +285,3 @@ class Preferences:
                 profile[key] = identity[key]
         self.apply_profile(profile)
 
-    def _read(self) -> dict:
-        try:
-            return json.loads(self._path.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
-            return {}
