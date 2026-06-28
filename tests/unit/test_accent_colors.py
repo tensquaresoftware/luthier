@@ -5,8 +5,11 @@ import pytest
 from core.accent_colors import (
     ACCENT_PRESETS,
     DEFAULT_ACCENT_COLOR,
+    _INVALID_ACCENT_MESSAGE,
+    accent_color_file_value_differs,
     is_valid_accent_color,
     normalize_accent_color,
+    validate_accent_color,
 )
 
 
@@ -35,3 +38,26 @@ def test_normalize_rejects_unknown_colours():
 @pytest.mark.parametrize("color", [color for _name, color in ACCENT_PRESETS])
 def test_each_preset_is_valid(color: str):
     assert is_valid_accent_color(color)
+
+
+def test_validate_accent_color_allows_missing_or_empty():
+    assert validate_accent_color(None) == (True, "")
+    assert validate_accent_color("") == (True, "")
+    assert validate_accent_color("   ") == (True, "")
+
+
+def test_validate_accent_color_accepts_presets():
+    assert validate_accent_color("#3232C3") == (True, "")
+
+
+def test_validate_accent_color_rejects_unknown():
+    ok, message = validate_accent_color("#FF0000")
+    assert not ok
+    assert message == _INVALID_ACCENT_MESSAGE
+
+
+def test_accent_color_file_value_differs_for_invalid_or_unnormalized():
+    assert accent_color_file_value_differs("#FF0000")
+    assert accent_color_file_value_differs("#a45c94")
+    assert not accent_color_file_value_differs(None)
+    assert not accent_color_file_value_differs("#A45C94")

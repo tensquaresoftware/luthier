@@ -222,3 +222,53 @@ def test_to_dict_excludes_accent_color(tmp_path):
     prefs.apply_profile(_valid_profile())
     prefs.set_accent_color("#6113D7")
     assert "accentColor" not in prefs.to_dict()
+
+
+def test_validate_profile_rejects_invalid_accent_color(tmp_path):
+    profile = {**_valid_profile(), "accentColor": "#FF0000"}
+    ok, message = validate_profile(profile)
+    assert not ok
+    assert "accentColor" in message
+
+
+def test_load_invalid_accent_corrects_file_and_sets_warning(tmp_path):
+    path = tmp_path / "preferences.json"
+    prefs = Preferences(path)
+    prefs.apply_profile(_valid_profile())
+    prefs.set_accent_color("#3232C3")
+    prefs.save()
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data["accentColor"] = "#FF0000"
+    path.write_text(json.dumps(data), encoding="utf-8")
+
+    reloaded = Preferences(path)
+    reloaded.load()
+
+    assert reloaded.accent_color == DEFAULT_ACCENT_COLOR
+    assert reloaded.accent_color_warning is not None
+    saved = json.loads(path.read_text(encoding="utf-8"))
+    assert saved["accentColor"] == DEFAULT_ACCENT_COLOR
+
+
+def test_load_normalizes_valid_accent_case_without_warning(tmp_path):
+    path = tmp_path / "preferences.json"
+    prefs = Preferences(path)
+    prefs.apply_profile(_valid_profile())
+    prefs.save()
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data["accentColor"] = "#3232c3"
+    path.write_text(json.dumps(data), encoding="utf-8")
+
+    reloaded = Preferences(path)
+    reloaded.load()
+
+    assert reloaded.accent_color == "#3232C3"
+    assert reloaded.accent_color_warning is None
+    saved = json.loads(path.read_text(encoding="utf-8"))
+    assert saved["accentColor"] == "#3232C3"
+
+
+def test_apply_profile_rejects_invalid_accent_color(tmp_path):
+    prefs = Preferences(tmp_path / "preferences.json")
+    with pytest.raises(ValueError, match="accentColor"):
+        prefs.apply_profile({**_valid_profile(), "accentColor": "not-a-color"})

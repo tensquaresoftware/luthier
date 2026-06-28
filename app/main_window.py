@@ -90,6 +90,8 @@ class MainWindow(QMainWindow):
         self._restore_window_geometry()
         if self._generator.error:
             self._set_status(self._generator.error, ok=False)
+        elif self._prefs.accent_color_warning:
+            self._set_status(self._prefs.accent_color_warning, ok=False)
         self._refresh_generate_enabled()
 
     def _form_defaults(self) -> dict:

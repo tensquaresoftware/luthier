@@ -6,7 +6,13 @@ from pathlib import Path
 from PySide6.QtCore import QStandardPaths
 
 from core import validation
-from core.accent_colors import DEFAULT_ACCENT_COLOR, normalize_accent_color
+from core.accent_colors import (
+    ACCENT_COLOR_CORRECTED_MESSAGE,
+    DEFAULT_ACCENT_COLOR,
+    accent_color_file_value_differs,
+    normalize_accent_color,
+    validate_accent_color,
+)
 from core.paths import normalize_path_dict_values, normalize_portable_path
 from core.plugin_settings import PLUGIN_TYPES, TYPE_INSTRUMENT
 
@@ -116,6 +122,10 @@ def validate_profile(data: dict) -> tuple[bool, str]:
     for flag in ("copyToSystemFolders", "copyToArtefactsDir"):
         if flag in data and not isinstance(data[flag], bool):
             return False, f"{flag} must be a boolean."
+    if "accentColor" in data:
+        ok, message = validate_accent_color(data["accentColor"])
+        if not ok:
+            return False, message
     return True, ""
 
 
@@ -125,6 +135,7 @@ class Preferences:
     def __init__(self, path: Path):
         self._path = path
         self._data = dict(_DEFAULTS)
+        self._accent_color_warning: str | None = None
 
     @staticmethod
     def default_path() -> Path:
@@ -145,16 +156,28 @@ class Preferences:
                     f"Could not create preferences at {self._path}: {error}"
                 ) from error
 
+    @property
+    def accent_color_warning(self) -> str | None:
+        return self._accent_color_warning
+
     def load(self) -> None:
+        self._accent_color_warning = None
         raw = self._read() if self._path.exists() else {}
-        accent = normalize_accent_color(raw.get("accentColor"))
+        raw_accent = raw.get("accentColor")
+        accent = normalize_accent_color(raw_accent)
         if self._path.exists():
             self._data.update(raw)
         ok, _message = validate_profile(self.to_dict())
         if not ok:
             self._data = factory_defaults()
         self._data["accentColor"] = accent
-        if not ok:
+        if (
+            raw_accent is not None
+            and str(raw_accent).strip()
+            and not validate_accent_color(raw_accent)[0]
+        ):
+            self._accent_color_warning = ACCENT_COLOR_CORRECTED_MESSAGE
+        if not ok or accent_color_file_value_differs(raw_accent):
             self.save()
 
     def save(self) -> None:
@@ -186,6 +209,9 @@ class Preferences:
         for key in _PROFILE_KEYS:
             self._data[key] = profile[key]
         if "accentColor" in data:
+            ok, message = validate_accent_color(data["accentColor"])
+            if not ok:
+                raise ValueError(message)
             self.set_accent_color(data["accentColor"])
 
     def seed_dict(self) -> dict:

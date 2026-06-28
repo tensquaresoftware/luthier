@@ -43,3 +43,34 @@ def normalize_accent_color(value: str | None) -> str:
 def is_valid_accent_color(value: str) -> bool:
     """Return True when `value` matches a preset accent colour."""
     return _canonical_hex(value) in _VALID_ACCENTS
+
+
+_INVALID_ACCENT_MESSAGE = (
+    "accentColor must be one of the twelve preset accent colours."
+)
+
+ACCENT_COLOR_CORRECTED_MESSAGE = (
+    "Invalid accentColor in preferences.json — Magenta applied."
+)
+
+
+def validate_accent_color(value) -> tuple[bool, str]:
+    """Return (ok, error). Missing or empty values are allowed."""
+    if value is None:
+        return True, ""
+    text = str(value).strip()
+    if not text:
+        return True, ""
+    if is_valid_accent_color(text):
+        return True, ""
+    return False, _INVALID_ACCENT_MESSAGE
+
+
+def accent_color_file_value_differs(stored) -> bool:
+    """Return True when persisted text should be rewritten on load."""
+    if stored is None:
+        return False
+    text = str(stored).strip()
+    if not text:
+        return False
+    return normalize_accent_color(text) != text
