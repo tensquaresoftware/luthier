@@ -175,9 +175,12 @@ The `_bmad-output/` folder is the BMad planning and implementation artifact stor
 Every push and pull request to `main` runs [`.github/workflows/pytest.yml`](.github/workflows/pytest.yml) on `ubuntu-latest`:
 
 1. Install Python 3.11+
-2. Create a venv and `pip install -r requirements-dev.txt`
-3. `pytest` (unit + integration under `tests/`)
+2. Install Qt runtime libraries for headless PySide6 (`libegl1`, `libgl1`, `libxkbcommon0`, `libdbus-1-3` on Debian/Ubuntu)
+3. Create a venv and `pip install -r requirements-dev.txt`
+4. Run `pytest` with `QT_QPA_PLATFORM=offscreen` (unit + integration under `tests/`)
 
 No CMake, JUCE, or PyInstaller build runs in CI. Tests that need those tools skip automatically (`test_cmake_cross_platform.py` without cmake/JUCE; `test_frozen_bundle.py` without a `dist/` bundle).
+
+On Linux, match CI when running tests locally: install the same Qt runtime packages and set `export QT_QPA_PLATFORM=offscreen` before `pytest`.
 
 Local checks beyond CI: `main.py --check` and optional PyInstaller build.

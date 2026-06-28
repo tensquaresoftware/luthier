@@ -1,5 +1,5 @@
 # generated: 2026-06-23
-# last_updated: 2026-06-23
+# last_updated: 2026-06-28
 # project: Luthier
 # project_key: NOKEY
 # tracking_system: file-system
@@ -97,7 +97,7 @@ development_status:
 
   # Epic 7: Release Hardening (post-MVP quality gate)
   epic-7: in-progress
-  7-1-github-actions-ci-for-pytest: review
+  7-1-github-actions-ci-for-pytest: done
   7-2-atomic-json-persistence-corrupt-file-feedback: backlog
   7-3-core-generation-reload-robustness: backlog
   7-4-test-hygiene-minor-ui-hardening: backlog

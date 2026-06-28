@@ -4,7 +4,7 @@ baseline_commit: cbc07a401495c47b9b4eeff430b8da114daaaed7
 
 # Story 7.1: GitHub Actions CI for pytest
 
-Status: review
+Status: done
 
 <!-- Epic 7 — Release Hardening. Priority: MUST. Order: first. -->
 
@@ -103,3 +103,11 @@ So that regressions in unit and integration tests are caught before merge withou
 ## Change Log
 
 - 2026-06-28: Story 7.1 — GitHub Actions pytest CI on ubuntu-latest (Qt headless deps); CONTRIBUTING CI section; test fixture path normalization alignment.
+
+### Review Findings
+
+- [x] [Review][Patch] CONTRIBUTING omits Linux Qt system deps and offscreen env [`CONTRIBUTING.md:175`]
+- [x] [Review][Patch] apt-get step lacks noninteractive and no-recommends flags [`.github/workflows/pytest.yml:22`]
+- [x] [Review][Defer] No pip or apt caching in CI workflow [`.github/workflows/pytest.yml`] — deferred, pre-existing optimization gap
+- [x] [Review][Defer] apt-get update has no retry on transient network failures [`.github/workflows/pytest.yml:22`] — deferred, flaky-CI hardening
+- [x] [Review][Defer] Test helpers still allow backslash Windows path overrides via kwargs [`tests/conftest.py:42`] — deferred, pre-existing
