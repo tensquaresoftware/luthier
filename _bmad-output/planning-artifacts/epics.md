@@ -2,7 +2,7 @@
 stepsCompleted: ['step-01-validate-prerequisites', 'step-02-design-epics', 'step-03-create-stories', 'step-04-final-validation']
 inputDocuments:
   - _bmad-output/planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md
-  - _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md
+  - _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md
   - docs/USER-MANUAL.md
   - _bmad-output/planning-artifacts/sprint-change-proposal-2026-06-25.md
 ---
@@ -46,6 +46,7 @@ NFR5: Code identifiers and commits in English. UI in English. All generated BMad
 - **AD-7 — juce_dir on ProjectSpec; Preferences seed only**: `juce_dir` is a field on `ProjectSpec` (JSON `juceDir`), included in sidecar round-trip. `build_context(spec)` reads `spec.juce_dir`. Preferences holds the default seed for new projects.
 - **AD-8 — Import discipline**: No module under `core/` imports from `app/`. Violations are caught at test import time.
 - **AD-9 — Template overrides at write time**: `ProjectSpec` carries no reference to template overrides. `ProjectWriter` resolves them via `templates_store.overrides_dir()` at write time.
+- **AD-10 — Atomic JSON persistence for app config**: `preferences.json` and `app_state.json` written via temp-then-replace (AD-4 semantics). Corrupt read → defaults + user notification; no silent success.
 - **New module**: `core/project_spec.py` — `ProjectSpec` dataclass must be created as the first new file.
 
 ### UX Design Requirements
@@ -99,6 +100,11 @@ Any JUCE developer can download Luthier and run it without installing Python, on
 ### Epic 6: UX Polish
 Small user-visible improvements that make daily use clearer without changing core generation behaviour.
 **FRs covered:** — (quality-of-life; derived from deferred UX feedback)
+
+### Epic 7: Release Hardening
+Post-MVP quality gate: CI for pytest, atomic JSON persistence, core edge-case robustness, and optional test/UI cleanup before intensive manual testing.
+**FRs covered:** — (reinforces NFR2, NFR3)
+**Priority:** Post-MVP (2026-06-28 correct-course)
 
 ---
 
@@ -598,7 +604,7 @@ So that working on one project never overwrites my default profile.
 **When** I click Generate,
 **Then** Luthier may prompt via Choose… or folder dialog before continuing.
 
-**Given** AD-5 in ARCHITECTURE-SPINE.md,
+**Given** AD-5 in architecture-spine.md,
 **When** Epic 5.4 is complete,
 **Then** the revised AD-5 rule is satisfied and `project-context.md` reflects the new persistence model.
 
@@ -818,3 +824,161 @@ So that I can see what just happened without the message competing with action b
 **Given** Preferences auto-save,
 **When** a field saves successfully,
 **Then** the inline "Saved" badge on the edited field still appears (unchanged behaviour); global operation messages use the new bar only.
+
+---
+
+## Epic 7: Release Hardening
+
+Post-MVP quality gate before intensive manual testing (week of 2026-07-07): automated CI, hardened JSON persistence, core edge-case closure from `deferred-work.md`, and optional test/UI cleanup.
+
+**Recommended implementation order:** `7.1 → 7.2 → 7.3 → 7.4`
+
+### Story 7.1: GitHub Actions CI for pytest
+
+As a contributor,
+I want pytest to run automatically on every push and pull request,
+So that regressions in unit and integration tests are caught before merge without relying on local runs only.
+
+**Priority:** MUST
+
+**Acceptance Criteria:**
+
+**Given** a push or pull request to the default branch,
+**When** GitHub Actions runs,
+**Then** a workflow installs Python, creates a venv, installs `requirements-dev.txt`, and runs `pytest`.
+
+**Given** the CI runner (e.g. `ubuntu-latest`),
+**When** pytest executes,
+**Then** all tests under `tests/unit/` and `tests/integration/` are collected and run.
+
+**Given** tests requiring unavailable tooling,
+**When** CI runs without CMake, JUCE, or a built PyInstaller bundle,
+**Then** those tests skip cleanly — CI does **not** fail because optional environment deps are absent.
+
+**Given** a failing test,
+**When** CI completes,
+**Then** the workflow exits non-zero and the PR check shows failure.
+
+**Given** `CONTRIBUTING.md`,
+**When** Epic 7.1 is complete,
+**Then** it documents that CI runs on PRs.
+
+---
+
+### Story 7.2: Atomic JSON Persistence & Corrupt-File Feedback
+
+As a JUCE developer,
+I want my preferences and app state saved safely and reported clearly when a config file is corrupt,
+So that a crash during save never leaves me with a broken profile and I know when defaults were restored.
+
+**Priority:** SHOULD
+
+**Acceptance Criteria:**
+
+**Given** `Preferences.save()` or `AppState.save()` is called,
+**When** the file is written,
+**Then** content is written to a sibling temp file and atomically replaced (same pattern as `ProjectWriter` AD-4).
+
+**Given** a corrupt or truncated `preferences.json` on startup,
+**When** Luthier loads preferences,
+**Then** in-memory state falls back to factory defaults **and** a user-visible message explains that the file was reset.
+
+**Given** a corrupt `app_state.json`,
+**When** Luthier loads app state,
+**Then** defaults apply and the user is notified similarly.
+
+**Given** unit tests with `tmp_path`,
+**When** a simulated crash occurs after temp write but before rename,
+**Then** the original JSON file content is unchanged.
+
+**Given** Epic 7.2 completion,
+**When** architecture docs are updated,
+**Then** AD-10 documents atomic JSON persistence for app config.
+
+**Deferred:** schema `version` field for migrations — not blocking QA week.
+
+---
+
+### Story 7.3: Core Generation & Reload Robustness
+
+As a JUCE developer,
+I want generation and project reload to handle edge-case inputs and legacy projects gracefully,
+So that unusual paths, hand-edited sidecars, and legacy CMake projects fail with clear, actionable messages instead of silent corruption or raw exceptions.
+
+**Priority:** SHOULD
+
+**Acceptance Criteria:**
+
+**Given** a `juce_dir` containing quotes, `$`, or spaces,
+**When** `CMakeLists.txt` is generated,
+**Then** the `set(JUCE_DIR ...)` line is correctly quoted/escaped for CMake.
+
+**Given** artefact JSON path fields with quotes or control characters,
+**When** presets are rendered,
+**Then** output remains valid JSON.
+
+**Given** a sidecar or dict with string booleans (`"ON"`, `"false"`, `"true"`, `"OFF"`),
+**When** `ProjectSpec.from_dict()` runs,
+**Then** copy flags and similar bool fields coerce to proper `bool` values.
+
+**Given** a hand-edited `.luthier.json` with wrong types or `null` for required fields,
+**When** `read_project()` loads the sidecar,
+**Then** validation fails explicitly — no silent partial load.
+
+**Given** an empty but syntactically valid `.luthier.json` (`{}`),
+**When** `read_project()` runs,
+**Then** load fails with a warning/error distinguishing empty sidecar from parse failure.
+
+**Given** CMake cache variables for bool plugin options in the template,
+**When** a project is regenerated,
+**Then** `CACHE BOOL` entries use `FORCE` so cached values do not block updates.
+
+**Given** an unknown `pluginType` string,
+**When** generation or context build runs,
+**Then** a clear validation error is raised — not a raw `KeyError`.
+
+**Given** `ProjectWriter.write()` when atomic rename fails after old directory removal,
+**When** the failure path executes,
+**Then** behaviour is documented and tested for the rare case.
+
+**Given** a legacy project without sidecar,
+**When** CMake fallback fails,
+**Then** the error message distinguishes sidecar parse error, empty/invalid sidecar, and CMake parse failure — listing missing fields where applicable.
+
+**Given** CMake with escaped quotes in parsed values,
+**When** regex fallback runs,
+**Then** parsing handles escaped quotes or fails with a clear message.
+
+**Given** unit/integration tests,
+**When** pytest runs,
+**Then** new edge-case tests cover the above without Qt imports.
+
+---
+
+### Story 7.4: Test Hygiene & Minor UI Hardening
+
+As a contributor and daily user,
+I want redundant legacy tests removed and minor UI rough edges polished,
+So that the test suite stays maintainable and small UX gaps do not distract during manual QA.
+
+**Priority:** NICE / defer
+
+**Acceptance Criteria:**
+
+**Given** `tests/test_story_1_2.py`, `tests/test_story_2_1.py`, `tests/test_story_2_2.py`,
+**When** Epic 7.4 runs,
+**Then** their coverage is merged into canonical `tests/unit/` or `tests/integration/` modules — no duplicate test classes remain.
+
+**Given** the Templates tab after **Load from file…**,
+**When** a file loads successfully,
+**Then** the editor state label reflects the loaded source; invalid file types are rejected; unreadable files show an error.
+
+**Given** `null` JSON values in imported preferences for path fields,
+**When** the Preferences or Project UI renders,
+**Then** fields show empty string — not the literal `"None"`.
+
+**Given** Import Preferences with a profile that triggers certain `ValueError` paths,
+**When** import fails,
+**Then** rollback restores the previous in-memory profile completely.
+
+**Optional (skip without blocking Epic 7 done):** parametrize integration round-trip across all `plugin_type` values; PyInstaller bundle smoke tests; Preferences widget coupling refactor.
