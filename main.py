@@ -9,7 +9,8 @@ from PySide6.QtWidgets import QApplication
 
 from app.main_window import MainWindow
 from app.resources import resource_path
-from app.theme import build_stylesheet
+from app.theme import build_stylesheet, set_accent_color
+from core.preferences import Preferences
 
 
 def _self_check() -> int:
@@ -40,9 +41,12 @@ def main() -> None:
     if "--check" in sys.argv:
         sys.exit(_self_check())
     app.setStyle("Fusion")
+    prefs = Preferences(Preferences.default_path())
+    prefs.ensure_initialized()
+    set_accent_color(prefs.accent_color)
     app.setStyleSheet(build_stylesheet())
     _apply_app_icon(app)
-    window = MainWindow()
+    window = MainWindow(prefs)
     window.show()
     sys.exit(app.exec())
 

@@ -12,6 +12,7 @@ from app.pages.compilation import CompilationSection
 from app.pages.formats import FormatsPage
 from app.pages.path_specs import destination_field_spec, juce_field_spec
 from app.pages.plugin_type import PluginTypePage
+from app.widgets.accent_color_picker import AccentColorSection
 from app.widgets.folder_field import FolderField
 from app.widgets.section import Section
 from app.widgets.validated_field import FieldSpec
@@ -91,10 +92,15 @@ class PreferencesPage(QWidget):
         self._artefacts = ArtefactsSection(
             prefs, folder_start_resolver=folder_start_resolver
         )
+        self._accent = AccentColorSection(prefs.accent_color)
         self._reload_guard = False
         self._build_ui()
         self.reload_from_prefs()
         self._connect_auto_save()
+        self._accent.colorChanged.connect(self._on_accent_save)
+
+    def accent_section(self) -> AccentColorSection:
+        return self._accent
 
     def reload_from_prefs(self) -> None:
         self._reload_guard = True
@@ -106,6 +112,7 @@ class PreferencesPage(QWidget):
             self._formats.set_formats(_pref_text(self._prefs, "pluginFormats"))
             self._compilation.load(self._prefs.to_dict())
             self._artefacts.load(self._prefs.to_dict())
+            self._accent.set_color(self._prefs.accent_color)
         finally:
             self._reload_guard = False
 
@@ -150,6 +157,7 @@ class PreferencesPage(QWidget):
         profile["pluginFormats"] = self._formats.value()
         profile.update(self._compilation.values())
         profile.update(self._artefacts.values())
+        profile["accentColor"] = self._prefs.accent_color
         return profile
 
     def _is_aggregate_valid(self) -> bool:
@@ -160,6 +168,15 @@ class PreferencesPage(QWidget):
             and self._formats.is_valid()
             and self._artefacts.is_valid()
         )
+
+    def _on_accent_save(self, color: str) -> None:
+        if self._reload_guard:
+            return
+        self._prefs.set_accent_color(color)
+        try:
+            self._prefs.save()
+        except OSError:
+            return
 
     def _try_auto_save(self, *_args) -> None:
         if self._reload_guard:
@@ -230,6 +247,7 @@ class PreferencesPage(QWidget):
         layout.setContentsMargins(24, 20, 24, 20)
         layout.setSpacing(36)
         layout.addWidget(self._intro())
+        layout.addWidget(self._accent)
         layout.addWidget(Section("Identity", self._identity))
         layout.addWidget(Section("Paths", self._paths_widget()))
         layout.addWidget(Section("Plugin Type", self._plugin_type))

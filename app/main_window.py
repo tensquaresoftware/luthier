@@ -31,6 +31,7 @@ from app.widgets.status_capsule import (
     StatusMessageHeading,
     status_capsule_max_width,
 )
+from app.theme import apply_accent_theme
 from core import plugin_settings, templates_store
 from core.app_state import AppState
 from core.preferences import Preferences
@@ -39,6 +40,8 @@ from core.project_reader import read_project_result
 from core.project_spec import ProjectSpec
 
 _TABS = ["Project", "Preferences", "Templates", "About"]
+_PROJECT_TAB_INDEX = _TABS.index("Project")
+_PREFS_TAB_INDEX = _TABS.index("Preferences")
 _ABOUT_TAB_INDEX = _TABS.index("About")
 _MIN_WINDOW_HEIGHT = 720
 
@@ -63,11 +66,14 @@ def _make_button_bar(buttons: list[QPushButton]) -> QWidget:
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, prefs: Preferences | None = None):
         super().__init__()
         self.setWindowTitle("Luthier")
-        self._prefs = Preferences(Preferences.default_path())
+        self._prefs = prefs or Preferences(Preferences.default_path())
         self._prefs.ensure_initialized()
+        app = QGuiApplication.instance()
+        if app is not None:
+            apply_accent_theme(app, self._prefs.accent_color)
         self._app_state = AppState(AppState.default_path())
         self._app_state.load()
         self._folder_start = lambda value: self._app_state.dialog_start_dir(value)
@@ -115,10 +121,34 @@ class MainWindow(QMainWindow):
         row.addStretch(1)
         return container
 
+    def _on_project_accent_changed(self, color: str) -> None:
+        if self._tab_bar.currentIndex() == _PROJECT_TAB_INDEX:
+            self._apply_accent_theme(color)
+
+    def _on_prefs_accent_changed(self, color: str) -> None:
+        if self._tab_bar.currentIndex() == _PREFS_TAB_INDEX:
+            self._apply_accent_theme(color)
+
+    def _apply_accent_theme(self, color: str) -> None:
+        app = QGuiApplication.instance()
+        if app is not None:
+            apply_accent_theme(app, color)
+        if self._status_text and self._status_ok:
+            self._status._dismiss.set_tone(True)
+
+    def _accent_color_for_tab(self, index: int) -> str:
+        if index == _PROJECT_TAB_INDEX:
+            return self._project_page.accent_section().color()
+        if index == _PREFS_TAB_INDEX:
+            return self._prefs_page.accent_section().color()
+        return self._project_page.accent_section().color()
+
     def _on_section_changed(self, index: int) -> None:
         self._stack.setCurrentIndex(index)
         self._btn_stack.setCurrentIndex(index)
         self._bottom_bar.setVisible(index != _ABOUT_TAB_INDEX)
+        if index in (_PROJECT_TAB_INDEX, _PREFS_TAB_INDEX):
+            self._apply_accent_theme(self._accent_color_for_tab(index))
 
     def _build_stack(self) -> QStackedWidget:
         stack = QStackedWidget()
@@ -133,6 +163,8 @@ class MainWindow(QMainWindow):
         stack.addWidget(self._templates_page)
         stack.addWidget(self._about_page)
         self._project_page.validityChanged.connect(self._refresh_generate_enabled)
+        self._project_page.accent_section().colorChanged.connect(self._on_project_accent_changed)
+        self._prefs_page.accent_section().colorChanged.connect(self._on_prefs_accent_changed)
         self._stack = stack
         return stack
 
@@ -306,6 +338,8 @@ class MainWindow(QMainWindow):
         ok, message = self._prefs_page.import_from_file(path)
         if ok:
             self._defaults = self._prefs.seed_dict()
+            if self._tab_bar.currentIndex() == _PREFS_TAB_INDEX:
+                self._apply_accent_theme(self._prefs.accent_color)
             self._set_status(f"Preferences imported from {Path(path).name}.", ok=True)
         else:
             QMessageBox.warning(self, "Import Preferences", message)
@@ -360,6 +394,9 @@ class MainWindow(QMainWindow):
             if answer != QMessageBox.Yes:
                 return
         self._project_page.reset(self._form_defaults())
+        self._project_page.accent_section().set_color(self._prefs.accent_color)
+        if self._tab_bar.currentIndex() == _PROJECT_TAB_INDEX:
+            self._apply_accent_theme(self._prefs.accent_color)
         self._set_status("New project — defaults from Preferences.", ok=True)
 
     def _on_open(self) -> None:

@@ -143,12 +143,12 @@ class _DismissButton(QWidget):
         self.setObjectName("StatusDismiss")
         self.setFixedSize(_DISMISS_SIZE, _DISMISS_SIZE)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._fill = QColor(Palette.PRIMARY_DARK)
+        self._fill = QColor(Palette.PRIMARY_DARK())
         self._hover = False
         self.setAttribute(Qt.WidgetAttribute.WA_Hover)
 
     def set_tone(self, ok: bool) -> None:
-        hex_color = Palette.PRIMARY_DARK if ok else Palette.ERR_DARK
+        hex_color = Palette.PRIMARY_DARK() if ok else Palette.ERR_DARK
         self._fill = QColor(hex_color)
         self.update()
 

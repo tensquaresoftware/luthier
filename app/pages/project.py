@@ -10,6 +10,7 @@ from app.pages.compilation import CompilationSection
 from app.pages.formats import FormatsPage
 from app.pages.plugin_type import PluginTypePage
 from app.pages.project_info import ProjectInfoPage
+from app.widgets.accent_color_picker import AccentColorSection
 from app.widgets.section import Section
 from core.preferences import Preferences
 from core.project_form_state import form_snapshots_equal, new_project_seed
@@ -38,6 +39,7 @@ class ProjectPage(QScrollArea):
         self._artefacts = ArtefactsSection(
             prefs, folder_start_resolver=folder_start_resolver
         )
+        self._accent = AccentColorSection(prefs.accent_color)
         self._build_ui()
         self._connect_signals()
         self._baseline: dict = {}
@@ -45,6 +47,9 @@ class ProjectPage(QScrollArea):
 
     def _seed_new_project(self, defaults: dict) -> None:
         self.load(ProjectSpec.from_dict(new_project_seed(defaults)))
+
+    def accent_section(self) -> AccentColorSection:
+        return self._accent
 
     def values(self) -> dict:
         values = dict(self._info.values())
@@ -94,6 +99,7 @@ class ProjectPage(QScrollArea):
         layout.setContentsMargins(24, 20, 24, 20)
         layout.setSpacing(36)
         layout.addWidget(self._hint())
+        layout.addWidget(self._accent)
         for name, widget in self._sections():
             layout.addWidget(Section(name, widget))
         layout.addStretch(1)

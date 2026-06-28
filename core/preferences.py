@@ -6,6 +6,7 @@ from pathlib import Path
 from PySide6.QtCore import QStandardPaths
 
 from core import validation
+from core.accent_colors import DEFAULT_ACCENT_COLOR, normalize_accent_color
 from core.paths import normalize_path_dict_values, normalize_portable_path
 from core.plugin_settings import PLUGIN_TYPES, TYPE_INSTRUMENT
 
@@ -136,6 +137,7 @@ class Preferences:
             self.load()
         else:
             self._data = factory_defaults()
+            self._data["accentColor"] = DEFAULT_ACCENT_COLOR
             try:
                 self.save()
             except OSError as error:
@@ -144,11 +146,15 @@ class Preferences:
                 ) from error
 
     def load(self) -> None:
+        raw = self._read() if self._path.exists() else {}
+        accent = normalize_accent_color(raw.get("accentColor"))
         if self._path.exists():
-            self._data.update(self._read())
+            self._data.update(raw)
         ok, _message = validate_profile(self.to_dict())
         if not ok:
             self._data = factory_defaults()
+        self._data["accentColor"] = accent
+        if not ok:
             self.save()
 
     def save(self) -> None:
@@ -157,6 +163,13 @@ class Preferences:
 
     def get(self, key: str):
         return self._data.get(key, _DEFAULTS.get(key))
+
+    @property
+    def accent_color(self) -> str:
+        return normalize_accent_color(self._data.get("accentColor"))
+
+    def set_accent_color(self, value: str) -> None:
+        self._data["accentColor"] = normalize_accent_color(value)
 
     @property
     def juce_dir(self) -> str:
@@ -172,6 +185,8 @@ class Preferences:
             raise ValueError(message)
         for key in _PROFILE_KEYS:
             self._data[key] = profile[key]
+        if "accentColor" in data:
+            self.set_accent_color(data["accentColor"])
 
     def seed_dict(self) -> dict:
         """Project-form seed snapshot (camelCase keys for ProjectPage.load/reset)."""

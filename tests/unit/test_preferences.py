@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
+from core.accent_colors import DEFAULT_ACCENT_COLOR
 from core.preferences import Preferences, factory_defaults, validate_profile
 from core.plugin_settings import TYPE_AUDIO_EFFECT, TYPE_INSTRUMENT
 
@@ -159,3 +160,65 @@ def test_seed_dict_round_trips_through_project_spec(tmp_path):
     assert spec.plugin_type == TYPE_AUDIO_EFFECT
     assert spec.plugin_formats == "AU VST3"
     assert spec.cxx_standard == "C++20"
+
+
+def test_accent_color_defaults_on_first_run(tmp_path):
+    path = tmp_path / "preferences.json"
+    prefs = Preferences(path)
+    with patch(
+        "core.preferences.QStandardPaths.writableLocation",
+        return_value="/mock/Desktop",
+    ):
+        prefs.ensure_initialized()
+    assert prefs.accent_color == DEFAULT_ACCENT_COLOR
+    data = json.loads(path.read_text(encoding="utf-8"))
+    assert data["accentColor"] == DEFAULT_ACCENT_COLOR
+
+
+def test_accent_color_persists_and_normalizes(tmp_path):
+    prefs = Preferences(tmp_path / "preferences.json")
+    prefs.apply_profile(_valid_profile())
+    prefs.set_accent_color("#2E5088")
+    prefs.save()
+    reloaded = Preferences(tmp_path / "preferences.json")
+    reloaded.load()
+    assert reloaded.accent_color == "#2E5088"
+
+
+def test_accent_color_survives_invalid_profile_reset(tmp_path):
+    path = tmp_path / "preferences.json"
+    prefs = Preferences(path)
+    prefs.apply_profile(_valid_profile())
+    prefs.set_accent_color("#7040B0")
+    prefs.save()
+    path.write_text(json.dumps({"accentColor": "#7040B0", "pluginFormats": ""}), encoding="utf-8")
+    reloaded = Preferences(path)
+    reloaded.load()
+    assert reloaded.accent_color == "#7040B0"
+
+
+def test_export_profile_includes_accent_color(tmp_path):
+    prefs = Preferences(tmp_path / "preferences.json")
+    prefs.apply_profile(_valid_profile())
+    prefs.set_accent_color("#2E5088")
+    prefs.save()
+    data = json.loads((tmp_path / "preferences.json").read_text(encoding="utf-8"))
+    assert data["accentColor"] == "#2E5088"
+
+
+def test_import_profile_restores_accent_color(tmp_path):
+    path = tmp_path / "client.json"
+    path.write_text(
+        json.dumps({**_valid_profile(), "accentColor": "#7040B0"}),
+        encoding="utf-8",
+    )
+    prefs = Preferences(tmp_path / "preferences.json")
+    prefs.apply_profile(json.loads(path.read_text(encoding="utf-8")))
+    assert prefs.accent_color == "#7040B0"
+
+
+def test_to_dict_excludes_accent_color(tmp_path):
+    prefs = Preferences(tmp_path / "preferences.json")
+    prefs.apply_profile(_valid_profile())
+    prefs.set_accent_color("#C83098")
+    assert "accentColor" not in prefs.to_dict()

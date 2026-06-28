@@ -3,8 +3,9 @@
 from pathlib import Path
 
 from PySide6.QtCore import QStandardPaths
+from PySide6.QtGui import QGuiApplication
 
-kMainColor_ = "#A45C94"
+from core.accent_colors import DEFAULT_ACCENT_COLOR, normalize_accent_color
 
 _CHECK_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">'
               '<path d="M3.5 8.4 L6.6 11.4 L12.5 4.8" fill="none" stroke="{color}" '
@@ -13,6 +14,27 @@ _CHECK_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">'
 _CARET_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12">'
               '<path d="M2.5 4.5 L6 8 L9.5 4.5" fill="none" stroke="{color}" '
               'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>')
+
+_current_accent = DEFAULT_ACCENT_COLOR
+
+
+def accent_color() -> str:
+    """Return the active UI accent colour."""
+    return _current_accent
+
+
+def set_accent_color(color: str) -> str:
+    """Set the active accent colour; returns the normalized preset used."""
+    global _current_accent
+    _current_accent = normalize_accent_color(color)
+    return _current_accent
+
+
+def apply_accent_theme(app: QGuiApplication, color: str) -> str:
+    """Update accent colour and re-apply the global stylesheet."""
+    normalized = set_accent_color(color)
+    app.setStyleSheet(build_stylesheet())
+    return normalized
 
 
 def _lighten(color: str, amount: float) -> str:
@@ -47,17 +69,33 @@ class Palette:
     BORDER = "#44525a"
     TEXT = "#e8eaeb"
     TEXT_DIM = "#9aa6ac"
-    ACCENT = kMainColor_
-    PRIMARY = kMainColor_
-    PRIMARY_HOVER = _lighten(kMainColor_, 0.12)
-    PRIMARY_DARK = _darken(kMainColor_, 0.28)
     ERR = "#e2686d"
     ERR_DARK = _darken("#e2686d", 0.22)
+
+    @classmethod
+    def ACCENT(cls) -> str:
+        return _current_accent
+
+    @classmethod
+    def PRIMARY(cls) -> str:
+        return _current_accent
+
+    @classmethod
+    def PRIMARY_HOVER(cls) -> str:
+        return _lighten(_current_accent, 0.12)
+
+    @classmethod
+    def PRIMARY_DARK(cls) -> str:
+        return _darken(_current_accent, 0.28)
 
 
 def build_stylesheet() -> str:
     p = Palette
-    check = _icon_url("check.svg", _CHECK_SVG, p.ACCENT)
+    accent = p.ACCENT()
+    primary = p.PRIMARY()
+    primary_hover = p.PRIMARY_HOVER()
+    primary_dark = p.PRIMARY_DARK()
+    check = _icon_url("check.svg", _CHECK_SVG, accent)
     caret = _icon_url("caret.svg", _CARET_SVG, p.TEXT_DIM)
     return f"""
     QWidget {{
@@ -73,10 +111,10 @@ def build_stylesheet() -> str:
         border: 1px solid {p.BORDER};
         border-radius: 4px;
         padding: 6px 8px;
-        selection-background-color: {p.ACCENT};
+        selection-background-color: {accent};
         selection-color: white;
     }}
-    QLineEdit:focus, QPlainTextEdit:focus {{ border: 1px solid {p.ACCENT}; }}
+    QLineEdit:focus, QPlainTextEdit:focus {{ border: 1px solid {accent}; }}
     QLineEdit:read-only {{ color: {p.TEXT_DIM}; }}
     QLineEdit:disabled {{
         background: {p.BG_DISABLED};
@@ -90,7 +128,7 @@ def build_stylesheet() -> str:
         border-radius: 4px;
         padding: 6px 8px;
     }}
-    QComboBox:focus {{ border: 1px solid {p.ACCENT}; }}
+    QComboBox:focus {{ border: 1px solid {accent}; }}
     QComboBox::drop-down {{
         subcontrol-origin: padding;
         subcontrol-position: center right;
@@ -122,7 +160,7 @@ def build_stylesheet() -> str:
     QComboBox QAbstractItemView::item {{ min-height: 24px; padding: 3px 8px; border: none; }}
     QComboBox QAbstractItemView::item:hover,
     QComboBox QAbstractItemView::item:selected {{
-        background: {p.ACCENT};
+        background: {accent};
         color: white;
     }}
 
@@ -141,7 +179,7 @@ def build_stylesheet() -> str:
     }}
     QRadioButton::indicator:checked {{
         background: qradialgradient(cx:0.5, cy:0.5, radius:0.5, fx:0.5, fy:0.5,
-            stop:0 {p.ACCENT}, stop:0.4 {p.ACCENT}, stop:0.46 {p.BG_INPUT}, stop:1 {p.BG_INPUT});
+            stop:0 {accent}, stop:0.4 {accent}, stop:0.46 {p.BG_INPUT}, stop:1 {p.BG_INPUT});
     }}
     QCheckBox::indicator:disabled, QRadioButton::indicator:disabled {{
         border: 1px solid {p.BG_DISABLED};
@@ -166,7 +204,7 @@ def build_stylesheet() -> str:
         font-size: 13px;
     }}
     #TopTabBar::tab:selected {{
-        background: {p.ACCENT};
+        background: {accent};
         color: white;
         font-weight: bold;
         border: none;
@@ -203,7 +241,7 @@ def build_stylesheet() -> str:
         border-radius: 4px;
         padding: 7px 20px;
     }}
-    QPushButton:hover {{ background: {p.BG_INPUT}; border: 1px solid {p.ACCENT}; }}
+    QPushButton:hover {{ background: {p.BG_INPUT}; border: 1px solid {accent}; }}
     QPushButton:disabled {{ color: {p.TEXT_DIM}; }}
 
     #BottomBar {{ background: {p.BG_BAR}; border-top: 1px solid {p.BORDER}; }}
@@ -218,10 +256,10 @@ def build_stylesheet() -> str:
         padding: 6px 14px;
         border-radius: 10px;
     }}
-    #StatusOk {{ background-color: {p.PRIMARY}; }}
+    #StatusOk {{ background-color: {primary}; }}
     #StatusErr {{ background-color: {p.ERR}; }}
     #StatusCapsule[state="ok"] {{
-        background-color: {p.PRIMARY};
+        background-color: {primary};
         border-radius: 10px;
     }}
     #StatusCapsule[state="err"] {{
@@ -242,35 +280,35 @@ def build_stylesheet() -> str:
     }}
     #AboutCard {{ background: {p.BG_BAR}; border: 1px solid {p.BORDER}; border-radius: 10px; }}
     #GenerateButton {{
-        background: {p.PRIMARY};
+        background: {primary};
         color: white;
         border: none;
         border-radius: 5px;
         padding: 9px 20px;
         font-weight: bold;
     }}
-    #GenerateButton:hover {{ background: {p.PRIMARY_HOVER}; }}
+    #GenerateButton:hover {{ background: {primary_hover}; }}
     #GenerateButton:disabled {{ background: {p.BG_DISABLED}; color: {p.TEXT_DIM}; }}
 
     #OpenButton {{
-        background: {p.PRIMARY};
+        background: {primary};
         color: white;
         border: none;
         border-radius: 5px;
         padding: 7px 20px;
         font-weight: bold;
     }}
-    #OpenButton:hover {{ background: {p.PRIMARY_HOVER}; }}
+    #OpenButton:hover {{ background: {primary_hover}; }}
 
     #SaveButton, #ActionButton {{
-        background: {p.PRIMARY};
+        background: {primary};
         color: white;
         border: none;
         border-radius: 5px;
         padding: 7px 20px;
         font-weight: bold;
     }}
-    #SaveButton:hover, #ActionButton:hover {{ background: {p.PRIMARY_HOVER}; }}
+    #SaveButton:hover, #ActionButton:hover {{ background: {primary_hover}; }}
 
     #SectionTitle {{
         font-size: 18px;
@@ -286,17 +324,17 @@ def build_stylesheet() -> str:
     #AboutInfoLine {{ color: {p.TEXT_DIM}; }}
     #AboutInfoValue {{ color: {p.TEXT}; }}
     #AboutInfoLinkValue {{ color: {p.TEXT}; }}
-    #AboutInfoLinkValue:hover {{ color: {p.ACCENT}; }}
+    #AboutInfoLinkValue:hover {{ color: {accent}; }}
     #AboutFieldHint {{ color: {p.TEXT_DIM}; font-size: 11px; font-style: italic; }}
     #AboutHintLink {{ color: {p.TEXT_DIM}; font-size: 11px; font-style: italic; }}
-    #AboutHintLink:hover {{ color: {p.ACCENT}; }}
+    #AboutHintLink:hover {{ color: {accent}; }}
     #FieldLabel {{ color: {p.TEXT_DIM}; }}
     #FieldHint {{ color: {p.TEXT_DIM}; font-size: 11px; }}
-    #FieldMark[state="ok"] {{ color: {p.ACCENT}; }}
+    #FieldMark[state="ok"] {{ color: {accent}; }}
     #FieldMark[state="err"] {{ color: {p.ERR}; }}
     #FieldError {{ color: {p.ERR}; font-size: 11px; }}
     #SavedIndicator {{
-        background-color: {p.ACCENT};
+        background-color: {accent};
         color: white;
         font-size: 11px;
         font-weight: 600;
@@ -304,5 +342,25 @@ def build_stylesheet() -> str:
         min-height: 20px;
         max-height: 20px;
         border-radius: 10px;
+    }}
+    #AccentColorTitle {{
+        font-size: 13px;
+        font-weight: bold;
+        color: {p.TEXT};
+    }}
+    #AccentColorHint {{
+        color: {p.TEXT_DIM};
+        font-size: 11px;
+    }}
+    #AccentColorPill {{
+        background: {p.BG_INPUT};
+        border: 1px solid {p.BORDER};
+        border-radius: 14px;
+    }}
+    #AccentColorSwatch {{
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin: 0;
     }}
     """

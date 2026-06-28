@@ -6,7 +6,7 @@ Title: Luthier — Manuel utilisateur
 Version: 1.0
 Product-Version: 1.0.0
 Created: 2026-06-26
-Updated: 2026-06-27
+Updated: 2026-06-28
 References:
   - docs/user-manual.md
   - docs/architecture.md
@@ -60,7 +60,7 @@ On peut voir Luthier comme un workflow de type **Projucer**, le générateur de 
 
 - Génère des projets AU, VST3 et/ou Standalone à partir d’un seul formulaire dans l'éditeur de projet.
 - Écrit `CMakeLists.txt`, `CMakeUserPresets.json`, les fichiers sources, des aides IDE optionnelles et le **fichier compagnon** `.luthier.json` (instantané de configuration pour rouvrir le projet).
-- Enregistre vos **valeurs par défaut** (fabricant, chemins, type de plugin, etc.) dans un fichier de préférences sur votre machine (`preferences.json`).
+- Enregistre vos **valeurs par défaut** (fabricant, chemins, type de plugin, couleur d’accent, etc.) dans un fichier de préférences sur votre machine (`preferences.json`).
 - Permet de personnaliser les **modèles sources C++** utilisés pour chaque nouveau projet (`PluginProcessor.h/.cpp` et `PluginEditor.h/.cpp`).
 - Rouvre les projets existants via `.luthier.json`, ou en lisant un `CMakeLists.txt` legacy lorsqu’il n’y a pas de fichier compagnon.
 
@@ -153,7 +153,7 @@ L’interface de Luthier est volontairement simple : un onglet par grande tâche
 
 La barre de statut est votre retour principal après une action importante (génération, ouverture, import). Après la plupart des opérations, un court message s’affiche dans une **barre dédiée au-dessus des boutons d’action** :
 
-- les messages de **succès** sont en magenta (comme les boutons)
+- les messages de **succès** utilisent la **couleur d’accent** (personnalisable — magenta par défaut)
 - les messages d’**erreur** sont en rouge
 
 Exemples : *« Project generated at /Users/vous/Documents/MySynth »*, *« Loaded MySynth from … »*, *« Preferences imported from client-a.json »*.
@@ -226,6 +226,7 @@ Au tout premier démarrage, Luthier initialise un profil local avec des valeurs 
 | Copy to system plugin folders | désactivé |
 | Copy to central artefacts folder | désactivé |
 | Chemins d’artefacts (Windows / macOS / Linux) | vides |
+| **Couleur d’accent** (`accentColor`) | Magenta (`#A45C94`) — défaut inspiré de Projucer |
 
 ### Premiers pas recommandés
 
@@ -244,6 +245,16 @@ Si la génération réussit mais que la compilation échoue, le problème se sit
 C’est ici que vous décrivez **un** projet JUCE : son nom, son identité, ses formats, ses options de compilation et la destination des binaires après build. Pensez à cet onglet comme à la « fiche d’identité » du projet que Luthier va matérialiser sur le disque.
 
 L’onglet est une page défilable divisée en cinq sections. Les champs marqués d’un astérisque (*) sont obligatoires. Luthier vous signale les erreurs au fil de la saisie et désactive **Generate Project** tant que le formulaire n’est pas valide.
+
+### Luthier Accent Color
+
+En haut de l’onglet **Project** — au-dessus de **Project Info** — la ligne **Luthier Accent Color** permet de choisir une couleur parmi **douze préréglages** pour l’interface de l’application. Le changement s’applique **immédiatement** à toute l’app : onglet actif, boutons d’action, badges **Saved**, liens, coches de validation des champs et messages de succès dans la barre de statut.
+
+Le même sélecteur apparaît en haut de l’onglet **Preferences** (au-dessus de **Identity**). Les deux restent **synchronisés** : un choix sur l’un met à jour l’autre et enregistre dans `preferences.json` sur votre machine.
+
+La couleur est stockée sous la clé **`accentColor`** dans `preferences.json`. Elle est également incluse lors d’un **Export Preferences…**, ce qui permet à chaque profil exporté d’emporter sa propre couleur — pratique si vous travaillez pour **plusieurs clients ou marques** : attribuez une couleur distincte par client (par exemple sarcelle pour le client A, ambre pour le client B), exportez un fichier JSON par contexte, et **importez** le bon profil avant de commencer. D’un coup d’œil, la barre d’onglets et les boutons confirment que vous êtes dans le bon « espace de travail », avant même de lire le nom du fabricant sur le formulaire.
+
+Changer la couleur d’accent ne modifie **pas** les champs du projet, les templates ni les fichiers JUCE générés — seulement l’apparence de Luthier et vos préférences enregistrées.
 
 ### 7.1 Project Info
 
@@ -426,6 +437,8 @@ L’onglet **Preferences** sert à éviter de ressaisir les mêmes informations 
 
 ### 8.1 Sections
 
+En haut de l’onglet, **Luthier Accent Color** (voir [§7 Luthier Accent Color](#luthier-accent-color)) reprend le même sélecteur de douze couleurs que sur **Project**. Il est enregistré dans `preferences.json` et inclus dans les profils exportés.
+
 | Section | Contenu |
 |---------|---------|
 | **Identity** | Manufacturer, codes (chacun avec **Generate**), Copyright, Website, E-mail |
@@ -441,7 +454,7 @@ Il n’y a **pas** de champs propres au projet ici (pas de project name, version
 
 Contrairement à de nombreuses applications, Luthier n’a pas de bouton **Save** dans Preferences : chaque champ valide est **enregistré immédiatement** dans `preferences.json`. Vous pouvez fermer l’application sans craindre d’oublier de sauvegarder, tant que le champ n’affiche pas d’erreur.
 
-Lorsqu’un champ est sauvegardé, un badge **« Saved »** clignote brièvement sur ce champ (accent orange).
+Lorsqu’un champ est sauvegardé, un badge **« Saved »** clignote brièvement sur ce champ (couleur d’accent courante).
 
 Les champs invalides bloquent l’enregistrement tant qu’ils ne sont pas corrigés.
 
@@ -450,8 +463,8 @@ Les champs invalides bloquent l’enregistrement tant qu’ils ne sont pas corri
 L’import permet de **remplacer** tout le profil local par un fichier JSON exporté auparavant — utile pour restaurer une sauvegarde ou basculer entre profils (clients, machines, studios).
 
 1. Choisissez un fichier JSON (profil exporté, sauvegarde, autre machine).
-2. S’il est valide, il **remplace** intégralement le profil de préférences actuel et met à jour `preferences.json`.
-3. L’onglet Preferences se recharge.
+2. S’il est valide, il **remplace** intégralement le profil de préférences actuel et met à jour `preferences.json` (y compris **`accentColor`** si présent dans le fichier).
+3. L’onglet Preferences se recharge et la couleur d’accent s’applique immédiatement dans toute l’application.
 
 **L’import ne modifie pas l’onglet Project.** Utilisez **Create New Project** pour appliquer les nouveaux defaults à un formulaire vierge.
 
@@ -461,17 +474,19 @@ Si le fichier est invalide, une boîte de dialogue d’erreur s’affiche et vot
 
 L’export crée une **copie** de vos préférences actuelles dans un fichier de votre choix. Le fichier `preferences.json` local n’est pas modifié. Vous pouvez exporter plusieurs profils nommés (`client-a.json`, `client-b.json`, `mes-prefs.json`, etc.) et les réimporter plus tard.
 
+Le JSON exporté contient les mêmes champs que votre profil actif, y compris **`accentColor`**, de sorte que l’apparence et les valeurs par défaut voyagent ensemble lorsque vous changez de machine ou de profil.
+
 Servez-vous-en pour sauvegarder des profils ou les partager entre machines (un fichier par client, par studio, etc.).
 
 L’export est bloqué si un champ de préférences est actuellement invalide.
 
 ### 8.5 Parcours multi-clients
 
-Si vous développez pour plusieurs marques ou clients, exportez un profil par contexte et importez-le avant chaque nouveau projet JUCE. Vous gardez des codes fabricant, chemins et métadonnées cohérents sans tout retaper.
+Si vous développez pour plusieurs marques ou clients, exportez un profil par contexte et importez-le avant chaque nouveau projet JUCE. Vous gardez codes fabricant, chemins, métadonnées et une **couleur d’accent distincte** cohérents sans tout retaper — et vous repérez le client actif d’un coup d’œil grâce aux couleurs de l’interface.
 
-1. Configurez Preferences pour le **Client A** → **Export Preferences…** → `client-a.json`.
-2. Répétez pour le **Client B** → `client-b.json`.
-3. Avant de démarrer un projet JUCE pour un client → **Import Preferences…** → choisissez le bon fichier.
+1. Configurez **Preferences** pour le **Client A** (valeurs par défaut + **Luthier Accent Color**) → **Export Preferences…** → `client-a.json`.
+2. Répétez pour le **Client B** avec une autre couleur → `client-b.json`.
+3. Avant de démarrer un projet JUCE pour un client → **Import Preferences…** → choisissez le bon fichier (couleur et champs se mettent à jour ensemble).
 4. **Create New Project** → le formulaire correspond à ce profil.
 
 Le projet que vous aviez ouvert reste inchangé jusqu’à ce que vous en créiez ou en ouvriez un autre.
@@ -554,9 +569,9 @@ Si entre-temps vous aviez déplacé le dossier de votre projet, ouvrez-le d’ab
 
 ### 11.4 Changer de profil entre deux projets
 
-Enchaînement typique pour un développeur freelance travaillant pour plusieurs clients, ou multi-marques : importer le bon profil JSON, créer un nouveau projet puis générer, sans toucher au projet précédemment ouvert.
+Enchaînement typique pour un développeur freelance travaillant pour plusieurs clients, ou multi-marques : importer le bon profil JSON (valeurs par défaut **et couleur d’accent**), créer un nouveau projet puis générer, sans toucher au projet précédemment ouvert.
 
-1. **Import Preferences…** → fichier JSON du client.
+1. **Import Preferences…** → fichier JSON du client (couleurs de l’interface et champs mis à jour ensemble).
 2. **Create New Project**.
 3. Remplissez les champs d’identité → **Generate Project**.
 
@@ -601,9 +616,9 @@ Luthier répartit les données entre la **configuration de l’application** (de
 
 | Emplacement | Contenu | Modifié par |
 |-------------|---------|-------------|
-| `preferences.json` | Profil de defaults globaux | Premier lancement, auto-save Preferences, Import |
+| `preferences.json` | Profil de defaults globaux (`accentColor`, fabricant, chemins, …) | Premier lancement, auto-save Preferences, sélecteur d’accent, Import |
 | `app_state.json` | Dernier dossier parent, dernier dossier import/export, géométrie fenêtre | Generate réussi, chemins Import/Export, redimensionnement/déplacement fenêtre |
-| Fichiers `*.json` exportés | Copies de profils de préférences | Export Preferences… (fichiers choisis manuellement) |
+| Fichiers `*.json` exportés | Copies de profils de préférences (y compris `accentColor`) | Export Preferences… (fichiers choisis manuellement) |
 | Overrides Templates (`templates/`) | Contenu de templates personnalisé | Save override, Reset |
 | Dossier de projet généré | Projet CMake + fichier compagnon `.luthier.json` | Generate Project |
 
@@ -672,7 +687,7 @@ Les chemins déjà au format Unix sont conservés tels quels (hors trim). La nor
 
 ## 16. Messages, erreurs et dépannage
 
-Si quelque chose ne se passe pas comme prévu, commencez par regarder la **barre de statut** (message en magenta ou en rouge) et les indications à côté des champs du formulaire. La plupart des blocages viennent d’un champ obligatoire manquant, d’un chemin invalide ou d’un dossier qui n’est pas un projet Luthier.
+Si quelque chose ne se passe pas comme prévu, commencez par regarder la **barre de statut** (message en couleur d’accent ou en rouge) et les indications à côté des champs du formulaire. La plupart des blocages viennent d’un champ obligatoire manquant, d’un chemin invalide ou d’un dossier qui n’est pas un projet Luthier.
 
 Les retours d’opération globaux (Generate, Open, Create New Project, Import/Export Preferences) s’affichent dans la **barre de statut dédiée** au-dessus des boutons d’action — voir [§4 Barre de statut](#barre-de-statut). Le tableau ci-dessous liste les messages typiques.
 
@@ -761,6 +776,7 @@ Pour retrouver rapidement une action une fois les concepts ci-dessus lus :
 | Changer le manufacturer / les chemins par défaut | **Preferences** (auto-save) |
 | Appliquer les defaults sur un formulaire neuf | **Create New Project** après avoir modifié Preferences |
 | Déplacer les prefs sur une autre machine | **Export Preferences…** / **Import Preferences…** |
+| Attribuer une couleur par client ou marque | **Luthier Accent Color** dans **Preferences** → **Export Preferences…** |
 | Personnaliser le boilerplate processeur | **Templates** → modifier → **Save override** |
 | Épingler une version JUCE à un projet | Renseigner **JUCE directory** sur l’onglet **Project** |
 
