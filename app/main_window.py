@@ -43,6 +43,7 @@ _TABS = ["Project", "Preferences", "Templates", "About"]
 _PROJECT_TAB_INDEX = _TABS.index("Project")
 _PREFS_TAB_INDEX = _TABS.index("Preferences")
 _ABOUT_TAB_INDEX = _TABS.index("About")
+_MIN_WINDOW_WIDTH = 750
 _MIN_WINDOW_HEIGHT = 720
 
 
@@ -85,7 +86,7 @@ class MainWindow(QMainWindow):
         self._status_text = ""
         self._status_ok = True
         self._build_ui()
-        self.setMinimumSize(720, _MIN_WINDOW_HEIGHT)
+        self.setMinimumSize(_MIN_WINDOW_WIDTH, _MIN_WINDOW_HEIGHT)
         self._restore_window_geometry()
         if self._generator.error:
             self._set_status(self._generator.error, ok=False)
