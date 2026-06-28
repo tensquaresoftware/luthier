@@ -74,18 +74,20 @@ Luthier/
 │   └── Source/                    # @KEY@ token templates (valid C++ when unrendered)
 │       ├── PluginProcessor.{h,cpp}
 │       └── PluginEditor.{h,cpp}
-├── Resources/
-│   └── luthier.svg                # App logo (SVG, bundled by PyInstaller)
-├── Build/
+├── resources/
+│   ├── luthier-logo.png           # README / branding
+│   └── icons/                     # App icon (icns, ico, png)
+├── build/
 │   └── luthier.spec               # PyInstaller spec
-├── Docs/                          # Project documentation images
-└── Rules/                         # Dev rules (gitignored at project level? No — tracked)
-    ├── process-clean-code.md      # 3-phase mandatory process + metric limits
-    ├── communication-fr.md        # French communication rules
-    └── cpp-juce-standards.mdc     # C++/JUCE coding standards
+├── docs/
+│   ├── luthier.png                # Logo (README)
+│   ├── user-manual.md
+│   └── architecture.md
+└── rules/                         # Dev rules (optional local)
+    └── ...
 ```
 
-**Folder casing**: `Build/ Docs/ Resources/ Templates/` are PascalCase. `app/` and `core/` are lowercase (Python packages).
+**Folder casing**: `templates/`, `resources/`, `build/`, `dist/`, `docs/`, `app/`, and `core/` are lowercase. `templates/Source/` and `templates/CMake/` use PascalCase for JUCE layout parity.
 
 ---
 
@@ -146,7 +148,7 @@ Keys: `manufacturer`, `manufacturerCode`, `pluginCode`, `companyCopyright`, `com
 ### App State
 
 `core/app_state.py` — JSON at `~/.../AppConfigLocation/Luthier/app_state.json` (sibling of `preferences.json`, **not** part of Import/Export profile).  
-Schema: `{"lastUsedParentDir": "<path>"}`. Written only after successful Generate (`remember_parent` + `save`). Used by Choose… and Open Project… dialog start directories via `dialog_start_dir()` — valid field value → last parent → Desktop (OS API) → home fallback.
+Fields: `lastUsedParentDir`, `lastPrefsProfileDir`, `windowGeometry` (Qt bytes), `windowRect`, `windowMaximized`. Written after successful Generate (`remember_parent`), Import/Export path picks, and window resize/move (debounced). Used by Choose… / Open dialog start dirs via `dialog_start_dir()` and by `MainWindow` to restore size, position, and maximized state.
 
 ---
 

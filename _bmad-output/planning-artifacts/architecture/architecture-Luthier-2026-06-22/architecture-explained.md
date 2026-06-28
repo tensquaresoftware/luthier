@@ -1,6 +1,8 @@
 # Luthier — Architecture Decisions Explained
 
-*Understanding document, companion to `ARCHITECTURE-SPINE.md`.*
+*Understanding document, companion to `architecture-spine.md`.*
+
+> **Historical note (2026-06-28):** Decisions **5**, **6**, and **7** below were revised as Epics 3 and 5 landed. For current invariants use **`architecture-spine.md`**, [`docs/architecture.md`](../../../docs/architecture.md), and [`project-context.md`](../../../project-context.md). Sections marked *(superseded)* describe the original Epic 1 intent only.
 
 ---
 
@@ -127,57 +129,53 @@ The rename is an atomic filesystem operation: it either succeeds completely or f
 
 ---
 
-## Decision 5 — Immediate preferences save
+## Decision 5 — Preferences persistence *(superseded 2026-06-25)*
 
-### The problem
+### Original problem (Epic 1)
 
-A subtle bug existed in the code: when the user opens an existing project, Luthier updates the preferences in memory (`manufacturer`, `destination`…) but never writes them to disk. The next time the app opens, the preferences are back to what they were before.
+When the user opened or generated a project, in-memory preferences could diverge from disk because updates were not always saved.
 
-### The solution
+### Original solution (Epic 1 — no longer applies)
 
-Simple rule: every time `prefs.update(spec)` is called after a successful user action (generate or open), `prefs.save()` is called immediately after. Both calls are made by `MainWindow` — never by `core/`. No deferred save, no timer — just an immediate synchronous write (the JSON file is small).
+Every successful Open or Generate called `prefs.update(spec)` then `prefs.save()` from `MainWindow`.
+
+### Current rule (AD-5 revised — Epic 5.4)
+
+**`preferences.json` is written only by:**
+
+1. First-launch factory file creation  
+2. Preferences tab auto-save on valid edit  
+3. Successful Import Preferences  
+
+**Open Project** and **Generate Project** never modify `preferences.json`. Last-used folders and window geometry live in sibling **`app_state.json`** (`AppState`), not in the profile.
+
+See **architecture-spine** AD-5 and [`docs/architecture.md`](../../../docs/architecture.md#preferences-and-persistence-ad-5-revised).
 
 ---
 
 ## Decision 6 — Testing with pytest
 
-### Why test
+### Status (Epic 3 complete)
 
-Luthier currently has zero automated tests. That means every code change can only be verified by launching the app and clicking through it manually. That is slow and edge cases get forgotten.
+Luthier has a pytest suite: **`tests/unit/`** (pure `core/` logic, no Qt widgets) and **`tests/integration/`** (full generate → read round-trip, CMake configure on matching hosts, frozen bundle smoke where built). Legacy **`tests/test_story_*.py`** unittest files remain for some reader paths; prefer pytest for new coverage.
 
-### What we will test
+### What we still don't test
 
-Everything in `core/` that doesn't depend on Qt can be tested without launching the GUI:
-
-- **Validators** (`validate_project_name("My Plugin")` → `(True, "")`)
-- **The rendering engine** (template + context → expected string)
-- **The full round-trip**: create a `ProjectSpec`, pass it to the writer, read the folder back with the reader, verify we get the same `ProjectSpec`
-
-### Two tiers
-
-**`tests/unit/`** — Ultra-fast tests on pure functions (input → expected output, no files created).
-
-**`tests/integration/`** — Round-trip tests that create real files in a temporary folder that pytest creates and deletes automatically after each test (via the `tmp_path` fixture).
-
-### What we don't test (yet)
-
-Qt pages (`ProjectPage`, `MainWindow`…) require a graphical environment to be instantiated. We leave those aside for now — the value is in `core/`.
+Qt pages (`ProjectPage`, `MainWindow`…) — graphical widget tests are out of scope (AD-6). CI workflow (GitHub Actions) is not set up yet.
 
 ---
 
-## Decision 7 — `juce_dir` in Preferences, not in the project
+## Decision 7 — `juce_dir` on the project *(superseded 2026-06-25)*
 
-### The problem
+### Original decision (Epic 1)
 
-The path to the JUCE installation (`/Applications/JUCE`) needs to be known at generation time to be written into `CMakeLists.txt`. Where should it be stored?
+`juce_dir` lived in Preferences only and was injected at generate time without appearing in `.luthier.json`.
 
-### The decision
+### Current rule (AD-7 revised — Epic 5.3)
 
-In **user Preferences** only, not in `ProjectSpec`.
+**`juce_dir` is a field on `ProjectSpec`** (JSON key `juceDir`). It is written to `.luthier.json`, round-trips on Open → Generate, and is edited on the **Project** tab (Choose… next to JUCE directory). **Preferences** holds the **default seed** for new projects only (`Create New Project` / first launch).
 
-The reasoning: JUCE is installed once on your machine. It's not a property of the MyPlugin plugin — it's a property of your development environment. Just as you don't store the path to Xcode in every project.
-
-Concretely: `juce_dir` is read from `Preferences` at generation time and injected into the render context. It does not appear in `.luthier.json`.
+See **architecture-spine** AD-7.
 
 ---
 
@@ -207,6 +205,6 @@ Why? Because if `core/` depends on Qt, unit tests become impossible without a gr
 | AD-2 | Merge `values` + `config` into `ProjectSpec`      | Artificial split, two dicts to assemble              |
 | AD-3 | Sidecar `.luthier.json` + regex fallback          | Round-trip broken by manual CMake edits              |
 | AD-4 | Atomic write (temp dir + rename)                  | Corrupted project if generation is interrupted       |
-| AD-5 | `prefs.save()` after every `update()`             | Preferences lost on next app launch                  |
-| AD-6 | pytest, `tests/unit/` + `tests/integration/`      | Zero coverage, regressions go undetected             |
-| AD-7 | `juce_dir` in Preferences only                    | Environment path polluting project data              |
+| AD-5 | Preferences written only by prefs UI / import / first launch | Open/Generate accidentally overwriting global defaults |
+| AD-6 | pytest, `tests/unit/` + `tests/integration/`      | Regressions in core generation pipeline                |
+| AD-7 | `juce_dir` on `ProjectSpec`; prefs seed only      | Per-project JUCE path lost on reload                   |

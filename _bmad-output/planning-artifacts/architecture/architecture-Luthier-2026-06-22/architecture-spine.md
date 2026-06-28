@@ -7,7 +7,7 @@ paradigm: 'strict-layered'
 scope: 'Luthier — PySide6 GUI JUCE project generator'
 status: final
 created: '2026-06-22'
-updated: '2026-06-25'
+updated: '2026-06-28'
 binds: []
 sources:
   - _bmad-output/project-context.md
@@ -92,6 +92,12 @@ graph TD
 - **Binds:** `ProjectWriter`, `templates_store`, `ProjectSpec`
 - **Prevents:** two incompatible representations of template selection (stored ID vs. resolved Path) diverging across modules
 - **Rule:** `ProjectSpec` carries no reference to user template overrides. `ProjectWriter` resolves overrides at write time via `templates_store.overrides_dir()` — a `Path` injected at construction. The override lookup is `ProjectWriter`'s responsibility alone; no other module resolves or stores it. [ADOPTED]
+
+### AD-10 — Atomic JSON persistence for app config
+
+- **Binds:** `Preferences`, `AppState`
+- **Prevents:** truncated or corrupt `preferences.json` / `app_state.json` after crash mid-write; silent recovery from corrupt config
+- **Rule:** config JSON files are written via a sibling temp file then atomically replaced — same commit semantics as AD-4. On read failure, fall back to in-memory defaults and notify the user via the app layer; never silently pretend a corrupt file loaded successfully. [ADOPTED — Epic 7.2, 2026-06-28]
 
 ## Consistency Conventions
 
