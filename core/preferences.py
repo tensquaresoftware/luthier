@@ -85,9 +85,14 @@ def factory_defaults(desktop: str | None = None) -> dict:
     return data
 
 
+def _normalize_null_strings(data: dict) -> dict:
+    return {k: ("" if v is None else v) for k, v in data.items()}
+
+
 def _complete_profile(data: dict) -> dict:
     """Fill missing profile keys from code defaults (import full-replace semantics)."""
-    return {key: data.get(key, _DEFAULTS.get(key)) for key in _PROFILE_KEYS}
+    merged = {key: data.get(key, _DEFAULTS.get(key)) for key in _PROFILE_KEYS}
+    return _normalize_null_strings(merged)
 
 
 def validate_profile(data: dict) -> tuple[bool, str]:
@@ -187,6 +192,7 @@ class Preferences:
         if not isinstance(raw, dict):
             self._reset_corrupt_file()
             return
+        raw = _normalize_null_strings(raw)
         raw_accent = raw.get("accentColor")
         accent = normalize_accent_color(raw_accent)
         self._data.update(raw)
@@ -237,12 +243,13 @@ class Preferences:
         ok, message = validate_profile(profile)
         if not ok:
             raise ValueError(message)
-        for key in _PROFILE_KEYS:
-            self._data[key] = profile[key]
         if "accentColor" in data:
             ok, message = validate_accent_color(data["accentColor"])
             if not ok:
                 raise ValueError(message)
+        for key in _PROFILE_KEYS:
+            self._data[key] = profile[key]
+        if "accentColor" in data:
             self.set_accent_color(data["accentColor"])
 
     def seed_dict(self) -> dict:

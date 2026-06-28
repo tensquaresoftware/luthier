@@ -8,7 +8,7 @@ Items **retirés** depuis la purge précédente : géométrie fenêtre (`app_sta
 
 ## Infrastructure
 
-- **Tests legacy** — Fichiers `tests/test_story_*.py` redondants avec la suite pytest ; fusion ou retrait à planifier.
+- ~~**Tests legacy** — Fichiers `tests/test_story_*.py` redondants avec la suite pytest ; fusion ou retrait à planifier.~~ *(Résolu — Story 7.4)*
 
 ## Deferred from: code review of 7-1-github-actions-ci-for-pytest (2026-06-28)
 
@@ -20,6 +20,13 @@ Items **retirés** depuis la purge précédente : géométrie fenêtre (`app_sta
 
 - No `fsync` after temp write in `atomic_write_text` — same durability level as AD-4 `ProjectWriter`; add if crash/power-loss persistence becomes a requirement.
 - Orphaned `.tmp` files after SIGKILL or power loss — inherent atomic-write limitation; no automatic recovery path beyond manual cleanup.
+
+## Deferred from: code review of 7-4-test-hygiene-minor-ui-hardening (2026-06-28)
+
+- No automated `PreferencesPage.import_from_file` UI rollback test — AD-6 no Qt widget tests; manual QA for widget refresh on import failure.
+- Post-`save()` disk revert on import failure — out of scope; failure normally occurs before `save()` (Story 7.2 atomic write).
+- In-process no-Qt import guard (`test_core_imports.py`) vs subprocess cold-import — weaker than subprocess but matches Story 7.4 migration sketch.
+- MemoryError uncaught on Templates Load File (`read_text`) — edge case for very large files; catch alongside OSError if observed in QA.
 
 ## Deferred from: code review of 7-3-core-generation-reload-robustness (2026-06-28)
 
@@ -46,17 +53,17 @@ Items **retirés** depuis la purge précédente : géométrie fenêtre (`app_sta
 
 ## Interface (mineur)
 
-- **`null` dans prefs** — Peut apparaître comme `"None"` dans un champ dossier.
-- **Import profil** — Rollback incomplet sur certains `ValueError`.
+- ~~**`null` dans prefs** — Peut apparaître comme `"None"` dans un champ dossier.~~ *(Résolu — Story 7.4)*
+- ~~**Import profil** — Rollback incomplet sur certains `ValueError`.~~ *(Résolu — Story 7.4)*
 - **Couplage widgets Préférences** — Accès aux attributs internes des sections ; refactor si signaux unifiés.
-- **Éditeur Templates** — Label d’état après Load File ; pas de validation de type de fichier ; erreurs lecture non gérées.
+- ~~**Éditeur Templates** — Label d’état après Load File ; pas de validation de type de fichier ; erreurs lecture non gérées.~~ *(Résolu — Story 7.4)*
 
 ## Tests — durcissement optionnel
 
 - Paramétrisation `plugin_type` (effect/midi) sur round-trip intégration.
 - Cas limites validation, templates store, render_context, bundle PyInstaller (timeout, encoding, layout `_internal`).
 - Pas de tests widget `MainWindow` (AD-6, volontaire).
-- Garde no-Qt au premier import (subprocess).
+- ~~Garde no-Qt au premier import (subprocess).~~ *(Résolu — Story 7.4, `test_core_imports.py`)*
 
 ## Référence
 

@@ -126,6 +126,7 @@ class PreferencesPage(QWidget):
         ok, message = validate_profile(data)
         if not ok:
             return False, message
+        before_accent = self._prefs.accent_color
         before = self._prefs.to_dict()
         try:
             self._prefs.apply_profile(data)
@@ -135,6 +136,8 @@ class PreferencesPage(QWidget):
             return True, ""
         except (ValueError, OSError) as error:
             self._prefs.apply_profile(before)
+            self._prefs.set_accent_color(before_accent)
+            self.reload_from_prefs()
             return False, str(error)
 
     def export_to_file(self, path: str) -> tuple[bool, str]:

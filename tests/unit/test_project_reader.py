@@ -1,7 +1,6 @@
 """Unit tests for core.project_reader — sidecar validation and CMake edge cases."""
 
 import json
-import sys
 
 import pytest
 
@@ -119,9 +118,11 @@ def test_cmake_escaped_quotes_in_company_name(tmp_path):
     assert result.spec.manufacturer_name == 'O"Reilly'
 
 
-def test_project_reader_import_without_qt():
-    before = {k for k in sys.modules if "PySide6" in k or "PyQt" in k}
-    import core.project_reader  # noqa: F401
+@pytest.mark.parametrize("payload", ['"hello"', "[]"])
+def test_sidecar_non_dict_returns_none(tmp_path, payload):
+    from tests.conftest import write_project, make_spec
 
-    after = {k for k in sys.modules if "PySide6" in k or "PyQt" in k}
-    assert before == after
+    dest, _ = write_project(tmp_path, make_spec(tmp_path))
+    (dest / ".luthier.json").write_text(payload, encoding="utf-8")
+    result = read_project_result(dest)
+    assert result.spec is None

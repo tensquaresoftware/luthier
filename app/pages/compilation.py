@@ -5,6 +5,7 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from app.widgets.combo_field import ComboField
 from app.widgets.text_area_field import TextAreaField
+from core.display import display_str
 
 _CXX_CHOICES = ["C++17", "C++20", "C++23"]
 _DEFAULT_CXX = "C++17"
@@ -40,9 +41,10 @@ class CompilationSection(QWidget):
         }
 
     def load(self, values: dict) -> None:
-        self._cxx.set_value(values.get("cxxStandard", _DEFAULT_CXX))
-        self._defs.set_value(values.get("preprocessorDefinitions", ""))
-        self._headers.set_value(values.get("headerSearchPaths", ""))
+        cxx = values.get("cxxStandard", _DEFAULT_CXX)
+        self._cxx.set_value(display_str(cxx) or _DEFAULT_CXX)
+        self._defs.set_value(display_str(values.get("preprocessorDefinitions")))
+        self._headers.set_value(display_str(values.get("headerSearchPaths")))
 
     def flash_saved(self, sender) -> None:
         if sender is self and self._last_changed is not None:

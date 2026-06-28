@@ -78,14 +78,45 @@ class TemplatesPage(QWidget):
 
     def load_from_file(self) -> None:
         name = self._selector.currentText()
+        path = self._pick_file_for_template(name)
+        if not path:
+            return
+        if not self._is_valid_template_file(name, path):
+            self._abort_load(name, "Invalid file type for the selected template.")
+            return
+        try:
+            content = Path(path).read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as error:
+            self._abort_load(name, f"Could not read file: {error}")
+            return
+        self._editor.setPlainText(content)
+        self._update_loaded_status(path)
+
+    def _pick_file_for_template(self, name: str) -> str:
         if name == templates_store.GITIGNORE_FILE:
-            path = self._pick_gitignore_file()
-        else:
-            path, _ = QFileDialog.getOpenFileName(
-                self, "Load template file", "", "C++ source (*.h *.cpp);;All files (*)"
+            return self._pick_gitignore_file()
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Load template file", "", "C++ source (*.h *.cpp);;All files (*)"
+        )
+        return path
+
+    def _is_valid_template_file(self, name: str, path: str) -> bool:
+        file_path = Path(path)
+        if name == templates_store.GITIGNORE_FILE:
+            return (
+                file_path.name == templates_store.GITIGNORE_FILE
+                or file_path.suffix.lower() == ".gitignore"
             )
-        if path:
-            self._editor.setPlainText(Path(path).read_text(encoding="utf-8"))
+        return file_path.suffix.lower() in (".h", ".cpp")
+
+    def _abort_load(self, name: str, message: str) -> None:
+        self._editor.setPlainText(templates_store.read_effective(name))
+        self._status.setText(message)
+
+    def _update_loaded_status(self, path: str) -> None:
+        self._status.setText(
+            f"Loaded from {Path(path).name} — not saved until you click Save override."
+        )
 
     def _load_selected(self, name: str) -> None:
         self._set_syntax_mode(name)

@@ -4,6 +4,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from app.widgets.validated_field import FieldSpec, ValidatedField
+from core.display import display_str
 
 
 class ValidatedForm(QWidget):
@@ -25,7 +26,7 @@ class ValidatedForm(QWidget):
     def set_values(self, values: dict) -> None:
         for key, field in self._fields.items():
             if key in values:
-                field.set_value(str(values[key]))
+                field.set_value(display_str(values[key]))
 
     def is_valid(self) -> bool:
         return all(field.is_valid() for field in self._fields.values())

@@ -377,3 +377,71 @@ def test_reset_corrupt_file_survives_save_failure(tmp_path):
         ):
             prefs.load()
     assert prefs.load_warning is not None
+
+
+def test_load_null_path_fields_coerced_to_empty_string(tmp_path):
+    path = tmp_path / "preferences.json"
+    path.write_text(
+        json.dumps({
+            **_valid_profile(),
+            "juceDir": None,
+            "artefactsDirWindows": None,
+            "accentColor": DEFAULT_ACCENT_COLOR,
+        }),
+        encoding="utf-8",
+    )
+    prefs = Preferences(path)
+    prefs.load()
+    assert prefs.get("juceDir") == ""
+    assert prefs.get("artefactsDirWindows") == ""
+    assert prefs.to_dict()["juceDir"] == ""
+    assert prefs.to_dict()["artefactsDirWindows"] == ""
+
+
+def test_apply_profile_null_string_fields_become_empty(tmp_path):
+    prefs = Preferences(tmp_path / "preferences.json")
+    prefs.apply_profile(_valid_profile(juceDir=None, headerSearchPaths=None))
+    assert prefs.get("juceDir") == ""
+    assert prefs.get("headerSearchPaths") == ""
+
+
+def test_apply_profile_invalid_accent_does_not_mutate_profile(tmp_path):
+    prefs = Preferences(tmp_path / "preferences.json")
+    prefs.apply_profile(_valid_profile(manufacturer="Stable Co"))
+    before = prefs.to_dict()
+    with pytest.raises(ValueError, match="accentColor"):
+        prefs.apply_profile({**_valid_profile(manufacturer="Changed"), "accentColor": "bad"})
+    assert prefs.to_dict() == before
+
+
+def test_import_save_failure_restores_profile(tmp_path):
+    path = tmp_path / "preferences.json"
+    prefs = Preferences(path)
+    prefs.apply_profile(_valid_profile(manufacturer="Keep Me"))
+    prefs.save()
+    before = prefs.to_dict()
+    new_profile = _valid_profile(manufacturer="New Name")
+    with patch.object(Preferences, "save", side_effect=OSError("disk full")):
+        with pytest.raises(OSError, match="disk full"):
+            prefs.apply_profile(new_profile)
+            prefs.save()
+    prefs.apply_profile(before)
+    assert prefs.to_dict() == before
+
+
+def test_import_rollback_restores_accent_color(tmp_path):
+    prefs = Preferences(tmp_path / "preferences.json")
+    prefs.apply_profile(_valid_profile())
+    prefs.set_accent_color("#6113D7")
+    prefs.save()
+    before = prefs.to_dict()
+    before_accent = prefs.accent_color
+    new_profile = {**_valid_profile(manufacturer="New Co"), "accentColor": "#3232C3"}
+    prefs.apply_profile(new_profile)
+    with patch.object(Preferences, "save", side_effect=OSError("disk full")):
+        with pytest.raises(OSError, match="disk full"):
+            prefs.save()
+    prefs.apply_profile(before)
+    prefs.set_accent_color(before_accent)
+    assert prefs.to_dict() == before
+    assert prefs.accent_color == "#6113D7"

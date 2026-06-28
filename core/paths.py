@@ -32,6 +32,9 @@ def normalize_path_dict_values(data: dict) -> dict:
     """Return a copy with known path keys normalized."""
     out = dict(data)
     for key in _PATH_DICT_KEYS:
-        if key in out and out[key]:
-            out[key] = normalize_portable_path(str(out[key]))
+        if key in out:
+            if out[key] is None:
+                out[key] = ""
+            elif out[key]:
+                out[key] = normalize_portable_path(str(out[key]))
     return out

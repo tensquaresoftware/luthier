@@ -14,6 +14,7 @@ from app.pages.path_specs import host_artefact_field_key
 from app.widgets.folder_field import FolderField
 from app.widgets.validated_field import FieldSpec, ValidatedField
 from core import validation
+from core.display import display_str
 from core.preferences import Preferences
 
 _COPY_FLAGS = [
@@ -70,7 +71,7 @@ class ArtefactsSection(QWidget):
                 box.setChecked(bool(values[key]))
         for key, field in self._path_fields.items():
             if key in values:
-                field.set_value(str(values[key]))
+                field.set_value(display_str(values[key]))
 
     def flash_saved(self, sender) -> None:
         for field in self._path_fields.values():
