@@ -21,6 +21,7 @@ from app.pages.about import AboutPage
 from app.pages.preferences import PreferencesPage
 from app.pages.project import ProjectPage
 from app.pages.templates import TemplatesPage
+from app.confirm import confirm_discard_unsaved
 from app.widgets.status_capsule import (
     BAR_MIN_HEIGHT,
     STATUS_BAR_MARGIN_LEFT,
@@ -387,14 +388,11 @@ class MainWindow(QMainWindow):
 
     def _on_create_new_project(self) -> None:
         if self._project_page.is_dirty():
-            answer = QMessageBox.question(
+            if not confirm_discard_unsaved(
                 self,
                 "Create New Project",
                 "The project form has unsaved changes. Discard them and start a new project?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No,
-            )
-            if answer != QMessageBox.Yes:
+            ):
                 return
         self._project_page.reset(self._form_defaults())
         self._project_page.accent_section().set_color(self._prefs.accent_color)
