@@ -137,8 +137,7 @@ If `rules/process-clean-code.md` is present in your checkout, follow it for the 
 
 | Path | Casing | Contents |
 |------|--------|----------|
-| `docs/` | lowercase | Markdown documentation (`user-manual.md`, `manuel-utilisateur.md`, `architecture.md`) |
-| `Docs/` | PascalCase | Images (`Luthier.png`) |
+| `docs/` | lowercase | Markdown documentation and images (`user-manual.md`, `architecture.md`, `luthier.png`) |
 | `templates/` | lowercase | Bundled JUCE project templates (`Source/`, `CMake/` stay PascalCase) |
 | `resources/` | lowercase | Logos and static assets (`icons/` for app icon files) |
 | `build/` | lowercase | `luthier.spec`, PyInstaller workpath |
@@ -146,7 +145,7 @@ If `rules/process-clean-code.md` is present in your checkout, follow it for the 
 | `rules/` | lowercase | Local dev rules (gitignored) |
 | `app/`, `core/` | lowercase | Python packages |
 
-Do not conflate `docs/` and `Docs/` in links.
+Do not use a separate `Docs/` folder — keep documentation assets in lowercase `docs/` to avoid case collisions on macOS.
 
 ## Product reference (`_bmad-output/`)
 
@@ -155,12 +154,12 @@ The `_bmad-output/` folder is the BMad planning and implementation artifact stor
 | Document | Path |
 |----------|------|
 | PRD | [`_bmad-output/planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md`](_bmad-output/planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md) |
-| Architecture Spine (canonical) | [`_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md`](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md) |
-| Architecture Explained (companion) | [`_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-EXPLAINED.md`](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-EXPLAINED.md) |
+| Architecture Spine (canonical) | [`_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md`](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md) |
+| Architecture Explained (companion) | [`_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-explained.md`](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-explained.md) |
 | Epics & stories | [`_bmad-output/planning-artifacts/epics.md`](_bmad-output/planning-artifacts/epics.md) |
 | Project context (AI/dev quick reference) | [`_bmad-output/project-context.md`](_bmad-output/project-context.md) |
 
-> **Note:** `ARCHITECTURE-EXPLAINED.md` Decision 5 (prefs.save after Open/Generate) and Decision 7 (juce_dir in Preferences only) are **superseded**. Use **ARCHITECTURE-SPINE** and [docs/architecture.md](docs/architecture.md) for AD-5 and AD-7.
+> **Note:** For the narrative companion, see [`architecture-explained.md`](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-explained.md) (Decisions 5–7 include superseded Epic 1 history). AD-5 and AD-7: use **architecture-spine** and [docs/architecture.md](docs/architecture.md).
 
 ## Further reading
 
@@ -171,4 +170,14 @@ The `_bmad-output/` folder is the BMad planning and implementation artifact stor
 
 ## CI
 
-There is no GitHub Actions workflow yet (Epic 3 retrospective action item). All verification is local: `pytest`, `main.py --check`, and optional PyInstaller build.
+[![pytest](https://github.com/tensquaresoftware/luthier/actions/workflows/pytest.yml/badge.svg)](https://github.com/tensquaresoftware/luthier/actions/workflows/pytest.yml)
+
+Every push and pull request to `main` runs [`.github/workflows/pytest.yml`](.github/workflows/pytest.yml) on `ubuntu-latest`:
+
+1. Install Python 3.11+
+2. `pip install -r requirements-dev.txt`
+3. `pytest` (unit + integration under `tests/`)
+
+No CMake, JUCE, or PyInstaller build runs in CI. Tests that need those tools skip automatically (`test_cmake_cross_platform.py` without cmake/JUCE; `test_frozen_bundle.py` without a `dist/` bundle).
+
+Local checks beyond CI: `main.py --check` and optional PyInstaller build.

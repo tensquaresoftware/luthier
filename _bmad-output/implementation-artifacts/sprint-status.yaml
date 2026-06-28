@@ -41,7 +41,7 @@
 # - Retrospective appends its action items to action_items; sprint-status surfaces open ones
 
 generated: 2026-06-23
-last_updated: 2026-06-26 # epic 6 done
+last_updated: 2026-06-28
 project: Luthier
 project_key: NOKEY
 tracking_system: file-system
@@ -94,3 +94,11 @@ development_status:
   epic-6: done
   6-1-dedicated-status-message-bar: done
   epic-6-retrospective: optional
+
+  # Epic 7: Release Hardening (post-MVP quality gate)
+  epic-7: in-progress
+  7-1-github-actions-ci-for-pytest: in-progress
+  7-2-atomic-json-persistence-corrupt-file-feedback: backlog
+  7-3-core-generation-reload-robustness: backlog
+  7-4-test-hygiene-minor-ui-hardening: backlog
+  epic-7-retrospective: optional
