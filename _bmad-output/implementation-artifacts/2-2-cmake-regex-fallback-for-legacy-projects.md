@@ -230,7 +230,7 @@ Keep `QMessageBox.critical(self, "Open Project", message)` + `_set_status`. Empt
 | AD-8 | No Qt in `core/` | `ProjectReadResult` lives in `project_reader.py` |
 | NFR3 | Missing field must not corrupt regen | Partial parse blocked at reader |
 
-[Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md` §AD-3]
+[Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md` §AD-3]
 
 ### Clean Code Constraints (NFR1)
 
@@ -297,8 +297,8 @@ Story 3-4 (`tests/integration/test_round_trip.py`) will formalise: delete `.luth
 ### References
 
 - [Source: `_bmad-output/planning-artifacts/epics.md` §Story 2.2]
-- [Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md` §AD-3]
-- [Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-EXPLAINED.md` §Decision 3]
+- [Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md` §AD-3]
+- [Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-explained.md` §Decision 3]
 - [Source: `_bmad-output/implementation-artifacts/2-1-project-reload-via-luthier-json-sidecar.md` — sidecar path + 2-2 boundary]
 - [Source: `_bmad-output/implementation-artifacts/1-4-cmakelists-txt-template-consolidation.md` — `_parse_build_settings` legacy compat]
 - [Source: `_bmad-output/project-context.md` §Round-Trip, §Known Issues #2]

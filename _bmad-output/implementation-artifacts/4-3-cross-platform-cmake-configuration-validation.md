@@ -324,7 +324,7 @@ claude-4.6-sonnet-medium-thinking (Cursor)
 - [Source: _bmad-output/planning-artifacts/epics.md#Story-4.3]
 - [Source: _bmad-output/planning-artifacts/epics.md#NFR3]
 - [Source: _bmad-output/planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md#G2]
-- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md#AD-3]
+- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md#AD-3]
 - [Source: _bmad-output/implementation-artifacts/4-2-pyinstaller-bundle-windows-and-linux.md#AC3]
 - [Source: tests/integration/test_round_trip.py]
 - [Source: tests/conftest.py]

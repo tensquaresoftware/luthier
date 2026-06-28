@@ -94,7 +94,7 @@ AC5 explicitly depends on `ProjectSpec.juce_dir`. The Project tab **UI** for JUC
 | `core/render_context.py`, `core/project_generator.py` | Drop `juce_dir=` param — Story 5.3 |
 | `app/main_window.py` `_load_project` / `_run_generation` prefs sync removal | Story 5.4 |
 | `ProjectPage.reset()` full profile re-seed + dirty guard | Story 5.5 |
-| `_bmad-output/project-context.md`, `ARCHITECTURE-SPINE.md` | Update after 5.4 when AD-5 lands in code |
+| `_bmad-output/project-context.md`, `architecture-spine.md` | Update after 5.4 when AD-5 lands in code |
 
 ### Current State — Gap Analysis
 
@@ -254,7 +254,7 @@ Recent commits (baseline `aec1e2e`):
 
 - [Source: _bmad-output/planning-artifacts/epics.md#Story-5.2]
 - [Source: docs/USER-MANUAL.md §5.1, §5.5, §6.1.1, §12]
-- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md#AD-2, #AD-7]
+- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md#AD-2, #AD-7]
 - [Source: _bmad-output/implementation-artifacts/5-1-preferences-model-profile-workflow.md]
 - [Source: app/pages/project_info.py — current layout gap]
 - [Source: app/pages/preferences.py — FolderField reference]

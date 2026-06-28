@@ -319,7 +319,7 @@ Subprocess-based import isolation deferred — not required for this story.
 | NFR2 | Integration tier for round-trip | Closes Epic 3 integration gap |
 | NFR1 | Functions ≤ 15 lines | Helpers in `conftest.py`; parametrize where needed |
 
-[Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md` §AD-3, §AD-6, §AD-9]
+[Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md` §AD-3, §AD-6, §AD-9]
 
 ### Previous Story Intelligence (Story 3-3)
 
@@ -386,7 +386,7 @@ tests/
 ### References
 
 - [Source: `_bmad-output/planning-artifacts/epics.md` §Story 3.4]
-- [Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md` §AD-3, §AD-6, §AD-9]
+- [Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md` §AD-3, §AD-6, §AD-9]
 - [Source: `_bmad-output/implementation-artifacts/3-3-unit-tests-projectspec-and-templates-store.md`]
 - [Source: `_bmad-output/project-context.md` §Round-Trip, §Two-Pass Template Rendering]
 - [Source: `core/project_generator.py`, `core/project_writer.py`, `core/project_reader.py`]

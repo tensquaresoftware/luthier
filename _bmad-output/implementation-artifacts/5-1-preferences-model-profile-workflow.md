@@ -107,7 +107,7 @@ So that my global defaults (identity, paths, plugin type, formats, compilation, 
 | `app/pages/project_info.py`, `app/pages/project.py` | Choose buttons, JUCE on Project, full startup seed wiring — Story 5.2 |
 | `MainWindow._load_project` / `_run_generation` prefs sync removal | Story 5.4 |
 | `ProjectPage.reset()` full profile re-seed + dirty guard | Story 5.5 |
-| `_bmad-output/project-context.md`, `ARCHITECTURE-SPINE.md` | Update after 5.4 when AD-5 behaviour lands in code |
+| `_bmad-output/project-context.md`, `architecture-spine.md` | Update after 5.4 when AD-5 behaviour lands in code |
 
 ### Current State — Gap Analysis
 
@@ -328,7 +328,7 @@ Recent commits are UI polish and Epic 3 test completion — no in-progress Epic 
 
 - [Source: _bmad-output/planning-artifacts/epics.md#Story-5.1]
 - [Source: docs/USER-MANUAL.md §4.1–§4.2, §6, §12]
-- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md#AD-5, #AD-7]
+- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md#AD-5, #AD-7]
 - [Source: _bmad-output/project-context.md — Preferences Persistence, UI Patterns]
 - [Source: core/preferences.py — current `_DEFAULTS`, `apply_form`]
 - [Source: app/main_window.py — `_form_defaults`, `_prefs_buttons`, Open/Generate prefs sync]

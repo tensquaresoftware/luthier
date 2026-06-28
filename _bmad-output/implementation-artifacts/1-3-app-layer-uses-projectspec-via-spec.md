@@ -208,7 +208,7 @@ From story 1.1:
 
 ### References
 
-- AD-1, AD-2, AD-5, AD-7, AD-8: [_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md)
+- AD-1, AD-2, AD-5, AD-7, AD-8: [_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md)
 - Story 1.3 ACs: [_bmad-output/planning-artifacts/epics.md](_bmad-output/planning-artifacts/epics.md) §Story 1.3
 - Current state of files: [app/main_window.py](app/main_window.py), [app/pages/project.py](app/pages/project.py), [core/preferences.py](core/preferences.py)
 - Child page value keys: [app/pages/project_info.py](app/pages/project_info.py), [app/pages/compilation.py](app/pages/compilation.py), [app/pages/artefacts.py](app/pages/artefacts.py)

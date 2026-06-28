@@ -71,7 +71,7 @@ Story 5.5 closes Epic 5 workflow UX. It fixes the known **`reset()` only re-seed
 
 **In scope:** `ProjectPage.reset()` full re-seed, baseline snapshot, confirmation dialog, prefs read-only seeding, unit tests for pure helpers.
 
-**Out of scope:** Visual “unsaved changes” indicator on Project tab; baseline update on Generate; re-seeding Project tab immediately on Preferences import (explicitly deferred to Create New Project / cold start per USER-MANUAL §6.2); `ARCHITECTURE-EXPLAINED.md` AD-5 sync (deferred from 5-4).
+**Out of scope:** Visual “unsaved changes” indicator on Project tab; baseline update on Generate; re-seeding Project tab immediately on Preferences import (explicitly deferred to Create New Project / cold start per USER-MANUAL §6.2); `architecture-explained.md` AD-5 sync (deferred from 5-4).
 
 ### Current State — Exact Gap
 
@@ -276,7 +276,7 @@ Minimal diff expected: ~40–80 lines in `project.py`, ~15 lines in `main_window
 - [Source: _bmad-output/planning-artifacts/sprint-change-proposal-2026-06-25.md#Story-5.5]
 - [Source: docs/USER-MANUAL.md#§5.6 Create New Project]
 - [Source: docs/USER-MANUAL.md#§12 Create New Project checklist]
-- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md#AD-2, AD-5]
+- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md#AD-2, AD-5]
 - [Source: _bmad-output/implementation-artifacts/5-4-decouple-open-generate-from-preferences-json.md — explicit 5.5 deferral]
 - [Source: _bmad-output/implementation-artifacts/5-2-project-ui-choose-buttons-layout.md — reset() deferral]
 - [Source: _bmad-output/implementation-artifacts/deferred-work.md — reset() bug tracked]

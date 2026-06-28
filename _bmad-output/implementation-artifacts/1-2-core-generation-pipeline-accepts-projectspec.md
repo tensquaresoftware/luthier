@@ -269,7 +269,7 @@ All other code in `project_reader.py` is unchanged. `_parse_cmakelists()`, `_par
 
 ### References
 
-- AD-1, AD-2, AD-3, AD-4, AD-8, AD-9: [_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md)
+- AD-1, AD-2, AD-3, AD-4, AD-8, AD-9: [_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md)
 - Story 1.2 AC source: [_bmad-output/planning-artifacts/epics.md](_bmad-output/planning-artifacts/epics.md) §Story 1.2
 - Clean code limits: [_bmad-output/project-context.md](_bmad-output/project-context.md) §Critical Implementation Rules
 - `ProjectSpec.to_dict()` / `from_dict()` contract: [core/project_spec.py](core/project_spec.py)

@@ -67,7 +67,7 @@ Fichier de suivi : `_bmad-output/implementation-artifacts/sprint-status.yaml`
 | **`Docs/USER-MANUAL.md`** | **Source de vérité UX** — vision cible validée par le PO |
 | `_bmad-output/planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md` | À mettre à jour (F7, F8) |
 | `_bmad-output/planning-artifacts/epics.md` | À étendre (Epic 5) |
-| `_bmad-output/planning-artifacts/architecture/.../ARCHITECTURE-SPINE.md` | AD-5, AD-7 à réviser |
+| `_bmad-output/planning-artifacts/architecture/.../architecture-spine.md` | AD-5, AD-7 à réviser |
 | `app/main_window.py` | `prefs.update` + `save` sur Open et Generate (l.213–218, 237–242) |
 | `core/project_spec.py` | Pas de `juce_dir` aujourd’hui |
 | `core/preferences.py` | `_DEFAULTS` partiel ; pas type/formats/compilation |
@@ -316,7 +316,7 @@ Fichier : `_bmad-output/planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md`
 
 ## 12. Instructions explicites pour l’agent Correct Course
 
-1. Charger PRD, epics.md, ARCHITECTURE-SPINE.md, sprint-status.yaml, **ce handoff**, **USER-MANUAL.md**.
+1. Charger PRD, epics.md, architecture-spine.md, sprint-status.yaml, **ce handoff**, **USER-MANUAL.md**.
 2. Mode **Batch** : produire la Sprint Change Proposal complète avec edits OLD→NEW pour AD-5, AD-7, F7, F8, nouvel Epic 5 + stories.
 3. **Ne pas** réécrire l’historique des Epics 1–3 comme « non done » — ajouter note de supersession / Epic 5 amends.
 4. Proposer mise à jour `sprint-status.yaml` (epic-5 backlog, stories 5.1–5.5).

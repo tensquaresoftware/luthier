@@ -213,7 +213,7 @@ def test_validation_import_without_qt():
 | NFR2 | pytest; unit tests for public `core/` functions | Validators + plugin_settings first slice |
 | NFR1 | Functions ≤ 15 lines | Test functions may use parametrize tables; keep helpers small |
 
-[Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md` §AD-6, §AD-8]
+[Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md` §AD-6, §AD-8]
 
 ### Coexistence with Existing unittest Story Tests
 
@@ -286,7 +286,7 @@ Update mental model: `_bmad-output/project-context.md` §Known Issues #1 ("No te
 ### References
 
 - [Source: `_bmad-output/planning-artifacts/epics.md` §Story 3.1]
-- [Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md` §AD-6, §AD-8, §Structural Seed]
+- [Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md` §AD-6, §AD-8, §Structural Seed]
 - [Source: `_bmad-output/planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md` — NFR2]
 - [Source: `_bmad-output/implementation-artifacts/2-2-cmake-regex-fallback-for-legacy-projects.md` — unittest patterns, full-suite command]
 - [Source: `_bmad-output/project-context.md` §Repository Layout, §Validated Fields, §Known Issues #1]

@@ -121,7 +121,7 @@ Story 5.3 owns **data model + generation pipeline**. Story 5.2 (`ready-for-dev`)
 | `core/project_reader.py` | Sidecar path already uses `from_dict()`; CMake `JUCE_DIR` parse not in AC |
 | `core/project_writer.py` | Already writes full `to_dict()` — no change needed |
 | `Templates/CMakeLists.txt` | `{juceDirSetLine}` placeholder already exists (line 74) |
-| `_bmad-output/project-context.md`, `ARCHITECTURE-SPINE.md` | Doc sync after 5.4 when AD-5 lands in code |
+| `_bmad-output/project-context.md`, `architecture-spine.md` | Doc sync after 5.4 when AD-5 lands in code |
 
 ### Implementation Details — `ProjectSpec`
 
@@ -300,7 +300,7 @@ Recent commits (baseline `aec1e2e`):
 ### References
 
 - [Source: _bmad-output/planning-artifacts/epics.md#Story-5.3]
-- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md#AD-2, #AD-3, #AD-7]
+- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md#AD-2, #AD-3, #AD-7]
 - [Source: _bmad-output/planning-artifacts/sprint-change-proposal-2026-06-25.md#Story-5.3]
 - [Source: _bmad-output/implementation-artifacts/5-1-preferences-model-profile-workflow.md]
 - [Source: _bmad-output/implementation-artifacts/5-2-project-ui-choose-buttons-layout.md — prerequisite notes]

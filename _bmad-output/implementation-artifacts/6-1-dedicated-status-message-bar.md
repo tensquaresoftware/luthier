@@ -216,7 +216,7 @@ Recent commits (882568f → 7649847) focus on Epic 4 (PyInstaller bundles, CMake
 
 - [Source: _bmad-output/project-context.md#UI Patterns] — Status labels `#StatusOk` / `#StatusErr`; `repolish()` after objectName change
 - [Source: _bmad-output/project-context.md#Repository Layout] — `app/main_window.py` owns tab bar, page stack, bottom bar
-- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md#AD-8] — no core imports from app
+- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md#AD-8] — no core imports from app
 - [Source: _bmad-output/planning-artifacts/epics.md#Story 6.1]
 - [Source: _bmad-output/implementation-artifacts/deferred-work.md#Deferred from: manual smoke 5-5]
 

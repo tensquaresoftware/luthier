@@ -282,7 +282,7 @@ def test_project_spec_import_without_qt():
 | NFR2 | Unit coverage toward ≥ 90% core/ | Covers `project_spec` + `templates_store` public API |
 | NFR1 | Functions ≤ 15 lines | Parametrize; extract `_patch_config_root` helper |
 
-[Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md` §AD-1, §AD-6, §AD-8, §AD-9]
+[Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md` §AD-1, §AD-6, §AD-8, §AD-9]
 
 ### Previous Story Intelligence (Story 3-2)
 
@@ -343,7 +343,7 @@ tests/
 ### References
 
 - [Source: `_bmad-output/planning-artifacts/epics.md` §Story 3.3]
-- [Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md` §AD-1, §AD-6, §AD-8, §AD-9]
+- [Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md` §AD-1, §AD-6, §AD-8, §AD-9]
 - [Source: `_bmad-output/implementation-artifacts/3-2-unit-tests-rendering-render-context.md`]
 - [Source: `_bmad-output/implementation-artifacts/1-7-gitignore-as-a-customizable-template.md` §templates_store path layout]
 - [Source: `_bmad-output/project-context.md` §Template Overrides]

@@ -322,7 +322,7 @@ def test_rendering_import_without_qt():
 | NFR2 | Unit tests for public `core/` functions | Second slice after validators/plugin_settings |
 | NFR1 | Functions ≤ 15 lines | Parametrize; keep helpers small |
 
-[Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md` §AD-6, §AD-7, §AD-8]
+[Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md` §AD-6, §AD-7, §AD-8]
 
 ### Previous Story Intelligence (Story 3-1)
 
@@ -384,7 +384,7 @@ tests/
 ### References
 
 - [Source: `_bmad-output/planning-artifacts/epics.md` §Story 3.2]
-- [Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md` §AD-6, §AD-7, §AD-8]
+- [Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md` §AD-6, §AD-7, §AD-8]
 - [Source: `_bmad-output/implementation-artifacts/3-1-test-infrastructure-unit-tests-validators-and-plugin-settings.md`]
 - [Source: `_bmad-output/project-context.md` §Two-Pass Template Rendering, §Data Flow]
 - [Source: `core/rendering.py`, `core/render_context.py`]

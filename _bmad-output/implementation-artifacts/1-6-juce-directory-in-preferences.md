@@ -256,7 +256,7 @@ No automated tests yet (Epic 3). Manual verification:
 ### References
 
 - Story 1.6 ACs: [_bmad-output/planning-artifacts/epics.md](_bmad-output/planning-artifacts/epics.md) §Story 1.6
-- AD-7: [_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md) §AD-7
+- AD-7: [_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md) §AD-7
 - AD-5 prefs save pattern: [app/main_window.py](app/main_window.py) `_run_generation`, `_load_project`
 - Current JUCE discovery block: [Templates/CMakeLists.txt:74-99](Templates/CMakeLists.txt)
 - Partial UI (needs placeholder + save fix): [app/pages/preferences.py](app/pages/preferences.py)

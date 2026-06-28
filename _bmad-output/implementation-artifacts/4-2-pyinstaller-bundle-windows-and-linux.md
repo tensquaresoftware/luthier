@@ -357,7 +357,7 @@ Claude claude-4.6-sonnet-medium-thinking (Cursor)
 
 - [Source: _bmad-output/planning-artifacts/epics.md#Story-4.2]
 - [Source: _bmad-output/planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md#F9]
-- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md#Stack]
+- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md#Stack]
 - [Source: Build/luthier.spec]
 - [Source: README.md#Build-a-standalone-app]
 - [Source: _bmad-output/implementation-artifacts/4-1-pyinstaller-bundle-macos.md]

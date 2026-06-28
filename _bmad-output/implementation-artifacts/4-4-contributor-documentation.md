@@ -47,7 +47,7 @@ So that I can configure my dev environment, run the test suite, and build a bund
   - [x] Round-trip: `project_reader.read_project()` — sidecar first, CMake regex fallback (AD-3)
   - [x] Preferences / app_state persistence rules (AD-5 revised): Open/Generate never write `preferences.json`
   - [x] `juce_dir` on `ProjectSpec`, Preferences as seed only (AD-7 revised)
-  - [x] Explicit note: `ARCHITECTURE-EXPLAINED.md` Decision 5 & 7 are **superseded** — cite ARCHITECTURE-SPINE as canonical
+  - [x] Explicit note: `architecture-explained.md` Decision 5 & 7 are **superseded** — cite ARCHITECTURE-SPINE as canonical
 
 - [x] Update `README.md` (AC: 1)
   - [x] Add prominent link to `CONTRIBUTING.md` for developers
@@ -58,7 +58,7 @@ So that I can configure my dev environment, run the test suite, and build a bund
 - [x] Verify `_bmad-output/` product reference layout (AC: 3)
   - [x] Confirm paths exist and document them in CONTRIBUTING (no file moves required unless missing):
     - PRD: `_bmad-output/planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md`
-    - Architecture Spine: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md`
+    - Architecture Spine: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md`
     - Epics: `_bmad-output/planning-artifacts/epics.md`
   - [x] Add `_bmad-output/project-context.md` as AI/dev quick-reference (optional but recommended)
   - [x] Do **not** duplicate full PRD/epics content into `docs/` — link only
@@ -92,7 +92,7 @@ Story 4.4 delivers **contributor-facing documentation** to satisfy NFR4. It clos
 | `docs/ARCHITECTURE.md` | **Missing** | CREATE |
 | `_bmad-output/planning-artifacts/` | PRD, Spine, Epics present | VERIFY + document paths (AC3) |
 | `_bmad-output/project-context.md` | AI agent rules, layout, patterns | LINK as dev quick-ref |
-| `ARCHITECTURE-EXPLAINED.md` | Narrative companion | **Partially outdated** (AD-5, AD-7) — do not copy stale sections |
+| `architecture-explained.md` | Narrative companion | **Partially outdated** (AD-5, AD-7) — do not copy stale sections |
 | `Rules/process-clean-code.md` | NFR1 clean code rules | LINK if tracked; rules may be gitignored locally |
 
 Stories 4.1 and 4.2 explicitly deferred `CONTRIBUTING.md` to this story. Story 3-1 noted the same.
@@ -183,8 +183,8 @@ These files **already exist** — AC3 is verification + documentation, not autho
 | Document | Path |
 |----------|------|
 | PRD | `_bmad-output/planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md` |
-| Architecture Spine | `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md` |
-| Architecture Explained (companion) | `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-EXPLAINED.md` |
+| Architecture Spine | `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md` |
+| Architecture Explained (companion) | `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-explained.md` |
 | Epics & stories | `_bmad-output/planning-artifacts/epics.md` |
 | Project context (dev rules) | `_bmad-output/project-context.md` |
 
@@ -192,12 +192,12 @@ CONTRIBUTING should explain `_bmad-output/` is the BMad planning/implementation 
 
 ### Stale Content Warning — Do Not Propagate
 
-`ARCHITECTURE-EXPLAINED.md` contains outdated narrative:
+`architecture-explained.md` contains outdated narrative:
 
 - **Decision 5** says `prefs.save()` after every Open/Generate — **wrong** since Epic 5 / AD-5 revision (2026-06-25)
 - **Decision 7** says `juce_dir` in Preferences only — **wrong**; now on `ProjectSpec` with Preferences as seed (AD-7 revision)
 
-When writing `docs/ARCHITECTURE.md`, use **ARCHITECTURE-SPINE** and **project-context.md** as sources of truth. Optionally add a one-line staleness note in CONTRIBUTING pointing maintainers to Spine over Explained for AD-5/AD-7.
+When writing `docs/ARCHITECTURE.md`, use **architecture-spine** and **project-context.md** as sources of truth. Optionally add a one-line staleness note in CONTRIBUTING pointing maintainers to Spine over Explained for AD-5/AD-7.
 
 ### Folder Casing Conventions
 
@@ -276,7 +276,7 @@ Document that contributors need **no display** for the default test suite.
 ### Project Context Reference
 
 - [Source: _bmad-output/project-context.md]
-- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md]
+- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md]
 - [Source: _bmad-output/planning-artifacts/epics.md#Story-4.4]
 - [Source: README.md]
 - [Source: core/project_writer.py — _RENDERED, _TOKENIZED, _VERBATIM]

@@ -20,7 +20,7 @@ So that working on one project never overwrites my default profile.
 2. **Given** a successful Generate, **when** generation completes, **then** the last-used **parent** destination folder is remembered for subsequent Choose… and Open Project… starting directories.
 3. **Given** the remembered parent path is missing or invalid, **when** Choose… or Open needs a default, **then** Desktop (via OS API) is used as fallback.
 4. **Given** destination folder is empty or invalid before Generate on a new project, **when** I click Generate, **then** Luthier may prompt via Choose… or folder dialog before continuing.
-5. **Given** AD-5 in ARCHITECTURE-SPINE.md, **when** Epic 5.4 is complete, **then** the revised AD-5 rule is satisfied and `project-context.md` reflects the new persistence model.
+5. **Given** AD-5 in architecture-spine.md, **when** Epic 5.4 is complete, **then** the revised AD-5 rule is satisfied and `project-context.md` reflects the new persistence model.
 6. **Given** a known `preferences.json` snapshot before Open or Generate, **when** open project → generate completes successfully, **then** automated test or documented manual scenario confirms `preferences.json` mtime and content are unchanged.
 
 ## Tasks / Subtasks
@@ -155,7 +155,7 @@ AC1 forbids modifying `preferences.json` on Open/Generate. Remembering last pare
 |------|--------|
 | `core/project_spec.py`, `core/render_context.py`, `core/project_generator.py` | Pipeline complete in 5.3 |
 | `app/pages/project.py` `reset()` dirty guard | Story 5.5 |
-| `ARCHITECTURE-SPINE.md` | Already revised 2026-06-25; code catches up here |
+| `architecture-spine.md` | Already revised 2026-06-25; code catches up here |
 | `Docs/USER-MANUAL.md` | Already documents target behaviour — optional typo sync only |
 | Epic 1–3 story files | Historical; supersession note in epics.md |
 
@@ -284,7 +284,7 @@ Only `app/main_window.py` lines ~236-241 and ~260-265 need prefs removal for cor
 
 - [Source: _bmad-output/planning-artifacts/epics.md#Story-5.4]
 - [Source: _bmad-output/planning-artifacts/sprint-change-proposal-2026-06-25.md#Story-5.4]
-- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md#AD-5]
+- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md#AD-5]
 - [Source: docs/USER-MANUAL.md#§5.6, §9, §11]
 - [Source: _bmad-output/implementation-artifacts/5-3-jucedir-on-projectspec-generation-pipeline.md — explicit deferral of prefs removal]
 - [Source: _bmad-output/implementation-artifacts/5-1-preferences-model-profile-workflow.md — AC9 update() removal deferred to 5.4]
@@ -336,4 +336,4 @@ claude-4.6-sonnet-medium-thinking
 - [x] [Review][Defer] `AppState.load()` avale JSON/OSError silencieusement [`core/app_state.py:36`] — deferred, pré-existant (même pattern que `Preferences._read()`)
 - [x] [Review][Defer] Écriture JSON non-atomique [`core/app_state.py:48`] — deferred, pré-existant (même pattern que `Preferences.save()`)
 - [x] [Review][Defer] Pas de champ version dans `app_state.json` [`core/app_state.py`] — deferred, même dette que `preferences.json` (revue 5-1)
-- [x] [Review][Defer] `ARCHITECTURE-EXPLAINED.md` AD-5 obsolète — deferred, hors File List story 5.4
+- [x] [Review][Defer] `architecture-explained.md` AD-5 obsolète — deferred, hors File List story 5.4

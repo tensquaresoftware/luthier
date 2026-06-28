@@ -33,7 +33,7 @@ Puis :
 |----------|--------|
 | `sprint-change-proposal-2026-06-25.md` | **Approuvé** PO 2026-06-25 |
 | `prd.md` F5/F7/F8 | **Mis à jour** (selon proposal §4.1–4.3) |
-| `ARCHITECTURE-SPINE.md` AD-2/5/7 | **Mis à jour** (selon proposal §4.4–4.6) |
+| `architecture-spine.md` AD-2/5/7 | **Mis à jour** (selon proposal §4.4–4.6) |
 | `epics.md` Epic 5 + stories 5.1–5.5 | **Présent** (bloc complet avec AC) |
 | `epics.md` AD-5/AD-7, FR map, supersession note | **Mis à jour** |
 | `sprint-status.yaml` Epic 5 | **Présent** (5.1–5.5 en backlog) |
@@ -44,7 +44,7 @@ Puis :
 
 ```yaml
 stepsCompleted: ['step-01', 'step-02', 'step-03', 'step-04']
-inputDocuments: [prd.md, ARCHITECTURE-SPINE.md]
+inputDocuments: [prd.md, architecture-spine.md]
 ```
 
 → Les 4 steps CE ont été marqués complets lors du Correct Course, mais l’**inventaire des exigences** (§ Requirements Inventory) n’a **pas** été resynchronisé avec le PRD révisé.
@@ -77,7 +77,7 @@ inputDocuments: [prd.md, ARCHITECTURE-SPINE.md]
 | 3 | `Docs/USER-MANUAL.md` | UX authoritative (pas de doc UX formelle) |
 | 4 | `epics.md` | Cible à patcher |
 | 5 | `prds/.../prd.md` | F7, F8, F5 révisés |
-| 6 | `architecture/.../ARCHITECTURE-SPINE.md` | AD-2/5/7 |
+| 6 | `architecture/.../architecture-spine.md` | AD-2/5/7 |
 | 7 | `implementation-artifacts/sprint-status.yaml` | Vérifier cohérence slugs |
 | 8 | `correct-course-handoff-epic-5-workflows.md` | Contexte historique (optionnel) |
 
@@ -128,7 +128,7 @@ UX-DR3: Destination folder = parent directory; Open recalculates from filesystem
 ```yaml
 inputDocuments:
   - _bmad-output/planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md
-  - _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md
+  - _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md
   - Docs/USER-MANUAL.md
   - _bmad-output/planning-artifacts/sprint-change-proposal-2026-06-25.md
 ```

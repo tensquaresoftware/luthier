@@ -269,7 +269,7 @@ Preferences hold **global reusable defaults** for the active machine. They are p
 
 ### 4.4 Architecture — AD-5 (REPLACE)
 
-**File:** `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md`
+**File:** `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md`
 
 **OLD:**
 ```markdown
@@ -502,7 +502,7 @@ So that working on one project never overwrites my default profile.
 **When** I click Generate,
 **Then** Luthier may prompt via Choose… or folder dialog before continuing.
 
-**Given** AD-5 in ARCHITECTURE-SPINE.md,
+**Given** AD-5 in architecture-spine.md,
 **When** Epic 5.4 is complete,
 **Then** the revised AD-5 rule is satisfied and `project-context.md` reflects the new persistence model.
 
@@ -579,7 +579,7 @@ Requires backlog reorganization (new epic, priority swap) and coordinated doc + 
 ### 6.3 Post-Approval Actions (Not Applied Until PO Approves)
 
 1. Update `prd.md` (F5, F7, F8)
-2. Update `ARCHITECTURE-SPINE.md` (AD-2, AD-5, AD-7; structural seed comment for `juce_dir`)
+2. Update `architecture-spine.md` (AD-2, AD-5, AD-7; structural seed comment for `juce_dir`)
 3. Update `epics.md` (Epic 5 block, FR map, supersession note, AD bullets)
 4. Update `sprint-status.yaml` (Epic 5 entries)
 5. Run `[CE]` to generate story spec files under `implementation-artifacts/`

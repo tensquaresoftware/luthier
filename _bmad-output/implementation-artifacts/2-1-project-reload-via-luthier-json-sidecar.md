@@ -174,7 +174,7 @@ Keep `_set_status` for the status bar — dialog + status line together is fine.
 | AD-7 | `juce_dir` not on `ProjectSpec` | Sidecar must not gain `juceDir`; reader must not expect it |
 | AD-8 | No Qt in `core/` | All sidecar logic stays in `project_reader.py` with stdlib only |
 
-[Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md` §AD-3]
+[Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md` §AD-3]
 
 ### Clean Code Constraints (NFR1)
 
@@ -243,8 +243,8 @@ Story 2-2 owns:
 ### References
 
 - [Source: `_bmad-output/planning-artifacts/epics.md` §Story 2.1]
-- [Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md` §AD-3, §AD-7]
-- [Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-EXPLAINED.md` §Decision 3]
+- [Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md` §AD-3, §AD-7]
+- [Source: `_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-explained.md` §Decision 3]
 - [Source: `_bmad-output/implementation-artifacts/1-2-core-generation-pipeline-accepts-projectspec.md` — sidecar write spec]
 - [Source: `_bmad-output/project-context.md` §Round-Trip, §Known Issues #2]
 - [Source: `core/project_reader.py`, `core/project_writer.py`, `app/main_window.py`]

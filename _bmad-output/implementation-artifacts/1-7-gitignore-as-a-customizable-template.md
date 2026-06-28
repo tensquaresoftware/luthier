@@ -278,7 +278,7 @@ No new automated tests (Epic 3). Manual verification:
 
 - Story 1.7 ACs: [_bmad-output/planning-artifacts/epics.md](_bmad-output/planning-artifacts/epics.md) §Story 1.7
 - FR6 / F6 customizable templates: [_bmad-output/planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md](_bmad-output/planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md) §F6
-- AD-9 override at write time: [_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md) §AD-9
+- AD-9 override at write time: [_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md) §AD-9
 - Current `templates_store` (Source-only): [core/templates_store.py](core/templates_store.py)
 - Current `ProjectWriter` (no gitignore override): [core/project_writer.py:79-83](core/project_writer.py)
 - Current Templates UI (4 files only): [app/pages/templates.py](app/pages/templates.py)

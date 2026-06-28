@@ -286,7 +286,7 @@ Claude claude-4.6-sonnet-medium-thinking (Cursor Agent)
 - [Source: _bmad-output/planning-artifacts/epics.md#Story-4.1]
 - [Source: _bmad-output/planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md#F9]
 - [Source: _bmad-output/project-context.md#PyInstaller-Frozen-Assets]
-- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/ARCHITECTURE-SPINE.md#Stack]
+- [Source: _bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md#Stack]
 - [Source: Build/luthier.spec]
 - [Source: README.md#Build-a-standalone-app]
 - [Source: _bmad-output/implementation-artifacts/5-5-manual-smoke-test-report.md]
