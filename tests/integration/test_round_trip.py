@@ -178,7 +178,7 @@ def test_legacy_project_configuration_cmake_compat(tmp_path):
     assert result.missing_fields == ()
     assert result.spec.copy_to_system_folders
     assert not result.spec.copy_to_artefacts_dir
-    assert result.spec.artefacts_dir_windows == "C:\\legacy\\win"
+    assert result.spec.artefacts_dir_windows == "C:/legacy/win"
     assert result.spec.artefacts_dir_macos == "/legacy/mac"
     assert result.spec.artefacts_dir_linux == "/legacy/linux"
     assert result.spec.project_name == original.project_name

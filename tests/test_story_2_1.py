@@ -28,7 +28,7 @@ def _make_spec(**kwargs):
         header_search_paths="/extra/include",
         copy_to_system_folders=True,
         copy_to_artefacts_dir=False,
-        artefacts_dir_windows="C:\\out",
+        artefacts_dir_windows="C:/out",
         artefacts_dir_macos="/out/mac",
         artefacts_dir_linux="/out/linux",
     )

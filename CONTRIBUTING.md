@@ -175,7 +175,7 @@ The `_bmad-output/` folder is the BMad planning and implementation artifact stor
 Every push and pull request to `main` runs [`.github/workflows/pytest.yml`](.github/workflows/pytest.yml) on `ubuntu-latest`:
 
 1. Install Python 3.11+
-2. `pip install -r requirements-dev.txt`
+2. Create a venv and `pip install -r requirements-dev.txt`
 3. `pytest` (unit + integration under `tests/`)
 
 No CMake, JUCE, or PyInstaller build runs in CI. Tests that need those tools skip automatically (`test_cmake_cross_platform.py` without cmake/JUCE; `test_frozen_bundle.py` without a `dist/` bundle).
