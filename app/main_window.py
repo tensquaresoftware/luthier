@@ -286,6 +286,13 @@ class MainWindow(QMainWindow):
             pass
         super().closeEvent(event)
 
+    def _remember_prefs_profile_dir(self, path: str) -> None:
+        self._app_state.remember_prefs_profile_dir(path)
+        try:
+            self._app_state.save()
+        except OSError:
+            pass
+
     def _on_prefs_import(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
             self,
@@ -295,14 +302,10 @@ class MainWindow(QMainWindow):
         )
         if not path:
             return
+        self._remember_prefs_profile_dir(path)
         ok, message = self._prefs_page.import_from_file(path)
         if ok:
             self._defaults = self._prefs.seed_dict()
-            self._app_state.remember_prefs_profile_dir(path)
-            try:
-                self._app_state.save()
-            except OSError:
-                pass
             self._set_status(f"Preferences imported from {Path(path).name}.", ok=True)
         else:
             QMessageBox.warning(self, "Import Preferences", message)
@@ -318,13 +321,9 @@ class MainWindow(QMainWindow):
         )
         if not path:
             return
+        self._remember_prefs_profile_dir(path)
         ok, message = self._prefs_page.export_to_file(path)
         if ok:
-            self._app_state.remember_prefs_profile_dir(path)
-            try:
-                self._app_state.save()
-            except OSError:
-                pass
             self._set_status(f"Preferences exported to {Path(path).name}.", ok=True)
         else:
             QMessageBox.warning(self, "Export Preferences", message)
