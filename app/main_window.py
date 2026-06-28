@@ -243,7 +243,7 @@ class MainWindow(QMainWindow):
         encoded = self._app_state.window_geometry_b64()
         if encoded and self.restoreGeometry(QByteArray.fromBase64(encoded.encode("ascii"))):
             return
-        self.resize(780, 680)
+        self.resize(self.minimumWidth(), self.minimumHeight())
         self._center_on_screen()
 
     def _rect_is_usable(self, rect: dict) -> bool:
