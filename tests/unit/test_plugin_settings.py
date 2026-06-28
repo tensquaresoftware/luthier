@@ -73,6 +73,11 @@ def test_type_for_flags_round_trip(type_key):
     assert type_for_flags(flags["isSynth"], flags["isMidiEffect"]) == type_key
 
 
+def test_flags_for_type_unknown_raises():
+    with pytest.raises(ValueError, match="Unknown plugin type"):
+        flags_for_type("Instrument")
+
+
 def test_plugin_settings_import_without_qt():
     before = {k for k in sys.modules if "PySide6" in k or "PyQt" in k}
     import core.plugin_settings  # noqa: F401

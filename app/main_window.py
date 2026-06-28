@@ -415,10 +415,9 @@ class MainWindow(QMainWindow):
         result = read_project_result(project_dir)
         spec = result.spec
         if spec is None:
-            sidecar = project_dir / ".luthier.json"
-            if sidecar.exists():
-                message = "Could not read project configuration (.luthier.json is invalid or unreadable)."
-                status = message
+            if result.error:
+                message = result.error
+                status = result.error
             elif result.missing_fields:
                 bullets = "\n".join(f"• {name}" for name in result.missing_fields)
                 message = (

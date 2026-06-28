@@ -1,5 +1,7 @@
 """Build the str.format context that fills the project templates."""
 
+import json
+
 from core import plugin_settings
 from core.paths import normalize_portable_path
 from core.project_spec import ProjectSpec
@@ -29,11 +31,16 @@ def build_context(spec: ProjectSpec) -> dict:
     return context
 
 
+def _cmake_quoted(value: str) -> str:
+    escaped = value.replace("\\", "\\\\").replace('"', '\\"').replace("$", "\\$")
+    return f'"{escaped}"'
+
+
 def _juce_dir_line(juce_dir: str) -> dict:
     path = normalize_portable_path((juce_dir or "").strip())
     if not path:
         return {"juceDirSetLine": ""}
-    return {"juceDirSetLine": f'set(JUCE_DIR "{path}")\n'}
+    return {"juceDirSetLine": f"set(JUCE_DIR {_cmake_quoted(path)})\n"}
 
 
 def _categories(flags: dict) -> dict:
@@ -47,10 +54,17 @@ def _copy_config(config: dict) -> dict:
     return {
         "copyToSystemFolders": _on_off(config["copyToSystemFolders"]),
         "copyToArtefactsDir": _on_off(config["copyToArtefactsDir"]),
-        "artefactsDirWindows": config["artefactsDirWindows"],
-        "artefactsDirMacos": config["artefactsDirMacos"],
-        "artefactsDirLinux": config["artefactsDirLinux"],
+        "artefactsDirWindows": _cmake_path_value(config["artefactsDirWindows"]),
+        "artefactsDirMacos": _cmake_path_value(config["artefactsDirMacos"]),
+        "artefactsDirLinux": _cmake_path_value(config["artefactsDirLinux"]),
     }
+
+
+def _cmake_path_value(path: str) -> str:
+    normalized = normalize_portable_path(path or "")
+    if not normalized:
+        return '""'
+    return _cmake_quoted(normalized)
 
 
 def _on_off(enabled: bool) -> str:
@@ -67,10 +81,14 @@ def _artefact_entries(d: dict) -> dict:
 
 
 def _artefact_entry(enabled: bool, key: str, path: str) -> str:
-    if not enabled or not path:
+    if not enabled or not path or not str(path).strip():
         return ""
     normalized = normalize_portable_path(path)
-    return f',\n        "{key}": "{normalized}"'
+    if not normalized.strip():
+        return ""
+    fragment = json.dumps({key: normalized}, ensure_ascii=False)
+    inner = fragment[1:-1]
+    return f",\n        {inner}"
 
 
 def build_tokens(spec: ProjectSpec) -> dict:

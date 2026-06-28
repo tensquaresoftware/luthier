@@ -21,6 +21,13 @@ Items **retirés** depuis la purge précédente : géométrie fenêtre (`app_sta
 - No `fsync` after temp write in `atomic_write_text` — same durability level as AD-4 `ProjectWriter`; add if crash/power-loss persistence becomes a requirement.
 - Orphaned `.tmp` files after SIGKILL or power loss — inherent atomic-write limitation; no automatic recovery path beyond manual cleanup.
 
+## Deferred from: code review of 7-3-core-generation-reload-robustness (2026-06-28)
+
+- `read_project()` still returns only `.spec` without `error` — pre-existing API; app layer uses `read_project_result()`.
+- Module docstring not extended with error taxonomy — spec suggested AD-3 note in docstring only.
+- Conflicting `set()` vs `juce_add_plugin` identity values — `_quoted_fields` prefers `set()` when both differ (rare legacy CMake).
+- `_cmake_quoted` does not escape CMake control characters (newline/tab) — AC1 covers quotes/`$`/spaces only.
+
 ## Persistance JSON (prefs + app_state)
 
 - ~~**Écriture non atomique** — Crash pendant `write_text` peut corrompre le fichier.~~ *(Résolu — Story 7.2, AD-10)*
@@ -29,13 +36,13 @@ Items **retirés** depuis la purge précédente : géométrie fenêtre (`app_sta
 
 ## Génération et rechargement (cas limites)
 
-- **Chemins spéciaux dans CMake** — Guillemets / `$` dans `JUCE_DIR` (`_juce_dir_line`) ; guillemets et caractères de contrôle dans entrées JSON artefact au-delà de la normalisation backslash.
-- **Booléens mal typés** — `"ON"`, `"false"` (string) dans `from_dict` non convertis en bool.
-- **Sidecar édité à la main** — Types incorrects ou `null` acceptés sans validation.
-- **Cache CMake** — `CACHE BOOL` sans `FORCE` : regénération sans effet si cache existant.
-- **Type de plugin inconnu** — `KeyError` brut au lieu d’erreur explicite.
-- **Écriture projet** — Perte possible si `rename` échoue après suppression de l’ancien dossier (cas rare).
-- **Lecture projets legacy** — Messages d’erreur peu discriminants ; regex CMake fragile (guillemets échappés) ; sidecar valide mais vide → defaults silencieux.
+~~- **Chemins spéciaux dans CMake** — Guillemets / `$` dans `JUCE_DIR` (`_juce_dir_line`) ; guillemets et caractères de contrôle dans entrées JSON artefact au-delà de la normalisation backslash.~~ *(Story 7.3)*
+~~- **Booléens mal typés** — `"ON"`, `"false"` (string) dans `from_dict` non convertis en bool.~~ *(Story 7.3)*
+~~- **Sidecar édité à la main** — Types incorrects ou `null` acceptés sans validation.~~ *(Story 7.3)*
+~~- **Cache CMake** — `CACHE BOOL` sans `FORCE` : regénération sans effet si cache existant.~~ *(Story 7.3)*
+~~- **Type de plugin inconnu** — `KeyError` brut au lieu d’erreur explicite.~~ *(Story 7.3)*
+~~- **Écriture projet** — Perte possible si `rename` échoue après suppression de l’ancien dossier (cas rare).~~ *(Story 7.3 — documenté + test)*
+~~- **Lecture projets legacy** — Messages d’erreur peu discriminants ; regex CMake fragile (guillemets échappés) ; sidecar valide mais vide → defaults silencieux.~~ *(Story 7.3)*
 
 ## Interface (mineur)
 

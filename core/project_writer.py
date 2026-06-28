@@ -41,6 +41,12 @@ class ProjectWriter:
         self._overrides = overrides
 
     def write(self, context: dict, tokens: dict, spec: ProjectSpec) -> None:
+        """Render and atomically replace the project directory.
+
+        If ``rename`` fails after removing the existing project directory, the
+        previous project tree is lost; only manual recovery (VCS/backup) is
+        possible. The temporary directory is cleaned up on failure when possible.
+        """
         tmp = self._project.parent / (self._project.name + ".tmp")
         if tmp.exists():
             shutil.rmtree(tmp)

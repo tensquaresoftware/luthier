@@ -61,12 +61,12 @@ project({projectName} VERSION {projectVersion})
 set(USER_COPY_TO_SYSTEM_FOLDERS {copyToSystemFolders})
 set(USER_COPY_TO_ARTEFACTS_DIR {copyToArtefactsDir})
 
-set(COPY_TO_SYSTEM_FOLDERS ${{USER_COPY_TO_SYSTEM_FOLDERS}} CACHE BOOL "Copy plugins to system folders after build (all OS)")
-set(COPY_TO_ARTEFACTS_DIR ${{USER_COPY_TO_ARTEFACTS_DIR}} CACHE BOOL "Copy build outputs to central artefacts folder (organized by platform/architecture)")
+set(COPY_TO_SYSTEM_FOLDERS ${{USER_COPY_TO_SYSTEM_FOLDERS}} CACHE BOOL "Copy plugins to system folders after build (all OS)" FORCE)
+set(COPY_TO_ARTEFACTS_DIR ${{USER_COPY_TO_ARTEFACTS_DIR}} CACHE BOOL "Copy build outputs to central artefacts folder (organized by platform/architecture)" FORCE)
 
-set(ARTEFACTS_DIR_WINDOWS "{artefactsDirWindows}")
-set(ARTEFACTS_DIR_MACOS   "{artefactsDirMacos}")
-set(ARTEFACTS_DIR_LINUX   "{artefactsDirLinux}")
+set(ARTEFACTS_DIR_WINDOWS {artefactsDirWindows})
+set(ARTEFACTS_DIR_MACOS   {artefactsDirMacos})
+set(ARTEFACTS_DIR_LINUX   {artefactsDirLinux})
 
 set(CMAKE_CXX_STANDARD {cxxStandard})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

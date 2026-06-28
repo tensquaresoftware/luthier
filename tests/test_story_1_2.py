@@ -110,6 +110,24 @@ class TestProjectWriterAtomicWrite(unittest.TestCase):
             tmp_path = dest.parent / (dest.name + ".tmp")
             self.assertFalse(tmp_path.exists())
 
+    def test_write_rename_failure_propagates_after_rmtree(self):
+        from unittest.mock import patch
+
+        from core import render_context
+
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = Path(tmp) / "MyPlugin"
+            spec = _make_spec(destination_dir=tmp)
+            writer = self._make_writer(dest)
+            ctx = render_context.build_context(spec)
+            tokens = render_context.build_tokens(spec)
+            writer.write(ctx, tokens, spec)
+            self.assertTrue(dest.exists())
+
+            with patch.object(Path, "rename", side_effect=OSError("simulated rename failure")):
+                with self.assertRaises(OSError):
+                    writer.write(ctx, tokens, spec)
+
 
 class TestProjectReaderReturnsSpec(unittest.TestCase):
     def test_read_project_returns_project_spec(self):

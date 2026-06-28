@@ -107,6 +107,32 @@ def test_to_dict_camel_case_keys():
     assert ProjectSpec.from_dict(d).project_name == "Alpha"
 
 
+def test_from_dict_coerces_string_bools():
+    restored = ProjectSpec.from_dict(
+        {
+            "copyToSystemFolders": "ON",
+            "copyToArtefactsDir": "false",
+        }
+    )
+    assert restored.copy_to_system_folders is True
+    assert restored.copy_to_artefacts_dir is False
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ("OFF", False),
+        ("true", True),
+        ("1", True),
+        ("0", False),
+        (None, True),
+    ],
+)
+def test_from_dict_coerces_bool_variants(value, expected):
+    restored = ProjectSpec.from_dict({"copyToArtefactsDir": value})
+    assert restored.copy_to_artefacts_dir is expected
+
+
 def test_project_spec_import_without_qt():
     before = {k for k in sys.modules if "PySide6" in k or "PyQt" in k}
     import core.project_spec  # noqa: F401

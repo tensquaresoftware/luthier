@@ -138,6 +138,51 @@ def test_build_context_juce_dir_set():
     assert line == 'set(JUCE_DIR "/Applications/JUCE")\n'
 
 
+@pytest.mark.parametrize(
+    "juce_dir,expected_fragment",
+    [
+        ("/Applications/My JUCE", 'set(JUCE_DIR "/Applications/My JUCE")\n'),
+        ('C:/JUCE"bad', 'set(JUCE_DIR "C:/JUCE\\"bad")\n'),
+        ("$ENV{HOME}/JUCE", 'set(JUCE_DIR "\\$ENV{HOME}/JUCE")\n'),
+    ],
+)
+def test_build_context_juce_dir_special_characters(juce_dir, expected_fragment):
+    spec = _make_spec(juce_dir=juce_dir)
+    assert build_context(spec)["juceDirSetLine"] == expected_fragment
+
+
+def test_build_context_unknown_plugin_type_raises():
+    spec = _make_spec(plugin_type="Instrument")
+    with pytest.raises(ValueError, match="Unknown plugin type"):
+        build_context(spec)
+
+
+def test_artefact_entry_escapes_quotes_and_control_chars():
+    spec = _make_spec(
+        copy_to_artefacts_dir=True,
+        artefacts_dir_windows='C:/out"bad\nline',
+    )
+    entry = build_context(spec)["windowsArtefactEntry"]
+    fragment = "{" + entry.lstrip(",\n ") + "}"
+    parsed = json.loads(fragment)
+    assert parsed["ARTEFACTS_DIR_WINDOWS"] == 'C:/out"bad\nline'
+
+
+def test_rendered_presets_json_is_valid(tmp_path):
+    from core import rendering
+    from core.project_generator import templates_dir
+
+    spec = _make_spec(
+        copy_to_artefacts_dir=True,
+        artefacts_dir_macos='/out/mac"quote',
+        juce_dir="/Applications/JUCE",
+    )
+    ctx = build_context(spec)
+    template = (templates_dir() / "CMakeUserPresets.json").read_text(encoding="utf-8")
+    rendered = rendering.render(template, ctx)
+    json.loads(rendered)
+
+
 def test_build_tokens_returns_project_keys():
     spec = _make_spec(project_name="Alpha", project_display_name="Alpha Display")
     tokens = build_tokens(spec)

@@ -24,6 +24,11 @@ _FLAGS = {
 
 
 def flags_for_type(type_key: str) -> dict:
+    if type_key not in _FLAGS:
+        valid = ", ".join(key for key, _ in PLUGIN_TYPES)
+        raise ValueError(
+            f"Unknown plugin type {type_key!r}. Expected one of: {valid}."
+        )
     is_synth, is_midi, midi_in, midi_out = _FLAGS[type_key]
     return {
         "isSynth": is_synth,

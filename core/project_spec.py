@@ -4,6 +4,23 @@ from core.paths import normalize_path_dict_values
 from core.plugin_settings import TYPE_INSTRUMENT
 
 
+def _coerce_bool(value, default: bool) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, int):
+        return value != 0
+    if isinstance(value, str):
+        upper = value.strip().upper()
+        if upper in ("ON", "TRUE", "1", "YES"):
+            return True
+        if upper in ("OFF", "FALSE", "0", "NO"):
+            return False
+        return default
+    return default
+
+
 @dataclass
 class ProjectSpec:
     project_name: str = ""
@@ -73,8 +90,8 @@ class ProjectSpec:
             cxx_standard=d.get("cxxStandard", "C++17"),
             preprocessor_definitions=d.get("preprocessorDefinitions", ""),
             header_search_paths=d.get("headerSearchPaths", ""),
-            copy_to_system_folders=d.get("copyToSystemFolders", False),
-            copy_to_artefacts_dir=d.get("copyToArtefactsDir", True),
+            copy_to_system_folders=_coerce_bool(d.get("copyToSystemFolders"), False),
+            copy_to_artefacts_dir=_coerce_bool(d.get("copyToArtefactsDir"), True),
             artefacts_dir_windows=d.get("artefactsDirWindows", ""),
             artefacts_dir_macos=d.get("artefactsDirMacos", ""),
             artefacts_dir_linux=d.get("artefactsDirLinux", ""),

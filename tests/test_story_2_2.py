@@ -91,8 +91,8 @@ class TestCmakeFallback(unittest.TestCase):
         legacy_copy_config = """\
 set(USER_COPY_TO_SYSTEM_FOLDERS ON)
 set(USER_COPY_TO_ARTEFACTS_DIR OFF)
-set(COPY_TO_SYSTEM_FOLDERS ${USER_COPY_TO_SYSTEM_FOLDERS} CACHE BOOL "Copy plugins to system folders after build (all OS)")
-set(COPY_TO_ARTEFACTS_DIR ${USER_COPY_TO_ARTEFACTS_DIR} CACHE BOOL "Copy build outputs to central artefacts folder (organized by platform/architecture)")
+set(COPY_TO_SYSTEM_FOLDERS ${USER_COPY_TO_SYSTEM_FOLDERS} CACHE BOOL "Copy plugins to system folders after build (all OS)" FORCE)
+set(COPY_TO_ARTEFACTS_DIR ${USER_COPY_TO_ARTEFACTS_DIR} CACHE BOOL "Copy build outputs to central artefacts folder (organized by platform/architecture)" FORCE)
 set(ARTEFACTS_DIR_WINDOWS "C:\\legacy\\win")
 set(ARTEFACTS_DIR_MACOS "/legacy/mac")
 set(ARTEFACTS_DIR_LINUX "/legacy/linux")
