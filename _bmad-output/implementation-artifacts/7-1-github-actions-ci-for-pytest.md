@@ -72,6 +72,7 @@ So that regressions in unit and integration tests are caught before merge withou
 ### Implementation Plan
 
 - Added `.github/workflows/pytest.yml` on `ubuntu-latest`: Python 3.11, venv, `requirements-dev.txt`, `pytest`.
+- Installed Qt runtime libs (`libegl1`, `libgl1`, …) and `QT_QPA_PLATFORM=offscreen` so headless Linux CI can import PySide6-backed `app/` tests.
 - Updated `CONTRIBUTING.md` CI section with workflow description and status badge.
 - Aligned integration test fixtures with `normalize_portable_path` canonical forward-slash Windows paths so round-trip assertions stay green (202 passed, 2 skipped locally).
 
@@ -86,7 +87,7 @@ So that regressions in unit and integration tests are caught before merge withou
 - Local regression: `python3 -m pytest` → 202 passed, 2 skipped (~21s).
 - CMake cross-platform: platform-specific configure tests skip on non-matching OS; JSON/preset tests run without cmake/JUCE.
 - Frozen bundle tests skip when `dist/` absent (verified skip markers).
-- Branch `story/7-1-github-actions-ci` pushed; GitHub Actions workflow run confirmed green.
+- Branch `story/7-1-github-actions-ci` pushed; PR #1 workflow run [28324004094](https://github.com/tensquaresoftware/luthier/actions/runs/28324004094) green on `ubuntu-latest`.
 
 ## File List
 
@@ -101,4 +102,4 @@ So that regressions in unit and integration tests are caught before merge withou
 
 ## Change Log
 
-- 2026-06-28: Story 7.1 — GitHub Actions pytest CI on ubuntu-latest; CONTRIBUTING CI section; test fixture path normalization alignment.
+- 2026-06-28: Story 7.1 — GitHub Actions pytest CI on ubuntu-latest (Qt headless deps); CONTRIBUTING CI section; test fixture path normalization alignment.
