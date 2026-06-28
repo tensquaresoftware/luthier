@@ -153,6 +153,8 @@ def build_stylesheet() -> str:
     }}
     #TopTabBar {{
         background: transparent;
+        border: none;
+        qproperty-drawBase: 0;
     }}
     #TopTabBar::tab {{
         background: transparent;
