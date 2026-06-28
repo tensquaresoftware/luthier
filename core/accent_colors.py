@@ -2,19 +2,20 @@
 
 DEFAULT_ACCENT_COLOR = "#A45C94"
 
+# Slot 1 — Projucer default; do not change.
 ACCENT_PRESETS: tuple[tuple[str, str], ...] = (
     ("Magenta", "#A45C94"),
-    ("Orange", "#B85818"),
-    ("Jaune", "#807010"),
-    ("Vert clair", "#368036"),
-    ("Vert foncé", "#287848"),
-    ("Turquoise", "#147C74"),
-    ("Cyan", "#168098"),
-    ("Bleu pétrole", "#1A6478"),
-    ("Bleu marine", "#2E5088"),
-    ("Fuchsia", "#C83098"),
-    ("Violet", "#7040B0"),
-    ("Marron", "#7A5538"),
+    ("Yellow", "#D7A503"),
+    ("Orange", "#F56637"),
+    ("Brown", "#803E1D"),
+    ("Turquoise", "#01BB8B"),
+    ("Green", "#009933"),
+    ("Dark green", "#006633"),
+    ("Light blue", "#3399CC"),
+    ("Medium blue", "#3366FF"),
+    ("Dark blue", "#3232C3"),
+    ("Pink", "#D959B9"),
+    ("Violet", "#6113D7"),
 )
 
 _VALID_ACCENTS = frozenset(color.upper() for _, color in ACCENT_PRESETS)

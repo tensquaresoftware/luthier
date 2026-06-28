@@ -178,47 +178,47 @@ def test_accent_color_defaults_on_first_run(tmp_path):
 def test_accent_color_persists_and_normalizes(tmp_path):
     prefs = Preferences(tmp_path / "preferences.json")
     prefs.apply_profile(_valid_profile())
-    prefs.set_accent_color("#2E5088")
+    prefs.set_accent_color("#3232C3")
     prefs.save()
     reloaded = Preferences(tmp_path / "preferences.json")
     reloaded.load()
-    assert reloaded.accent_color == "#2E5088"
+    assert reloaded.accent_color == "#3232C3"
 
 
 def test_accent_color_survives_invalid_profile_reset(tmp_path):
     path = tmp_path / "preferences.json"
     prefs = Preferences(path)
     prefs.apply_profile(_valid_profile())
-    prefs.set_accent_color("#7040B0")
+    prefs.set_accent_color("#D959B9")
     prefs.save()
-    path.write_text(json.dumps({"accentColor": "#7040B0", "pluginFormats": ""}), encoding="utf-8")
+    path.write_text(json.dumps({"accentColor": "#D959B9", "pluginFormats": ""}), encoding="utf-8")
     reloaded = Preferences(path)
     reloaded.load()
-    assert reloaded.accent_color == "#7040B0"
+    assert reloaded.accent_color == "#D959B9"
 
 
 def test_export_profile_includes_accent_color(tmp_path):
     prefs = Preferences(tmp_path / "preferences.json")
     prefs.apply_profile(_valid_profile())
-    prefs.set_accent_color("#2E5088")
+    prefs.set_accent_color("#3232C3")
     prefs.save()
     data = json.loads((tmp_path / "preferences.json").read_text(encoding="utf-8"))
-    assert data["accentColor"] == "#2E5088"
+    assert data["accentColor"] == "#3232C3"
 
 
 def test_import_profile_restores_accent_color(tmp_path):
     path = tmp_path / "client.json"
     path.write_text(
-        json.dumps({**_valid_profile(), "accentColor": "#7040B0"}),
+        json.dumps({**_valid_profile(), "accentColor": "#D959B9"}),
         encoding="utf-8",
     )
     prefs = Preferences(tmp_path / "preferences.json")
     prefs.apply_profile(json.loads(path.read_text(encoding="utf-8")))
-    assert prefs.accent_color == "#7040B0"
+    assert prefs.accent_color == "#D959B9"
 
 
 def test_to_dict_excludes_accent_color(tmp_path):
     prefs = Preferences(tmp_path / "preferences.json")
     prefs.apply_profile(_valid_profile())
-    prefs.set_accent_color("#C83098")
+    prefs.set_accent_color("#6113D7")
     assert "accentColor" not in prefs.to_dict()
