@@ -1,7 +1,7 @@
 """Centred status capsule with single-line message and dismiss control."""
 
 from PySide6.QtCore import QByteArray, QPointF, QRectF, Qt, Signal, QVariantAnimation
-from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPen
+from PySide6.QtGui import QAccessible, QAccessibleAnnouncementEvent, QColor, QMouseEvent, QPainter, QPen
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QSizePolicy, QWidget
 
@@ -31,6 +31,13 @@ _LUCIDE_MESSAGE_SQUARE_TEXT_SVG = (
     '</svg>'
 )
 _pending_msg_icon_renderer: QSvgRenderer | None = None
+
+
+def _announce_status(widget: QWidget, text: str, ok: bool) -> None:
+    event = QAccessibleAnnouncementEvent(widget, text)
+    if not ok:
+        event.setPoliteness(QAccessibleAnnouncementEvent.AnnouncementPoliteness.Assertive)
+    QAccessible.updateAccessibility(event)
 
 
 def status_capsule_max_width(bar_width: int) -> int:
@@ -211,6 +218,7 @@ class StatusCapsule(QFrame):
         if text:
             self.setVisible(True)
             self._apply_text()
+            _announce_status(self, text, ok)
         else:
             self.clear()
 
@@ -242,6 +250,7 @@ class StatusCapsule(QFrame):
         layout.setSpacing(0)
         self._label = QLabel("")
         self._label.setObjectName("StatusCapsuleText")
+        self._label.setAccessibleName("Status message")
         self._label.setWordWrap(False)
         self._label.setFixedHeight(BADGE_HEIGHT)
         self._label.setAlignment(
