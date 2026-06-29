@@ -1,6 +1,6 @@
 """About page: project identity and version."""
 
-from PySide6.QtCore import QEvent, Qt, QUrl
+from PySide6.QtCore import QEvent, QSize, Qt, QUrl
 from PySide6.QtGui import QDesktopServices, QMouseEvent
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
@@ -18,6 +18,8 @@ _CREDIT_PROBE_TEXT = "Hg"  # ascenders + descenders for QLabel sizeHint, not raw
 _CREDITS_EXTRA_WIDTH = 20
 _CREDITS_BEFORE_BOTTOM_RULE = 10                                  # room above bottom divider (descenders)
 _BMAD_PREFIX = "Yet another project successfully completed with "
+# Stack minimum — not the 600 px card — so Project/Prefs can shrink on short displays.
+_MIN_STACK_HEIGHT = 120
 
 
 def _credit_font_px(font) -> int:
@@ -79,12 +81,15 @@ class AboutPage(QWidget):
         super().__init__()
         self._build_ui()
 
+    def minimumSizeHint(self) -> QSize:
+        # Do not impose the 600 px card on the main window stack minimum.
+        return QSize(_CARD_SIZE, _MIN_STACK_HEIGHT)
+
     def _build_ui(self) -> None:
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.addStretch(1)
-        card = self._make_card()
-        outer.addWidget(card, 0, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+        outer.addWidget(self._make_card(), 0, Qt.AlignmentFlag.AlignHCenter)
         outer.addStretch(1)
 
     def _make_card(self) -> QFrame:

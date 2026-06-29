@@ -130,7 +130,7 @@ class AccentColorPicker(QWidget):
 
 
 class AccentColorSection(QWidget):
-    """Settings row aligned with form fields: label column, pill flush right."""
+    """Settings row aligned with form fields: label column, swatch pill on the left."""
 
     colorChanged = Signal(str)
 
@@ -153,9 +153,9 @@ class AccentColorSection(QWidget):
 
         title = QLabel("Luthier Accent Color")
         title.setObjectName("AccentColorTitle")
-        hint = QLabel("Pick a preset accent color for the app.")
+        hint = QLabel("Pick a preset accent color.")
         hint.setObjectName("AccentColorHint")
-        hint.setWordWrap(False)
+        hint.setWordWrap(True)
 
         labels = QVBoxLayout()
         labels.setContentsMargins(0, 0, 0, 0)
@@ -164,20 +164,13 @@ class AccentColorSection(QWidget):
         labels.addWidget(hint)
 
         label_host = QWidget()
-        hint_width = hint.fontMetrics().horizontalAdvance(hint.text())
-        label_host.setFixedWidth(max(_LABEL_WIDTH, hint_width))
+        label_host.setFixedWidth(_LABEL_WIDTH)
         label_host.setLayout(labels)
-
-        content = QWidget()
-        content_layout = QHBoxLayout(content)
-        content_layout.setContentsMargins(0, 0, 0, 0)
-        content_layout.setSpacing(0)
-        content_layout.addStretch(1)
-        content_layout.addWidget(self._picker, 0, Qt.AlignmentFlag.AlignRight)
 
         mark_spacer = QWidget()
         mark_spacer.setFixedWidth(_MARK_WIDTH)
 
         row.addWidget(label_host, 0, Qt.AlignmentFlag.AlignVCenter)
-        row.addWidget(content, 1)
+        row.addWidget(self._picker, 0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        row.addStretch(1)
         row.addWidget(mark_spacer)

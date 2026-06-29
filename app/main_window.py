@@ -44,8 +44,10 @@ _TABS = ["Project", "Preferences", "Templates", "About"]
 _PROJECT_TAB_INDEX = _TABS.index("Project")
 _PREFS_TAB_INDEX = _TABS.index("Preferences")
 _ABOUT_TAB_INDEX = _TABS.index("About")
-_MIN_WINDOW_WIDTH = 750
-_MIN_WINDOW_HEIGHT = 720
+_MIN_WINDOW_WIDTH = 720
+# UltraWide HiDPI (1720×720 logical): reserve macOS menu bar (~30 px) and title bar
+# chrome (~32 px) so the client area and bottom action bar stay on screen.
+_MIN_WINDOW_HEIGHT = 720 - 30 - 32
 
 
 def _make_btn(label: str, object_name: str, slot) -> QPushButton:
