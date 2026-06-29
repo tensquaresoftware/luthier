@@ -248,13 +248,20 @@ L’onglet est une page défilable divisée en cinq sections. Les champs marqué
 
 ### Luthier Accent Color
 
-En haut de l’onglet **Project** — au-dessus de **Project Info** — la ligne **Luthier Accent Color** permet de choisir une couleur parmi **douze préréglages** pour l’interface de l’application. Le changement s’applique **immédiatement** à toute l’app : onglet actif, boutons d’action, badges **Saved**, liens, coches de validation des champs et messages de succès dans la barre de statut.
+En haut de l’onglet **Project** — au-dessus de **Project Info** — la ligne **Luthier Accent Color** permet de choisir une couleur parmi **douze préréglages** pour l’interface de l’application. Tant que vous restez sur cet onglet, le changement s’applique **immédiatement** : onglet actif, boutons d’action, badges **Saved**, liens, coches de validation des champs et messages de succès dans la barre de statut.
 
-Le même sélecteur apparaît en haut de l’onglet **Preferences** (au-dessus de **Identity**). Les deux restent **synchronisés** : un choix sur l’un met à jour l’autre et enregistre dans `preferences.json` sur votre machine.
+Le même sélecteur apparaît en haut de l’onglet **Preferences** (au-dessus de **Identity**). Chaque onglet dispose de **son propre** sélecteur : ils ne se mettent pas à jour l’un l’autre en direct.
 
-La couleur est stockée sous la clé **`accentColor`** dans `preferences.json`. Elle est également incluse lors d’un **Export Preferences…**, ce qui permet à chaque profil exporté d’emporter sa propre couleur — pratique si vous travaillez pour **plusieurs clients ou marques** : attribuez une couleur distincte par client (par exemple sarcelle pour le client A, ambre pour le client B), exportez un fichier JSON par contexte, et **importez** le bon profil avant de commencer. D’un coup d’œil, la barre d’onglets et les boutons confirment que vous êtes dans le bon « espace de travail », avant même de lire le nom du fabricant sur le formulaire.
+| Onglet | Effet d’un choix de couleur |
+|--------|----------------------------|
+| **Preferences** | Enregistrement **immédiat** dans `preferences.json` (sans badge **Saved**). L’apparence se met à jour tant que vous restez sur cet onglet. |
+| **Project** | Changement **visuel pour la session** uniquement ; **pas** d’écriture dans `preferences.json`. |
 
-Changer la couleur d’accent ne modifie **pas** les champs du projet, les templates ni les fichiers JUCE générés — seulement l’apparence de Luthier et vos préférences enregistrées.
+En passant d’un onglet à l’autre, Luthier applique la couleur du sélecteur **de l’onglet actif**. Le sélecteur **Project** reprend la valeur enregistrée dans **Preferences** au **démarrage** de l’application et lors d’un **Create New Project**.
+
+La couleur persistante est stockée sous la clé **`accentColor`** dans `preferences.json`. Elle est également incluse lors d’un **Export Preferences…**, ce qui permet à chaque profil exporté d’emporter sa propre couleur — pratique si vous travaillez pour **plusieurs clients ou marques** : attribuez une couleur distincte par client (par exemple sarcelle pour le client A, ambre pour le client B), exportez un fichier JSON par contexte, et **importez** le bon profil avant de commencer. D’un coup d’œil, la barre d’onglets et les boutons confirment que vous êtes dans le bon « espace de travail », avant même de lire le nom du fabricant sur le formulaire.
+
+Changer la couleur d’accent ne modifie **pas** les champs du projet, les templates ni les fichiers JUCE générés — seulement l’apparence de Luthier. Seul un changement dans **Preferences** (ou un **Import Preferences…**) met à jour `preferences.json`.
 
 ### 7.1 Project Info
 
@@ -437,7 +444,7 @@ L’onglet **Preferences** sert à éviter de ressaisir les mêmes informations 
 
 ### 8.1 Sections
 
-En haut de l’onglet, **Luthier Accent Color** (voir [§7 Luthier Accent Color](#luthier-accent-color)) reprend le même sélecteur de douze couleurs que sur **Project**. Il est enregistré dans `preferences.json` et inclus dans les profils exportés.
+En haut de l’onglet, **Luthier Accent Color** (voir [§7 Luthier Accent Color](#luthier-accent-color)) reprend le même sélecteur de douze couleurs que sur **Project**. **C’est ici** que le choix est **enregistré** dans `preferences.json` et inclus dans les profils exportés. Le sélecteur de l’onglet **Project** est indépendant : il n’est realigné qu’au démarrage ou via **Create New Project**.
 
 | Section | Contenu |
 |---------|---------|
@@ -464,9 +471,9 @@ L’import permet de **remplacer** tout le profil local par un fichier JSON expo
 
 1. Choisissez un fichier JSON (profil exporté, sauvegarde, autre machine).
 2. S’il est valide, il **remplace** intégralement le profil de préférences actuel et met à jour `preferences.json` (y compris **`accentColor`** si présent dans le fichier).
-3. L’onglet Preferences se recharge et la couleur d’accent s’applique immédiatement dans toute l’application.
+3. L’onglet Preferences se recharge ; la couleur d’accent importée s’applique tout de suite **sur cet onglet**.
 
-**L’import ne modifie pas l’onglet Project.** Utilisez **Create New Project** pour appliquer les nouveaux defaults à un formulaire vierge.
+**L’import ne modifie pas l’onglet Project** (y compris le sélecteur de couleur). Utilisez **Create New Project** pour appliquer les nouveaux defaults — couleur comprise — à un formulaire vierge.
 
 Si le fichier est invalide, une boîte de dialogue d’erreur s’affiche et votre profil précédent est conservé.
 
@@ -486,7 +493,7 @@ Si vous développez pour plusieurs marques ou clients, exportez un profil par co
 
 1. Configurez **Preferences** pour le **Client A** (valeurs par défaut + **Luthier Accent Color**) → **Export Preferences…** → `client-a.json`.
 2. Répétez pour le **Client B** avec une autre couleur → `client-b.json`.
-3. Avant de démarrer un projet JUCE pour un client → **Import Preferences…** → choisissez le bon fichier (couleur et champs se mettent à jour ensemble).
+3. Avant de démarrer un projet JUCE pour un client → **Import Preferences…** → choisissez le bon fichier (couleur et champs mis à jour dans **Preferences**).
 4. **Create New Project** → le formulaire correspond à ce profil.
 
 Le projet que vous aviez ouvert reste inchangé jusqu’à ce que vous en créiez ou en ouvriez un autre.
@@ -571,7 +578,7 @@ Si entre-temps vous aviez déplacé le dossier de votre projet, ouvrez-le d’ab
 
 Enchaînement typique pour un développeur freelance travaillant pour plusieurs clients, ou multi-marques : importer le bon profil JSON (valeurs par défaut **et couleur d’accent**), créer un nouveau projet puis générer, sans toucher au projet précédemment ouvert.
 
-1. **Import Preferences…** → fichier JSON du client (couleurs de l’interface et champs mis à jour ensemble).
+1. **Import Preferences…** → fichier JSON du client (champs et couleur d’accent mis à jour dans **Preferences**).
 2. **Create New Project**.
 3. Remplissez les champs d’identité → **Generate Project**.
 
@@ -616,7 +623,7 @@ Luthier répartit les données entre la **configuration de l’application** (de
 
 | Emplacement | Contenu | Modifié par |
 |-------------|---------|-------------|
-| `preferences.json` | Profil de defaults globaux (`accentColor`, fabricant, chemins, …) | Premier lancement, auto-save Preferences, sélecteur d’accent, Import |
+| `preferences.json` | Profil de defaults globaux (`accentColor`, fabricant, chemins, …) | Premier lancement, auto-save Preferences, sélecteur d’accent (onglet **Preferences**), Import |
 | `app_state.json` | Dernier dossier parent, dernier dossier import/export, géométrie fenêtre | Generate réussi, chemins Import/Export, redimensionnement/déplacement fenêtre |
 | Fichiers `*.json` exportés | Copies de profils de préférences (y compris `accentColor`) | Export Preferences… (fichiers choisis manuellement) |
 | Overrides Templates (`templates/`) | Contenu de templates personnalisé | Save override, Reset |

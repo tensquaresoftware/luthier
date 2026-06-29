@@ -251,13 +251,20 @@ The tab is one scrollable page divided into five sections. Fields marked with an
 
 ### Luthier Accent Color
 
-At the top of the **Project** tab — above **Project Info** — the **Luthier Accent Color** row lets you pick one of **twelve preset colours** for the application interface. The change applies **immediately** to the whole app: active tab, action buttons, **Saved** badges, links, field validation marks, and success messages in the status bar.
+At the top of the **Project** tab — above **Project Info** — the **Luthier Accent Color** row lets you pick one of **twelve preset colours** for the application interface. While you stay on this tab, the change applies **immediately**: active tab, action buttons, **Saved** badges, links, field validation marks, and success messages in the status bar.
 
-The same control appears at the top of the **Preferences** tab (above **Identity**). Both pickers stay **synchronized**: choosing a colour on either tab updates the other and saves to `preferences.json` on your machine.
+The same control appears at the top of the **Preferences** tab (above **Identity**). Each tab has **its own** picker — they do not update each other in real time.
 
-The colour is stored under the key **`accentColor`** in `preferences.json`. It is also included when you **Export Preferences…**, so each exported profile can carry its own accent — handy if you work for **several clients or brands**: assign a distinct colour per client (for example teal for Client A, amber for Client B), export one JSON file per context, and **import** the right profile before starting work. At a glance, the tab bar and buttons tell you whether you are in the right “workspace”, even before you read the manufacturer name on the form.
+| Tab | Effect of choosing a colour |
+|-----|----------------------------|
+| **Preferences** | **Immediate** save to `preferences.json` (no **Saved** badge). Appearance updates while you stay on this tab. |
+| **Project** | **Visual change for the session** only; **not** written to `preferences.json`. |
 
-Changing the accent colour does **not** change project fields, templates, or generated JUCE files — it only customizes Luthier’s appearance and your saved preferences.
+When you switch tabs, Luthier applies the colour from the **active tab’s** picker. The **Project** picker picks up the value stored in **Preferences** at **startup** and when you click **Create New Project**.
+
+The persisted colour is stored under the key **`accentColor`** in `preferences.json`. It is also included when you **Export Preferences…**, so each exported profile can carry its own accent — handy if you work for **several clients or brands**: assign a distinct colour per client (for example teal for Client A, amber for Client B), export one JSON file per context, and **import** the right profile before starting work. At a glance, the tab bar and buttons tell you whether you are in the right “workspace”, even before you read the manufacturer name on the form.
+
+Changing the accent colour does **not** change project fields, templates, or generated JUCE files — only Luthier’s appearance. Only a change in **Preferences** (or **Import Preferences…**) updates `preferences.json`.
 
 ### 7.1 Project Info
 
@@ -438,7 +445,7 @@ The **Preferences** tab saves you from retyping the same information for every n
 
 ### 8.1 Sections
 
-At the top of the tab, **Luthier Accent Color** (see [§7 Luthier Accent Color](#luthier-accent-color)) uses the same twelve-preset picker as on **Project**. It is saved to `preferences.json` and included in exported profiles.
+At the top of the tab, **Luthier Accent Color** (see [§7 Luthier Accent Color](#luthier-accent-color)) uses the same twelve-preset picker as on **Project**. **This** is where the choice is **saved** to `preferences.json` and included in exported profiles. The **Project** tab picker is independent — it realigns only at startup or via **Create New Project**.
 
 | Section | Contents |
 |---------|----------|
@@ -465,9 +472,9 @@ Import **replaces** your entire local profile with a previously exported JSON fi
 
 1. Choose a JSON file (exported profile, backup, another machine).
 2. If valid, it **replaces** the entire current preferences profile and updates `preferences.json` (including **`accentColor`** when present in the file).
-3. The Preferences tab reloads and the accent is applied immediately across the app.
+3. The Preferences tab reloads; the imported accent colour applies immediately **on this tab**.
 
-**Import does not change the Project tab.** Use **Create New Project** to apply the new defaults to a fresh form.
+**Import does not change the Project tab** (including the colour picker). Use **Create New Project** to apply the new defaults — accent colour included — to a fresh form.
 
 If the file is invalid, an error dialog appears and your previous profile is kept.
 
@@ -487,7 +494,7 @@ If you develop for several brands or clients, export one profile per context and
 
 1. Configure **Preferences** for **Client A** (defaults + **Luthier Accent Color**) → **Export Preferences…** → `client-a.json`.
 2. Repeat for **Client B** with a different colour → `client-b.json`.
-3. Before starting a JUCE project for a client → **Import Preferences…** → pick the right file (accent and fields update together).
+3. Before starting a JUCE project for a client → **Import Preferences…** → pick the right file (accent and fields update in **Preferences**).
 4. **Create New Project** → form matches that profile.
 
 The project you had open stays unchanged until you create or open another one.
@@ -572,7 +579,7 @@ If you moved the project folder in the meantime, open it at its new location fir
 
 Typical flow for a freelance or multi-brand developer: import the right JSON (defaults **and accent colour**), create a fresh form, generate — without touching the previously open project.
 
-1. **Import Preferences…** → client profile JSON (UI colours update with the profile).
+1. **Import Preferences…** → client profile JSON (fields and accent colour updated in **Preferences**).
 2. **Create New Project**.
 3. Fill identity fields → **Generate Project**.
 
@@ -617,7 +624,7 @@ Luthier splits data between **application configuration** (defaults, templates, 
 
 | Location | Contents | Changed by |
 |----------|----------|------------|
-| `preferences.json` | Global defaults profile (`accentColor`, manufacturer, paths, …) | First launch, Preferences auto-save, accent picker, Import |
+| `preferences.json` | Global defaults profile (`accentColor`, manufacturer, paths, …) | First launch, Preferences auto-save, accent picker (**Preferences** tab), Import |
 | `app_state.json` | Last destination parent, last import/export folder, window geometry | Successful Generate, Import/Export paths, window resize/move |
 | Exported `*.json` files | Preference profile copies (including `accentColor`) | Export Preferences… (manual files you choose) |
 | Template overrides (`templates/`) | Custom template content | Save override, Reset |
