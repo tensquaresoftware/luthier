@@ -1,70 +1,70 @@
 # Deferred Work
 
-Registre vivant de la dette technique ouverte. **Resynchronisé le 2026-06-28** avec la codebase (modifs hors BMad incluses).
+**Gel MVP — 2026-06-29.** Epic 7 terminée ; critères MUST/SHOULD du sprint change proposal satisfaits. Ce registre ne sert plus de backlog sprint : il distingue **limitations acceptées pour v1**, **pistes post-MVP**, et **items retirés** (décisions de design ou hors périmètre).
 
-Items **retirés** depuis la purge précédente : géométrie fenêtre (`app_state.json`), barre de statut dédiée (6-1), annonces lecteurs d’écran (`StatusCapsule`), logo README (`docs/luthier.png`), convention `docs/` unique, dialog dirty guard (bouton No accent), chemins Windows JSON (`normalize_portable_path`), validation JSON presets (tests 4-3), reset projet complet (5-5), `juceDir` sur ProjectSpec (5-3), `architecture-explained.md` AD-5/AD-7.
+Détails historiques par story : fichiers `_*-*.md` dans ce dossier (sections `[Review][Defer]`).
 
 ---
 
-## Infrastructure
+## Accepté pour v1 — limitations connues
 
-- ~~**Tests legacy** — Fichiers `tests/test_story_*.py` redondants avec la suite pytest ; fusion ou retrait à planifier.~~ *(Résolu — Story 7.4)*
+Pas de story planifiée. Réouvrir seulement si retour utilisateur ou QA manuelle contredit cette acceptation.
 
-## Deferred from: code review of 7-1-github-actions-ci-for-pytest (2026-06-28)
+| Item | Raison de l'acceptation |
+|------|-------------------------|
+| Pas de `fsync` après écriture temp (`atomic_write_text`) | Même niveau de durabilité qu'AD-4 `ProjectWriter` ; trade-off documenté (AD-10). |
+| Fichiers `.tmp` orphelins après SIGKILL / coupure | Limitation inhérente à l'écriture atomique ; nettoyage manuel suffisant pour v1. |
+| Pas de tests widget Qt (rollback import prefs, `MainWindow`, etc.) | Invariant **AD-6** ; logique core couverte par tests unitaires ; UI vérifiée en QA manuelle. |
+| Garde no-Qt in-process (`test_core_imports.py`) | Choix explicite Story 7.4 ; couvre l'intention sans cold-import subprocess. |
+| `read_project()` sans champ `error` | API legacy ; couche app utilise `read_project_result()`. |
+| Conflit `set()` vs `juce_add_plugin` dans `_quoted_fields` | CMake legacy rare ; `set()` privilégié de façon cohérente. |
+| `_cmake_quoted` : pas d'échappement newline/tab | Périmètre AC Story 7.3 (guillemets, `$`, espaces) ; entrées utilisateur normales non concernées. |
 
-- No pip or apt caching in CI workflow — slower installs on every run; add `actions/cache` when CI latency becomes a concern.
-- apt-get update has no retry on transient network failures — consider `nick-fields/retry` if flaky CI observed.
-- Test helpers `make_spec` / `_make_spec` still allow backslash Windows path overrides via kwargs — normalize in helper if cross-platform test drift recurs.
+---
 
-## Deferred from: code review of 7-2-atomic-json-persistence-corrupt-file-feedback (2026-06-28)
+## Post-MVP — déclencher si douleur réelle
 
-- No `fsync` after temp write in `atomic_write_text` — same durability level as AD-4 `ProjectWriter`; add if crash/power-loss persistence becomes a requirement.
-- Orphaned `.tmp` files after SIGKILL or power loss — inherent atomic-write limitation; no automatic recovery path beyond manual cleanup.
+Ne pas planifier proactivement. Créer une story ou un quick-dev **uniquement** si le déclencheur observé se produit.
 
-## Deferred from: code review of 7-4-test-hygiene-minor-ui-hardening (2026-06-28)
+| Item | Déclencheur suggéré |
+|------|---------------------|
+| Cache pip/apt dans CI | Latence CI gênante (> ~5 min) ou quota GitHub Actions. |
+| Retry `apt-get update` en CI | Échecs réseau intermittents observés sur le workflow. |
+| Normaliser backslash dans `make_spec` / `_make_spec` | Dérive de tests cross-platform Windows. |
+| `MemoryError` sur Templates Load File | Fichier volumineux ou crash observé en QA. |
+| Champ `version` dans prefs / app_state JSON | Changement de schéma clés nécessitant une migration. |
+| Refactor couplage widgets Préférences | Modification UI prefs rend le couplage par attributs internes pénible. |
+| Paramétrisation `plugin_type` (effect/midi) sur round-trip intégration | Régression plugin type non détectée en CI. |
+| Cas limites tests (validation, templates store, render_context, bundle PyInstaller) | Bug production ou lacune CI identifiée sur un de ces modules. |
+| Docstring `project_reader` avec taxonomie d'erreurs (AD-3) | Confusion développeur récurrente sur les codes d'erreur. |
 
-- No automated `PreferencesPage.import_from_file` UI rollback test — AD-6 no Qt widget tests; manual QA for widget refresh on import failure.
-- Post-`save()` disk revert on import failure — out of scope; failure normally occurs before `save()` (Story 7.2 atomic write).
-- In-process no-Qt import guard (`test_core_imports.py`) vs subprocess cold-import — weaker than subprocess but matches Story 7.4 migration sketch.
-- MemoryError uncaught on Templates Load File (`read_text`) — edge case for very large files; catch alongside OSError if observed in QA.
+---
 
-## Deferred from: code review of 7-3-core-generation-reload-robustness (2026-06-28)
+## Retiré du registre
 
-- `read_project()` still returns only `.spec` without `error` — pre-existing API; app layer uses `read_project_result()`.
-- Module docstring not extended with error taxonomy — spec suggested AD-3 note in docstring only.
-- Conflicting `set()` vs `juce_add_plugin` identity values — `_quoted_fields` prefers `set()` when both differ (rare legacy CMake).
-- `_cmake_quoted` does not escape CMake control characters (newline/tab) — AC1 covers quotes/`$`/spaces only.
+Ces entrées ne sont **plus** de la dette ouverte — décision de design, hors scope, ou déjà livré. Conservées ici pour traçabilité ; ne pas re-synchroniser depuis les CR Epic 7.
 
-## Persistance JSON (prefs + app_state)
+| Item | Motif de retrait |
+|------|------------------|
+| Revert disque post-`save()` en échec d'import prefs | Hors scope : échec normalement **avant** `save()` (Story 7.2). |
+| Subprocess vs in-process pour garde no-Qt | Résolu par choix d'implémentation 7.4 — voir « Accepté pour v1 ». |
+| Tests widget `MainWindow` | AD-6 : invariant architectural, pas dette différée. |
+| Écriture JSON non atomique | Résolu — Story 7.2, AD-10. |
+| Chargement silencieux JSON corrompu | Résolu — Story 7.2, `load_warning` + barre de statut. |
+| Tests legacy `tests/test_story_*.py` | Résolu — Story 7.4. |
+| Section « Génération et rechargement (cas limites) » (7 items) | Résolu — Story 7.3. |
+| `null` prefs → `"None"`, rollback import, polish éditeur Templates | Résolu — Story 7.4. |
+| Items exclus d'Epic 7 (géométrie fenêtre, 6-1 status bar, StatusCapsule, logo README, dirty guard dialog, chemins Windows JSON, presets 4-3, 5-3/5-5, rename doc AD) | Livré hors Epic 7 ou story dédiée — voir purge 2026-06-28. |
 
-- ~~**Écriture non atomique** — Crash pendant `write_text` peut corrompre le fichier.~~ *(Résolu — Story 7.2, AD-10)*
-- **Pas de champ version** — Migrations futures ad hoc si les clés changent.
-- ~~**Chargement silencieux** — JSON corrompu → defaults sans message utilisateur.~~ *(Résolu — Story 7.2, `load_warning` + status bar)*
+---
 
-## Génération et rechargement (cas limites)
+## Référence rapide Epic 7
 
-~~- **Chemins spéciaux dans CMake** — Guillemets / `$` dans `JUCE_DIR` (`_juce_dir_line`) ; guillemets et caractères de contrôle dans entrées JSON artefact au-delà de la normalisation backslash.~~ *(Story 7.3)*
-~~- **Booléens mal typés** — `"ON"`, `"false"` (string) dans `from_dict` non convertis en bool.~~ *(Story 7.3)*
-~~- **Sidecar édité à la main** — Types incorrects ou `null` acceptés sans validation.~~ *(Story 7.3)*
-~~- **Cache CMake** — `CACHE BOOL` sans `FORCE` : regénération sans effet si cache existant.~~ *(Story 7.3)*
-~~- **Type de plugin inconnu** — `KeyError` brut au lieu d’erreur explicite.~~ *(Story 7.3)*
-~~- **Écriture projet** — Perte possible si `rename` échoue après suppression de l’ancien dossier (cas rare).~~ *(Story 7.3 — documenté + test)*
-~~- **Lecture projets legacy** — Messages d’erreur peu discriminants ; regex CMake fragile (guillemets échappés) ; sidecar valide mais vide → defaults silencieux.~~ *(Story 7.3)*
+| Story | Statut | Dette MUST/SHOULD fermée |
+|-------|--------|--------------------------|
+| 7.1 CI pytest | done | Infrastructure CI |
+| 7.2 Persistance JSON | done | Écriture atomique + feedback corrupt |
+| 7.3 Core robustness | done | Cas limites génération / reload |
+| 7.4 Hygiène tests + UI mineur | done | Legacy tests, polish prefs/templates |
 
-## Interface (mineur)
-
-- ~~**`null` dans prefs** — Peut apparaître comme `"None"` dans un champ dossier.~~ *(Résolu — Story 7.4)*
-- ~~**Import profil** — Rollback incomplet sur certains `ValueError`.~~ *(Résolu — Story 7.4)*
-- **Couplage widgets Préférences** — Accès aux attributs internes des sections ; refactor si signaux unifiés.
-- ~~**Éditeur Templates** — Label d’état après Load File ; pas de validation de type de fichier ; erreurs lecture non gérées.~~ *(Résolu — Story 7.4)*
-
-## Tests — durcissement optionnel
-
-- Paramétrisation `plugin_type` (effect/midi) sur round-trip intégration.
-- Cas limites validation, templates store, render_context, bundle PyInstaller (timeout, encoding, layout `_internal`).
-- Pas de tests widget `MainWindow` (AD-6, volontaire).
-- ~~Garde no-Qt au premier import (subprocess).~~ *(Résolu — Story 7.4, `test_core_imports.py`)*
-
-## Référence
-
-Détails historiques par story : fichiers `_*-*.md` dans ce dossier (sections `[Review][Defer]`). Ce registre ne liste que l’**ouvert** consolidé.
+**Prochaine étape produit :** QA manuelle (semaine 2026-07-07). Pas d'Epic 8 « vider deferred-work » sans signal utilisateur.
