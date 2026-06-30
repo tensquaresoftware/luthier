@@ -1,12 +1,24 @@
 """Write a generated project tree from the template files."""
 
 import json
+import os
 import shutil
+import stat
 from pathlib import Path
 from typing import Optional
 
 from core import rendering
 from core.project_spec import ProjectSpec
+
+
+def _robust_rmtree(path: Path) -> None:
+    """Remove a directory tree, clearing read-only files (e.g. Git objects on Windows)."""
+
+    def _onerror(func, p, _exc_info):
+        os.chmod(p, stat.S_IWRITE)
+        func(p)
+
+    shutil.rmtree(path, onerror=_onerror)
 
 _RENDERED = (
     "CMakeLists.txt",
@@ -49,17 +61,23 @@ class ProjectWriter:
         """
         tmp = self._project.parent / (self._project.name + ".tmp")
         if tmp.exists():
-            shutil.rmtree(tmp)
+            _robust_rmtree(tmp)
         try:
             self._write_all(tmp, context, tokens)
             self._write_sidecar(tmp, spec)
             if self._project.exists():
-                shutil.rmtree(self._project)
+                git_src = self._project / ".git"
+                if git_src.is_dir():
+                    git_dst = tmp / ".git"
+                    if git_dst.exists():
+                        _robust_rmtree(git_dst)
+                    shutil.move(str(git_src), str(git_dst))
+                _robust_rmtree(self._project)
             tmp.rename(self._project)
         except Exception:
             try:
                 if tmp.exists():
-                    shutil.rmtree(tmp)
+                    _robust_rmtree(tmp)
             except Exception:
                 pass
             raise
