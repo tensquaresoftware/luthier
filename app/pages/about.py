@@ -216,5 +216,5 @@ class AboutPage(QWidget):
             ("Email : tensquaresoftware@gmail.com", "mailto:tensquaresoftware@gmail.com"),
             ("GitHub : github.com/tensquaresoftware/luthier", "https://github.com/tensquaresoftware/luthier"),
             ("Version : 1.0.0", None),
-            ("Revision date : 2026-06-29", None),
+            ("Revision date : 2026-06-30", None),
         ]
