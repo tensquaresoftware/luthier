@@ -6,12 +6,12 @@ from pathlib import Path
 from PySide6.QtCore import QStandardPaths
 
 from core.json_files import atomic_write_text
+from core.paths import resolve_dir
 from core.preferences import Preferences
 
 
 def _is_valid_dir(path: str) -> bool:
-    stripped = str(path).strip()
-    return bool(stripped) and Path(stripped).is_dir()
+    return resolve_dir(path) is not None
 
 
 LOAD_WARNING_MESSAGE = (

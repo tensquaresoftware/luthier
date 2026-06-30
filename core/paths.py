@@ -1,5 +1,7 @@
 """Portable path string normalization (NFR3 / JSON sidecar safety)."""
 
+from pathlib import Path
+
 from core import validation
 
 _PATH_VALIDATORS = frozenset({
@@ -26,6 +28,19 @@ def normalize_portable_path(path: str) -> str:
     if not path:
         return path
     return path.strip().replace("\\", "/")
+
+
+def resolve_dir(path: str) -> Path | None:
+    """Return a resolved Path when *path* names an existing directory, else None."""
+    stripped = path.strip()
+    if not stripped:
+        return None
+    candidate = Path(stripped).expanduser()
+    try:
+        candidate = candidate.resolve(strict=False)
+    except OSError:
+        pass
+    return candidate if candidate.is_dir() else None
 
 
 def normalize_path_dict_values(data: dict) -> dict:

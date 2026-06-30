@@ -4,11 +4,10 @@
 import sys
 from pathlib import Path
 
-from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
 from app.main_window import MainWindow
-from app.resources import resource_path
+from app.resources import app_icon
 from app.theme import build_stylesheet, set_accent_color
 from core.preferences import Preferences
 
@@ -26,13 +25,12 @@ def _self_check() -> int:
 
 
 def _apply_app_icon(app: QApplication) -> None:
-    """Set window/Dock icon from bundled PNG except on frozen macOS (.icns in bundle)."""
-    icon_path = resource_path("icons/luthier.png")
-    if not Path(icon_path).is_file():
-        return
+    """Set the application icon (bundle .icns on frozen macOS handles the Dock)."""
     if sys.platform == "darwin" and getattr(sys, "frozen", False):
         return
-    app.setWindowIcon(QIcon(icon_path))
+    icon = app_icon()
+    if not icon.isNull():
+        app.setWindowIcon(icon)
 
 
 def main() -> None:
@@ -42,7 +40,7 @@ def main() -> None:
         sys.exit(_self_check())
     app.setStyle("Fusion")
     prefs = Preferences(Preferences.default_path())
-    prefs.ensure_initialized()
+    prefs.bootstrap()
     set_accent_color(prefs.accent_color)
     app.setStyleSheet(build_stylesheet())
     _apply_app_icon(app)

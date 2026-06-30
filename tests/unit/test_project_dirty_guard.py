@@ -65,6 +65,15 @@ def test_form_snapshots_equal_ignores_display_name_fallback():
     assert form_snapshots_equal(baseline, current)
 
 
+def test_load_project_clears_dirty_state():
+    """After load (e.g. post-generate), the form should not appear unsaved."""
+    baseline = ProjectSpec(project_name="MyPlugin", project_version="1.0.0").to_dict()
+    edited = dict(baseline)
+    edited["projectVersion"] = "1.0.1"
+    assert not form_snapshots_equal(baseline, edited)
+    assert form_snapshots_equal(edited, edited)
+
+
 def test_create_new_project_seed_does_not_mutate_preferences_file(tmp_path):
     prefs_path = tmp_path / "preferences.json"
     prefs = Preferences(prefs_path)

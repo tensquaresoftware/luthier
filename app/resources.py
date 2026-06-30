@@ -3,16 +3,25 @@
 import sys
 from pathlib import Path
 
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QIcon, QPixmap
 
 _LOGO_1X = "luthier-logo.png"
 _LOGO_2X = "luthier-logo@2x.png"
+_APP_ICON = "icons/luthier.png"
 
 
 def resource_path(name: str) -> str:
     bundle = getattr(sys, "_MEIPASS", None)
     root = Path(bundle) if bundle else Path(__file__).resolve().parent.parent
     return str(root / "resources" / name)
+
+
+def app_icon() -> QIcon:
+    """Return the bundled Luthier window icon, or a null icon when missing."""
+    path = resource_path(_APP_ICON)
+    if not Path(path).is_file():
+        return QIcon()
+    return QIcon(path)
 
 
 def load_about_logo_pixmap(device_pixel_ratio: float) -> QPixmap:

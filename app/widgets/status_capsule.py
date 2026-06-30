@@ -36,7 +36,7 @@ _pending_msg_icon_renderer: QSvgRenderer | None = None
 def _announce_status(widget: QWidget, text: str, ok: bool) -> None:
     event = QAccessibleAnnouncementEvent(widget, text)
     if not ok:
-        event.setPoliteness(QAccessibleAnnouncementEvent.AnnouncementPoliteness.Assertive)
+        event.setPoliteness(QAccessible.AnnouncementPoliteness.Assertive)
     QAccessible.updateAccessibility(event)
 
 

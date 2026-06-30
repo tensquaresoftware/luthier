@@ -150,7 +150,7 @@ def test_generate_plugin_code_produces_valid_codes():
     "value, expect_ok",
     [
         ("/Users/dev/out", True),
-        ("/café/path", False),
+        ("/café/path", True),
         ("", False),
         ("   ", False),
     ],
@@ -158,9 +158,7 @@ def test_generate_plugin_code_produces_valid_codes():
 def test_validate_destination(value, expect_ok):
     result = validate_destination(value)
     _assert_result(result, expect_ok=expect_ok)
-    if not expect_ok and value.strip():
-        assert "accented" in result[1].lower()
-    elif not expect_ok:
+    if not expect_ok:
         assert "required" in result[1].lower()
 
 
@@ -169,14 +167,12 @@ def test_validate_destination(value, expect_ok):
     [
         ("", True),
         ("/valid", True),
-        ("/café", False),
+        ("/café", True),
     ],
 )
 def test_validate_optional_path(value, expect_ok):
     result = validate_optional_path(value)
     _assert_result(result, expect_ok=expect_ok)
-    if not expect_ok:
-        assert "accented" in result[1].lower()
 
 
 @pytest.mark.parametrize("value", ["", "anything", "   "])

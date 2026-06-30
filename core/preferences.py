@@ -71,6 +71,10 @@ LOAD_WARNING_MESSAGE = (
     "Preferences file was corrupt and has been reset to defaults."
 )
 
+BOOTSTRAP_WARNING_MESSAGE = (
+    "Preferences could not be loaded from disk; using defaults for this session."
+)
+
 
 def factory_defaults(desktop: str | None = None) -> dict:
     """Return a fresh profile dict with factory values (Desktop destination)."""
@@ -170,6 +174,19 @@ class Preferences:
                     f"Could not create preferences at {self._path}: {error}"
                 ) from error
         self._initialized = True
+
+    def bootstrap(self) -> None:
+        """Load or create preferences; fall back to in-memory defaults on failure."""
+        try:
+            self.ensure_initialized()
+        except OSError:
+            if self._initialized:
+                return
+            self._data = factory_defaults()
+            self._data["accentColor"] = DEFAULT_ACCENT_COLOR
+            if self._load_warning is None:
+                self._load_warning = BOOTSTRAP_WARNING_MESSAGE
+            self._initialized = True
 
     @property
     def accent_color_warning(self) -> str | None:

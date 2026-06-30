@@ -3,6 +3,8 @@ import os
 import sys
 
 PROJECT_ROOT = os.path.dirname(SPECPATH)
+_IS_MACOS = sys.platform == "darwin"
+_IS_WINDOWS = sys.platform == "win32"
 
 _SKIP_DIRS = {"__pycache__", "Builds", ".git", ".cmake"}
 _SKIP_FILES = {".DS_Store"}
@@ -30,6 +32,8 @@ datas = (
         (os.path.join(PROJECT_ROOT, "resources", "icons", "luthier.png"), "resources/icons"),
     ]
 )
+if not _IS_MACOS and not _IS_WINDOWS:
+    datas.append((os.path.join(PROJECT_ROOT, "build", "luthier.desktop"), "."))
 
 a = Analysis(
     [os.path.join(PROJECT_ROOT, "main.py")],
@@ -37,8 +41,6 @@ a = Analysis(
     datas=datas,
     noarchive=False,
 )
-_IS_MACOS = sys.platform == "darwin"
-_IS_WINDOWS = sys.platform == "win32"
 if _IS_MACOS:
     _icon_name = "luthier.icns"
 elif _IS_WINDOWS:

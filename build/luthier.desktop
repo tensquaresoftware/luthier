@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Luthier
+Comment=JUCE project generator
+Exec=Luthier
+Icon=luthier
+Terminal=false
+Categories=Development;AudioVideo;
+StartupWMClass=Luthier

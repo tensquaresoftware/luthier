@@ -1,8 +1,7 @@
 """Pure field validators for the Luthier form.
 
 Self-contained and dependency-free so the form stays testable. Plugin identity
-codes follow the GarageBand 10.3 / JUCE AU convention (4-char codes, ASCII-only
-paths).
+codes follow the GarageBand 10.3 / JUCE AU convention (4-char codes).
 """
 
 import random
@@ -82,22 +81,14 @@ def generate_plugin_code() -> str:
             return code
 
 
-def _no_accents(value: str) -> ValidationResult:
-    accented = sorted({c for c in value if ord(c) > 127})
-    if not accented:
-        return _ok()
-    chars = ", ".join(f"'{c}'" for c in accented)
-    return False, f"No accented characters in paths: {chars}"
-
-
 def validate_destination(value: str) -> ValidationResult:
     if not value.strip():
         return False, "Destination is required."
-    return _no_accents(value)
+    return _ok()
 
 
 def validate_optional_path(value: str) -> ValidationResult:
-    return _no_accents(value)
+    return _ok()
 
 
 def validate_optional(value: str) -> ValidationResult:

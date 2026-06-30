@@ -5,6 +5,7 @@ from PySide6.QtGui import QDesktopServices, QMouseEvent
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QWidget
 
 from app.resources import load_about_logo_pixmap
+from app.version import REVISION_DATE, VERSION
 
 _LOGO_WIDTH = 193
 _LOGO_HEIGHT = 280
@@ -215,6 +216,6 @@ class AboutPage(QWidget):
             ("Author : Guillaume DUPONT", None),
             ("Email : tensquaresoftware@gmail.com", "mailto:tensquaresoftware@gmail.com"),
             ("GitHub : github.com/tensquaresoftware/luthier", "https://github.com/tensquaresoftware/luthier"),
-            ("Version : 1.0.0", None),
-            ("Revision date : 2026-06-30", None),
+            (f"Version : {VERSION}", None),
+            (f"Revision date : {REVISION_DATE}", None),
         ]

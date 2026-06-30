@@ -69,8 +69,8 @@ class Palette:
     BORDER = "#44525a"
     TEXT = "#e8eaeb"
     TEXT_DIM = "#9aa6ac"
-    ERR = "#e2686d"
-    ERR_DARK = _darken("#e2686d", 0.22)
+    ERR = "#f44336"
+    ERR_DARK = _darken("#f44336", 0.22)
 
     @classmethod
     def ACCENT(cls) -> str:

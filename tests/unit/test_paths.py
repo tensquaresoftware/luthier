@@ -3,6 +3,7 @@ from core.paths import (
     is_path_validator,
     normalize_path_dict_values,
     normalize_portable_path,
+    resolve_dir,
 )
 
 
@@ -34,3 +35,15 @@ def test_normalize_path_dict_values():
     assert out["destinationDir"] == "C:/out"
     assert out["juceDir"] == "C:/JUCE"
     assert out["projectName"] == "MyPlugin"
+
+
+def test_resolve_dir_expands_user_and_accepts_unicode(tmp_path, monkeypatch):
+    folder = tmp_path / "Téléchargements"
+    folder.mkdir()
+    monkeypatch.setenv("HOME", str(tmp_path))
+    assert resolve_dir("~/Téléchargements") == folder.resolve()
+
+
+def test_resolve_dir_missing_returns_none():
+    assert resolve_dir("/path/that/does/not/exist") is None
+    assert resolve_dir("") is None

@@ -21,7 +21,7 @@ from app.pages.about import AboutPage
 from app.pages.preferences import PreferencesPage
 from app.pages.project import ProjectPage
 from app.pages.templates import TemplatesPage
-from app.confirm import confirm_discard_unsaved
+from app.confirm import confirm_discard_unsaved, confirm_yes_no
 from app.widgets.status_capsule import (
     BAR_MIN_HEIGHT,
     STATUS_BAR_MARGIN_LEFT,
@@ -32,15 +32,18 @@ from app.widgets.status_capsule import (
     StatusMessageHeading,
     status_capsule_max_width,
 )
+from app.resources import app_icon
 from app.theme import apply_accent_theme
 from core import plugin_settings, templates_store
 from core.app_state import AppState
 from core.preferences import Preferences
 from core.project_generator import ProjectGenerator
 from core.project_reader import read_project_result
+from core.paths import normalize_portable_path, resolve_dir
 from core.project_spec import ProjectSpec
 
 _TABS = ["Project", "Preferences", "Templates", "About"]
+_OPEN_PROJECT_DIALOG_TITLE = "Open Luthier project"
 _PROJECT_TAB_INDEX = _TABS.index("Project")
 _PREFS_TAB_INDEX = _TABS.index("Preferences")
 _ABOUT_TAB_INDEX = _TABS.index("About")
@@ -48,6 +51,10 @@ _MIN_WINDOW_WIDTH = 720
 # UltraWide HiDPI (1720×720 logical): reserve macOS menu bar (~30 px) and title bar
 # chrome (~32 px) so the client area and bottom action bar stay on screen.
 _MIN_WINDOW_HEIGHT = 720 - 30 - 32
+
+
+def _display_path(path: Path | str) -> str:
+    return normalize_portable_path(str(path))
 
 
 def _make_btn(label: str, object_name: str, slot) -> QPushButton:
@@ -88,9 +95,12 @@ class MainWindow(QMainWindow):
         self._geom_timer.timeout.connect(self._persist_geometry_to_disk)
         self._status_text = ""
         self._status_ok = True
+        self._restore_geometry_on_show = True
         self._build_ui()
+        icon = app_icon()
+        if not icon.isNull():
+            self.setWindowIcon(icon)
         self.setMinimumSize(_MIN_WINDOW_WIDTH, _MIN_WINDOW_HEIGHT)
-        self._restore_window_geometry()
         config_warnings = [
             w for w in (self._prefs.load_warning, self._app_state.load_warning) if w
         ]
@@ -267,6 +277,8 @@ class MainWindow(QMainWindow):
             return
         geo = self.geometry()
         self._app_state.set_window_rect(geo.x(), geo.y(), geo.width(), geo.height())
+        encoded = QByteArray(self.saveGeometry()).toBase64().data().decode("ascii")
+        self._app_state.set_window_geometry_b64(encoded)
 
     def _persist_geometry_to_disk(self) -> None:
         self._persist_window_geometry()
@@ -279,15 +291,27 @@ class MainWindow(QMainWindow):
         if self._app_state.window_maximized():
             self.showMaximized()
             return
+        encoded = self._app_state.window_geometry_b64()
+        if encoded and self.restoreGeometry(QByteArray.fromBase64(encoded.encode("ascii"))):
+            if self._current_geometry_is_usable():
+                return
         rect = self._app_state.window_rect()
         if rect and self._rect_is_usable(rect):
             self.setGeometry(rect["x"], rect["y"], rect["width"], rect["height"])
             return
-        encoded = self._app_state.window_geometry_b64()
-        if encoded and self.restoreGeometry(QByteArray.fromBase64(encoded.encode("ascii"))):
-            return
         self.resize(self.minimumWidth(), self.minimumHeight())
         self._center_on_screen()
+
+    def _current_geometry_is_usable(self) -> bool:
+        geo = self.geometry()
+        return self._rect_is_usable(
+            {
+                "x": geo.x(),
+                "y": geo.y(),
+                "width": geo.width(),
+                "height": geo.height(),
+            }
+        )
 
     def _rect_is_usable(self, rect: dict) -> bool:
         if rect["width"] < self.minimumWidth() or rect["height"] < self.minimumHeight():
@@ -305,6 +329,12 @@ class MainWindow(QMainWindow):
         frame = self.frameGeometry()
         frame.moveCenter(screen.availableGeometry().center())
         self.move(frame.topLeft())
+
+    def showEvent(self, event) -> None:
+        super().showEvent(event)
+        if self._restore_geometry_on_show:
+            self._restore_geometry_on_show = False
+            self._restore_window_geometry()
 
     def changeEvent(self, event) -> None:
         super().changeEvent(event)
@@ -351,7 +381,7 @@ class MainWindow(QMainWindow):
             self._defaults = self._prefs.seed_dict()
             if self._tab_bar.currentIndex() == _PREFS_TAB_INDEX:
                 self._apply_accent_theme(self._prefs.accent_color)
-            self._set_status(f"Preferences imported from {Path(path).name}.", ok=True)
+            self._set_status(f"Preferences imported from {_display_path(path)}.", ok=True)
         else:
             QMessageBox.warning(self, "Import Preferences", message)
             self._set_status("Preferences import failed.", ok=False)
@@ -369,7 +399,7 @@ class MainWindow(QMainWindow):
         self._remember_prefs_profile_dir(path)
         ok, message = self._prefs_page.export_to_file(path)
         if ok:
-            self._set_status(f"Preferences exported to {Path(path).name}.", ok=True)
+            self._set_status(f"Preferences exported to {_display_path(path)}.", ok=True)
         else:
             QMessageBox.warning(self, "Export Preferences", message)
             self._set_status("Preferences export failed.", ok=False)
@@ -377,7 +407,7 @@ class MainWindow(QMainWindow):
     def _on_generate(self) -> None:
         spec = self._project_page.spec()
         dest = spec.destination_dir.strip()
-        if not dest or not Path(dest).is_dir():
+        if not dest or resolve_dir(dest) is None:
             chosen = QFileDialog.getExistingDirectory(
                 self,
                 "Choose destination folder",
@@ -409,7 +439,7 @@ class MainWindow(QMainWindow):
 
     def _on_open(self) -> None:
         start = self._app_state.dialog_start_dir()
-        directory = QFileDialog.getExistingDirectory(self, "Open JUCE plugin project", start)
+        directory = QFileDialog.getExistingDirectory(self, _OPEN_PROJECT_DIALOG_TITLE, start)
         if directory:
             self._load_project(Path(directory))
 
@@ -428,28 +458,31 @@ class MainWindow(QMainWindow):
                 )
                 status = "Could not parse project configuration from CMakeLists.txt"
             else:
-                message = f"Not a JUCE plugin project: {project_dir}"
+                message = f"Not a Luthier project: {_display_path(project_dir)}"
                 status = message
             QMessageBox.critical(self, "Open Project", message)
             self._set_status(status, ok=False)
             return
         if not spec.plugin_formats:
-            message = f"No plugin formats detected in: {project_dir}"
+            message = f"No plugin formats detected in: {_display_path(project_dir)}"
             QMessageBox.critical(self, "Open Project", message)
             self._set_status(message, ok=False)
             return
         self._project_page.load(spec)
-        self._set_status(f"Loaded {spec.project_name} from {project_dir}", ok=True)
+        self._set_status(
+            f"Loaded {spec.project_name} from {_display_path(project_dir)}",
+            ok=True,
+        )
 
     def _confirm_overwrite(self, spec: ProjectSpec) -> bool:
         if not self._generator.project_exists(spec.destination_dir, spec.project_name):
             return True
-        answer = QMessageBox.question(
+        return confirm_yes_no(
             self,
             "Overwrite project",
             f"A folder named '{spec.project_name}' already exists. Overwrite it?",
+            default_yes=False,
         )
-        return answer == QMessageBox.Yes
 
     def _run_generation(self, spec: ProjectSpec) -> None:
         try:
@@ -457,16 +490,18 @@ class MainWindow(QMainWindow):
         except Exception as error:
             self._set_status(f"Generation failed: {error}", ok=False)
             return
+        self._project_page.load(spec)
         self._app_state.remember_parent(spec.destination_dir)
         try:
             self._app_state.save()
         except OSError as error:
             self._set_status(
-                f"Project generated at {project_dir} — could not remember folder: {error}",
+                "Project generated at "
+                f"{_display_path(project_dir)} — could not remember folder: {error}",
                 ok=False,
             )
             return
-        self._set_status(f"Project generated at {project_dir}", ok=True)
+        self._set_status(f"Project generated at {_display_path(project_dir)}", ok=True)
 
     def _set_status(self, text: str, ok: bool) -> None:
         self._status_text = text
