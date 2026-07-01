@@ -214,5 +214,5 @@ La QA pré-release est **réussie** :
 
 - [Checklist QA détaillée (archive)](checklist-qa-manuelle.md)
 - [Passe QA unique Workspace (archive)](checklist-qa-passe-unique.md)
-- [Manuel utilisateur (FR)](manuel-utilisateur.md)
-- [User manual (EN)](user-manual.md)
+- [Manuel utilisateur (FR)](../user/manuel-utilisateur.md)
+- [User manual (EN)](../user/user-manual.md)

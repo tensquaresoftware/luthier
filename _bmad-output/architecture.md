@@ -1,8 +1,8 @@
 # Luthier Architecture
 
-This document describes the three-layer architecture, module contracts, and rendering pipeline for contributors. The canonical architecture decisions live in [`architecture-spine.md`](../_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md).
+This document describes the three-layer architecture, module contracts, and rendering pipeline for contributors. The canonical architecture decisions live in [`architecture-spine.md`](planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md).
 
-> **Companion doc:** [`architecture-explained.md`](../_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-explained.md) is the narrative walkthrough; Decisions 5–7 mark superseded Epic 1 text and point here for AD-5 / AD-7. **This file and the Spine are the sources of truth.**
+> **Companion doc:** [`architecture-explained.md`](planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-explained.md) is the narrative walkthrough; Decisions 5–7 mark superseded Epic 1 text and point here for AD-5 / AD-7. **This file and the Spine are the sources of truth.**
 
 ## Three-layer design
 
@@ -184,9 +184,9 @@ Authoritative product documents (do not duplicate into `docs/`):
 
 | Document | Path |
 |----------|------|
-| PRD | [`_bmad-output/planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md`](../_bmad-output/planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md) |
-| Architecture Spine | [`_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md`](../_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md) |
-| Epics | [`_bmad-output/planning-artifacts/epics.md`](../_bmad-output/planning-artifacts/epics.md) |
-| Project context | [`_bmad-output/project-context.md`](../_bmad-output/project-context.md) |
+| PRD | [`planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md`](planning-artifacts/prds/prd-Luthier-2026-06-22/prd.md) |
+| Architecture Spine | [`planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md`](planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md) |
+| Epics | [`planning-artifacts/epics.md`](planning-artifacts/epics.md) |
+| Project context | [`project-context.md`](project-context.md) |
 
 See also [CONTRIBUTING.md](../CONTRIBUTING.md) for setup and onboarding.

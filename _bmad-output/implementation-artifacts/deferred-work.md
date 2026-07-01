@@ -75,13 +75,13 @@ Ces entrées ne sont **plus** de la dette ouverte — décision de design, hors 
 | 8.1 Workspace per-OS paths | done | Section **Workspace**, six clés |
 | 8.2 Pre-release legacy cleanup | done | Sidecar-only Open, drop CMake/migration paths |
 
-**Prochaine étape produit :** QA manuelle post-Epic 8 (checklists `docs/checklist-qa-*.md`, parcours Git cross-plateforme avec **Workspace**). Passage public v1.0.0 quand QA validée.
+**Prochaine étape produit :** QA manuelle post-Epic 8 (checklists `docs/tests/checklist-qa-*.md`, parcours Git cross-plateforme avec **Workspace**). Passage public v1.0.0 quand QA validée.
 
 ---
 
 ## Deferred from: code review of 8-2-pre-release-legacy-cleanup (2026-07-01)
 
-- `architecture-spine.md` AD-3 still mandates CMake fallback — story scope excluded planning spine; `docs/architecture.md` is current.
+- `architecture-spine.md` AD-3 still mandates CMake fallback — story scope excluded planning spine; `_bmad-output/architecture.md` is current.
 - Shallow sidecar validation (3 required fields) allows partial spec load — pre-existing from Story 7.3; broader validation is a separate story.
 - Unreachable `plugin_formats` guard in `MainWindow._load_project` — harmless defensive branch.
 - `test_workspace_migration.py` filename misleading after migration removal — cosmetic rename only.

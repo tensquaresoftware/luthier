@@ -8,8 +8,8 @@ Product-Version: 1.0.0
 Created: 2026-06-26
 Updated: 2026-07-02
 References:
-  - docs/user-manual.md
-  - docs/architecture.md
+  - docs/user/user-manual.md
+  - _bmad-output/architecture.md
   - CONTRIBUTING.md
   - README.md
 ---

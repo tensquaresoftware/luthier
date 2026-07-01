@@ -656,5 +656,5 @@ La QA est **réussie** pour une release si :
 
 ## Références
 
-- [Manuel utilisateur (FR)](manuel-utilisateur.md)
-- [User manual (EN)](user-manual.md)
+- [Manuel utilisateur (FR)](../user/manuel-utilisateur.md)
+- [User manual (EN)](../user/user-manual.md)

@@ -79,9 +79,13 @@ Luthier/
 ├── build/
 │   └── luthier.spec               # PyInstaller spec
 ├── docs/
-│   ├── luthier.png                # Logo (README)
-│   ├── user-manual.md
-│   └── architecture.md
+│   ├── user/                      # End-user manuals (EN/FR)
+│   └── tests/                     # QA checklists
+├── luthier.png                    # Logo (README)
+├── _bmad-output/
+│   ├── architecture.md            # Contributor architecture reference
+│   ├── project-context.md
+│   └── planning-artifacts/
 └── rules/                         # Dev rules (optional local)
     └── ...
 ```

@@ -2,7 +2,7 @@
 
 *Understanding document, companion to `architecture-spine.md`.*
 
-> **Historical note (2026-06-28):** Decisions **5**, **6**, and **7** below were revised as Epics 3 and 5 landed. For current invariants use **`architecture-spine.md`**, [`docs/architecture.md`](../../../docs/architecture.md), and [`project-context.md`](../../../project-context.md). Sections marked *(superseded)* describe the original Epic 1 intent only.
+> **Historical note (2026-06-28):** Decisions **5**, **6**, and **7** below were revised as Epics 3 and 5 landed. For current invariants use **`architecture-spine.md`**, [`architecture.md`](../../architecture.md), and [`project-context.md`](../../project-context.md). Sections marked *(superseded)* describe the original Epic 1 intent only.
 
 ---
 
@@ -149,7 +149,7 @@ Every successful Open or Generate called `prefs.update(spec)` then `prefs.save()
 
 **Open Project** and **Generate Project** never modify `preferences.json`. Last-used folders and window geometry live in sibling **`app_state.json`** (`AppState`), not in the profile.
 
-See **architecture-spine** AD-5 and [`docs/architecture.md`](../../../docs/architecture.md#preferences-and-persistence-ad-5-revised).
+See **architecture-spine** AD-5 and [`architecture.md`](../../architecture.md#preferences-and-persistence-ad-5-revised).
 
 ---
 

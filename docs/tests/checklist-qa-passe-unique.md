@@ -213,5 +213,5 @@ La passe QA est **réussie** si :
 ## Références
 
 - [Checklist QA détaillée (archive)](checklist-qa-manuelle.md)
-- [Manuel utilisateur (FR)](manuel-utilisateur.md)
-- [User manual (EN)](user-manual.md)
+- [Manuel utilisateur (FR)](../user/manuel-utilisateur.md)
+- [User manual (EN)](../user/user-manual.md)

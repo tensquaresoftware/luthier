@@ -991,7 +991,7 @@ Per-OS **Destination folder** and **JUCE directory** in a new **Workspace** sect
 
 **Implementation order:** `8.1` → `8.2` (both done 2026-07-01)
 
-**Planning reference:** `_bmad-output/implementation-artifacts/8-1-workspace-per-os-paths.md`, `docs/user-manual.md` §7.5, `docs/manuel-utilisateur.md` §7.5
+**Planning reference:** `_bmad-output/implementation-artifacts/8-1-workspace-per-os-paths.md`, `docs/user/user-manual.md` §7.5, `docs/user/manuel-utilisateur.md` §7.5
 
 ### Story 8.1: Workspace — per-OS destination and JUCE paths — **done**
 
