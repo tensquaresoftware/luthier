@@ -39,9 +39,9 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 
 ### Prérequis communs (chaque OS)
 
-- [ ] Build **1.0.0** du 2026-07-01 installé.
-- [ ] **About** : version **1.0.0**, revision **2026-07-01**.
-- [ ] JUCE local disponible ; les chemins effectifs sont les suivants :
+- [x] Build **1.0.0** du 2026-07-01 installé.
+- [x] **About** : version **1.0.0**, revision **2026-07-01**.
+- [x] JUCE local disponible ; les chemins effectifs sont les suivants :
 
 | OS | JUCE (exemple) |
 | --- | --- |
@@ -57,11 +57,11 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 
 ### W1 — Preferences → Workspace (~5 min/OS)
 
-- [ ] Onglet **Preferences** → section **Workspace** visible (plus de section **Paths** unique).
-- [ ] Sous **Destination folder** : trois lignes **Windows**, **macOS**, **Linux** — légèrement **indentées** sous le titre.
-- [ ] Sous **JUCE directory** : même disposition à trois lignes, indentée.
-- [ ] Sur **votre OS hôte** uniquement : bouton **Choose…** à côté de destination et JUCE ; les deux autres OS = saisie manuelle.
-- [ ] **Choose…** destination → dossier avec **accents** (ex. `Téléchargements`, `été 2026`) → **aucune** erreur rouge ; badge **Saved** possible.
+- [x] Onglet **Preferences** → section **Workspace** visible (plus de section **Paths** unique).
+- [x] Sous **Destination folder** : trois lignes **Windows**, **macOS**, **Linux** — légèrement **indentées** sous le titre.
+- [x] Sous **JUCE directory** : même disposition à trois lignes, indentée.
+- [x] Sur **votre OS hôte** uniquement : bouton **Choose…** à côté de destination et JUCE ; les deux autres OS = saisie manuelle.
+- [x] **Choose…** destination → dossier avec **accents** (ex. `Téléchargements`, `été 2026`) → **aucune** erreur rouge ; badge **Saved** possible. (GD : le badge Saved n'apparait pas sous macOS)
 - [ ] Renseignez le chemin JUCE **hôte** ; saisissez des chemins plausibles pour les **deux autres OS** (utilisés plus tard en cross-plateforme).
 - [ ] Fermez / rouvrez Luthier : les **six** valeurs sont conservées.
 - [ ] **Export Preferences…** → **Import Preferences…** : les six champs reviennent.
@@ -73,6 +73,7 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 - [ ] **Open Project…** → `TestLuthier` : les six chemins reviennent depuis `.luthier.json`.
 - [ ] Déplacez le dossier projet dans un parent accentué → **Open Project…** : la ligne **destination hôte** se met à jour ; **pas** d’erreur sur le chemin.
 - [ ] Les chemins **JUCE** et **destination** des **autres OS** restent ceux enregistrés (non écrasés par le déplacement).
+- [ ] **Choose…** sur une ligne hôte → badge **Saved** visible (comme dans **Preferences**).
 
 ### W3 — Migration anciens réglages (une machine suffit)
 
@@ -81,6 +82,16 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 - [ ] *(Optionnel)* Avant le premier lancement du nouveau build : sauvegardez `preferences.json` (emplacements ci-dessous).
 - [ ] Premier lancement : pas de plantage ; section **Workspace** remplie (anciennes clés `destinationDir` / `juceDir` réparties sur l’OS hôte si migration nécessaire).
 - [ ] Identité (**Manufacturer**, couleur, etc.) **inchangée** après migration.
+
+### W3b — Import cross-plateforme (Dropbox / clé USB) (~5 min)
+
+> **Scénario clé :** exporter les prefs sur une machine, importer sur une autre, compléter les chemins **hôte** avec **Choose…**.
+
+- [ ] Machine A (ex. Linux) : personnalisez **Preferences** → **Export Preferences…** vers Dropbox.
+- [ ] Machine B (ex. macOS) : **Import Preferences…** → **succès** même si la ligne **destination macOS** est encore vide.
+- [ ] Les chemins de la machine A (ex. Linux) sont présents ; les lignes hôte de B sont vides ou à compléter.
+- [ ] **Choose…** sur destination et JUCE **hôte** → badge **Saved** → fermez / rouvrez Luthier : chemins hôte conservés.
+- [ ] **Create New Project** : les six chemins Workspace sont bien re-seedés depuis le profil importé.
 
 | OS | Dossier config |
 | --- | --- |

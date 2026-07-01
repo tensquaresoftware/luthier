@@ -5,14 +5,9 @@ import sys
 from app.pages.path_specs import (
     host_artefact_field_key,
     host_workspace_field_key,
-    juce_dir_placeholder,
     workspace_destination_specs,
 )
 from core.paths import host_workspace_field_key as core_host_workspace_field_key
-
-
-def test_juce_dir_placeholder_is_non_empty():
-    assert juce_dir_placeholder()
 
 
 def test_host_artefact_field_key_matches_platform(monkeypatch):

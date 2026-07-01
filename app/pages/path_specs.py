@@ -24,14 +24,6 @@ _WORKSPACE_JUCE_LABELS = {
 }
 
 
-def juce_dir_placeholder() -> str:
-    if sys.platform == "win32":
-        return "C:/Program Files/JUCE"
-    if sys.platform == "darwin":
-        return "/Applications/JUCE"
-    return "/usr/local/JUCE"
-
-
 def host_artefact_field_key() -> str:
     """Preference/spec key for the artefact path of the OS Luthier is running on."""
     if sys.platform == "win32":
@@ -68,7 +60,6 @@ def workspace_juce_specs(defaults: dict) -> list[FieldSpec]:
             _WORKSPACE_JUCE_LABELS[key],
             validation.validate_optional_path,
             default=str(defaults.get(key, "") or ""),
-            placeholder=juce_dir_placeholder(),
         )
         for key in WORKSPACE_JUCE_KEYS
     ]
