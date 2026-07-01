@@ -61,7 +61,7 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 - [x] Sous **Destination folder** : trois lignes **Windows**, **macOS**, **Linux** — légèrement **indentées** sous le titre.
 - [x] Sous **JUCE directory** : même disposition à trois lignes, indentée.
 - [x] Sur **votre OS hôte** uniquement : bouton **Choose…** à côté de destination et JUCE ; les deux autres OS = saisie manuelle.
-- [x] **Choose…** destination → dossier avec **accents** (ex. `Téléchargements`, `été 2026`) → **aucune** erreur rouge ; badge **Saved** possible. (GD : le badge Saved n'apparait pas sous macOS)
+- [x] **Choose…** destination → dossier avec **accents** (ex. `Téléchargements`, `été 2026`) → **aucune** erreur rouge ; badge **Saved** possible.
 - [x] Renseignez le chemin JUCE **hôte** ; saisissez des chemins plausibles pour les **deux autres OS** (utilisés plus tard en cross-plateforme).
 - [x] Fermez / rouvrez Luthier : les **six** valeurs sont conservées.
 - [x] **Export Preferences…** → **Import Preferences…** : les six champs reviennent.
@@ -162,18 +162,18 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 
 ### 4.1 — Retour macOS (finalisation)
 
-- [ ] `git pull` — dernière révision Linux (`1.2.0`, `LINUX_QA=1`).
-- [ ] **Open Project…** → `VoyageLuthier`.
-- [ ] **Version** : `1.2.0` ; **Preprocessor defs** contient `LINUX_QA=1`.
-- [ ] Section **Workspace** : **JUCE directory** ligne **macOS** → chemin JUCE Mac ; destination Mac cohérente.
-- [ ] **Generate Project** → succès.
-- [ ] **Display name** → `Voyage Cross QA Final` → **Generate Project** → commit + push (*« Finalisation Mac »*).
+- [x] `git pull` — dernière révision Linux (`1.2.0`, `LINUX_QA=1`).
+- [x] **Open Project…** → `VoyageLuthier`.
+- [x] **Version** : `1.2.0` ; **Preprocessor defs** contient `LINUX_QA=1`. GD : tout est bon, par contre j'avais intentionnellement modifié la couleur dans Project sur Luthier/Linux, je ne retrouve pas cette couleur à la réouverture du projet avec Luthier sous macOS et Windows. La couleur sauvée avec le projet semble ne pas être transportée durant le clonage du projet.
+- [x] Section **Workspace** : **JUCE directory** ligne **macOS** → chemin JUCE Mac ; destination Mac cohérente.
+- [x] **Generate Project** → succès.
+- [x] **Display name** → `Voyage Cross QA Final` → **Generate Project** → commit + push (*« Finalisation Mac »*).
 
 ### 4.2 — Vérifications finales (3 OS, ~10 min/OS ou 1 OS + spot-check)
 
-- [ ] **Open Project…** dernière révision Git → projet **cohérent** (même version, defs, options Artefacts ; seuls chemins **Workspace hôte** à adapter si besoin).
-- [ ] **Import Preferences…** depuis un JSON d’une autre machine → **Preferences** mis à jour ; projet ouvert **inchangé**.
-- [ ] **Aucun plantage** Luthier pendant 4.1–4.2.
+- [x] **Open Project…** dernière révision Git → projet **cohérent** (même version, defs, options Artefacts ; seuls chemins **Workspace hôte** à adapter si besoin).
+- [x] **Import Preferences…** depuis un JSON d’une autre machine → **Preferences** mis à jour ; projet ouvert **inchangé**.
+- [x] **Aucun plantage** Luthier pendant 4.1–4.2.
 
 ### Récapitulatif VoyageLuthier
 

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from core.accent_colors import DEFAULT_ACCENT_COLOR, normalize_accent_color
 from core.paths import host_workspace_field_key, normalize_path_dict_values
 from core.plugin_settings import TYPE_INSTRUMENT
 
@@ -48,6 +49,7 @@ class ProjectSpec:
     artefacts_dir_windows: str = ""
     artefacts_dir_macos: str = ""
     artefacts_dir_linux: str = ""
+    accent_color: str = DEFAULT_ACCENT_COLOR
 
     def host_destination_dir(self) -> str:
         key = host_workspace_field_key("destination")
@@ -95,6 +97,7 @@ class ProjectSpec:
             "artefactsDirWindows": self.artefacts_dir_windows,
             "artefactsDirMacos": self.artefacts_dir_macos,
             "artefactsDirLinux": self.artefacts_dir_linux,
+            "accentColor": self.accent_color,
         }
 
     @classmethod
@@ -126,4 +129,5 @@ class ProjectSpec:
             artefacts_dir_windows=d.get("artefactsDirWindows", ""),
             artefacts_dir_macos=d.get("artefactsDirMacos", ""),
             artefacts_dir_linux=d.get("artefactsDirLinux", ""),
+            accent_color=normalize_accent_color(d.get("accentColor")),
         )

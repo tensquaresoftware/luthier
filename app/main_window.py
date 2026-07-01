@@ -1,5 +1,7 @@
 """Main window: top tab bar, page stack, and dynamic action bar."""
 
+import sys
+
 from PySide6.QtCore import QByteArray, QEvent, QTimer, QRect, Qt
 from PySide6.QtGui import QGuiApplication
 from pathlib import Path
@@ -51,6 +53,7 @@ _MIN_WINDOW_WIDTH = 720
 # UltraWide HiDPI (1720×720 logical): reserve macOS menu bar (~30 px) and title bar
 # chrome (~32 px) so the client area and bottom action bar stay on screen.
 _MIN_WINDOW_HEIGHT = 720 - 30 - 32
+_IS_LINUX = sys.platform == "linux"
 
 
 def _display_path(path: Path | str) -> str:
@@ -275,10 +278,11 @@ class MainWindow(QMainWindow):
         self._app_state.set_window_maximized(self.isMaximized())
         if self.isMaximized() or self.isFullScreen():
             return
-        geo = self.geometry()
+        geo = self.frameGeometry() if _IS_LINUX else self.geometry()
         self._app_state.set_window_rect(geo.x(), geo.y(), geo.width(), geo.height())
-        encoded = QByteArray(self.saveGeometry()).toBase64().data().decode("ascii")
-        self._app_state.set_window_geometry_b64(encoded)
+        if not _IS_LINUX:
+            encoded = QByteArray(self.saveGeometry()).toBase64().data().decode("ascii")
+            self._app_state.set_window_geometry_b64(encoded)
 
     def _persist_geometry_to_disk(self) -> None:
         self._persist_window_geometry()
@@ -291,6 +295,9 @@ class MainWindow(QMainWindow):
         if self._app_state.window_maximized():
             self.showMaximized()
             return
+        if _IS_LINUX:
+            self._restore_linux_window_rect()
+            return
         encoded = self._app_state.window_geometry_b64()
         if encoded and self.restoreGeometry(QByteArray.fromBase64(encoded.encode("ascii"))):
             if self._current_geometry_is_usable():
@@ -299,8 +306,59 @@ class MainWindow(QMainWindow):
         if rect and self._rect_is_usable(rect):
             self.setGeometry(rect["x"], rect["y"], rect["width"], rect["height"])
             return
+        self._default_window_geometry()
+
+    def _restore_linux_window_rect(self) -> None:
+        rect = self._app_state.window_rect()
+        if not rect or not self._rect_is_usable(rect):
+            self._default_window_geometry()
+            return
+        clamped = self._clamp_rect_to_screen(rect)
+        QTimer.singleShot(
+            0,
+            lambda: self.setGeometry(
+                clamped["x"],
+                clamped["y"],
+                clamped["width"],
+                clamped["height"],
+            ),
+        )
+
+    def _default_window_geometry(self) -> None:
         self.resize(self.minimumWidth(), self.minimumHeight())
         self._center_on_screen()
+
+    def _clamp_rect_to_screen(self, rect: dict) -> dict:
+        target = QRect(rect["x"], rect["y"], rect["width"], rect["height"])
+        for screen in QGuiApplication.screens():
+            available = screen.availableGeometry()
+            if not available.intersects(target):
+                continue
+            clamped = available.intersected(target)
+            if clamped.width() >= self.minimumWidth() and clamped.height() >= self.minimumHeight():
+                return {
+                    "x": clamped.x(),
+                    "y": clamped.y(),
+                    "width": clamped.width(),
+                    "height": clamped.height(),
+                }
+        screen = QGuiApplication.primaryScreen()
+        if screen is None:
+            return rect
+        available = screen.availableGeometry()
+        width = min(rect["width"], available.width())
+        height = min(rect["height"], available.height())
+        width = max(width, self.minimumWidth())
+        height = max(height, self.minimumHeight())
+        x = max(
+            available.x(),
+            min(rect["x"], available.right() - width + 1),
+        )
+        y = max(
+            available.y(),
+            min(rect["y"], available.bottom() - height + 1),
+        )
+        return {"x": x, "y": y, "width": width, "height": height}
 
     def _current_geometry_is_usable(self) -> bool:
         geo = self.geometry()
@@ -458,6 +516,8 @@ class MainWindow(QMainWindow):
             self._set_status(message, ok=False)
             return
         self._project_page.load(spec)
+        if self._tab_bar.currentIndex() == _PROJECT_TAB_INDEX:
+            self._apply_accent_theme(self._project_page.accent_section().color())
         self._set_status(
             f"Loaded {spec.project_name} from {_display_path(project_dir)}",
             ok=True,
@@ -480,6 +540,8 @@ class MainWindow(QMainWindow):
             self._set_status(f"Generation failed: {error}", ok=False)
             return
         self._project_page.load(spec)
+        if self._tab_bar.currentIndex() == _PROJECT_TAB_INDEX:
+            self._apply_accent_theme(self._project_page.accent_section().color())
         self._app_state.remember_parent(spec.host_destination_dir())
         try:
             self._app_state.save()

@@ -71,6 +71,7 @@ class ProjectPage(QScrollArea):
         d.update(self._compilation.values())
         d.update(self._workspace.values())
         d.update(self._artefacts.values())
+        d["accentColor"] = self._accent.color()
         return ProjectSpec.from_dict(d)
 
     def is_valid(self) -> bool:
@@ -95,6 +96,7 @@ class ProjectPage(QScrollArea):
         self._compilation.load(d)
         self._workspace.load(d)
         self._artefacts.load(d)
+        self._accent.set_color(spec.accent_color)
         self._capture_baseline()
 
     def _capture_baseline(self) -> None:

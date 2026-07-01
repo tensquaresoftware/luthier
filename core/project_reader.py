@@ -29,7 +29,7 @@ def read_project_result(project_dir: Path) -> ProjectReadResult:
     if not sidecar.exists():
         return ProjectReadResult(
             spec=None,
-            error="Companion file .luthier.json is missing.",
+            error="Not a Luthier project or companion file .luthier.json is missing.",
         )
     return _read_sidecar_result(sidecar, project_dir)
 
