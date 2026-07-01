@@ -98,32 +98,44 @@ def main() -> int:
         print(f"missing {SOURCE_PATH}", file=sys.stderr)
         return 1
 
+    is_macos = sys.platform == "darwin"
+    is_windows = sys.platform == "win32"
+
     app = QApplication([])
     source = _load_source()
     _render_png(source, 512, ICONS / "luthier.png")
-
-    if ICONSET.exists():
-        for child in ICONSET.iterdir():
-            child.unlink()
-    else:
-        ICONSET.mkdir(parents=True)
-
-    for name, size in _ICONSET_SIZES.items():
-        _render_png(source, size, ICONSET / name)
-
-    icns_path = ICONS / "luthier.icns"
-    subprocess.run(
-        ["iconutil", "-c", "icns", str(ICONSET), "-o", str(icns_path)],
-        check=True,
-    )
-    ico_path = ICONS / "luthier.ico"
-    _write_ico(
-        [ICONSET / "icon_16x16.png", ICONSET / "icon_32x32.png", ICONSET / "icon_256x256.png"],
-        ico_path,
-    )
     print(f"wrote {ICONS / 'luthier.png'}")
-    print(f"wrote {icns_path}")
-    print(f"wrote {ico_path}")
+
+    if is_macos or is_windows:
+        if ICONSET.exists():
+            for child in ICONSET.iterdir():
+                child.unlink()
+        else:
+            ICONSET.mkdir(parents=True)
+
+        for name, size in _ICONSET_SIZES.items():
+            _render_png(source, size, ICONSET / name)
+
+        if is_macos:
+            icns_path = ICONS / "luthier.icns"
+            subprocess.run(
+                ["iconutil", "-c", "icns", str(ICONSET), "-o", str(icns_path)],
+                check=True,
+            )
+            print(f"wrote {icns_path}")
+
+        if is_macos or is_windows:
+            ico_path = ICONS / "luthier.ico"
+            _write_ico(
+                [
+                    ICONSET / "icon_16x16.png",
+                    ICONSET / "icon_32x32.png",
+                    ICONSET / "icon_256x256.png",
+                ],
+                ico_path,
+            )
+            print(f"wrote {ico_path}")
+
     return 0
 
 

@@ -4,7 +4,10 @@
     {
       "label": "Run Luthier",
       "type": "shell",
-      "command": "${command:python.interpreterPath}",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+      },
       "args": ["main.py"],
       "options": {
         "cwd": "${workspaceFolder}"
@@ -23,7 +26,10 @@
     {
       "label": "Tests (pytest)",
       "type": "shell",
-      "command": "${command:python.interpreterPath}",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+      },
       "args": ["-m", "pytest"],
       "options": {
         "cwd": "${workspaceFolder}"
@@ -41,7 +47,10 @@
     {
       "label": "Build dist (PyInstaller)",
       "type": "shell",
-      "command": "${command:python.interpreterPath}",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+      },
       "args": ["build-dist.py"],
       "options": {
         "cwd": "${workspaceFolder}"
@@ -56,7 +65,10 @@
     {
       "label": "Luthier --check",
       "type": "shell",
-      "command": "${command:python.interpreterPath}",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
+      },
       "args": ["main.py", "--check"],
       "options": {
         "cwd": "${workspaceFolder}"
