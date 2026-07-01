@@ -9,7 +9,7 @@ import pytest
 
 from core import render_context
 from core.project_generator import ProjectGenerator, templates_dir
-from core.project_writer import ProjectWriter, _robust_rmtree
+from core.project_writer import ProjectWriter, _relocate_git_directory, _robust_rmtree
 from tests.conftest import make_spec, write_project
 
 
@@ -21,6 +21,25 @@ def test_robust_rmtree_removes_readonly_files(tmp_path):
     os.chmod(readonly, stat.S_IREAD)
     _robust_rmtree(target)
     assert not target.exists()
+
+
+def test_relocate_git_directory_removes_readonly_source(tmp_path):
+    src = tmp_path / "project" / ".git"
+    objects_dir = src / "objects" / "06"
+    objects_dir.mkdir(parents=True)
+    git_object = objects_dir / "f8e57e6fedf09e55548fb0554bdc1f2f7c3f19"
+    git_object.write_bytes(b"fake git object")
+    os.chmod(git_object, stat.S_IREAD)
+    (src / "HEAD").write_text("ref: refs/heads/main\n", encoding="utf-8")
+
+    dst = tmp_path / "project.tmp" / ".git"
+    _relocate_git_directory(src, dst)
+
+    assert not src.exists()
+    assert (dst / "HEAD").read_text(encoding="utf-8") == "ref: refs/heads/main\n"
+    assert (
+        dst / "objects" / "06" / "f8e57e6fedf09e55548fb0554bdc1f2f7c3f19"
+    ).read_bytes() == b"fake git object"
 
 
 def test_regenerate_preserves_git_directory(tmp_path):

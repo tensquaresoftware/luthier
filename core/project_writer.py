@@ -20,6 +20,17 @@ def _robust_rmtree(path: Path) -> None:
 
     shutil.rmtree(path, onerror=_onerror)
 
+
+def _relocate_git_directory(src: Path, dst: Path) -> None:
+    """Move `.git` without shutil.move, which deletes the source via plain rmtree."""
+    if dst.exists():
+        _robust_rmtree(dst)
+    try:
+        src.rename(dst)
+    except OSError:
+        shutil.copytree(src, dst, symlinks=True)
+        _robust_rmtree(src)
+
 _RENDERED = (
     "CMakeLists.txt",
     "CMakeUserPresets.json",
@@ -71,7 +82,7 @@ class ProjectWriter:
                     git_dst = tmp / ".git"
                     if git_dst.exists():
                         _robust_rmtree(git_dst)
-                    shutil.move(str(git_src), str(git_dst))
+                    _relocate_git_directory(git_src, git_dst)
                 _robust_rmtree(self._project)
             tmp.rename(self._project)
         except Exception:
