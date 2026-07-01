@@ -113,9 +113,21 @@ def _complete_profile(data: dict) -> dict:
     return _normalize_null_strings(merged)
 
 
-def validate_profile(data: dict) -> tuple[bool, str]:
+def _validate_host_destination(value: str, *, required: bool) -> tuple[bool, str]:
+    if not value.strip():
+        return (False, "Destination is required.") if required else (True, "")
+    return validation.validate_destination(value)
+
+
+def validate_profile(
+    data: dict,
+    *,
+    require_host_destination: bool = True,
+) -> tuple[bool, str]:
     """Validate an imported or in-memory profile dict; return (ok, first error)."""
     profile = _complete_profile(data)
+    host_dest = host_workspace_field_key("destination")
+    host_juce = host_workspace_field_key("juce")
     checks = [
         ("manufacturer", validation.validate_manufacturer_name),
         ("manufacturerCode", validation.validate_manufacturer_code),
@@ -123,15 +135,22 @@ def validate_profile(data: dict) -> tuple[bool, str]:
         ("companyCopyright", validation.validate_optional),
         ("companyWebsite", validation.validate_optional),
         ("companyEmail", validation.validate_optional),
-        (host_workspace_field_key("destination"), validation.validate_destination),
-        (host_workspace_field_key("juce"), validation.validate_optional_path),
     ]
     for key, validator in checks:
         ok, message = validator(str(profile.get(key, "")))
         if not ok:
             return False, message
+    ok, message = _validate_host_destination(
+        str(profile.get(host_dest, "")),
+        required=require_host_destination,
+    )
+    if not ok:
+        return False, message
+    ok, message = validation.validate_optional_path(str(profile.get(host_juce, "")))
+    if not ok:
+        return False, message
     for key in WORKSPACE_KEYS:
-        if key in (host_workspace_field_key("destination"), host_workspace_field_key("juce")):
+        if key in (host_dest, host_juce):
             continue
         value = str(profile.get(key, ""))
         if value.strip():
@@ -297,9 +316,17 @@ class Preferences:
     def to_dict(self) -> dict:
         return {key: self.get(key) for key in _PROFILE_KEYS}
 
-    def apply_profile(self, data: dict) -> None:
+    def apply_profile(
+        self,
+        data: dict,
+        *,
+        require_host_destination: bool = True,
+    ) -> None:
         profile = _complete_profile(normalize_path_dict_values(data))
-        ok, message = validate_profile(profile)
+        ok, message = validate_profile(
+            profile,
+            require_host_destination=require_host_destination,
+        )
         if not ok:
             raise ValueError(message)
         if "accentColor" in data:

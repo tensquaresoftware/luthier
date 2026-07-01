@@ -142,6 +142,19 @@ class ProjectPage(QScrollArea):
         self._formats.validityChanged.connect(self._emit_validity)
         self._workspace.validityChanged.connect(self._emit_validity)
         self._artefacts.validityChanged.connect(self._emit_validity)
+        for field in self._workspace.path_fields().values():
+            field.valueChanged.connect(self._flash_path_field_saved)
+        for field in self._artefacts.path_fields().values():
+            field.valueChanged.connect(self._flash_path_field_saved)
+
+    def _flash_path_field_saved(self, _value: str) -> None:
+        sender = self.sender()
+        if sender is None or not getattr(sender, "is_valid", lambda: False)():
+            return
+        if self._workspace.is_saved_sender(sender):
+            self._workspace.flash_saved(sender)
+        elif self._artefacts.is_saved_sender(sender):
+            self._artefacts.flash_saved(sender)
 
     def _emit_validity(self, _ok: bool = False) -> None:
         self.validityChanged.emit(self.is_valid())

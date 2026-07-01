@@ -51,7 +51,7 @@ class FolderField(QWidget):
         self._edit_host.flash_saved()
 
     def is_saved_sender(self, sender) -> bool:
-        return sender in (self, self._edit)
+        return sender in (self, self._edit, self._choose)
 
     def _build_ui(self) -> None:
         outer = QVBoxLayout(self)
@@ -75,6 +75,7 @@ class FolderField(QWidget):
         choose = QPushButton("Choose…")
         choose.setObjectName("ActionButton")
         choose.clicked.connect(self._choose_directory)
+        self._choose = choose
         self._mark = QLabel("")
         self._mark.setObjectName("FieldMark")
         self._mark.setFixedWidth(16)

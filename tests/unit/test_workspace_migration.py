@@ -141,6 +141,100 @@ def test_validate_profile_allows_empty_non_host_destination():
     assert ok, message
 
 
+def test_validate_profile_import_allows_empty_host_destination(monkeypatch):
+    """Linux export imported on macOS may leave host destination empty."""
+    monkeypatch.setattr("core.paths.sys.platform", "darwin")
+    profile = {
+        "manufacturer": "Acme Corp",
+        "manufacturerCode": "Acme",
+        "pluginCode": "Plug",
+        "companyCopyright": "",
+        "companyWebsite": "",
+        "companyEmail": "",
+        "destinationDirWindows": "",
+        "destinationDirMacos": "",
+        "destinationDirLinux": "/home/user/projects",
+        "juceDirWindows": "",
+        "juceDirMacos": "",
+        "juceDirLinux": "/home/user/Dev/SDKs/JUCE",
+        "pluginType": "instrument",
+        "pluginFormats": "VST3",
+        "cxxStandard": "C++17",
+        "preprocessorDefinitions": "",
+        "headerSearchPaths": "",
+        "copyToSystemFolders": False,
+        "copyToArtefactsDir": False,
+        "artefactsDirWindows": "",
+        "artefactsDirMacos": "",
+        "artefactsDirLinux": "",
+    }
+    ok, message = validate_profile(profile, require_host_destination=False)
+    assert ok, message
+
+
+def test_validate_profile_import_still_requires_host_destination_for_auto_save(monkeypatch):
+    monkeypatch.setattr("core.paths.sys.platform", "darwin")
+    profile = {
+        "manufacturer": "Acme Corp",
+        "manufacturerCode": "Acme",
+        "pluginCode": "Plug",
+        "companyCopyright": "",
+        "companyWebsite": "",
+        "companyEmail": "",
+        "destinationDirWindows": "",
+        "destinationDirMacos": "",
+        "destinationDirLinux": "/home/user/projects",
+        "juceDirWindows": "",
+        "juceDirMacos": "",
+        "juceDirLinux": "",
+        "pluginType": "instrument",
+        "pluginFormats": "VST3",
+        "cxxStandard": "C++17",
+        "preprocessorDefinitions": "",
+        "headerSearchPaths": "",
+        "copyToSystemFolders": False,
+        "copyToArtefactsDir": False,
+        "artefactsDirWindows": "",
+        "artefactsDirMacos": "",
+        "artefactsDirLinux": "",
+    }
+    ok, message = validate_profile(profile, require_host_destination=True)
+    assert not ok
+    assert message == "Destination is required."
+
+
+def test_apply_profile_import_accepts_cross_platform_export(tmp_path, monkeypatch):
+    monkeypatch.setattr("core.paths.sys.platform", "darwin")
+    prefs = Preferences(tmp_path / "preferences.json")
+    profile = {
+        "manufacturer": "Studio Linux",
+        "manufacturerCode": "Linu",
+        "pluginCode": "Plug",
+        "companyCopyright": "",
+        "companyWebsite": "",
+        "companyEmail": "",
+        "destinationDirWindows": "",
+        "destinationDirMacos": "",
+        "destinationDirLinux": "/home/user/projects",
+        "juceDirWindows": "",
+        "juceDirMacos": "",
+        "juceDirLinux": "/home/user/Dev/SDKs/JUCE",
+        "pluginType": "instrument",
+        "pluginFormats": "VST3 Standalone",
+        "cxxStandard": "C++17",
+        "preprocessorDefinitions": "",
+        "headerSearchPaths": "",
+        "copyToSystemFolders": False,
+        "copyToArtefactsDir": False,
+        "artefactsDirWindows": "",
+        "artefactsDirMacos": "",
+        "artefactsDirLinux": "",
+    }
+    prefs.apply_profile(profile, require_host_destination=False)
+    assert prefs.get("destinationDirLinux") == "/home/user/projects"
+    assert prefs.get("destinationDirMacos") == ""
+
+
 def test_round_trip_six_workspace_keys_in_sidecar(tmp_path):
     from tests.conftest import generate_project
 

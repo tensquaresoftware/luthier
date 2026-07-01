@@ -102,13 +102,13 @@ class PreferencesPage(QWidget):
             return False, f"Could not read file: {error}"
         if not isinstance(data, dict):
             return False, "Preferences file must contain a JSON object."
-        ok, message = validate_profile(data)
+        ok, message = validate_profile(data, require_host_destination=False)
         if not ok:
             return False, message
         before_accent = self._prefs.accent_color
         before = self._prefs.to_dict()
         try:
-            self._prefs.apply_profile(data)
+            self._prefs.apply_profile(data, require_host_destination=False)
             self._prefs.save()
             self.reload_from_prefs()
             self.saved.emit()
