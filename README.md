@@ -48,8 +48,10 @@ See **[CONTRIBUTING.md](CONTRIBUTING.md)** for full developer setup (venv, pytes
 PyInstaller bundles templates and resources into a self-contained app (build on each target OS — no cross-compilation):
 
 ```bash
-.venv/bin/pyinstaller build/luthier.spec --noconfirm --distpath dist --workpath build
+.venv/bin/python build-dist.py
 ```
+
+On Windows: `.venv\Scripts\python.exe build-dist.py`
 
 | OS      | Output                                      |
 | ------- | ------------------------------------------- |

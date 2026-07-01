@@ -1,4 +1,4 @@
-# PyInstaller spec for Luthier. Build: pyinstaller build/luthier.spec
+# PyInstaller spec for Luthier. Build: python build-dist.py
 import os
 import sys
 

@@ -42,16 +42,7 @@
       "label": "Build dist (PyInstaller)",
       "type": "shell",
       "command": "${command:python.interpreterPath}",
-      "args": [
-        "-m",
-        "PyInstaller",
-        "build/luthier.spec",
-        "--noconfirm",
-        "--distpath",
-        "dist",
-        "--workpath",
-        "build"
-      ],
+      "args": ["build-dist.py"],
       "options": {
         "cwd": "${workspaceFolder}"
       },
