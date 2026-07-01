@@ -189,13 +189,13 @@ def test_cross_origin_sidecar_round_trip_ac4(tmp_path):
     clone_dir = tmp_path / "clone"
     shutil.copytree(project_dir, clone_dir)
 
-    loaded = project_reader.read_project(clone_dir)
+    loaded = project_reader.read_project_result(clone_dir).spec
     assert loaded is not None
     assert_spec_equal(loaded, spec)
 
 
 def test_sidecar_required_for_cross_origin_juce_dir(tmp_path):
-    """AD-3: juce_dir from a Windows-oriented spec is only restored via sidecar, not CMake fallback."""
+    """AD-3: juce_dir from a Windows-oriented spec is only restored via sidecar."""
     from core import project_reader
 
     spec = make_spec(
@@ -206,11 +206,12 @@ def test_sidecar_required_for_cross_origin_juce_dir(tmp_path):
     )
     project_dir, spec = generate_project(tmp_path, spec=spec)
 
-    loaded = project_reader.read_project(project_dir)
+    loaded = project_reader.read_project_result(project_dir).spec
     assert loaded is not None
     assert loaded.host_juce_dir() == "C:/Program Files/JUCE"
 
     (project_dir / ".luthier.json").unlink()
-    fallback = project_reader.read_project(project_dir)
-    assert fallback is not None
-    assert fallback.host_juce_dir() == ""
+    fallback = project_reader.read_project_result(project_dir)
+    assert fallback.spec is None
+    assert fallback.error
+    assert ".luthier.json" in fallback.error

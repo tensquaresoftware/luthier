@@ -7,6 +7,7 @@ from unittest.mock import patch
 import pytest
 
 from core.app_state import AppState
+from core.paths import host_workspace_field_key
 from core.plugin_settings import TYPE_INSTRUMENT
 from core.preferences import Preferences
 
@@ -63,6 +64,7 @@ def test_app_state_save_does_not_touch_preferences_json(tmp_path):
     prefs_path = tmp_path / "preferences.json"
     state_path = tmp_path / "app_state.json"
     prefs = Preferences(prefs_path)
+    host_dest = host_workspace_field_key("destination")
     prefs.apply_profile({
         "manufacturer": "Acme Corp",
         "manufacturerCode": "Acme",
@@ -70,8 +72,8 @@ def test_app_state_save_does_not_touch_preferences_json(tmp_path):
         "companyCopyright": "",
         "companyWebsite": "",
         "companyEmail": "",
-        "destination": "/tmp/projects",
-        "juceDir": "",
+        host_dest: "/tmp/projects",
+        host_workspace_field_key("juce"): "",
         "pluginType": TYPE_INSTRUMENT,
         "pluginFormats": "AU VST3 Standalone",
         "cxxStandard": "C++17",

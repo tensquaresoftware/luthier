@@ -90,5 +90,5 @@ def test_generate_project_from_bundled_templates(tmp_path):
     )
     assert (dest / "CMakeLists.txt").is_file()
     assert (dest / ".luthier.json").is_file()
-    reloaded = project_reader.read_project(dest)
+    reloaded = project_reader.read_project_result(dest).spec
     assert reloaded.project_name == spec.project_name

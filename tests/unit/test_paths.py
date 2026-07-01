@@ -30,16 +30,18 @@ def test_normalize_path_dict_values():
     host_dest = host_workspace_field_key("destination")
     host_juce = host_workspace_field_key("juce")
     data = {
-        "destinationDir": r"C:\out",
-        "juceDir": "C:/JUCE",
+        host_dest: r"C:\out",
+        host_juce: "C:/JUCE",
         "projectName": "MyPlugin",
+        "destinationDir": r"C:\legacy",
+        "juceDir": "C:/legacy-juce",
     }
     out = normalize_path_dict_values(data)
     assert out[host_dest] == "C:/out"
     assert out[host_juce] == "C:/JUCE"
     assert out["projectName"] == "MyPlugin"
-    assert "destinationDir" not in out
-    assert "juceDir" not in out
+    assert out["destinationDir"] == r"C:\legacy"
+    assert out["juceDir"] == "C:/legacy-juce"
 
 
 def test_resolve_dir_expands_user_and_accepts_unicode(tmp_path, monkeypatch):

@@ -62,7 +62,7 @@ On peut voir Luthier comme un workflow de type **Projucer**, le générateur de 
 - Écrit `CMakeLists.txt`, `CMakeUserPresets.json`, les fichiers sources, des aides IDE optionnelles et le **fichier compagnon** `.luthier.json` (instantané de configuration pour rouvrir le projet).
 - Enregistre vos **valeurs par défaut** (fabricant, chemins, type de plugin, couleur d’accent, etc.) dans un fichier de préférences sur votre machine (`preferences.json`).
 - Permet de personnaliser les **modèles sources C++** utilisés pour chaque nouveau projet (`PluginProcessor.h/.cpp` et `PluginEditor.h/.cpp`).
-- Rouvre les projets existants via `.luthier.json`, ou en lisant un `CMakeLists.txt` legacy lorsqu’il n’y a pas de fichier compagnon.
+- Rouvre les projets existants via `.luthier.json` (fichier compagnon requis).
 
 ### Ce que Luthier ne fait pas
 
@@ -426,15 +426,14 @@ Si vous avez modifié le formulaire depuis le dernier état stable (ouverture, r
 
 Cette action recharge dans le formulaire un projet **déjà généré** par Luthier. Elle ne modifie ni vos préférences ni vos templates. Vous retrouvez exactement la configuration enregistrée dans le projet (idéalement via le fichier compagnon `.luthier.json`).
 
-Ouvre un sélecteur de dossier. Choisissez un **dossier de projet** généré précédemment par Luthier (contient `CMakeLists.txt` et idéalement `.luthier.json`).
+Ouvre un sélecteur de dossier. Choisissez un **dossier de projet** généré précédemment par Luthier (contient `CMakeLists.txt` et `.luthier.json`).
 
 - Seul l’onglet **Project** est mis à jour.
 - **Preferences** et **Templates** restent inchangés.
 
 **Lecture du projet :**
 
-1. Si `.luthier.json` existe et est valide, Luthier charge la configuration complète depuis ce fichier compagnon.
-2. Sinon, Luthier tente d’analyser `CMakeLists.txt` (projets legacy sans fichier compagnon).
+Luthier charge la configuration complète depuis `.luthier.json`. Si le fichier compagnon est absent ou invalide, **Open Project…** affiche une erreur claire et n’analyse pas `CMakeLists.txt`.
 
 **Après déplacement d’un dossier projet :** ouvrez-le à son **nouvel emplacement**. Le **Destination folder** **hôte** dans **Workspace** affiche le parent du dossier sélectionné. Les chemins de destination des autres OS ne sont pas modifiés.
 
@@ -747,7 +746,7 @@ Les retours d’opération globaux (Generate, Open, Create New Project, Import/E
 
 | Situation | Comportement |
 |-----------|--------------|
-| Ouverture d’un dossier non-Luthier | Dialogue : *Not a JUCE plugin project* ou erreur d’analyse avec champs manquants listés. |
+| Ouverture d’un dossier non-Luthier ou sans `.luthier.json` | Dialogue : *Not a Luthier project* ou fichier compagnon absent/invalide. |
 | `.luthier.json` invalide | Dialogue : fichier compagnon invalide ou illisible. |
 | Aucun format dans le projet ouvert | Dialogue : aucun format détecté. |
 | Import JSON invalide | Dialogue d’avertissement. Préférences précédentes conservées. |

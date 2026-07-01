@@ -58,7 +58,7 @@ export JUCE_DIR=/path/to/JUCE
 
 **Important:** Build directories are separated by platform and architecture (`Builds/Windows`, `Builds/macOS/ARM`, `Builds/macOS/Intel`, `Builds/macOS/Intel-Rosetta`, `Builds/macOS/Universal`, `Builds/Linux`) to avoid mixing files when switching between configurations.
 
-After building, plugins are copied according to `project-configuration.cmake` settings:
+After building, plugins are copied according to the **USER OPTIONS** section at the top of `CMakeLists.txt`:
 - **System folders**: for immediate DAW testing
 - **Central artefacts folder**: for centralized organization (if `COPY_TO_ARTEFACTS_DIR` is ON)
 
@@ -96,7 +96,7 @@ cmake --build Builds/macOS/Intel --target {projectName}_VST3 --config Debug
 
 #### macOS (Intel-Rosetta) — x86_64 on Apple Silicon
 
-When building for Intel compatibility on an Apple Silicon Mac, use the Intel-Rosetta preset. Build outputs go to your configured central artefacts folder under `macOS/Intel-Rosetta/` (path set in `project-configuration.cmake` via `ARTEFACTS_DIR_MACOS`). On Mac Intel, this preset is rejected at configure; use "macOS Intel" instead.
+When building for Intel compatibility on an Apple Silicon Mac, use the Intel-Rosetta preset. Build outputs go to your configured central artefacts folder under `macOS/Intel-Rosetta/` (path set in `CMakeLists.txt` via `ARTEFACTS_DIR_MACOS`). On Mac Intel, this preset is rejected at configure; use "macOS Intel" instead.
 
 ```bash
 # Configure (using preset)
@@ -180,7 +180,7 @@ If the **CMake** status bar or a **terminal task** still shows **“Task has err
 
 ### Build Artefacts
 
-After building, plugins are automatically copied according to your `project-configuration.cmake` settings:
+After building, plugins are automatically copied according to the **USER OPTIONS** section at the top of `CMakeLists.txt`:
 
 1. **System folders** (`COPY_TO_SYSTEM_FOLDERS`): Copies to standard locations where DAWs scan
    - **Windows**: VST3 → `C:\Program Files\Common Files\VST3\`. At each build, a **UAC prompt** appears—click **Yes** to copy. If you click No, the build still succeeds but the plugin is not copied.
@@ -198,7 +198,7 @@ The destination **automatically matches your selected preset**. No manual config
 
 ### Build Artefact Copy Configuration
 
-Control where plugins are copied after each build by editing the **USER OPTIONS** section in `project-configuration.cmake`:
+Control where plugins are copied after each build by editing the **USER OPTIONS** section at the top of `CMakeLists.txt`:
 
 - **`USER_COPY_TO_SYSTEM_FOLDERS`**: `ON`/`OFF`
   - Copies to standard locations where DAWs scan: **macOS/Linux** use JUCE’s built-in copy to user plugin folders; **Windows VST3** uses an elevated copy to `C:\Program Files\Common Files\VST3\` (UAC prompt when enabled)

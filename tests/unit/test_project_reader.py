@@ -1,4 +1,4 @@
-"""Unit tests for core.project_reader — sidecar validation and CMake edge cases."""
+"""Unit tests for core.project_reader — sidecar validation."""
 
 import json
 
@@ -103,19 +103,15 @@ def test_sidecar_string_bools_coerced(tmp_path):
     assert result.spec.copy_to_artefacts_dir is False
 
 
-def test_cmake_escaped_quotes_in_company_name(tmp_path):
+def test_missing_sidecar_returns_error(tmp_path):
     from tests.conftest import write_project, make_spec
 
     dest, _ = write_project(tmp_path, make_spec(tmp_path))
     (dest / ".luthier.json").unlink()
-    cmake = dest / "CMakeLists.txt"
-    text = cmake.read_text(encoding="utf-8")
-    text = text.replace('COMPANY_NAME "Acme"', r'COMPANY_NAME "O\"Reilly"')
-    cmake.write_text(text, encoding="utf-8")
-
     result = read_project_result(dest)
-    assert result.spec is not None
-    assert result.spec.manufacturer_name == 'O"Reilly'
+    assert result.spec is None
+    assert result.error
+    assert ".luthier.json" in result.error
 
 
 @pytest.mark.parametrize("payload", ['"hello"', "[]"])
@@ -126,3 +122,5 @@ def test_sidecar_non_dict_returns_none(tmp_path, payload):
     (dest / ".luthier.json").write_text(payload, encoding="utf-8")
     result = read_project_result(dest)
     assert result.spec is None
+    assert result.error
+    assert "json object" in result.error.lower() or "must contain" in result.error.lower()

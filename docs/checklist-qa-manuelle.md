@@ -586,7 +586,7 @@ Les réglages globaux Luthier **ne voyagent pas** avec le projet Git. Testez la 
 ## 2.7 — Cas limites cross-plateforme
 
 - [x] **Chemins dans `.luthier.json`** : ouvrez le fichier dans un éditeur de texte — les chemins utilisent des `/` même sur Windows.
-- [x] **Projet sans `.luthier.json`** (test archive) : copiez un vieux dossier ou renommez temporairement `.luthier.json` → **Open Project…** → Luthier tente de lire `CMakeLists.txt` (legacy) ou affiche une erreur claire si impossible.
+- [x] **Sidecar manquant** : générez un projet, renommez ou supprimez temporairement `.luthier.json` → **Open Project…** → message clair (fichier compagnon absent ou invalide), pas d’analyse CMake.
 - [x] **Conflit Git** : sur deux machines, modifiez **Version** différemment sans pull → poussez/pull/remergez → rouvrez dans Luthier : le fichier `.luthier.json` final reflète l’état du dépôt.
 - [ ] ❌ **Fichier prefs corrompu** (test avancé, une machine jetable) : sauvegardez `preferences.json`, remplacez son contenu par `{` → relancez Luthier → message d’avertissement dans la barre de message, valeurs par défaut ou secours — **pas** de plantage. Restaurez la sauvegarde après le test. GD : l'app plante sous macOS (pas testé sous Windows & Linux), au deuxième lancement elle se lance sans crash.
 

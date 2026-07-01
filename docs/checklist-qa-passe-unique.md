@@ -56,7 +56,8 @@
 ### R2 — Messages et chemins affichés
 
 - [x] **Generate Project** → barre de message : chemin avec des **`/`** (pas de `\` sous Windows).
-- [x] **Open Project…** sur un dossier **vide** ou non-Luthier → modale : **Not a Luthier project** (plus « JUCE plugin project »).
+- [x] **Open Project…** sur un dossier **vide** ou non-Luthier → modale : **Not a Luthier project** ou fichier compagnon manquant.
+- [ ] **Open Project…** sur un dossier sans `.luthier.json` (renommer temporairement le fichier) → erreur claire ; pas de rechargement depuis CMake.
 - [x] **Export Preferences…** → message avec le **chemin complet** du fichier exporté.
 
 ### R3 — Modales de confirmation

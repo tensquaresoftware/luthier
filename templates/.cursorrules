@@ -6,8 +6,7 @@ This is a JUCE audio plugin project built with CMake (no Projucer).
 
 - `Source/PluginProcessor.{h,cpp}` — the `juce::AudioProcessor` (DSP, state).
 - `Source/PluginEditor.{h,cpp}` — the `juce::AudioProcessorEditor` (GUI).
-- `CMakeLists.txt` — build configuration; add new `.cpp` files to `PLUGIN_SOURCES`.
-- `project-configuration.cmake` — where built plugins are copied after each build.
+- `CMakeLists.txt` — build configuration; edit the **USER OPTIONS** block at the top for copy settings, and add new `.cpp` files to `PLUGIN_SOURCES`.
 - `CMakeUserPresets.json` — per-platform CMake presets.
 
 ## Build

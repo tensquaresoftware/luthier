@@ -447,19 +447,8 @@ class MainWindow(QMainWindow):
         result = read_project_result(project_dir)
         spec = result.spec
         if spec is None:
-            if result.error:
-                message = result.error
-                status = result.error
-            elif result.missing_fields:
-                bullets = "\n".join(f"• {name}" for name in result.missing_fields)
-                message = (
-                    "Could not parse project configuration from CMakeLists.txt.\n\n"
-                    f"Missing or unreadable fields:\n{bullets}"
-                )
-                status = "Could not parse project configuration from CMakeLists.txt"
-            else:
-                message = f"Not a Luthier project: {_display_path(project_dir)}"
-                status = message
+            message = result.error or f"Not a Luthier project: {_display_path(project_dir)}"
+            status = message
             QMessageBox.critical(self, "Open Project", message)
             self._set_status(status, ok=False)
             return

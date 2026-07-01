@@ -1,11 +1,11 @@
-"""Unit tests for workspace path migration and host resolution."""
+"""Unit tests for workspace path normalization and host resolution."""
 
 import json
 import sys
 
 import pytest
 
-from core.paths import host_workspace_field_key, migrate_workspace_keys, normalize_path_dict_values
+from core.paths import host_workspace_field_key, normalize_path_dict_values
 from core.preferences import Preferences, factory_defaults, validate_profile
 from core.project_reader import read_project_result
 from core.project_spec import ProjectSpec
@@ -18,48 +18,6 @@ def _host_dest_key() -> str:
 
 def _host_juce_key() -> str:
     return host_workspace_field_key("juce")
-
-
-def test_migrate_legacy_destination_to_host(tmp_path):
-    legacy = {"destination": "/legacy/dest", "destinationDir": "/ignored"}
-    migrated = migrate_workspace_keys(legacy)
-    assert migrated[_host_dest_key()] == "/legacy/dest"
-    assert "destination" not in migrated
-    assert "destinationDir" not in migrated
-
-
-def test_migrate_whitespace_destination_falls_back_to_destination_dir():
-    migrated = migrate_workspace_keys({
-        "destination": "   ",
-        "destinationDir": "/real/path",
-    })
-    assert migrated[_host_dest_key()] == "/real/path"
-
-
-def test_migrate_legacy_juce_to_host():
-    migrated = migrate_workspace_keys({"juceDir": "/Applications/JUCE"})
-    assert migrated[_host_juce_key()] == "/Applications/JUCE"
-    assert "juceDir" not in migrated
-
-
-def test_migrate_does_not_overwrite_existing_host_values():
-    host_dest = _host_dest_key()
-    migrated = migrate_workspace_keys({
-        "destination": "/legacy",
-        host_dest: "/current",
-    })
-    assert migrated[host_dest] == "/current"
-
-
-def test_project_spec_from_dict_migrates_legacy_keys():
-    spec = ProjectSpec.from_dict({
-        "destinationDir": "/projects/out",
-        "juceDir": "/Applications/JUCE",
-    })
-    assert spec.host_destination_dir() == "/projects/out"
-    assert spec.host_juce_dir() == "/Applications/JUCE"
-    assert "destinationDir" not in spec.to_dict()
-    assert "juceDir" not in spec.to_dict()
 
 
 def test_host_resolution_matches_platform(monkeypatch):
@@ -80,7 +38,11 @@ def test_host_resolution_matches_platform(monkeypatch):
     assert spec.host_juce_dir() == "C:/juce"
 
 
-def test_preferences_load_migrates_legacy_file(tmp_path):
+def test_preferences_load_ignores_legacy_workspace_keys(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        "core.preferences.QStandardPaths.writableLocation",
+        lambda *_args, **_kwargs: "/mock/Desktop",
+    )
     path = tmp_path / "preferences.json"
     path.write_text(
         '{"destination": "/legacy/dest", "juceDir": "/Applications/JUCE", '
@@ -90,15 +52,12 @@ def test_preferences_load_migrates_legacy_file(tmp_path):
     )
     prefs = Preferences(path)
     prefs.load()
-    assert prefs.get(_host_dest_key()) == "/legacy/dest"
-    assert prefs.get(_host_juce_key()) == "/Applications/JUCE"
-    saved = json.loads(path.read_text(encoding="utf-8"))
-    assert "destination" not in saved
-    assert "juceDir" not in saved
-    assert saved[_host_dest_key()] == "/legacy/dest"
+    assert prefs.get("manufacturer") == "Acme Corp"
+    assert prefs.get(_host_dest_key()) == "/mock/Desktop"
+    assert prefs.get(_host_juce_key()) == ""
 
 
-def test_apply_profile_migrates_legacy_export_json(tmp_path):
+def test_apply_profile_rejects_legacy_workspace_keys_only(tmp_path):
     path = tmp_path / "preferences.json"
     legacy = {
         "manufacturer": "Acme Corp",
@@ -121,11 +80,8 @@ def test_apply_profile_migrates_legacy_export_json(tmp_path):
         "artefactsDirLinux": "",
     }
     prefs = Preferences(path)
-    prefs.apply_profile(legacy)
-    assert prefs.get(_host_dest_key()) == "/legacy/dest"
-    assert prefs.get(_host_juce_key()) == "/Applications/JUCE"
-    assert "destination" not in prefs.to_dict()
-    assert "juceDir" not in prefs.to_dict()
+    with pytest.raises(ValueError):
+        prefs.apply_profile(legacy)
 
 
 def test_open_project_updates_host_destination_only(tmp_path, monkeypatch):
@@ -222,11 +178,10 @@ def test_factory_defaults_sets_host_destination_only(monkeypatch):
             assert defaults[key] == ""
 
 
-def test_normalize_path_dict_values_migrates_and_normalizes():
+def test_normalize_path_dict_values_normalizes_slashes():
     out = normalize_path_dict_values({
-        "destination": r"C:\legacy",
         "artefactsDirWindows": r"C:\team\out",
+        _host_dest_key(): r"C:\projects",
     })
-    assert out[_host_dest_key()] == "C:/legacy"
     assert out["artefactsDirWindows"] == "C:/team/out"
-    assert "destination" not in out
+    assert out[_host_dest_key()] == "C:/projects"

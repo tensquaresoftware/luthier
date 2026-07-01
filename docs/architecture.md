@@ -51,11 +51,11 @@ User fills form (ProjectPage)
 
 ### Round-trip reload (AD-3)
 
-[`core/project_reader.py`](../core/project_reader.py) `read_project(project_dir)` is the sole deserialiser:
+[`core/project_reader.py`](../core/project_reader.py) `read_project_result(project_dir)` is the sole deserialiser:
 
-1. **Sidecar first** — reads `.luthier.json` if present.
-2. **CMake regex fallback** — `_parse_cmakelists()` when sidecar is absent.
-3. **Partial parse → `None`** — the UI reports load failure; never silently loads a partial spec.
+1. **Sidecar required** — reads `.luthier.json` at the project root.
+2. **Missing or invalid sidecar → error** — returns `ProjectReadResult(spec=None, error=...)`; the UI shows the message; never parses `CMakeLists.txt`.
+3. **On successful open** — injects the host **destination** from the filesystem parent of the opened folder (Workspace behaviour from story 8.1).
 
 ## Two-pass rendering
 
@@ -148,7 +148,7 @@ Each `core/*.py` module follows the schema: **Purpose | Inputs | Outputs | Invar
 | [`project_spec.py`](../core/project_spec.py) | Typed cross-layer data model | Field values / JSON dict | `ProjectSpec`, `to_dict()` | No raw dict across boundaries (AD-1); snake_case fields |
 | [`project_generator.py`](../core/project_generator.py) | Orchestrates generation | `ProjectSpec`, optional template/override paths | `Path` to project dir | Uses `templates_dir()`; raises via writer on failure |
 | [`project_writer.py`](../core/project_writer.py) | Renders + writes project tree | `context`, `tokens`, `ProjectSpec` | Files on disk + `.luthier.json` | Atomic temp-dir rename (AD-4); overrides at write time (AD-9) |
-| [`project_reader.py`](../core/project_reader.py) | Reload project into spec | `project_dir: Path` | `ProjectReadResult` (`spec`, `missing_fields`); `read_project()` → `Optional[ProjectSpec]` | Sidecar first; partial CMake → `None` (AD-3) |
+| [`project_reader.py`](../core/project_reader.py) | Reload project into spec | `project_dir: Path` | `ProjectReadResult` (`spec`, `error`) | Sidecar required (AD-3) |
 | [`render_context.py`](../core/render_context.py) | Spec → template data | `ProjectSpec` | `build_context()` dict, `build_tokens()` dict | Reads `spec.juce_dir` (AD-7); camelCase template keys |
 | [`rendering.py`](../core/rendering.py) | Template substitution | template str + dict | rendered str | Two mechanisms: `format` vs `@KEY@` replace |
 | [`validation.py`](../core/validation.py) | Field validators | `str` field value | `(bool, str)` tuple | Pure functions; no I/O |

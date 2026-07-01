@@ -17,7 +17,6 @@ from core.json_files import atomic_write_text
 from core.paths import (
     WORKSPACE_KEYS,
     host_workspace_field_key,
-    migrate_workspace_keys,
     normalize_path_dict_values,
     normalize_portable_path,
 )
@@ -85,6 +84,8 @@ LOAD_WARNING_MESSAGE = (
 BOOTSTRAP_WARNING_MESSAGE = (
     "Preferences could not be loaded from disk; using defaults for this session."
 )
+
+_LEGACY_WORKSPACE_KEYS = frozenset({"destination", "destinationDir", "juceDir"})
 
 
 def factory_defaults(desktop: str | None = None) -> dict:
@@ -238,14 +239,23 @@ class Preferences:
             self._reset_corrupt_file()
             return
         raw = _normalize_null_strings(raw)
-        had_legacy_workspace = any(key in raw for key in ("destination", "destinationDir", "juceDir"))
-        raw = migrate_workspace_keys(raw)
+        for key in _LEGACY_WORKSPACE_KEYS:
+            raw.pop(key, None)
         raw_accent = raw.get("accentColor")
         accent = normalize_accent_color(raw_accent)
-        self._data.update(raw)
+        profile = _complete_profile(raw)
+        self._data.update({key: profile[key] for key in _PROFILE_KEYS})
+        host_dest = host_workspace_field_key("destination")
+        if not str(self._data.get(host_dest, "") or "").strip():
+            self._data[host_dest] = factory_defaults()[host_dest]
         ok, _message = validate_profile(self.to_dict())
         if not ok:
             self._data = factory_defaults()
+            for key in _PROFILE_KEYS:
+                if key in profile:
+                    self._data[key] = profile[key]
+            if not str(self._data.get(host_dest, "") or "").strip():
+                self._data[host_dest] = factory_defaults()[host_dest]
         self._data["accentColor"] = accent
         if (
             raw_accent is not None
@@ -253,7 +263,7 @@ class Preferences:
             and not validate_accent_color(raw_accent)[0]
         ):
             self._accent_color_warning = ACCENT_COLOR_CORRECTED_MESSAGE
-        if not ok or accent_color_file_value_differs(raw_accent) or had_legacy_workspace:
+        if not ok or accent_color_file_value_differs(raw_accent):
             self.save()
 
     def save(self) -> None:

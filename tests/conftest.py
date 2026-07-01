@@ -1,7 +1,6 @@
 """Shared helpers for integration and pytest tests."""
 
 import os
-import re
 import shutil
 from dataclasses import fields
 from pathlib import Path
@@ -9,16 +8,6 @@ from pathlib import Path
 from core.paths import host_workspace_field_key
 from core.project_spec import ProjectSpec
 from core.plugin_settings import TYPE_INSTRUMENT
-
-_LEGACY_COPY_CONFIG = """\
-set(USER_COPY_TO_SYSTEM_FOLDERS ON)
-set(USER_COPY_TO_ARTEFACTS_DIR OFF)
-set(COPY_TO_SYSTEM_FOLDERS ${USER_COPY_TO_SYSTEM_FOLDERS} CACHE BOOL "Copy plugins to system folders after build (all OS)" FORCE)
-set(COPY_TO_ARTEFACTS_DIR ${USER_COPY_TO_ARTEFACTS_DIR} CACHE BOOL "Copy build outputs to central artefacts folder (organized by platform/architecture)" FORCE)
-set(ARTEFACTS_DIR_WINDOWS "C:\\legacy\\win")
-set(ARTEFACTS_DIR_MACOS "/legacy/mac")
-set(ARTEFACTS_DIR_LINUX "/legacy/linux")
-"""
 
 _WORKSPACE_JSON_TO_ATTR = {
     "destinationDirWindows": "destination_dir_windows",
@@ -98,23 +87,6 @@ def assert_trees_equal(before: dict[Path, bytes], after: dict[Path, bytes]) -> N
     assert set(before) == set(after)
     for rel in before:
         assert before[rel] == after[rel], str(rel)
-
-
-def install_legacy_project_configuration_cmake(project_dir: Path) -> None:
-    (project_dir / ".luthier.json").unlink()
-    cmake = project_dir / "CMakeLists.txt"
-    text = cmake.read_text(encoding="utf-8")
-    text = re.sub(
-        r"# =+\n# PLUGIN COPY CONFIGURATION.*?set\(ARTEFACTS_DIR_LINUX.*?\)\n",
-        "",
-        text,
-        count=1,
-        flags=re.DOTALL,
-    )
-    cmake.write_text(text, encoding="utf-8")
-    (project_dir / "project-configuration.cmake").write_text(
-        _LEGACY_COPY_CONFIG, encoding="utf-8"
-    )
 
 
 def write_project(tmp_path, spec, *, overrides=None) -> tuple[Path, ProjectSpec]:

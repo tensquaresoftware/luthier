@@ -57,15 +57,14 @@ Luthier/
 │   ├── project_writer.py          # ProjectWriter — writes files from templates
 │   ├── render_context.py          # build_context() + build_tokens() — data for templates
 │   ├── rendering.py               # render() [str.format] + render_tokens() [@KEY@]
-│   ├── project_reader.py          # read_project() — parses generated CMake back to values dict
+│   ├── project_reader.py          # read_project_result() — sidecar-only reload into ProjectSpec
 │   ├── plugin_settings.py         # Pure functions: flags_for_type, bundle_id, categories
 │   ├── validation.py              # Pure field validators → (bool, str) tuples
 │   ├── preferences.py             # Preferences — JSON persistence in OS config dir
 │   ├── app_state.py               # AppState — last-used parent dir (separate from prefs)
 │   └── templates_store.py         # Read/write/reset C++ source template overrides
 ├── Templates/                     # Bundled project templates (versioned in repo)
-│   ├── CMakeLists.txt             # str.format template ({{ }} for CMake literal braces)
-│   ├── project-configuration.cmake
+│   ├── CMakeLists.txt             # str.format template ({{ }} for CMake literal braces); USER OPTIONS at top
 │   ├── CMakeUserPresets.json      # verbatim copy
 │   ├── README.md
 │   ├── .gitignore / .cursorrules  # verbatim copies
@@ -103,7 +102,7 @@ User fills form (ProjectPage)
           → render_context.build_context(spec) → context dict (str.format keys)
           → render_context.build_tokens(spec) → tokens dict (@KEY@ keys)
           → ProjectWriter(templates_dir, project_dir, overrides).write(context, tokens)
-      → AppState.remember_parent(spec.destination_dir) + save()  [app_state.json only]
+      → AppState.remember_parent(spec.host_destination_dir()) + save()  [app_state.json only]
   → MainWindow._on_open()
       → read_project_result() → ProjectSpec → ProjectPage.load(spec)  [no prefs write]
 ```
@@ -123,15 +122,11 @@ Only two tokens exist for source files: `@PROJECT_NAME@` and `@PROJECT_DISPLAY_N
 
 ### Round-Trip: Reading Back a Generated Project
 
-`project_reader.read_project(project_dir)` parses `CMakeLists.txt` + `project-configuration.cmake` back into a values dict matching `ProjectPage.load()` format. Key rules:
-- `project()` call → `projectName` + `projectVersion`
-- `juce_add_plugin()` block → identity fields (regex per field)
-- `set(PLUGIN_FORMATS_LIST ...)` → `pluginFormats`
-- `set(CMAKE_CXX_STANDARD ...)` → `cxxStandard` (formatted as `"C++17"`)
-- `target_include_directories(... PRIVATE ...)` → `headerSearchPaths`
-- `target_compile_definitions(... PUBLIC ...)` that **does NOT contain `JUCE_WEB_BROWSER`** → `preprocessorDefinitions`
-- Build settings from `project-configuration.cmake` via `_parse_set_vars()`
-- `copyToSystemFolders`/`copyToArtefactsDir` read from `USER_*` keys first, then `CACHE *` keys
+`project_reader.read_project_result(project_dir)` reads `.luthier.json` only (AD-3, story 8.2). Key rules:
+- Sidecar missing or invalid → `ProjectReadResult(spec=None, error=...)`
+- No CMake regex fallback
+- On success, host **destination** is injected from the parent of the opened project folder
+- `ProjectSpec.from_dict()` deserialises the sidecar JSON (six workspace keys per OS)
 
 ### Template Overrides
 
@@ -141,7 +136,7 @@ Users can override the 4 Source files. Override path: `~/.../AppConfigLocation/L
 ### Preferences Persistence
 
 `core/preferences.py` — JSON at `~/.../AppConfigLocation/Luthier/preferences.json`.  
-Keys: `manufacturer`, `manufacturerCode`, `pluginCode`, `companyCopyright`, `companyWebsite`, `companyEmail`, `destination`, `juceDir`, `artefactsDirWindows/Macos/Linux`, `copyToSystemFolders`, `copyToArtefactsDir`.
+Keys: `manufacturer`, `manufacturerCode`, `pluginCode`, `companyCopyright`, `companyWebsite`, `companyEmail`, six workspace keys (`destinationDirWindows/Macos/Linux`, `juceDirWindows/Macos/Linux`), `artefactsDirWindows/Macos/Linux`, `copyToSystemFolders`, `copyToArtefactsDir`.
 
 **AD-5 (revised):** `preferences.json` is written **only** by: (1) first-launch factory file creation, (2) Preferences tab auto-save on valid edit, (3) successful Import Preferences. `MainWindow` calls `prefs.save()` only after auto-save or import — **never** after Open Project or Generate Project. Open and Generate must not call `Preferences.update(ProjectSpec)`.
 
@@ -260,8 +255,8 @@ When modifying Source templates:
 
 These were identified during brownfield analysis and represent the main refactoring targets:
 
-1. **No tests** — zero test coverage; validators in `core/validation.py` are pure functions and easily testable; `project_reader` regexes are fragile without tests
-2. **`project_reader.py` fragility** — regex parsing of CMake is brittle; any formatting variation in generated files can break round-trip
+1. **Test coverage** — core validators, generation pipeline, and sidecar reload covered by `tests/unit/` and `tests/integration/`; Qt widget tests remain manual (AD-6)
+2. **`project_reader.py`** — sidecar-only; malformed sidecar returns explicit `error` string
 3. **`ProjectWriter._reset_project_dir()` is destructive** — silently deletes and recreates the entire project dir on every generation; no backup or diff
 4. **Preferences auto-save** — `PreferencesPage` auto-saves on valid edit; Open/Generate no longer write `preferences.json` (Story 5.4)
 5. **`MainWindow` orchestration is wide** — handles generation, open, status, prefs, templates: borderline single responsibility

@@ -37,9 +37,9 @@ NFR5: Code identifiers and commits in English. UI in English. All generated BMad
 
 ### Additional Requirements
 
-- **AD-1 — ProjectSpec contract**: No layer passes a raw dict across boundaries. `ProjectPage` exposes `spec() -> ProjectSpec`; `project_reader.read_project()` returns `Optional[ProjectSpec]`; `ProjectGenerator.generate()` accepts `ProjectSpec`. Fields use `snake_case` (Python); CMake template keys use `camelCase`.
+- **AD-1 — ProjectSpec contract**: No layer passes a raw dict across boundaries. `ProjectPage` exposes `spec() -> ProjectSpec`; `project_reader.read_project_result()` returns `ProjectReadResult` (`spec`, `error`); `ProjectGenerator.generate()` accepts `ProjectSpec`. Fields use `snake_case` (Python); CMake template keys use `camelCase`.
 - **AD-2 — Single data model**: `ProjectSpec` carries both identity fields and artefact config. `ProjectPage.spec()` replaces the former `values()` + `config()` split.
-- **AD-3 — Sidecar .luthier.json**: `ProjectWriter` writes `.luthier.json` (full ProjectSpec as JSON) at generation time. `project_reader` reads sidecar first, falls back to CMake regex. A partial regex result returns `None` — never a partial ProjectSpec.
+- **AD-3 — Sidecar .luthier.json**: `ProjectWriter` writes `.luthier.json` (full ProjectSpec as JSON) at generation time. `project_reader.read_project_result()` is the **sole** deserialiser; sidecar required on Open (Story 8.2). Missing or invalid sidecar returns `error` — never a partial ProjectSpec.
 - **AD-4 — Atomic write**: `ProjectWriter.write()` writes to a sibling temp dir then renames atomically. On error the temp dir is cleaned up and the original is left untouched.
 - **AD-5 — Preferences persistence is Preferences-driven only**: `preferences.json` is written only by first-launch factory creation, Preferences auto-save, and Import Preferences. Open/Generate never call `prefs.update(spec)` or `prefs.save()`. Save is app-layer only (`MainWindow` / `PreferencesPage`).
 - **AD-6 — Test tiers**: `tests/unit/` — pure core/ functions, no I/O, no Qt. `tests/integration/` — full round-trip with tmp_path. No Qt widget tests.
@@ -985,11 +985,11 @@ So that the test suite stays maintainable and small UX gaps do not distract duri
 
 ---
 
-## Epic 8: Workspace (pre-public release) — **done**
+## Epic 8: Workspace (pre-public release) — **done** (8.1 + 8.2)
 
 Per-OS **Destination folder** and **JUCE directory** in a new **Workspace** section (Project + Preferences), above **Artefacts**. Targets product version **1.0.0** at public release. Supersedes single-path `destination` / `juceDir` with six keys and host-OS resolution at generate time.
 
-**Implementation order:** `8.1` (single story — completed 2026-07-01)
+**Implementation order:** `8.1` → `8.2` (both done 2026-07-01)
 
 **Planning reference:** `_bmad-output/implementation-artifacts/8-1-workspace-per-os-paths.md`, `docs/user-manual.md` §7.5, `docs/manuel-utilisateur.md` §7.5
 
@@ -1004,3 +1004,11 @@ So that I configure paths once per profile and no longer re-enter them when I cl
 **Acceptance Criteria:** see story file `8-1-workspace-per-os-paths.md` (AC1–AC8).
 
 **Status:** `done` (sprint-status.yaml, code review 2026-07-01)
+
+### Story 8.2: Pre-release legacy cleanup (strict 1.0.0) — **done**
+
+Remove CMake-regex Open fallback, workspace JSON migration, and stale generated-template docs before public v1.0.0. Sidecar `.luthier.json` required on Open. **Do not delete `_bmad-output/`** — update docs in place only.
+
+**Story file:** `8-2-pre-release-legacy-cleanup.md` (AC1–AC7)
+
+**Status:** `done` in `sprint-status.yaml` (code review 2026-07-01)
