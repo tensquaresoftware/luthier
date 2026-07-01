@@ -62,36 +62,36 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 - [x] Sous **JUCE directory** : même disposition à trois lignes, indentée.
 - [x] Sur **votre OS hôte** uniquement : bouton **Choose…** à côté de destination et JUCE ; les deux autres OS = saisie manuelle.
 - [x] **Choose…** destination → dossier avec **accents** (ex. `Téléchargements`, `été 2026`) → **aucune** erreur rouge ; badge **Saved** possible. (GD : le badge Saved n'apparait pas sous macOS)
-- [ ] Renseignez le chemin JUCE **hôte** ; saisissez des chemins plausibles pour les **deux autres OS** (utilisés plus tard en cross-plateforme).
-- [ ] Fermez / rouvrez Luthier : les **six** valeurs sont conservées.
-- [ ] **Export Preferences…** → **Import Preferences…** : les six champs reviennent.
+- [x] Renseignez le chemin JUCE **hôte** ; saisissez des chemins plausibles pour les **deux autres OS** (utilisés plus tard en cross-plateforme).
+- [x] Fermez / rouvrez Luthier : les **six** valeurs sont conservées.
+- [x] **Export Preferences…** → **Import Preferences…** : les six champs reviennent.
 
 ### W2 — Project → Workspace (~5 min/OS)
 
-- [ ] **Create New Project** → les champs **Workspace** reprennent vos **Preferences** (six chemins).
-- [ ] **Project name** `TestLuthier` → **Generate Project** → succès **sans** dialogue de dossier intempestif (destination hôte déjà valide).
-- [ ] **Open Project…** → `TestLuthier` : les six chemins reviennent depuis `.luthier.json`.
-- [ ] Déplacez le dossier projet dans un parent accentué → **Open Project…** : la ligne **destination hôte** se met à jour ; **pas** d’erreur sur le chemin.
-- [ ] Les chemins **JUCE** et **destination** des **autres OS** restent ceux enregistrés (non écrasés par le déplacement).
-- [ ] **Choose…** sur une ligne hôte → badge **Saved** visible (comme dans **Preferences**).
+- [x] **Create New Project** → les champs **Workspace** reprennent vos **Preferences** (six chemins).
+- [x] **Project name** `TestLuthier` → **Generate Project** → succès **sans** dialogue de dossier intempestif (destination hôte déjà valide).
+- [x] **Open Project…** → `TestLuthier` : les six chemins reviennent depuis `.luthier.json`.
+- [x] Déplacez le dossier projet dans un parent accentué → **Open Project…** : la ligne **destination hôte** se met à jour ; **pas** d’erreur sur le chemin.
+- [x] Les chemins **JUCE** et **destination** des **autres OS** restent ceux enregistrés (non écrasés par le déplacement).
+- [x] **Choose…** sur une ligne hôte → badge **Saved** visible (comme dans **Preferences**).
 
 ### W3 — Migration anciens réglages (une machine suffit)
 
 > Si vos `preferences.json` ont déjà été migrés lors d’un lancement précédent, cochez et passez.
 
-- [ ] *(Optionnel)* Avant le premier lancement du nouveau build : sauvegardez `preferences.json` (emplacements ci-dessous).
-- [ ] Premier lancement : pas de plantage ; section **Workspace** remplie (anciennes clés `destinationDir` / `juceDir` réparties sur l’OS hôte si migration nécessaire).
-- [ ] Identité (**Manufacturer**, couleur, etc.) **inchangée** après migration.
+- [x] *(Optionnel)* Avant le premier lancement du nouveau build : sauvegardez `preferences.json` (emplacements ci-dessous).
+- [x] Premier lancement : pas de plantage ; section **Workspace** remplie (anciennes clés `destinationDir` / `juceDir` réparties sur l’OS hôte si migration nécessaire).
+- [x] Identité (**Manufacturer**, couleur, etc.) **inchangée** après migration.
 
 ### W3b — Import cross-plateforme (Dropbox / clé USB) (~5 min)
 
 > **Scénario clé :** exporter les prefs sur une machine, importer sur une autre, compléter les chemins **hôte** avec **Choose…**.
 
-- [ ] Machine A (ex. Linux) : personnalisez **Preferences** → **Export Preferences…** vers Dropbox.
-- [ ] Machine B (ex. macOS) : **Import Preferences…** → **succès** même si la ligne **destination macOS** est encore vide.
-- [ ] Les chemins de la machine A (ex. Linux) sont présents ; les lignes hôte de B sont vides ou à compléter.
-- [ ] **Choose…** sur destination et JUCE **hôte** → badge **Saved** → fermez / rouvrez Luthier : chemins hôte conservés.
-- [ ] **Create New Project** : les six chemins Workspace sont bien re-seedés depuis le profil importé.
+- [x] Machine A (ex. Linux) : personnalisez **Preferences** → **Export Preferences…** vers Dropbox.
+- [x] Machine B (ex. macOS) : **Import Preferences…** → **succès** même si la ligne **destination macOS** est encore vide.
+- [x] Les chemins de la machine A (ex. Linux) sont présents ; les lignes hôte de B sont vides ou à compléter.
+- [x] **Choose…** sur destination et JUCE **hôte** → badge **Saved** → fermez / rouvrez Luthier : chemins hôte conservés.
+- [x] **Create New Project** : les six chemins Workspace sont bien re-seedés depuis le profil importé.
 
 | OS | Dossier config |
 | --- | --- |
@@ -101,8 +101,8 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 
 ### W4 — Indentation Workspace + Artefacts (cosmétique, ~1 min/OS)
 
-- [ ] **Preferences** → **Workspace** et section **Artefacts** : labels **Windows / macOS / Linux** alignés visuellement avec le texte des **checkboxes** (même marge à gauche).
-- [ ] **Project** → sections **Workspace** et **Artefacts** : même alignement.
+- [x] **Preferences** → **Workspace** et section **Artefacts** : labels **Windows / macOS / Linux** alignés visuellement avec le texte des **checkboxes** (même marge à gauche).
+- [x] **Project** → sections **Workspace** et **Artefacts** : même alignement.
 
 ---
 
@@ -112,15 +112,15 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 
 ### S1 — Sidecar absent ou invalide (~3 min, une machine suffit ; refaire sur un second OS si doute)
 
-- [ ] Projet existant `TestLuthier` : renommez temporairement `.luthier.json` (ex. `.luthier.json.bak`).
-- [ ] **Open Project…** → modale ou barre de message : fichier compagnon **manquant** ou **Not a Luthier project** — message **clair**.
-- [ ] Le formulaire **ne** se remplit **pas** partiellement depuis CMake (pas de champs « à moitié » chargés).
-- [ ] Restaurez `.luthier.json` → **Open Project…** → chargement normal.
-- [ ] **Open Project…** sur un dossier **vide** ou non-Luthier → même type de message, **pas de plantage**.
+- [x] Projet existant `TestLuthier` : renommez temporairement `.luthier.json` (ex. `.luthier.json.bak`).
+- [x] **Open Project…** → modale ou barre de message : fichier compagnon **manquant** ou **Not a Luthier project** — message **clair**.
+- [x] Le formulaire **ne** se remplit **pas** partiellement depuis CMake (pas de champs « à moitié » chargés).
+- [x] Restaurez `.luthier.json` → **Open Project…** → chargement normal.
+- [x] **Open Project…** sur un dossier **vide** ou non-Luthier → même type de message, **pas de plantage**. GD : La modale dit "Companion file .luthier.json is missing.", il serait peut-être bon d'indiquer plutôt "Not a Luthier project or companion file .luthier.json is missing."
 
 ### S2 — `.luthier.json` cross-plateforme (si vous reprenez `VoyageLuthier`)
 
-- [ ] Ouvrez `.luthier.json` dans un éditeur : clés `destinationDirWindows`, `destinationDirMacos`, `destinationDirLinux`, `juceDirWindows`, etc. présentes ; chemins en **`/`** même sous Windows.
+- [x] Ouvrez `.luthier.json` dans un éditeur : clés `destinationDirWindows`, `destinationDirMacos`, `destinationDirLinux`, `juceDirWindows`, etc. présentes ; chemins en **`/`** même sous Windows.
 
 ---
 
@@ -130,15 +130,15 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 
 ### P1 — Modales Windows (R3) — Windows uniquement
 
-- [ ] **Create New Project** après modification sans générer → **No** à **gauche**, **Yes** à **droite** ; **No** surligné (défaut).
-- [ ] **Generate Project** sur dossier existant → même ordre **No / Yes**, défaut **No**.
+- [x] **Create New Project** après modification sans générer → **No** à **gauche**, **Yes** à **droite** ; **No** surligné (défaut). GD : le No est bien par défaut, mais il est toujours à droite du Yes... laissons tomber ce détail, ce n'est pas si gênant et je vois que tu as du mal à corriger ce petit bug d'affichage.
+- [x] **Generate Project** sur dossier existant → même ordre **No / Yes**, défaut **No**. GD : même remarque que le point précédent. On laisse tomber ce détail...
 
 *(Si l’ordre reste inversé : noter en **mineur** — Qt Windows ; non bloquant pour la promo.)*
 
 ### P2 — Linux : icône et géométrie fenêtre (R7) — Linux uniquement
 
-- [ ] *(Optionnel)* Lanceur / barre des tâches : icône Luthier (peut rester générique sans `.desktop` personnalisé).
-- [ ] Redimensionnez et déplacez la fenêtre → fermez → rouvrez : taille **sensiblement** retrouvée ; position approximative acceptable.
+- [x] *(Optionnel)* Lanceur / barre des tâches : icône Luthier (peut rester générique sans `.desktop` personnalisé). GD : j'ai bien l'icône cette fois dans la barre des taches.
+- [x] Redimensionnez et déplacez la fenêtre → fermez → rouvrez : taille **sensiblement** retrouvée ; position approximative acceptable. : GD : bug de positionnement toujours pas corrigé, on laisse tomber, c'est un détail mineur.
 
 *(Contournement validé : `luthier.desktop` dans `~/.local/share/applications/` — voir passe unique.)*
 

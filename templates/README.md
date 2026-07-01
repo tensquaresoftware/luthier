@@ -99,11 +99,11 @@ cmake --build Builds/macOS/Intel --target {projectName}_VST3 --config Debug
 When building for Intel compatibility on an Apple Silicon Mac, use the Intel-Rosetta preset. Build outputs go to your configured central artefacts folder under `macOS/Intel-Rosetta/` (path set in `CMakeLists.txt` via `ARTEFACTS_DIR_MACOS`). On Mac Intel, this preset is rejected at configure; use "macOS Intel" instead.
 
 ```bash
-# Configure (using preset)
-cmake --preset default-macos-x86_64-rosetta
+# Configure (using preset — pick Debug or Release)
+cmake --preset macos-debug-x86_64
 
 # Build all formats
-cmake --build --preset default-macos-x86_64-rosetta
+cmake --build --preset macos-debug-x86_64
 
 # Or manual mode
 cmake -B Builds/macOS/Intel-Rosetta -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_OSX_ARCHITECTURES=x86_64
@@ -116,10 +116,10 @@ For **distribution**, build a Universal Binary (Apple Silicon + Intel in a singl
 
 ```bash
 # Configure (using preset)
-cmake --preset default-macos-universal
+cmake --preset macos-debug-universal
 
 # Build all formats
-cmake --build --preset default-macos-universal
+cmake --build --preset macos-debug-universal
 
 # Or manual mode
 cmake -B Builds/macOS/Universal -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
@@ -147,6 +147,8 @@ cmake --build Builds/Windows --target {projectName}_Standalone --config Debug
 cmake --build Builds/Windows --target {projectName}_VST3 --config Debug
 ```
 
+**Windows path:** Keep the project on an **ASCII-only** path (no accented or special characters in folder names — e.g. avoid `été`, `Téléchargements`). MSVC and JUCE's `.rc` resource step often fail on non-ASCII paths (`MSB8066`, *Unhandled exception* while generating `*_resources.rc`). macOS and Linux are unaffected. If needed, move or clone the project to e.g. `C:\Dev\{projectName}` before building.
+
 **Note:** Audio Unit (AU) format is only available on macOS. On Windows, only VST3 and Standalone formats are built.
 
 ### Using Cursor or VS Code
@@ -154,13 +156,12 @@ cmake --build Builds/Windows --target {projectName}_VST3 --config Debug
 The project uses **CMake Presets** for flexible configuration. Simply:
 
 1. Open the project folder in **Cursor** or **VS Code** (CMake Tools extension installed)
-2. Select your preferred CMake preset when prompted:
-   - **Windows**: `default-windows` → builds to `Builds/Windows`
-   - **macOS Apple Silicon (Native)**: `default-macos-arm64` → builds to `Builds/macOS/ARM`
-   - **macOS Intel (Native on Mac Intel)**: `default-macos-x86_64` → builds to `Builds/macOS/Intel`
-   - **macOS Intel-Rosetta (x86_64 on Apple Silicon)**: `default-macos-x86_64-rosetta` → builds to `Builds/macOS/Intel-Rosetta`
-   - **macOS Universal (Distribution)**: `default-macos-universal` → builds to `Builds/macOS/Universal`
-   - **Linux**: `default-linux` → builds to `Builds/Linux`
+2. Select your preferred CMake preset when prompted (Debug or Release per platform):
+   - **Windows**: `windows-debug` / `windows-release` → `Builds/Windows`
+   - **macOS Apple Silicon**: `macos-debug-arm64` / `macos-release-arm64` → `Builds/macOS/ARM/Debug` or `Release`
+   - **macOS Intel**: `macos-debug-x86_64` / `macos-release-x86_64` → `Builds/macOS/Intel/Debug` or `Release`
+   - **macOS Universal**: `macos-debug-universal` / `macos-release-universal` → `Builds/macOS/Universal/Debug` or `Release`
+   - **Linux**: `linux-debug` / `linux-release` → `Builds/Linux/Debug` or `Release`
 
 3. Build the project:
    - **Recommended**: `Cmd+Shift+B` (macOS) / `Ctrl+Shift+B` (Windows/Linux) if mapped to the default build task, or **F7** if you use CMake Tools defaults
@@ -168,6 +169,8 @@ The project uses **CMake Presets** for flexible configuration. Simply:
    - **Or** **Tasks: Run Task** → choose a build task
 
 **Switching presets**: Click the preset name in the status bar or use the palette → **CMake: Select Configure Preset**. CMake output paths (including debug `launch.json` placeholders) follow the active preset.
+
+**Clean vs purge**: **Tasks: Run Task** → **Clean** runs `cmake --build --target clean` on the active preset (build tree stays configured). **Purge Builds** deletes the entire `Builds/` folder; run **Purge Builds and Configure** (or **CMake: Configure**) before building again.
 
 #### C++ IntelliSense (no false red squiggles on JUCE includes)
 
@@ -230,11 +233,11 @@ For advanced users or CI/CD:
 cmake --list-presets
 
 # Configure with a specific preset
-cmake --preset default-macos-universal
+cmake --preset macos-release-universal
 
 # Build with the preset
-cmake --build --preset default-macos-universal
+cmake --build --preset macos-release-universal
 
 # Or chain them
-cmake --preset default-macos-universal && cmake --build --preset default-macos-universal
+cmake --preset macos-release-universal && cmake --build --preset macos-release-universal
 ```

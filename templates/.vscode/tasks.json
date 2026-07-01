@@ -3,48 +3,36 @@
     "tasks": [
         {{
             "label": "Build: Standalone",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build", "${{command:cmake.buildDirectory}}",
-                "--target", "{projectName}_Standalone",
-                "--config", "${{command:cmake.buildType}}"
-            ],
+            "type": "cmake",
+            "command": "build",
+            "preset": "${{command:cmake.activeBuildPresetName}}",
+            "targets": ["{projectName}_Standalone"],
             "group": "build",
             "problemMatcher": []
         }},
         {{
             "label": "Build: AU",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build", "${{command:cmake.buildDirectory}}",
-                "--target", "{projectName}_AU",
-                "--config", "${{command:cmake.buildType}}"
-            ],
+            "type": "cmake",
+            "command": "build",
+            "preset": "${{command:cmake.activeBuildPresetName}}",
+            "targets": ["{projectName}_AU"],
             "group": "build",
             "problemMatcher": []
         }},
         {{
             "label": "Build: VST3",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build", "${{command:cmake.buildDirectory}}",
-                "--target", "{projectName}_VST3",
-                "--config", "${{command:cmake.buildType}}"
-            ],
+            "type": "cmake",
+            "command": "build",
+            "preset": "${{command:cmake.activeBuildPresetName}}",
+            "targets": ["{projectName}_VST3"],
             "group": "build",
             "problemMatcher": []
         }},
         {{
             "label": "Build: All",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build", "${{command:cmake.buildDirectory}}",
-                "--config", "${{command:cmake.buildType}}"
-            ],
+            "type": "cmake",
+            "command": "build",
+            "preset": "${{command:cmake.activeBuildPresetName}}",
             "group": {{
                 "kind": "build",
                 "isDefault": true
@@ -53,11 +41,27 @@
         }},
         {{
             "label": "Clean",
+            "type": "cmake",
+            "command": "clean",
+            "preset": "${{command:cmake.activeBuildPresetName}}",
+            "group": "build",
+            "problemMatcher": []
+        }},
+        {{
+            "label": "CMake: Configure",
+            "type": "cmake",
+            "command": "configure",
+            "preset": "${{command:cmake.activeConfigurePresetName}}",
+            "problemMatcher": []
+        }},
+        {{
+            "label": "Purge Builds",
             "type": "shell",
             "command": "rm",
-            "args": [
-                "-rf", "Builds"
-            ],
+            "args": ["-rf", "Builds"],
+            "options": {{
+                "cwd": "${{workspaceFolder}}"
+            }},
             "windows": {{
                 "command": "powershell",
                 "args": [
@@ -65,7 +69,13 @@
                     "Remove-Item -Recurse -Force Builds -ErrorAction SilentlyContinue"
                 ]
             }},
-            "group": "build"
+            "problemMatcher": []
+        }},
+        {{
+            "label": "Purge Builds and Configure",
+            "dependsOn": ["Purge Builds", "CMake: Configure"],
+            "dependsOrder": "sequence",
+            "problemMatcher": []
         }}
     ]
 }}
