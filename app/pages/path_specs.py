@@ -7,7 +7,9 @@ from core import validation
 from core.paths import WORKSPACE_DESTINATION_KEYS, WORKSPACE_JUCE_KEYS, host_workspace_field_key
 
 # Left margin for per-OS rows nested under section headings (Workspace, Artefacts).
-OS_FIELD_LEFT_MARGIN = 16
+# Checkbox label inset (theme.py): padding-left 2 + indicator 16 + spacing 8 = 26;
+# +2 px so FieldLabel text lines up with QCheckBox label text.
+OS_FIELD_LEFT_MARGIN = 28
 
 _WORKSPACE_DEST_LABELS = {
     "destinationDirWindows": "Windows",
