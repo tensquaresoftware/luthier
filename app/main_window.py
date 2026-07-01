@@ -406,7 +406,7 @@ class MainWindow(QMainWindow):
 
     def _on_generate(self) -> None:
         spec = self._project_page.spec()
-        dest = spec.destination_dir.strip()
+        dest = spec.host_destination_dir().strip()
         if not dest or resolve_dir(dest) is None:
             chosen = QFileDialog.getExistingDirectory(
                 self,
@@ -475,7 +475,7 @@ class MainWindow(QMainWindow):
         )
 
     def _confirm_overwrite(self, spec: ProjectSpec) -> bool:
-        if not self._generator.project_exists(spec.destination_dir, spec.project_name):
+        if not self._generator.project_exists(spec.host_destination_dir(), spec.project_name):
             return True
         return confirm_yes_no(
             self,
@@ -491,7 +491,7 @@ class MainWindow(QMainWindow):
             self._set_status(f"Generation failed: {error}", ok=False)
             return
         self._project_page.load(spec)
-        self._app_state.remember_parent(spec.destination_dir)
+        self._app_state.remember_parent(spec.host_destination_dir())
         try:
             self._app_state.save()
         except OSError as error:

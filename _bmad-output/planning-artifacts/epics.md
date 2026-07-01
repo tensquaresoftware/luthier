@@ -982,3 +982,25 @@ So that the test suite stays maintainable and small UX gaps do not distract duri
 **Then** rollback restores the previous in-memory profile completely.
 
 **Optional (skip without blocking Epic 7 done):** parametrize integration round-trip across all `plugin_type` values; PyInstaller bundle smoke tests; Preferences widget coupling refactor.
+
+---
+
+## Epic 8: Workspace (pre-public release)
+
+Per-OS **Destination folder** and **JUCE directory** in a new **Workspace** section (Project + Preferences), above **Artefacts**. Targets product version **1.0.0** at public release. Supersedes single-path `destination` / `juceDir` with six keys and host-OS resolution at generate time.
+
+**Recommended implementation order:** `8.1` (single story for this epic)
+
+**Planning reference:** `_bmad-output/implementation-artifacts/8-1-workspace-per-os-paths.md`, `docs/user-manual.md` §7.5, `docs/manuel-utilisateur.md` §7.5
+
+### Story 8.1: Workspace — per-OS destination and JUCE paths
+
+As a JUCE developer who builds the same Luthier projects on macOS, Windows, and Linux,
+I want **Destination folder** and **JUCE directory** stored per platform in **Workspace**,
+So that I configure paths once per profile and no longer re-enter them when I clone, open, or switch machines.
+
+**Priority:** MUST (pre-public)
+
+**Acceptance Criteria:** see story file `8-1-workspace-per-os-paths.md` (AC1–AC8).
+
+**Status:** `ready-for-dev` in `sprint-status.yaml`

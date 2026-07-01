@@ -14,11 +14,16 @@
 
 ### Sur chaque machine
 
-- [ ] Build **1.0.1** installé (même type sur les trois OS si possible : app autonome **ou** sources).
-- [ ] **JUCE** installé localement ; notez le chemin.
-- [ ] Dossier de travail pour les projets tests (ex. Bureau, `Téléchargements`, ou dossier `été 2026` — pour valider les accents).
-- [ ] **Git** disponible pour la partie cross-plateforme.
-- [ ] Onglet **About** : version **1.0.1** (ou votre numéro de build).
+- [x] Build **1.0.1** installé (même type sur les trois OS si possible : app autonome **ou** sources).
+- [x] **JUCE** installé localement ; notez le chemin.
+
+- macOS : /Volumes/Guillaume/Dev/SDKs/JUCE
+- Windows : C:/Users/Guillaume/Dev/SDKs/JUCE
+- Linux : /home/guillaume/Dev/SDKs/JUCE
+
+- [x] Dossier de travail pour les projets tests (ex. Bureau, `Téléchargements`, ou dossier `été 2026` — pour valider les accents).
+- [x] **Git** disponible pour la partie cross-plateforme.
+- [x] Onglet **About** : version **1.0.1** (ou votre numéro de build).
 
 ### Fichiers de test suggérés
 
@@ -44,45 +49,52 @@
 
 ### R1 — Chemins avec accents et caractères spéciaux
 
-- [ ] **Preferences** → **Destination folder** → **Choose…** → dossier dont le nom contient des **accents** (ex. `Téléchargements`, `été 2026`).
-- [ ] **Aucune** erreur rouge sous le champ ; badge **Saved** possible.
-- [ ] **Create New Project** → `TestLuthier` → **Generate Project** : succès sans dialogue de dossier intempestif (destination déjà valide).
+- [x] **Preferences** → **Destination folder** → **Choose…** → dossier dont le nom contient des **accents** (ex. `Téléchargements`, `été 2026`).
+- [x] **Aucune** erreur rouge sous le champ ; badge **Saved** possible.
+- [x] **Create New Project** → `TestLuthier` → **Generate Project** : succès sans dialogue de dossier intempestif (destination déjà valide).
 
 ### R2 — Messages et chemins affichés
 
-- [ ] **Generate Project** → barre de message : chemin avec des **`/`** (pas de `\` sous Windows).
-- [ ] **Open Project…** sur un dossier **vide** ou non-Luthier → modale : **Not a Luthier project** (plus « JUCE plugin project »).
-- [ ] **Export Preferences…** → message avec le **chemin complet** du fichier exporté.
+- [x] **Generate Project** → barre de message : chemin avec des **`/`** (pas de `\` sous Windows).
+- [x] **Open Project…** sur un dossier **vide** ou non-Luthier → modale : **Not a Luthier project** (plus « JUCE plugin project »).
+- [x] **Export Preferences…** → message avec le **chemin complet** du fichier exporté.
 
 ### R3 — Modales de confirmation
 
-- [ ] **Create New Project** après modification sans générer → modale : **No** à gauche, **Yes** à droite ; **No** est le bouton par défaut (surligné accent).
-- [ ] **Generate Project** sur un dossier existant → modale d’écrasement : même ordre **No** / **Yes**, défaut sur **No**.
+- [x] **Create New Project** après modification sans générer → modale : **No** à gauche, **Yes** à droite ; **No** est le bouton par défaut (surligné accent).
+
+❌ GD : sous Windows, le bouton No est encore à droite et le bouton Yes à sa gauche (inversé par rapport à macOS et Linux)
+
+- [x] **Generate Project** sur un dossier existant → modale d’écrasement : même ordre **No** / **Yes**, défaut sur **No**.
+
+❌ GD : sous Windows, le bouton No est encore à droite et le bouton Yes à sa gauche (inversé par rapport à macOS et Linux)
 
 ### R4 — Generate puis Create New Project
 
-- [ ] Créez un projet valide → **Generate Project** (succès).
-- [ ] **Create New Project** immédiatement après → **pas** de modale « unsaved changes ».
+- [x] Créez un projet valide → **Generate Project** (succès).
+- [x] **Create New Project** immédiatement après → **pas** de modale « unsaved changes ».
 
 ### R5 — Couleur d’erreur
 
-- [ ] Provoquez une erreur (champ invalide ou import JSON invalide) → texte rouge **bien visible** (plus pastel).
+- [x] Provoquez une erreur (champ invalide ou import JSON invalide) → texte rouge **bien visible** (plus pastel).
 
 ### R6 — Fichier preferences corrompu (une machine suffit, de préférence macOS)
 
-- [ ] Quittez Luthier.
-- [ ] Sauvegardez `preferences.json`, remplacez son contenu par `{`.
-- [ ] Relancez Luthier → **pas de plantage** ; warning dans la barre de message ; valeurs par défaut utilisables.
-- [ ] Restaurez votre sauvegarde de `preferences.json`.
+- [x] Quittez Luthier.
+- [x] Sauvegardez `preferences.json`, remplacez son contenu par `{`.
+- [x] Relancez Luthier → **pas de plantage** ; warning dans la barre de message ; valeurs par défaut utilisables.
+- [x] Restaurez votre sauvegarde de `preferences.json`.
 
 ### R7 — Linux uniquement : icône et fenêtre
 
 *(Ignorez sur macOS / Windows.)*
 
-- [ ] Lanceur / barre des tâches : icône **Luthier** (pas l’icône générique Qt).
-- [ ] Redimensionnez et déplacez la fenêtre → fermez → rouvrez : position et taille **sensiblement** retrouvées (léger écart WM acceptable).
+- [ ] ❌ Lanceur / barre des tâches : icône **Luthier** (pas l’icône générique Qt). GD : ne fonctionne toujours pas > icône toujours générique (carré bris avec engrenage blanc). D'ailleurs, je ne sais pas comment fixer l'icône de l'app dans la barre des tâches, elle n'apparait pas ici après lancement (je connais mal Linux). Pour info, les icônes des apps fournies avec JUCE (ex : Projucer, AudioPluginHost, etc.) sont génériques également. 
+- [ ] ❌ Redimensionnez et déplacez la fenêtre → fermez → rouvrez : position et taille **sensiblement** retrouvées (léger écart WM acceptable). GD : taille conservée mais position ramenée proche de (0;0). En revanche, la taille et la position de AudioPluginHost sont bien conservées entre eux lancements.
 
 **Optionnel Linux — raccourci bureau :** dans `dist/Luthier/`, copiez `luthier.desktop` vers `~/.local/share/applications/`, éditez `Exec=` (chemin absolu vers l’exécutable `Luthier`) et `Icon=` (chemin vers `resources/icons/luthier.png` dans le bundle).
+
+✅ Ça fonctionne ! C'est un peu laborieux à mettre en place mais j'ai maintenant l'icône de l'app dans la barre des tâches avec l'icone de Luthier. 👍
 
 ---
 

@@ -482,7 +482,7 @@ Les étapes sont identiques d’un OS à l’autre ; seules les notes spécifiqu
 - [x] Configurez **Preferences** (fabricant, destination, JUCE **local Mac**).
 - [x] **Create New Project**.
 - [x] **Project name** : `VoyageLuthier`.
-- [x] **Display name** : `Voyage Cross QA`.
+- [x] **Display name** : `Voyage Cross QA macOS`.
 - [x] **Version** : `1.0.0`.
 - [x] Formats : **VST3** + **Standalone** ; **AU** aussi si machine 1 = Mac.
 - [x] **JUCE directory** : chemin JUCE **sur cette machine**.
@@ -517,38 +517,45 @@ Les étapes sont identiques d’un OS à l’autre ; seules les notes spécifiqu
 - [x] **JUCE directory** : remplacez par le chemin JUCE **Windows** (obligatoire — le chemin Mac ne fonctionne pas ici).
 - [x] Vérifiez que **Project name**, **Display name**, **Version**, formats et options **Artefacts** sont bien revenus depuis `.luthier.json`.
 - [x] **Version** → `1.1.0`.
-- [x] **Display name** → `Voyage Cross QA Win`.
-- [ ] **Generate Project** → erreur `[WinError 5] Accès refusé` sur un objet `.git/objects/…` (voir note ci-dessous).
+- [x] **Display name** → `Voyage Cross QA Windows`.
+- [x] **Generate Project** → succès (plus de message d'erreur WinError 5).
 
 ### Cursor
 
-- [ ] Compiler le projet sans erreurs ni avertissements
-- [ ] Lancer l'app autonome depuis Cursor sans crash
-- [ ] Charger la version VST3 sans crash dans un DAW ou AudioPluginHost depuis le dossier système
-- [ ] Charger les versions VST3/Standalone sans crash dans un DAW ou AudioPluginHost depuis le dossier artefacts
+- [x] Compiler le projet sans erreurs ni avertissements
+- [x] Lancer l'app autonome depuis Cursor sans crash
+- [x] Charger la version VST3 sans crash dans un DAW ou AudioPluginHost depuis le dossier système
+- [x] Charger les versions VST3/Standalone sans crash dans un DAW ou AudioPluginHost depuis le dossier artefacts
 
 ### Git
 
-- [ ] `git status` : `.luthier.json` (et fichiers regénérés) modifiés.
-- [ ] Commit : *« Version 1.1.0 — réglages Windows »*.
-- [ ] Push vers le dépôt distant.
+- [x] `git status` : `.luthier.json` (et fichiers regénérés) modifiés.
+- [x] Commit : *« Version 1.1.0 — réglages Windows »*.
+- [x] Push vers le dépôt distant.
 
 ---
 
 ## 2.4 — Machine 3 (ex. Linux) — Pull, modification Templates + projet
 
-- [ ] `git pull` — vous devez voir les changements de la machine 2.
-- [ ] Luthier → **Open Project…** → `VoyageLuthier`.
-- [ ] **JUCE directory** → chemin JUCE **Linux**.
-- [ ] Onglet **Templates** → petit override (commentaire `// Linux QA` dans `PluginProcessor.h`) → **Save override** (reste **local** à cette installation Luthier — normal).
-- [ ] **Project** → **Version** `1.2.0`, **Preprocessor defs** : ajoutez `LINUX_QA=1`.
-- [ ] **Generate Project**.
-- [ ] Vérifiez que le commentaire template apparaît dans `Source/PluginProcessor.h`.
+- [x] `git pull` — vous devez voir les changements de la machine 2.
+- [x] Luthier → **Open Project…** → `VoyageLuthier`.
+- [x] **JUCE directory** → chemin JUCE **Linux**.
+- [x] Onglet **Templates** → petit override (commentaire `// Linux QA` dans `PluginProcessor.h`) → **Save override** (reste **local** à cette installation Luthier — normal).
+- [x] **Project** → **Version** `1.2.0`, **Preprocessor defs** : ajoutez `LINUX_QA=1`.
+- [x] **Generate Project**.
+- [x] Vérifiez que le commentaire template apparaît dans `Source/PluginProcessor.h`.
+
+### Cursor
+
+- [x] Compiler le projet sans erreurs ni avertissements
+- [x] Lancer l'app autonome depuis Cursor sans crash
+- [x] Charger la version VST3 sans crash dans un DAW ou AudioPluginHost depuis le dossier système
+- [x] Charger les versions VST3/Standalone sans crash dans un DAW ou AudioPluginHost depuis le dossier artefacts
 
 ### Git
 
-- [ ] Commit **uniquement le projet** (pas les templates Luthier locaux) : `.luthier.json`, `CMakeLists.txt`, `Source/`, etc.
-- [ ] Push.
+- [x] Commit **uniquement le projet** (pas les templates Luthier locaux) : `.luthier.json`, `CMakeLists.txt`, `Source/`, etc.
+- [x] Push.
 
 ---
 
@@ -568,20 +575,20 @@ Les étapes sont identiques d’un OS à l’autre ; seules les notes spécifiqu
 
 Les réglages globaux Luthier **ne voyagent pas** avec le projet Git. Testez la procédure manuelle :
 
-- [ ] Sur la machine 1 : **Export Preferences…** → `voyage-profil.json`.
-- [ ] Transférez le fichier (cloud, clé USB, e-mail).
-- [ ] Sur la machine 2 : **Import Preferences…** → le profil s’applique dans **Preferences** (couleur + chemins + fabricant) ; le sélecteur de l’onglet **Project** n’est pas mis à jour tant que vous ne faites pas **Create New Project**.
-- [ ] Ajustez **JUCE directory** et **Destination folder** pour la machine 2 (chemins locaux).
-- [ ] **Open Project…** sur `VoyageLuthier` : le **projet** n’a pas été écrasé par l’import (seul un **Create New Project** prendrait le profil entier).
+- [x] Sur la machine 1 : **Export Preferences…** → `voyage-profil.json`.
+- [x] Transférez le fichier (cloud, clé USB, e-mail).
+- [x] Sur la machine 2 : **Import Preferences…** → le profil s’applique dans **Preferences** (couleur + chemins + fabricant) ; le sélecteur de l’onglet **Project** n’est pas mis à jour tant que vous ne faites pas **Create New Project**.
+- [x] Ajustez **JUCE directory** et **Destination folder** pour la machine 2 (chemins locaux).
+- [x] **Open Project…** sur `VoyageLuthier` : le **projet** n’a pas été écrasé par l’import (seul un **Create New Project** prendrait le profil entier).
 
 ---
 
 ## 2.7 — Cas limites cross-plateforme
 
-- [ ] **Chemins dans `.luthier.json`** : ouvrez le fichier dans un éditeur de texte — les chemins utilisent des `/` même sur Windows.
-- [ ] **Projet sans `.luthier.json`** (test archive) : copiez un vieux dossier ou renommez temporairement `.luthier.json` → **Open Project…** → Luthier tente de lire `CMakeLists.txt` (legacy) ou affiche une erreur claire si impossible.
-- [ ] **Conflit Git** : sur deux machines, modifiez **Version** différemment sans pull → poussez/pull/remergez → rouvrez dans Luthier : le fichier `.luthier.json` final reflète l’état du dépôt.
-- [ ] **Fichier prefs corrompu** (test avancé, une machine jetable) : sauvegardez `preferences.json`, remplacez son contenu par `{` → relancez Luthier → message d’avertissement dans la barre de message, valeurs par défaut ou secours — **pas** de plantage. Restaurez la sauvegarde après le test.
+- [x] **Chemins dans `.luthier.json`** : ouvrez le fichier dans un éditeur de texte — les chemins utilisent des `/` même sur Windows.
+- [x] **Projet sans `.luthier.json`** (test archive) : copiez un vieux dossier ou renommez temporairement `.luthier.json` → **Open Project…** → Luthier tente de lire `CMakeLists.txt` (legacy) ou affiche une erreur claire si impossible.
+- [x] **Conflit Git** : sur deux machines, modifiez **Version** différemment sans pull → poussez/pull/remergez → rouvrez dans Luthier : le fichier `.luthier.json` final reflète l’état du dépôt.
+- [ ] ❌ **Fichier prefs corrompu** (test avancé, une machine jetable) : sauvegardez `preferences.json`, remplacez son contenu par `{` → relancez Luthier → message d’avertissement dans la barre de message, valeurs par défaut ou secours — **pas** de plantage. Restaurez la sauvegarde après le test. GD : l'app plante sous macOS (pas testé sous Windows & Linux), au deuxième lancement elle se lance sans crash.
 
 Emplacement des fichiers de config Luthier :
 
@@ -602,8 +609,8 @@ Emplacement des fichiers de config Luthier :
 | Après Linux (2.4)   |         | 1.2.0            | (inchangé ou …) |          |
 | Final Mac (2.5)     |         | 1.2.0            | … Final         |          |
 
-- [ ] Sur les **trois** OS, **Open Project…** sur la dernière révision Git donne un projet **cohérent** (même version, mêmes options — seuls les chemins JUCE/destination doivent être adaptés localement).
-- [ ] Aucun plantage Luthier pendant tout le parcours de la Partie 2.
+- [x] Sur les **trois** OS, **Open Project…** sur la dernière révision Git donne un projet **cohérent** (même version, mêmes options — seuls les chemins JUCE/destination doivent être adaptés localement).
+- [ ] ❌ Aucun plantage Luthier pendant tout le parcours de la Partie 2. GD : si, voir 2.7.
 
 ---
 
@@ -629,9 +636,9 @@ Emplacement des fichiers de config Luthier :
 
 La QA est **réussie** pour une release si :
 
-- [ ] Les **trois** blocs de la Partie 1 sont entièrement cochés ([A — macOS](#a--macos), [B — Windows](#b--windows), [C — Linux](#c--linux)) sans bloquant.
-- [ ] La Partie 2 (étapes 2.1 à 2.8) est complète sans bloquant (Git + réouverture sur au moins **deux** OS minimum ; idéal **trois**).
-- [ ] Tous les bloquants documentés dans la grille ont un ticket ou une décision produit.
+- [x] Les **trois** blocs de la Partie 1 sont entièrement cochés ([A — macOS](#a--macos), [B — Windows](#b--windows), [C — Linux](#c--linux)) sans bloquant.
+- [x] La Partie 2 (étapes 2.1 à 2.8) est complète sans bloquant (Git + réouverture sur au moins **deux** OS minimum ; idéal **trois**).
+- [x] Tous les bloquants documentés dans la grille ont un ticket ou une décision produit.
 
 ---
 

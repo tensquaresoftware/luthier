@@ -6,7 +6,7 @@ Title: Luthier — Manuel utilisateur
 Version: 1.0
 Product-Version: 1.0.0
 Created: 2026-06-26
-Updated: 2026-06-28
+Updated: 2026-07-01
 References:
   - docs/user-manual.md
   - docs/architecture.md
@@ -89,9 +89,11 @@ Avant d’ouvrir Luthier, assurez-vous d’avoir les éléments ci-dessous. Inut
 
 **JUCE** est un framework C++ open source très répandu pour les plugins audio et les applications audio multiplateformes. C’est lui qui fournit l’API audio, les wrappers VST3/AU/Standalone et une grande partie du code de base d’un plugin.
 
-Luthier génère des projets qui *utilisent* JUCE, mais ne l’inclut pas dans le dépôt : vous devez disposer du SDK sur votre machine. Téléchargez-le sur [juce.com](https://juce.com) ou clonez le [dépôt JUCE](https://github.com/juce-framework/JUCE), décompressez-le où vous voulez, puis indiquez ce dossier dans **JUCE directory**. Ce chemin sert de valeur par défaut pour que CMake sache où trouver JUCE lors de la génération.
+Luthier génère des projets qui *utilisent* JUCE, mais ne l’inclut pas dans le dépôt : vous devez disposer du SDK sur votre machine. Téléchargez-le sur [juce.com](https://juce.com) ou clonez le [dépôt JUCE](https://github.com/juce-framework/JUCE), décompressez-le où vous voulez, puis indiquez ce dossier dans **JUCE directory**, section **Workspace** (voir [§7.5](#75-workspace)). Ce chemin sert de valeur par défaut pour que CMake sache où trouver JUCE lors de la génération.
 
-Rien ne vous empêche d’utiliser une **copie de JUCE distincte par projet JUCE** : renseignez un **JUCE directory** propre à chaque projet dans l’onglet **Project** (voir [§11.2](#112-projet-avec-une-version-juce-spécifique)). Beaucoup d’équipes placent cette copie **dans le dossier du projet** (par exemple `MySynth/JUCE/`) pour figer la version du framework et éviter qu’une mise à jour globale de JUCE ne perturbe les autres projets.
+Rien ne vous empêche d’utiliser une **copie de JUCE distincte par projet JUCE** : renseignez un **JUCE directory** propre à votre OS courant dans la section **Workspace** de l’onglet **Project** (voir [§11.2](#112-projet-avec-une-version-juce-spécifique)). Beaucoup d’équipes placent cette copie **dans le dossier du projet** (par exemple `MySynth/JUCE/`) pour figer la version du framework et éviter qu’une mise à jour globale de JUCE ne perturbe les autres projets.
+
+Si vous compilez sur **plusieurs systèmes d’exploitation**, saisissez un **JUCE directory** (et un **Destination folder**) par plateforme dans **Workspace** — le même principe que les chemins d’artefacts. Exportez votre profil **Preferences** une fois ; chaque nouveau projet hérite des six chemins.
 
 ### Plateformes prises en charge
 
@@ -217,8 +219,8 @@ Au tout premier démarrage, Luthier initialise un profil local avec des valeurs 
 | Manufacturer code | `Myco` |
 | Plugin code | `Mypl` |
 | Copyright, Website, E-mail | vides |
-| Destination folder | votre **Bureau** (chemin correspondant à votre OS et votre profil utilisateur) |
-| JUCE directory | vide (placeholder selon l’OS, ex. `/Applications/JUCE` sur macOS) |
+| Workspace — Destination folder (Windows / macOS / Linux) | OS hôte → votre **Bureau** ; autres plateformes → vide |
+| Workspace — JUCE directory (Windows / macOS / Linux) | vides (placeholder selon l’OS sur la ligne hôte, ex. `/Applications/JUCE` sur macOS) |
 | Plugin type | Instrument (Synth) |
 | Formats | AU, VST3, Standalone — tous cochés |
 | C++ standard | C++17 |
@@ -232,7 +234,7 @@ Au tout premier démarrage, Luthier initialise un profil local avec des valeurs 
 
 Voici un enchaînement simple pour valider que tout est en place — du formulaire Luthier jusqu’au premier dossier de projet JUCE sur le disque :
 
-1. Ouvrez **Preferences** et renseignez **Manufacturer**, les codes, **Destination folder** et **JUCE directory**.
+1. Ouvrez **Preferences** et renseignez **Manufacturer**, les codes, et les chemins **Workspace** (**Destination folder** et **JUCE directory** pour chaque OS que vous utilisez).
 2. Passez à **Project**, saisissez un **Project name**, puis cliquez sur **Generate Project**.
 3. Ouvrez le dossier généré dans votre IDE. Consultez le `README.md` du projet pour les prérequis et les commandes de build, puis lancez la configuration CMake et la compilation.
 
@@ -244,7 +246,7 @@ Si la génération réussit mais que la compilation échoue, le problème se sit
 
 C’est ici que vous décrivez **un** projet JUCE : son nom, son identité, ses formats, ses options de compilation et la destination des binaires après build. Pensez à cet onglet comme à la « fiche d’identité » du projet que Luthier va matérialiser sur le disque.
 
-L’onglet est une page défilable divisée en cinq sections. Les champs marqués d’un astérisque (*) sont obligatoires. Luthier vous signale les erreurs au fil de la saisie et désactive **Generate Project** tant que le formulaire n’est pas valide.
+L’onglet est une page défilable divisée en six sections. Les champs marqués d’un astérisque (*) sont obligatoires. Luthier vous signale les erreurs au fil de la saisie et désactive **Generate Project** tant que le formulaire n’est pas valide.
 
 ### Luthier Accent Color
 
@@ -265,7 +267,7 @@ Changer la couleur d’accent ne modifie **pas** les champs du projet, les templ
 
 ### 7.1 Project Info
 
-Cette section regroupe l’**identité** du plugin (noms, version, fabricant, codes) et les **chemins** essentiels (où créer le projet, où se trouve JUCE). Les codes fabricant et plugin peuient paraître cryptiques au début : ils servent surtout aux hôtes macOS (Audio Unit) et doivent respecter des règles strictes — d’où le bouton **Generate** et le tableau ci-dessous.
+Cette section regroupe l’**identité** du plugin : noms, version, fabricant et codes. Les codes fabricant et plugin peuient paraître cryptiques au début : ils servent surtout aux hôtes macOS (Audio Unit) et doivent respecter des règles strictes — d’où le bouton **Generate** et le tableau ci-dessous.
 
 | Champ | Obligatoire | Description |
 |-------|-------------|-------------|
@@ -279,10 +281,8 @@ Cette section regroupe l’**identité** du plugin (noms, version, fabricant, co
 | **Manufacturer code** * | Oui | Code AU compatible GarageBand : première lettre **majuscule**, puis trois lettres **minuscules** (ex. `Myco`). Le bouton **Generate** remplit un code valide aléatoire. |
 | **Plugin code** * | Oui | Code AU compatible GarageBand : première lettre **majuscule**, puis trois lettres minuscules ou chiffres (ex. `Mypl`, `Dem0`). `DEMO` est réservé par Apple. Même bouton **Generate** que pour le manufacturer code. |
 | **Bundle ID** | — | Champ en lecture seule. Calculé à partir du manufacturer et du project name. |
-| **Destination folder** * | Oui | Dossier **parent** où Luthier crée le sous-dossier nommé d’après **Project name**. Exemple : `~/Documents` + `MySynth` → `~/Documents/MySynth`. |
-| **JUCE directory** | Non | Chemin vers le SDK JUCE **pour ce projet**. Pré-rempli depuis Preferences sur un nouveau projet. Peut différer d’un projet à l’autre (plusieurs versions ou copies de JUCE). |
 
-Chaque ligne de chemin dans **Project Info** (**Destination folder** et **JUCE directory**) est disposée ainsi : **label → Choose… → champ texte**. **Choose…** ouvre le sélecteur de dossier natif. Vous pouvez aussi saisir ou coller un chemin à la main. Luthier normalise les chemins en slashs avant — voir [§15 Normalisation des chemins](#15-normalisation-des-chemins).
+L’emplacement de création du projet et le chemin JUCE se configurent dans [§7.5 Workspace](#75-workspace), pas ici.
 
 ### 7.2 Plugin Type
 
@@ -324,7 +324,32 @@ Ces réglages sont transmis tels quels au `CMakeLists.txt` généré. Pour un pr
 
 **Header search paths** — dossiers d’en-têtes supplémentaires que le compilateur doit connaître, **relatifs à la racine du projet** (ex. `libs/mon-sdk/include`). Luthier les injecte sous forme de `target_include_directories`.
 
-### 7.5 Artefacts
+### 7.5 Workspace
+
+Avant de générer, Luthier doit savoir **où sur le disque** ce projet sera créé et **où JUCE est installé** — sur **chaque** système d’exploitation que vous utilisez. **Workspace** se trouve en bas du formulaire, juste au-dessus de **Artefacts** : d’abord vous configurez le plugin, puis vos dossiers locaux, puis éventuellement les cibles de copie d’artefacts.
+
+| Groupe | Obligatoire | Description |
+|--------|-------------|-------------|
+| **Destination folder** * | OS hôte uniquement | Dossier **parent** où Luthier crée le sous-dossier nommé d’après **Project name**. Exemple sur macOS : `~/Documents` + `MySynth` → `~/Documents/MySynth`. Trois lignes : **Windows**, **macOS**, **Linux**. |
+| **JUCE directory** | Non (hôte) | Chemin vers le SDK JUCE **pour ce projet** sur chaque OS. Pré-rempli depuis Preferences sur un nouveau projet. Peut différer d’un projet à l’autre. Trois lignes : **Windows**, **macOS**, **Linux**. |
+
+La ligne correspondant à **votre OS actuel** dispose d’un bouton **Choose…** (sélecteur natif). Les deux autres se saisissent au clavier ou par collage — un sélecteur sur votre machine ne peut pas produire un chemin valide pour un autre OS. Disposition : **label → Choose… (hôte seulement) → champ texte**. Les chemins sont normalisés en slashs avant — voir [§15 Normalisation des chemins](#15-normalisation-des-chemins).
+
+**Au moment de la génération**, seules les valeurs de l’**OS hôte** sont utilisées. Les autres chemins sont stockés dans `.luthier.json` pour qu’un projet partagé via Git s’ouvre prêt sur chaque machine — vous n’ajustez que le **JUCE directory** hôte si besoin.
+
+**Après Open Project…** sur la machine courante, seul le **Destination folder** **hôte** est recalculé à partir du parent du dossier ouvert. Les chemins des autres OS restent inchangés.
+
+#### Configuration multi-plateforme (exemple)
+
+| OS | Destination folder | JUCE directory |
+|----|-------------------|----------------|
+| macOS | `/Users/vous/Documents/Plugins` | `/Users/vous/Dev/SDKs/JUCE` |
+| Windows | `C:/Users/vous/Documents/Plugins` | `C:/Users/vous/Dev/SDKs/JUCE` |
+| Linux | `/home/vous/Documents/Plugins` | `/home/vous/Dev/SDKs/JUCE` |
+
+Configurez ces chemins une fois dans **Preferences → Workspace**, **Export Preferences…**, puis importez sur chaque machine. Les surcharges par projet vivent dans **Project → Workspace** et voyagent dans `.luthier.json`.
+
+### 7.6 Artefacts
 
 Après chaque compilation réussie, vous voudrez souvent **récupérer le binaire** (plugin ou Standalone) sans fouiller dans les dossiers `Builds/`. Cette section configure deux mécanismes complémentaires : copie vers les emplacements scannés par les DAW, et copie vers un dossier central que vous définissez.
 
@@ -376,7 +401,7 @@ Workflow typique : créer le projet sur une machine et définir le chemin d’ar
 
 Les réglages d’artefacts appartiennent à **ce projet**. Ils peuvent différer des defaults globaux de Preferences.
 
-### 7.6 Actions du projet
+### 7.7 Actions du projet
 
 Trois boutons structurent le cycle de vie d’un projet dans Luthier : repartir d’une feuille vierge, rouvrir un travail existant, ou écrire sur le disque la configuration affichée. Chacun a un rôle précis — les confondre est une autre source fréquente de confusion.
 
@@ -385,7 +410,7 @@ Trois boutons structurent le cycle de vie d’un projet dans Luthier : repartir 
 Utilisez cette action lorsque vous voulez **démarrer un autre projet JUCE** sans effacer vos defaults globaux. Elle remet le formulaire à zéro :
 
 - **Effacé :** project name, display name (version remise à `1.0.0`).
-- **Re-peuplé depuis `preferences.json` :** tout le reste — manufacturer, codes, destination, JUCE directory, type, formats, compilation, artefacts.
+- **Re-peuplé depuis `preferences.json` :** tout le reste — manufacturer, codes, chemins workspace, type, formats, compilation, artefacts.
 
 Si vous avez modifié le formulaire depuis le dernier état stable (ouverture, reset ou démarrage à froid), Luthier demande :
 
@@ -411,7 +436,7 @@ Ouvre un sélecteur de dossier. Choisissez un **dossier de projet** généré pr
 1. Si `.luthier.json` existe et est valide, Luthier charge la configuration complète depuis ce fichier compagnon.
 2. Sinon, Luthier tente d’analyser `CMakeLists.txt` (projets legacy sans fichier compagnon).
 
-**Après déplacement d’un dossier projet :** ouvrez-le à son **nouvel emplacement**. **Destination folder** affiche le parent du dossier sélectionné. L’ancien chemin n’est pas conservé.
+**Après déplacement d’un dossier projet :** ouvrez-le à son **nouvel emplacement**. Le **Destination folder** **hôte** dans **Workspace** affiche le parent du dossier sélectionné. Les chemins de destination des autres OS ne sont pas modifiés.
 
 #### Generate Project
 
@@ -419,8 +444,8 @@ C’est l’étape qui **écrit réellement les fichiers** sur le disque (CMake,
 
 Crée ou régénère le projet à partir de l’onglet **Project** uniquement :
 
-- écrit dans `Destination folder` / `Project name`.
-- intègre **JUCE directory** dans `CMakeLists.txt` lorsqu’il est renseigné.
+- écrit dans le **Destination folder** **hôte** / **Project name**.
+- intègre le **JUCE directory** **hôte** dans `CMakeLists.txt` lorsqu’il est renseigné.
 - applique vos overrides **Templates** le cas échéant.
 - écrit `.luthier.json`, fichier compagnon avec un instantané complet de la configuration.
 
@@ -428,11 +453,11 @@ Crée ou régénère le projet à partir de l’onglet **Project** uniquement :
 
 **Comportement de Destination folder :**
 
-- le champ reste visible pour permettre une régénération en un clic après **Open Project…**.
-- s’il est vide ou pointe vers un dossier inexistant, Luthier ouvre un sélecteur avant de continuer.
+- la section **Workspace** reste visible pour permettre une régénération en un clic après **Open Project…**.
+- si la destination **hôte** est vide ou pointe vers un dossier inexistant, Luthier ouvre un sélecteur avant de continuer.
 - si un dossier du même nom existe déjà, Luthier demande confirmation avant écrasement.
 
-Après une génération réussie, Luthier mémorise le dossier parent de destination pour le prochain dialogue **Choose…**.
+Après une génération réussie, Luthier mémorise le dossier parent de destination **hôte** pour le prochain dialogue **Choose…**.
 
 **Generate Project** n’est actif que lorsque tous les champs obligatoires sont valides et que les templates sont disponibles.
 
@@ -440,7 +465,7 @@ Après une génération réussie, Luthier mémorise le dossier parent de destina
 
 ## 8. Onglet Preferences
 
-L’onglet **Preferences** sert à éviter de ressaisir les mêmes informations pour chaque nouveau projet JUCE à générer : fabricant, codes par défaut, dossier de destination habituel, chemin JUCE, formats cochés par défaut, etc. Ce n’est **pas** l’endroit où vous nommez un projet précis. Cela reste dans **Project**.
+L’onglet **Preferences** sert à éviter de ressaisir les mêmes informations pour chaque nouveau projet JUCE à générer : fabricant, codes par défaut, chemins **Workspace**, formats cochés par défaut, etc. Ce n’est **pas** l’endroit où vous nommez un projet précis. Cela reste dans **Project**.
 
 ### 8.1 Sections
 
@@ -449,10 +474,10 @@ En haut de l’onglet, **Luthier Accent Color** (voir [§7 Luthier Accent Color]
 | Section | Contenu |
 |---------|---------|
 | **Identity** | Manufacturer, codes (chacun avec **Generate**), Copyright, Website, E-mail |
-| **Paths** | Destination folder, JUCE directory — tous deux avec **Choose…** |
 | **Plugin Type** | Instrument / Audio Effect / MIDI Effect par défaut |
 | **Formats** | Cases à cocher AU / VST3 / Standalone par défaut |
 | **Compilation** | C++ standard, preprocessor defs, header paths par défaut |
+| **Workspace** | **Destination folder** et **JUCE directory** par OS (**Choose…** pour l’OS hôte, saisie texte pour les deux autres) |
 | **Artefacts** | Mêmes options de copie et chemins par OS que Project (**Choose…** pour l’OS hôte, saisie texte pour les deux autres) |
 
 Il n’y a **pas** de champs propres au projet ici (pas de project name, version ou bundle ID). Si vous modifiez Preferences alors qu’un projet est déjà ouvert dans **Project**, c’est normal que l’écran Project ne change pas : cliquez sur **Create New Project** pour voir les nouveaux defaults sur un formulaire vierge.
@@ -543,13 +568,13 @@ Utilisez les liens des lignes e-mail et GitHub pour contacter l’auteur et cons
 
 ## 11. Parcours types
 
-Les scénarios ci-dessous reprennent les usages les plus fréquents. Chacun suppose que Luthier est installé et que vous avez au minimum renseigné **JUCE directory** dans **Preferences**.
+Les scénarios ci-dessous reprennent les usages les plus fréquents. Chacun suppose que Luthier est installé et que vous avez au minimum renseigné les chemins **Workspace** dans **Preferences** (**JUCE directory** hôte au minimum).
 
 ### 11.1 Nouveau projet JUCE (une seule installation JUCE)
 
-Cas le plus courant : un SDK JUCE unique, un dossier de destination pour tous les projets, plusieurs projets à enchaîner avec les mêmes réglages de base :
+Cas le plus courant : un SDK JUCE par machine, un dossier de destination, plusieurs projets à enchaîner avec les mêmes réglages de base :
 
-1. Renseignez **Preferences** une fois (manufacturer, destination, chemin JUCE).
+1. Renseignez **Preferences** une fois (manufacturer, chemins **Workspace** pour votre OS).
 2. Sur **Project**, saisissez **Project name** et ajustez les options (pensez à générer un **Plugin code** unique par projet).
 3. Cliquez sur **Generate Project**.
 4. Ouvrez le dossier de sortie dans votre IDE. Suivez le `README.md` généré pour configurer et compiler avec CMake.
@@ -558,10 +583,10 @@ Pour un autre projet JUCE : **Create New Project** → ajustez → **Generate Pr
 
 ### 11.2 Projet avec une version JUCE spécifique
 
-Utile lorsque ce projet doit rester sur une branche ou une version de JUCE différente de vos autres projets. Le chemin vers le SDK JUCE est stocké **dans le projet**, pas seulement dans **Preferences** :
+Utile lorsque ce projet doit rester sur une branche ou une version de JUCE différente de vos autres projets. Le chemin SDK est stocké **dans le projet** (par OS dans **Workspace**), pas seulement dans **Preferences** :
 
-1. **Create New Project** (JUCE directory peuplé depuis Preferences).
-2. Modifiez **JUCE directory** sur l’onglet **Project** pour pointer vers la branche ou la copie voulue du SDK.
+1. **Create New Project** (chemins JUCE **Workspace** peuplés depuis Preferences).
+2. Modifiez la ligne **JUCE directory** **hôte** dans **Workspace** sur l’onglet **Project** pour pointer vers la branche ou la copie voulue du SDK.
 3. **Generate Project** — le chemin du SDK est enregistré dans le projet et le fichier compagnon `.luthier.json`.
 
 ### 11.3 Reprendre et modifier un projet existant
@@ -572,7 +597,7 @@ Vous avez déjà généré un projet et souhaitez changer un nom, un format, un 
 2. Modifiez les champs sur **Project**.
 3. **Generate Project** pour réécrire les fichiers sur place.
 
-Si entre-temps vous aviez déplacé le dossier de votre projet, ouvrez-le d’abord à son nouvel emplacement. Le chemin **Destination folder** se mettra à jour automatiquement.
+Si entre-temps vous aviez déplacé le dossier de votre projet, ouvrez-le d’abord à son nouvel emplacement. Le **Destination folder** **hôte** dans **Workspace** se met à jour automatiquement.
 
 ### 11.4 Changer de profil entre deux projets
 
@@ -592,13 +617,22 @@ Le projet précédemment ouvert n’est pas modifié.
 2. Modifiez → **Save override**.
 3. **Generate Project** sur tout projet nouveau ou existant — votre override est utilisé.
 
+### 11.6 Même projet sur macOS, Windows et Linux
+
+Pour un projet partagé via Git et compilé sur plusieurs machines :
+
+1. Sur votre machine principale, renseignez les six chemins **Workspace** dans **Preferences** (ou sur **Project** après **Create New Project**), puis **Export Preferences…** si vous réutilisez la même disposition pour plusieurs projets.
+2. **Generate Project** et poussez le dépôt (`.luthier.json` transporte les six chemins).
+3. Sur chaque autre OS : `git clone` → **Open Project…** → vérifiez le **JUCE directory** **hôte** (ajustez si votre SDK diffère) → **Generate Project** sans ressaisir les chemins des autres plateformes.
+4. Optionnel : configurez les chemins **Artefacts** de la même façon (voir [§7.6](#76-artefacts)).
+
 ---
 
 ## 12. Ce que Luthier génère
 
-Lorsque vous cliquez sur **Generate Project**, Luthier crée un dossier nommé comme le **Project name** à l’intérieur du dossier défini par **Destination folder**. L’exemple ci-dessous illustre la structure typique. Les fichiers exacts dépendent des formats cochés et de la plateforme cible.
+Lorsque vous cliquez sur **Generate Project**, Luthier crée un dossier nommé comme le **Project name** à l’intérieur du **Destination folder** **hôte** défini dans **Workspace**. L’exemple ci-dessous illustre la structure typique. Les fichiers exacts dépendent des formats cochés et de la plateforme cible.
 
-Avec un **Project name** valide intitulé `MySynth` et un **Destination folder** pointant vers le dossier `Documents` de l'ordinateur, Luthier crée `~/Documents/MySynth/` contenant :
+Avec un **Project name** valide intitulé `MySynth` et un **Destination folder** **hôte** pointant vers le dossier `Documents` de l'ordinateur, Luthier crée `~/Documents/MySynth/` contenant :
 
 | Fichier / dossier | Description |
 |-------------------|-------------|
@@ -655,8 +689,9 @@ Luthier valide les champs **pendant** la saisie plutôt qu’au moment du clic s
 | Manufacturer | Non vide. |
 | Manufacturer code | Première lettre majuscule, puis 3 minuscules (GarageBand AU). |
 | Plugin code | Première lettre majuscule, puis 3 minuscules ou chiffres (standard imposé pour compatibilité AU avec GarageBand). `DEMO` est réservé par Apple. |
-| Destination folder | Non vide. Pas de caractères accentués dans le chemin. |
-| JUCE directory | Optionnel. Si renseigné, pas de caractères accentués. |
+| Destination folder (OS hôte) | Non vide sur la machine où vous générez. Pas de caractères accentués dans le chemin. |
+| JUCE directory (OS hôte) | Optionnel. Si renseigné, pas de caractères accentués. |
+| Chemins Workspace (OS non hôtes) | Optionnels. Si renseignés, pas de caractères accentués. |
 | Formats | Au moins une case cochée. |
 | Chemins d’artefacts | Lorsque la copie centrale est activée, pas de caractères accentués. |
 
@@ -672,7 +707,7 @@ Sur Windows, les chemins s’écrivent souvent avec des antislashs (`\`). Sur ma
 
 Luthier enregistre et affiche les chemins de dossiers avec des **slashs avant** (`/`) sur toutes les plateformes. Cela garantit la cohérence de `preferences.json`, de `.luthier.json` et des réglages CMake générés, que vous travailliez sur Windows, macOS ou Linux — ou que vous copiez un projet d’une machine à l’autre.
 
-**Champs concernés :** Destination folder, JUCE directory, et les trois chemins d’artefacts centraux (Windows / macOS / Linux).
+**Champs concernés :** tous les chemins **Workspace** (destination et JUCE par OS) et les trois chemins d’artefacts centraux (Windows / macOS / Linux).
 
 **Quand la normalisation s’applique :**
 
@@ -780,12 +815,13 @@ Pour retrouver rapidement une action une fois les concepts ci-dessus lus :
 |----------|------------|
 | Démarrer un nouveau projet JUCE | **Create New Project** → saisir le nom → **Generate Project** |
 | Rouvrir un travail existant | **Open Project…** → modifier → **Generate Project** |
-| Changer le manufacturer / les chemins par défaut | **Preferences** (auto-save) |
+| Changer le manufacturer / les chemins workspace par défaut | **Preferences** (auto-save) |
 | Appliquer les defaults sur un formulaire neuf | **Create New Project** après avoir modifié Preferences |
 | Déplacer les prefs sur une autre machine | **Export Preferences…** / **Import Preferences…** |
 | Attribuer une couleur par client ou marque | **Luthier Accent Color** dans **Preferences** → **Export Preferences…** |
 | Personnaliser le boilerplate processeur | **Templates** → modifier → **Save override** |
-| Épingler une version JUCE à un projet | Renseigner **JUCE directory** sur l’onglet **Project** |
+| Épingler une version JUCE à un projet | Renseigner **JUCE directory** (ligne hôte) dans **Workspace** sur **Project** |
+| Compiler le même dépôt sur trois OS | Renseigner les six chemins **Workspace** une fois → partage via `.luthier.json` + **Export Preferences…** |
 
 ---
 

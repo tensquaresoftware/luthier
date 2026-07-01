@@ -6,7 +6,7 @@ Title: Luthier User Manual
 Version: 1.0
 Product-Version: 1.0.0
 Created: 2026-06-26
-Updated: 2026-06-28
+Updated: 2026-07-01
 References:
   - docs/architecture.md
   - CONTRIBUTING.md
@@ -91,9 +91,11 @@ Before opening Luthier, make sure you have the items below. You do not need to m
 
 **JUCE** is a widely used open-source C++ framework for audio plugins and cross-platform audio applications. It provides the audio API, VST3/AU/Standalone wrappers, and much of the boilerplate code for a plugin.
 
-Luthier generates projects that *use* JUCE but does not ship it in the repository: you need the SDK on your machine. Download it from [juce.com](https://juce.com) or clone the [JUCE repository](https://github.com/juce-framework/JUCE), unpack it wherever you like, then point **JUCE directory** at that folder. That path is the default so CMake knows where to find JUCE at generation time.
+Luthier generates projects that *use* JUCE but does not ship it in the repository: you need the SDK on your machine. Download it from [juce.com](https://juce.com) or clone the [JUCE repository](https://github.com/juce-framework/JUCE), unpack it wherever you like, then point **JUCE directory** at that folder in **Workspace** (see [§7.5](#75-workspace)). That path is the default so CMake knows where to find JUCE at generation time.
 
-Nothing stops you from using a **separate JUCE copy per JUCE project**: set a project-specific **JUCE directory** on the **Project** tab (see [§11.2](#112-juce-project-with-a-specific-juce-version)). Many teams place that copy **inside the project folder** (for example `MySynth/JUCE/`) to pin the framework version and avoid a global JUCE update breaking every project at once.
+Nothing stops you from using a **separate JUCE copy per JUCE project**: set a project-specific **JUCE directory** for your current OS in the **Workspace** section on the **Project** tab (see [§11.2](#112-juce-project-with-a-specific-juce-version)). Many teams place that copy **inside the project folder** (for example `MySynth/JUCE/`) to pin the framework version and avoid a global JUCE update breaking every project at once.
+
+If you build on **several operating systems**, enter one **JUCE directory** (and **Destination folder**) per platform in **Workspace** — the same pattern as artefact paths. Export your **Preferences** profile once; every new project inherits all six paths.
 
 ### Supported platforms
 
@@ -220,8 +222,8 @@ On the very first start, Luthier initialises a local profile with sensible facto
 | Manufacturer code | `Myco` |
 | Plugin code | `Mypl` |
 | Copyright, Website, E-mail | empty |
-| Destination folder | your **Desktop** (path for your OS and user profile) |
-| JUCE directory | empty (placeholder hints per OS, e.g. `/Applications/JUCE` on macOS) |
+| Workspace — Destination folder (Windows / macOS / Linux) | host OS → your **Desktop**; other platforms → empty |
+| Workspace — JUCE directory (Windows / macOS / Linux) | empty (placeholder hints per OS on the host row, e.g. `/Applications/JUCE` on macOS) |
 | Plugin type | Instrument (Synth) |
 | Formats | AU, VST3, Standalone — all checked |
 | C++ standard | C++17 |
@@ -235,7 +237,7 @@ On the very first start, Luthier initialises a local profile with sensible facto
 
 Here is a simple sequence to confirm everything is in place — from the Luthier form to the first project folder on disk:
 
-1. Open **Preferences** and set your **Manufacturer**, codes, **Destination folder**, and **JUCE directory**.
+1. Open **Preferences** and set your **Manufacturer**, codes, and **Workspace** paths (**Destination folder** and **JUCE directory** for each OS you use).
 2. Switch to **Project**, enter a **Project name**, and click **Generate Project**.
 3. Open the generated folder in your IDE. Read the project's `README.md` for prerequisites and build commands, then run CMake configure + build.
 
@@ -247,7 +249,7 @@ If generation succeeds but the build fails, the issue is usually on the toolchai
 
 This is where you describe **one** JUCE project: its name, identity, formats, compilation options, and where binaries go after a build. Think of this tab as the “identity sheet” for the project Luthier will write to disk.
 
-The tab is one scrollable page divided into five sections. Fields marked with an asterisk (*) are required. Luthier flags errors as you type and keeps **Generate Project** disabled until the form is valid.
+The tab is one scrollable page divided into six sections. Fields marked with an asterisk (*) are required. Luthier flags errors as you type and keeps **Generate Project** disabled until the form is valid.
 
 ### Luthier Accent Color
 
@@ -268,7 +270,7 @@ Changing the accent colour does **not** change project fields, templates, or gen
 
 ### 7.1 Project Info
 
-This section covers the plugin **identity** (names, version, manufacturer, codes) and essential **paths** (where to create the project, where JUCE lives). Manufacturer and plugin codes may look cryptic at first: they matter mainly for macOS hosts (Audio Unit) and must follow strict rules — hence the **Generate** button and the table below.
+This section covers the plugin **identity**: names, version, manufacturer, and codes. Manufacturer and plugin codes may look cryptic at first: they matter mainly for macOS hosts (Audio Unit) and must follow strict rules — hence the **Generate** button and the table below.
 
 | Field | Required | Description |
 |-------|----------|-------------|
@@ -282,10 +284,8 @@ This section covers the plugin **identity** (names, version, manufacturer, codes
 | **Manufacturer code** * | Yes | GarageBand-compatible AU code: first **uppercase** letter, then three **lowercase** letters (e.g. `Myco`). **Generate** button fills a random valid code. |
 | **Plugin code** * | Yes | GarageBand-compatible AU code: first **uppercase** letter, then three **lowercase** letters or digits (e.g. `Mypl`, `Dem0`). `DEMO` is reserved by Apple. Same **Generate** button as manufacturer code. |
 | **Bundle ID** | — | Read-only. Computed from manufacturer + project name. |
-| **Destination folder** * | Yes | **Parent** folder where Luthier creates the project subfolder named after **Project name**. Example: `~/Documents` + `MySynth` → `~/Documents/MySynth`. |
-| **JUCE directory** | No | Path to your JUCE SDK **for this project**. Pre-filled from Preferences on a new project. Can differ per project (multiple versions or copies of JUCE). |
 
-Each path row in **Project Info** (**Destination folder** and **JUCE directory**) is laid out as **label → Choose… → text field**. **Choose…** opens the native folder picker. You can still type or paste a path manually. Luthier normalizes paths to forward slashes — see [§15 Path normalization](#15-path-normalization).
+Where to create the project and where JUCE lives are configured in [§7.5 Workspace](#75-workspace), not here.
 
 ### 7.2 Plugin Type
 
@@ -327,7 +327,32 @@ These settings are passed through to the generated `CMakeLists.txt`. For a first
 
 **Header search paths** — extra header folders the compiler should know about, **relative to the project root** (e.g. `libs/my-sdk/include`). Luthier injects them as `target_include_directories`.
 
-### 7.5 Artefacts
+### 7.5 Workspace
+
+Before you generate, Luthier needs to know **where on disk** this project lives and **where JUCE is installed** — on **each** operating system you might use. **Workspace** sits at the bottom of the form, just above **Artefacts**: first you configure the plugin, then your local folders, then optional artefact copy targets.
+
+| Group | Required | Description |
+|-------|----------|-------------|
+| **Destination folder** * | Host OS only | **Parent** folder where Luthier creates the project subfolder named after **Project name**. Example on macOS: `~/Documents` + `MySynth` → `~/Documents/MySynth`. Three rows: **Windows**, **macOS**, **Linux**. |
+| **JUCE directory** | No (host) | Path to the JUCE SDK **for this project** on each OS. Pre-filled from Preferences on a new project. Can differ per project (multiple versions or copies of JUCE). Three rows: **Windows**, **macOS**, **Linux**. |
+
+The row for **your current OS** has **Choose…** (native folder picker). The other two rows are typed or pasted manually — a picker on your machine cannot produce a valid path for another OS. Layout: **label → Choose… (host only) → text field**. Paths are normalized to forward slashes — see [§15 Path normalization](#15-path-normalization).
+
+**At generation time**, only the **host OS** values are used. The other paths are stored in `.luthier.json` so a Git-shared project opens ready on each machine — you adjust the host **JUCE directory** if needed, not the whole form.
+
+**After Open Project…** on the current machine, only the **host** **Destination folder** is recalculated from the opened folder’s parent. Paths for the other OSes are left unchanged.
+
+#### Cross-platform setup (example)
+
+| OS | Destination folder | JUCE directory |
+|----|-------------------|----------------|
+| macOS | `/Users/you/Documents/Plugins` | `/Users/you/Dev/SDKs/JUCE` |
+| Windows | `C:/Users/you/Documents/Plugins` | `C:/Users/you/Dev/SDKs/JUCE` |
+| Linux | `/home/you/Documents/Plugins` | `/home/you/Dev/SDKs/JUCE` |
+
+Configure these once in **Preferences → Workspace**, **Export Preferences…**, then import on each machine. Per-project overrides live in **Project → Workspace** and round-trip in `.luthier.json`.
+
+### 7.6 Artefacts
 
 After each successful build, you often want to **find the built binary** (plugin or Standalone) without digging through `Builds/` folders. This section configures two complementary mechanisms: copy to DAW scan locations, and copy to a central folder you define.
 
@@ -379,7 +404,7 @@ Typical workflow: create the project on one machine and set the artefact path wi
 
 Artefact settings belong to **this project**. They may differ from your global Preferences defaults.
 
-### 7.6 Project actions
+### 7.7 Project actions
 
 Three buttons structure a project's life cycle in Luthier: start from a blank form, reopen existing work, or write the displayed configuration to disk. Each has a distinct role — confusing them is another frequent source of mistakes.
 
@@ -388,7 +413,7 @@ Three buttons structure a project's life cycle in Luthier: start from a blank fo
 Use this when you want to **start another JUCE project** without wiping your global defaults. It resets the form:
 
 - **Cleared:** project name, display name (version reset to `1.0.0`).
-- **Re-populated from `preferences.json`:** everything else — manufacturer, codes, destination, JUCE directory, type, formats, compilation, artefacts.
+- **Re-populated from `preferences.json`:** everything else — manufacturer, codes, workspace paths, type, formats, compilation, artefacts.
 
 If you edited the form since the last stable state (open, reset, or cold start), Luthier asks:
 
@@ -412,7 +437,7 @@ Opens a folder picker. Select a **project directory** previously generated by Lu
 1. If `.luthier.json` exists and is valid, Luthier loads the full configuration from this companion file.
 2. Otherwise Luthier tries to parse `CMakeLists.txt` (legacy projects without a companion file).
 
-**After moving a project folder:** open it at the **new location**. **Destination folder** updates to the parent of the folder you selected — the old path is not kept.
+**After moving a project folder:** open it at the **new location**. The **host** **Destination folder** in **Workspace** updates to the parent of the folder you selected. Destination paths for the other OSes are not changed.
 
 #### Generate Project
 
@@ -420,8 +445,8 @@ This is the step that **actually writes files** to disk (CMake, sources, compani
 
 Creates or regenerates the project from the **Project** tab only:
 
-- writes to `Destination folder` / `Project name`.
-- embeds **JUCE directory** in `CMakeLists.txt` when set.
+- writes to the **host** **Destination folder** / **Project name**.
+- embeds the **host** **JUCE directory** in `CMakeLists.txt` when set.
 - applies your **Templates** overrides if any.
 - writes `.luthier.json`, the companion file with a full configuration snapshot.
 
@@ -429,11 +454,11 @@ Creates or regenerates the project from the **Project** tab only:
 
 **Destination folder behaviour:**
 
-- The field stays visible so you can regenerate in one click after **Open Project…**.
-- If empty or pointing to a non-existent folder, Luthier opens a folder picker before continuing.
+- Workspace stays visible so you can regenerate in one click after **Open Project…**.
+- If the **host** destination is empty or points to a non-existent folder, Luthier opens a folder picker before continuing.
 - If a folder with the same project name already exists, Luthier asks before overwriting.
 
-After a successful generation, Luthier remembers the destination parent folder for the next **Choose…** dialog.
+After a successful generation, Luthier remembers the **host** destination parent folder for the next **Choose…** dialog.
 
 **Generate Project** is enabled only when all required fields are valid and templates are available.
 
@@ -441,7 +466,7 @@ After a successful generation, Luthier remembers the destination parent folder f
 
 ## 8. Preferences tab
 
-The **Preferences** tab saves you from retyping the same information for every new JUCE project: default manufacturer, codes, usual destination folder, JUCE path, default formats, and so on. It is **not** where you name a specific project. That stays in **Project**.
+The **Preferences** tab saves you from retyping the same information for every new JUCE project: default manufacturer, codes, **Workspace** paths, default formats, and so on. It is **not** where you name a specific project. That stays in **Project**.
 
 ### 8.1 Sections
 
@@ -450,10 +475,10 @@ At the top of the tab, **Luthier Accent Color** (see [§7 Luthier Accent Color](
 | Section | Contents |
 |---------|----------|
 | **Identity** | Manufacturer, codes (each with **Generate**), Copyright, Website, E-mail |
-| **Paths** | Destination folder, JUCE directory — both with **Choose…** |
 | **Plugin Type** | Default Instrument / Audio Effect / MIDI Effect |
 | **Formats** | Default AU / VST3 / Standalone checkboxes |
 | **Compilation** | Default C++ standard, preprocessor defs, header paths |
+| **Workspace** | **Destination folder** and **JUCE directory** per OS (**Choose…** for the host OS, text entry for the other two) |
 | **Artefacts** | Same copy options and per-OS paths as Project (**Choose…** for the host OS, text entry for the other two) |
 
 There are **no** project-specific fields here (no project name, version, or bundle ID). If you edit Preferences while a project is already open in **Project**, it is normal that the Project screen does not change — click **Create New Project** to see the new defaults on a fresh form.
@@ -544,13 +569,13 @@ Use the e-mail and GitHub links to contact the author and visit their GitHub pag
 
 ## 11. Typical workflows
 
-The scenarios below cover the most common combinations. Each assumes Luthier is installed and you have at least set **JUCE directory** in **Preferences**.
+The scenarios below cover the most common combinations. Each assumes Luthier is installed and you have at least set **Workspace** paths in **Preferences** (host **JUCE directory** at minimum).
 
 ### 11.1 Brand-new JUCE project (one JUCE install)
 
-The most common case: one JUCE SDK, one destination folder, several JUCE projects in a row with the same defaults.
+The most common case: one JUCE SDK per machine, one destination folder, several JUCE projects in a row with the same defaults.
 
-1. Set **Preferences** once (manufacturer, destination, JUCE path).
+1. Set **Preferences** once (manufacturer, **Workspace** paths for your OS).
 2. On **Project**, enter **Project name** and adjust options (generate a unique **Plugin code** per project).
 3. Click **Generate Project**.
 4. Open the output folder in your IDE. Follow the generated `README.md` to configure and build with CMake.
@@ -559,10 +584,10 @@ For another JUCE project: **Create New Project** → adjust → **Generate Proje
 
 ### 11.2 JUCE project with a specific JUCE version
 
-Useful when this project must stay on a JUCE branch or version different from your other projects. The SDK path is stored **in the project**, not only in Preferences.
+Useful when this project must stay on a JUCE branch or version different from your other projects. The SDK path is stored **in the project** (per OS in **Workspace**), not only in Preferences.
 
-1. **Create New Project** (JUCE directory populated from Preferences).
-2. Change **JUCE directory** on the **Project** tab to the branch or copy you need.
+1. **Create New Project** (Workspace JUCE paths populated from Preferences).
+2. Change the **host** **JUCE directory** row in **Workspace** on the **Project** tab to the branch or copy you need.
 3. **Generate Project** — the SDK path is stored in the project and the companion file `.luthier.json`.
 
 ### 11.3 Resume and tweak an existing project
@@ -573,7 +598,7 @@ You already generated a project and want to change a format, code, or path: reop
 2. Edit fields on **Project**.
 3. **Generate Project** to rewrite files in place.
 
-If you moved the project folder in the meantime, open it at its new location first. **Destination folder** updates automatically.
+If you moved the project folder in the meantime, open it at its new location first. The **host** **Destination folder** in **Workspace** updates automatically.
 
 ### 11.4 Switch client profile between projects
 
@@ -593,13 +618,22 @@ Do this once before a batch of generations: your template overrides will be inje
 2. Edit → **Save override**.
 3. **Generate Project** on any new or existing project — your override is used.
 
+### 11.6 Same project on macOS, Windows, and Linux
+
+For a Git-shared project built on several machines:
+
+1. On your main machine, fill all six **Workspace** paths in **Preferences** (or on **Project** after **Create New Project**), then **Export Preferences…** if you reuse the same layout across projects.
+2. **Generate Project** and push the repo (`.luthier.json` carries all six paths).
+3. On each other OS: `git clone` → **Open Project…** → verify the **host** **JUCE directory** (adjust if your SDK path differs) → **Generate Project** without re-entering the other platforms’ paths.
+4. Optionally set **Artefacts** paths the same way (see [§7.6](#76-artefacts)).
+
 ---
 
 ## 12. What Luthier generates
 
-When you click **Generate Project**, Luthier creates a folder named after **Project name** inside **Destination folder**. The example below shows a typical layout. Exact files depend on the formats checked and the target platform.
+When you click **Generate Project**, Luthier creates a folder named after **Project name** inside the **host** **Destination folder** from **Workspace**. The example below shows a typical layout. Exact files depend on the formats checked and the target platform.
 
-Given a valid **Project name** `MySynth` and **Destination folder** `~/Documents`, Luthier creates `~/Documents/MySynth/` containing:
+Given a valid **Project name** `MySynth` and a **host** **Destination folder** `~/Documents`, Luthier creates `~/Documents/MySynth/` containing:
 
 | Output | Description |
 |--------|-------------|
@@ -656,8 +690,9 @@ Luthier validates fields **as you type** rather than only when you click Generat
 | Manufacturer | Non-empty. |
 | Manufacturer code | First uppercase letter, then 3 lowercase letters (GarageBand AU). |
 | Plugin code | First uppercase letter, then 3 lowercase letters or digits (GarageBand AU). `DEMO` is reserved. |
-| Destination folder | Non-empty. No accented characters in the path. |
-| JUCE directory | Optional. If set, no accented characters. |
+| Destination folder (host OS) | Non-empty on the machine you generate from. No accented characters in the path. |
+| JUCE directory (host OS) | Optional. If set, no accented characters. |
+| Workspace paths (non-host OS) | Optional. If set, no accented characters. |
 | Formats | At least one checked. |
 | Artefact paths | When central copy is enabled, paths must not contain accented characters. |
 
@@ -673,7 +708,7 @@ On Windows, paths are often written with backslashes (`\`). On macOS and Linux, 
 
 Luthier stores and displays folder paths with **forward slashes** (`/`) on every platform. This keeps `preferences.json`, `.luthier.json`, and generated CMake settings consistent when you work on Windows, macOS, or Linux — or copy projects between machines.
 
-**Affected fields:** Destination folder, JUCE directory, and the three central-artefact paths (Windows / macOS / Linux).
+**Affected fields:** all **Workspace** paths (destination and JUCE per OS) and the three central-artefact paths (Windows / macOS / Linux).
 
 **When normalization runs:**
 
@@ -781,12 +816,13 @@ Once you have read the concepts above, use this table to find an action quickly:
 |------------|---------|
 | Start a fresh JUCE project | **Create New Project** → fill name → **Generate Project** |
 | Reopen existing work | **Open Project…** → edit → **Generate Project** |
-| Change default manufacturer / paths | **Preferences** (auto-saves) |
+| Change default manufacturer / workspace paths | **Preferences** (auto-saves) |
 | Use defaults on a new form | **Create New Project** after editing Preferences |
 | Move prefs to another machine | **Export Preferences…** / **Import Preferences…** |
 | Set a colour per client or brand | **Luthier Accent Color** in **Preferences** → **Export Preferences…** |
 | Custom processor boilerplate | **Templates** → edit → **Save override** |
-| Pin a JUCE version to one project | Set **JUCE directory** on **Project** tab |
+| Pin a JUCE version to one project | Set **JUCE directory** (host row) in **Workspace** on **Project** |
+| Build same repo on three OSes | Fill six **Workspace** paths once → share via `.luthier.json` + **Export Preferences…** |
 
 ---
 

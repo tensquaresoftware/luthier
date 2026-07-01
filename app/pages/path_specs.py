@@ -4,6 +4,19 @@ import sys
 
 from app.widgets.validated_field import FieldSpec
 from core import validation
+from core.paths import WORKSPACE_DESTINATION_KEYS, WORKSPACE_JUCE_KEYS, host_workspace_field_key
+
+_WORKSPACE_DEST_LABELS = {
+    "destinationDirWindows": "Windows",
+    "destinationDirMacos": "macOS",
+    "destinationDirLinux": "Linux",
+}
+
+_WORKSPACE_JUCE_LABELS = {
+    "juceDirWindows": "Windows",
+    "juceDirMacos": "macOS",
+    "juceDirLinux": "Linux",
+}
 
 
 def juce_dir_placeholder() -> str:
@@ -23,20 +36,34 @@ def host_artefact_field_key() -> str:
     return "artefactsDirLinux"
 
 
-def destination_field_spec(
-    default: str,
-    *,
-    key: str = "destinationDir",
-    label: str = "Destination folder *",
-) -> FieldSpec:
-    return FieldSpec(key, label, validation.validate_destination, default=default)
+def workspace_destination_specs(defaults: dict) -> list[FieldSpec]:
+    host_key = host_workspace_field_key("destination")
+    specs = []
+    for key in WORKSPACE_DESTINATION_KEYS:
+        validator = (
+            validation.validate_destination
+            if key == host_key
+            else validation.validate_optional_path
+        )
+        specs.append(
+            FieldSpec(
+                key,
+                _WORKSPACE_DEST_LABELS[key],
+                validator,
+                default=str(defaults.get(key, "") or ""),
+            )
+        )
+    return specs
 
 
-def juce_field_spec(default: str) -> FieldSpec:
-    return FieldSpec(
-        "juceDir",
-        "JUCE directory",
-        validation.validate_optional_path,
-        default=default,
-        placeholder=juce_dir_placeholder(),
-    )
+def workspace_juce_specs(defaults: dict) -> list[FieldSpec]:
+    return [
+        FieldSpec(
+            key,
+            _WORKSPACE_JUCE_LABELS[key],
+            validation.validate_optional_path,
+            default=str(defaults.get(key, "") or ""),
+            placeholder=juce_dir_placeholder(),
+        )
+        for key in WORKSPACE_JUCE_KEYS
+    ]

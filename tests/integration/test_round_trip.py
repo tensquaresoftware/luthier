@@ -5,6 +5,7 @@ import re
 
 import pytest
 
+from core.paths import host_workspace_field_key
 from core.project_spec import ProjectSpec
 from tests.conftest import (
     all_files,
@@ -46,7 +47,8 @@ def test_read_project_returns_equivalent_spec(tmp_path):
 def test_sidecar_json_round_trip(tmp_path):
     project_dir, spec = generate_project(tmp_path)
     data = json.loads((project_dir / ".luthier.json").read_text(encoding="utf-8"))
-    data["destinationDir"] = str(project_dir.parent)
+    host_dest = host_workspace_field_key("destination")
+    data[host_dest] = str(project_dir.parent)
     restored = ProjectSpec.from_dict(data)
     assert_spec_equal(restored, spec)
 
@@ -137,13 +139,14 @@ def test_juce_dir_sidecar_round_trip(tmp_path):
     from core import project_reader
 
     juce_path = "/tmp/juce-test"
+    host_juce = host_workspace_field_key("juce")
     spec = make_spec(tmp_path, juce_dir=juce_path)
     project_dir, _ = generate_project(tmp_path, spec=spec)
     data = json.loads((project_dir / ".luthier.json").read_text(encoding="utf-8"))
-    assert data["juceDir"] == juce_path
+    assert data[host_juce] == juce_path
     loaded = project_reader.read_project(project_dir)
     assert loaded is not None
-    assert loaded.juce_dir == juce_path
+    assert loaded.host_juce_dir() == juce_path
 
 
 def test_regenerate_preserves_juce_dir(tmp_path):

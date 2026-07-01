@@ -1,5 +1,6 @@
 from core import validation
 from core.paths import (
+    host_workspace_field_key,
     is_path_validator,
     normalize_path_dict_values,
     normalize_portable_path,
@@ -26,15 +27,19 @@ def test_is_path_validator():
 
 
 def test_normalize_path_dict_values():
+    host_dest = host_workspace_field_key("destination")
+    host_juce = host_workspace_field_key("juce")
     data = {
         "destinationDir": r"C:\out",
         "juceDir": "C:/JUCE",
         "projectName": "MyPlugin",
     }
     out = normalize_path_dict_values(data)
-    assert out["destinationDir"] == "C:/out"
-    assert out["juceDir"] == "C:/JUCE"
+    assert out[host_dest] == "C:/out"
+    assert out[host_juce] == "C:/JUCE"
     assert out["projectName"] == "MyPlugin"
+    assert "destinationDir" not in out
+    assert "juceDir" not in out
 
 
 def test_resolve_dir_expands_user_and_accepts_unicode(tmp_path, monkeypatch):

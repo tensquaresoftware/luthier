@@ -10,10 +10,9 @@ from PySide6.QtWidgets import QLabel, QScrollArea, QVBoxLayout, QWidget
 from app.pages.artefacts import ArtefactsSection
 from app.pages.compilation import CompilationSection
 from app.pages.formats import FormatsPage
-from app.pages.path_specs import destination_field_spec, juce_field_spec
 from app.pages.plugin_type import PluginTypePage
+from app.pages.workspace import WorkspaceSection
 from app.widgets.accent_color_picker import AccentColorSection
-from app.widgets.folder_field import FolderField
 from app.widgets.section import Section
 from app.widgets.validated_field import FieldSpec
 from app.widgets.validated_form import ValidatedForm
@@ -46,21 +45,9 @@ def _identity_specs(prefs: Preferences) -> list[FieldSpec]:
     ]
 
 
-def _destination_spec(prefs: Preferences) -> FieldSpec:
-    return destination_field_spec(
-        prefs.get("destination"),
-        key="destination",
-        label="Destination folder",
-    )
-
-
 def _pref_text(prefs: Preferences, key: str) -> str:
     value = prefs.get(key)
     return "" if value is None else str(value)
-
-
-def _juce_spec(prefs: Preferences) -> FieldSpec:
-    return juce_field_spec(prefs.get("juceDir"))
 
 
 class PreferencesPage(QWidget):
@@ -76,15 +63,8 @@ class PreferencesPage(QWidget):
         super().__init__()
         self._prefs = prefs
         self._identity = ValidatedForm(_identity_specs(prefs))
-        self._destination = FolderField(
-            _destination_spec(prefs),
-            "Choose destination folder",
-            start_dir_resolver=folder_start_resolver,
-        )
-        self._juce_dir = FolderField(
-            _juce_spec(prefs),
-            "Choose JUCE directory",
-            start_dir_resolver=folder_start_resolver,
+        self._workspace = WorkspaceSection(
+            prefs, folder_start_resolver=folder_start_resolver
         )
         self._plugin_type = PluginTypePage()
         self._formats = FormatsPage()
@@ -106,8 +86,7 @@ class PreferencesPage(QWidget):
         self._reload_guard = True
         try:
             self._identity.set_values(self._prefs.to_dict())
-            self._destination.set_value(_pref_text(self._prefs, "destination"))
-            self._juce_dir.set_value(_pref_text(self._prefs, "juceDir"))
+            self._workspace.load(self._prefs.to_dict())
             self._plugin_type.set_type(_pref_text(self._prefs, "pluginType"))
             self._formats.set_formats(_pref_text(self._prefs, "pluginFormats"))
             self._compilation.load(self._prefs.to_dict())
@@ -154,8 +133,7 @@ class PreferencesPage(QWidget):
 
     def _collect_profile(self) -> dict:
         profile = dict(self._identity.values())
-        profile["destination"] = self._destination.value()
-        profile["juceDir"] = self._juce_dir.value()
+        profile.update(self._workspace.values())
         profile["pluginType"] = self._plugin_type.selected_type()
         profile["pluginFormats"] = self._formats.value()
         profile.update(self._compilation.values())
@@ -166,8 +144,7 @@ class PreferencesPage(QWidget):
     def _is_aggregate_valid(self) -> bool:
         return (
             self._identity.is_valid()
-            and self._destination.is_valid()
-            and self._juce_dir.is_valid()
+            and self._workspace.is_valid()
             and self._formats.is_valid()
             and self._artefacts.is_valid()
         )
@@ -200,15 +177,14 @@ class PreferencesPage(QWidget):
             return
         targets = [
             *self._identity._fields.values(),
-            self._destination,
-            self._juce_dir,
+            self._workspace,
             self._compilation,
             self._artefacts,
         ]
         for target in targets:
             if hasattr(target, "is_saved_sender") and target.is_saved_sender(sender):
                 if hasattr(target, "flash_saved"):
-                    if target is self._compilation or target is self._artefacts:
+                    if target is self._compilation or target is self._workspace or target is self._artefacts:
                         target.flash_saved(sender)
                     else:
                         target.flash_saved()
@@ -222,10 +198,9 @@ class PreferencesPage(QWidget):
         self._identity.field("companyCopyright").valueChanged.connect(self._try_auto_save)
         self._identity.field("companyWebsite").valueChanged.connect(self._try_auto_save)
         self._identity.field("companyEmail").valueChanged.connect(self._try_auto_save)
-        self._destination.validityChanged.connect(self._try_auto_save)
-        self._destination.valueChanged.connect(self._try_auto_save)
-        self._juce_dir.validityChanged.connect(self._try_auto_save)
-        self._juce_dir.valueChanged.connect(self._try_auto_save)
+        self._workspace.validityChanged.connect(self._try_auto_save)
+        for field in self._workspace.path_fields().values():
+            field.valueChanged.connect(self._try_auto_save)
         self._plugin_type.changed.connect(self._try_auto_save)
         self._formats.validityChanged.connect(self._try_auto_save)
         self._compilation.changed.connect(self._try_auto_save)
@@ -253,22 +228,13 @@ class PreferencesPage(QWidget):
         layout.addWidget(self._intro())
         layout.addWidget(self._accent)
         layout.addWidget(Section("Identity", self._identity))
-        layout.addWidget(Section("Paths", self._paths_widget()))
         layout.addWidget(Section("Plugin Type", self._plugin_type))
         layout.addWidget(Section("Formats", self._formats))
         layout.addWidget(Section("Compilation", self._compilation))
+        layout.addWidget(Section("Workspace", self._workspace))
         layout.addWidget(Section("Artefacts", self._artefacts))
         layout.addStretch(1)
         return content
-
-    def _paths_widget(self) -> QWidget:
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(2)
-        layout.addWidget(self._destination)
-        layout.addWidget(self._juce_dir)
-        return widget
 
     def _intro(self) -> QLabel:
         label = QLabel(

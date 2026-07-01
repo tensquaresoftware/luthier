@@ -6,6 +6,7 @@ import shutil
 from dataclasses import fields
 from pathlib import Path
 
+from core.paths import host_workspace_field_key
 from core.project_spec import ProjectSpec
 from core.plugin_settings import TYPE_INSTRUMENT
 
@@ -19,9 +20,22 @@ set(ARTEFACTS_DIR_MACOS "/legacy/mac")
 set(ARTEFACTS_DIR_LINUX "/legacy/linux")
 """
 
+_WORKSPACE_JSON_TO_ATTR = {
+    "destinationDirWindows": "destination_dir_windows",
+    "destinationDirMacos": "destination_dir_macos",
+    "destinationDirLinux": "destination_dir_linux",
+    "juceDirWindows": "juce_dir_windows",
+    "juceDirMacos": "juce_dir_macos",
+    "juceDirLinux": "juce_dir_linux",
+}
+
+
+def workspace_attr(json_key: str) -> str:
+    return _WORKSPACE_JSON_TO_ATTR[json_key]
+
 
 def _default_spec_fields(tmp_path) -> dict:
-    return dict(
+    fields_dict = dict(
         project_name="MyPlugin",
         project_display_name="My Plugin",
         project_version="1.0.0",
@@ -31,7 +45,12 @@ def _default_spec_fields(tmp_path) -> dict:
         company_copyright="Copyright 2026",
         company_website="https://acme.example",
         company_email="dev@acme.example",
-        destination_dir=str(tmp_path),
+        destination_dir_windows="",
+        destination_dir_macos="",
+        destination_dir_linux="",
+        juce_dir_windows="",
+        juce_dir_macos="",
+        juce_dir_linux="",
         plugin_type=TYPE_INSTRUMENT,
         plugin_formats="VST3",
         cxx_standard="C++20",
@@ -43,10 +62,21 @@ def _default_spec_fields(tmp_path) -> dict:
         artefacts_dir_macos="/out/mac",
         artefacts_dir_linux="/out/linux",
     )
+    host_dest = host_workspace_field_key("destination")
+    fields_dict[workspace_attr(host_dest)] = str(tmp_path)
+    return fields_dict
 
 
 def make_spec(tmp_path, **kwargs) -> ProjectSpec:
     defaults = _default_spec_fields(tmp_path)
+    if "destination_dir" in kwargs:
+        dest = kwargs.pop("destination_dir")
+        host_dest = host_workspace_field_key("destination")
+        defaults[workspace_attr(host_dest)] = dest
+    if "juce_dir" in kwargs:
+        juce = kwargs.pop("juce_dir")
+        host_juce = host_workspace_field_key("juce")
+        defaults[workspace_attr(host_juce)] = juce
     defaults.update(kwargs)
     return ProjectSpec(**defaults)
 
@@ -93,7 +123,7 @@ def write_project(tmp_path, spec, *, overrides=None) -> tuple[Path, ProjectSpec]
     from core.project_writer import ProjectWriter
 
     spec = spec or make_spec(tmp_path)
-    dest = Path(spec.destination_dir) / spec.project_name
+    dest = Path(spec.host_destination_dir()) / spec.project_name
     writer = ProjectWriter(templates_dir(), dest, overrides)
     writer.write(
         render_context.build_context(spec),

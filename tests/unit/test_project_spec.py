@@ -6,8 +6,10 @@ from dataclasses import fields
 
 import pytest
 
+from core.paths import host_workspace_field_key
 from core.plugin_settings import TYPE_INSTRUMENT
 from core.project_spec import ProjectSpec
+from tests.conftest import workspace_attr
 
 
 def _make_spec(**kwargs):
@@ -21,7 +23,12 @@ def _make_spec(**kwargs):
         company_copyright="Copyright 2026",
         company_website="https://acme.example",
         company_email="dev@acme.example",
-        destination_dir="/tmp/out",
+        destination_dir_windows="",
+        destination_dir_macos="",
+        destination_dir_linux="",
+        juce_dir_windows="",
+        juce_dir_macos="",
+        juce_dir_linux="",
         plugin_type=TYPE_INSTRUMENT,
         plugin_formats="VST3 AU",
         cxx_standard="C++20",
@@ -33,6 +40,14 @@ def _make_spec(**kwargs):
         artefacts_dir_macos="/out/mac",
         artefacts_dir_linux="/out/linux",
     )
+    host_dest = host_workspace_field_key("destination")
+    defaults[workspace_attr(host_dest)] = "/tmp/out"
+    if "destination_dir" in kwargs:
+        dest = kwargs.pop("destination_dir")
+        defaults[workspace_attr(host_dest)] = dest
+    if "juce_dir" in kwargs:
+        juce = kwargs.pop("juce_dir")
+        defaults[workspace_attr(host_workspace_field_key("juce"))] = juce
     defaults.update(kwargs)
     return ProjectSpec(**defaults)
 
@@ -43,11 +58,12 @@ def _assert_fields_equal(restored: ProjectSpec, original: ProjectSpec) -> None:
 
 
 def test_juce_dir_round_trip_non_empty():
+    host_juce = host_workspace_field_key("juce")
     original = _make_spec(juce_dir="/Applications/JUCE")
     restored = ProjectSpec.from_dict(original.to_dict())
-    assert restored.juce_dir == "/Applications/JUCE"
+    assert restored.host_juce_dir() == "/Applications/JUCE"
     _assert_fields_equal(restored, original)
-    assert original.to_dict()["juceDir"] == "/Applications/JUCE"
+    assert original.to_dict()[host_juce] == "/Applications/JUCE"
 
 
 def test_from_dict_normalizes_windows_path_separators():

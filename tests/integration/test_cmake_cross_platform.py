@@ -208,9 +208,9 @@ def test_sidecar_required_for_cross_origin_juce_dir(tmp_path):
 
     loaded = project_reader.read_project(project_dir)
     assert loaded is not None
-    assert loaded.juce_dir == "C:/Program Files/JUCE"
+    assert loaded.host_juce_dir() == "C:/Program Files/JUCE"
 
     (project_dir / ".luthier.json").unlink()
     fallback = project_reader.read_project(project_dir)
     assert fallback is not None
-    assert fallback.juce_dir == ""
+    assert fallback.host_juce_dir() == ""

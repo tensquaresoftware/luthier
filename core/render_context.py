@@ -25,7 +25,7 @@ def build_context(spec: ProjectSpec) -> dict:
     context.update(_categories(flags))
     context.update(_copy_config(d))
     context.update(_artefact_entries(d))
-    context.update(_juce_dir_line(spec.juce_dir))
+    context.update(_juce_dir_line(spec.host_juce_dir()))
     context["bundleId"] = plugin_settings.bundle_id(d["manufacturerName"], d["projectName"])
     context.update(_extra_fields(d))
     return context

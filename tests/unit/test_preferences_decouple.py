@@ -3,12 +3,15 @@
 import json
 
 from core.app_state import AppState
+from core.paths import host_workspace_field_key
 from core.plugin_settings import TYPE_INSTRUMENT
 from core.preferences import Preferences
 from core.project_spec import ProjectSpec
 
 
 def _valid_profile(**overrides) -> dict:
+    host_dest = host_workspace_field_key("destination")
+    host_juce = host_workspace_field_key("juce")
     data = {
         "manufacturer": "Acme Corp",
         "manufacturerCode": "Acme",
@@ -16,8 +19,14 @@ def _valid_profile(**overrides) -> dict:
         "companyCopyright": "",
         "companyWebsite": "",
         "companyEmail": "",
-        "destination": "/tmp/prefs-dest",
-        "juceDir": "",
+        "destinationDirWindows": "",
+        "destinationDirMacos": "",
+        "destinationDirLinux": "",
+        "juceDirWindows": "",
+        "juceDirMacos": "",
+        "juceDirLinux": "",
+        host_dest: "/tmp/prefs-dest",
+        host_juce: "",
         "pluginType": TYPE_INSTRUMENT,
         "pluginFormats": "AU VST3 Standalone",
         "cxxStandard": "C++17",
@@ -45,12 +54,13 @@ def test_preferences_file_unchanged_after_simulated_open_generate_workflow(tmp_p
 
     project_dest = tmp_path / "project-dest"
     project_dest.mkdir()
+    host_dest = host_workspace_field_key("destination")
     spec = ProjectSpec.from_dict({
         **prefs.seed_dict(),
         "projectName": "TestPlugin",
         "projectDisplayName": "Test Plugin",
         "projectVersion": "1.0.0",
-        "destinationDir": str(project_dest),
+        host_dest: str(project_dest),
     })
 
     loaded = Preferences(prefs_path)
@@ -59,7 +69,7 @@ def test_preferences_file_unchanged_after_simulated_open_generate_workflow(tmp_p
     assert spec.project_name == "TestPlugin"
 
     state = AppState(state_path)
-    state.remember_parent(spec.destination_dir)
+    state.remember_parent(spec.host_destination_dir())
     state.save()
 
     assert prefs_path.read_bytes() == snapshot

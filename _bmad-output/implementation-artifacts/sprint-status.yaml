@@ -1,5 +1,5 @@
 # generated: 2026-06-23
-# last_updated: 2026-06-29 # epic 7 done
+# last_updated: 2026-07-01 # story 8-1 done — workspace per-OS paths
 # project: Luthier
 # project_key: NOKEY
 # tracking_system: file-system
@@ -41,7 +41,7 @@
 # - Retrospective appends its action items to action_items; sprint-status surfaces open ones
 
 generated: 2026-06-23
-last_updated: 2026-06-28
+last_updated: 2026-07-01
 project: Luthier
 project_key: NOKEY
 tracking_system: file-system
@@ -105,3 +105,8 @@ development_status:
   7-3-core-generation-reload-robustness: done
   7-4-test-hygiene-minor-ui-hardening: done
   epic-7-retrospective: optional
+
+  # Epic 8: Workspace (pre-public release — v1.0.0)
+  epic-8: in-progress
+  8-1-workspace-per-os-paths: done
+  epic-8-retrospective: optional

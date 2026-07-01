@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from core.paths import normalize_path_dict_values
+from core.paths import host_workspace_field_key, normalize_path_dict_values
 from core.plugin_settings import TYPE_INSTRUMENT
 
 
@@ -32,8 +32,12 @@ class ProjectSpec:
     company_copyright: str = ""
     company_website: str = ""
     company_email: str = ""
-    destination_dir: str = ""
-    juce_dir: str = ""
+    destination_dir_windows: str = ""
+    destination_dir_macos: str = ""
+    destination_dir_linux: str = ""
+    juce_dir_windows: str = ""
+    juce_dir_macos: str = ""
+    juce_dir_linux: str = ""
     plugin_type: str = TYPE_INSTRUMENT
     plugin_formats: str = ""
     cxx_standard: str = "C++17"
@@ -44,6 +48,25 @@ class ProjectSpec:
     artefacts_dir_windows: str = ""
     artefacts_dir_macos: str = ""
     artefacts_dir_linux: str = ""
+
+    def host_destination_dir(self) -> str:
+        key = host_workspace_field_key("destination")
+        return self._workspace_value(key)
+
+    def host_juce_dir(self) -> str:
+        key = host_workspace_field_key("juce")
+        return self._workspace_value(key)
+
+    def _workspace_value(self, key: str) -> str:
+        mapping = {
+            "destinationDirWindows": self.destination_dir_windows,
+            "destinationDirMacos": self.destination_dir_macos,
+            "destinationDirLinux": self.destination_dir_linux,
+            "juceDirWindows": self.juce_dir_windows,
+            "juceDirMacos": self.juce_dir_macos,
+            "juceDirLinux": self.juce_dir_linux,
+        }
+        return str(mapping.get(key, "") or "").strip()
 
     def to_dict(self):
         return {
@@ -56,8 +79,12 @@ class ProjectSpec:
             "companyCopyright": self.company_copyright,
             "companyWebsite": self.company_website,
             "companyEmail": self.company_email,
-            "destinationDir": self.destination_dir,
-            "juceDir": self.juce_dir,
+            "destinationDirWindows": self.destination_dir_windows,
+            "destinationDirMacos": self.destination_dir_macos,
+            "destinationDirLinux": self.destination_dir_linux,
+            "juceDirWindows": self.juce_dir_windows,
+            "juceDirMacos": self.juce_dir_macos,
+            "juceDirLinux": self.juce_dir_linux,
             "pluginType": self.plugin_type,
             "pluginFormats": self.plugin_formats,
             "cxxStandard": self.cxx_standard,
@@ -83,8 +110,12 @@ class ProjectSpec:
             company_copyright=d.get("companyCopyright", ""),
             company_website=d.get("companyWebsite", ""),
             company_email=d.get("companyEmail", ""),
-            destination_dir=d.get("destinationDir", ""),
-            juce_dir=d.get("juceDir", ""),
+            destination_dir_windows=d.get("destinationDirWindows", ""),
+            destination_dir_macos=d.get("destinationDirMacos", ""),
+            destination_dir_linux=d.get("destinationDirLinux", ""),
+            juce_dir_windows=d.get("juceDirWindows", ""),
+            juce_dir_macos=d.get("juceDirMacos", ""),
+            juce_dir_linux=d.get("juceDirLinux", ""),
             plugin_type=d.get("pluginType", TYPE_INSTRUMENT),
             plugin_formats=d.get("pluginFormats", ""),
             cxx_standard=d.get("cxxStandard", "C++17"),

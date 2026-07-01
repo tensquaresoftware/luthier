@@ -81,7 +81,7 @@ def test_generate_project_from_bundled_templates(tmp_path):
 
     bundled_templates = BUNDLED_ASSETS_ROOT / "templates"
     spec = make_spec(tmp_path)
-    dest = Path(spec.destination_dir) / spec.project_name
+    dest = Path(spec.host_destination_dir()) / spec.project_name
     writer = ProjectWriter(bundled_templates, dest, overrides=None)
     writer.write(
         render_context.build_context(spec),

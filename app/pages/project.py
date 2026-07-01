@@ -10,6 +10,7 @@ from app.pages.compilation import CompilationSection
 from app.pages.formats import FormatsPage
 from app.pages.plugin_type import PluginTypePage
 from app.pages.project_info import ProjectInfoPage
+from app.pages.workspace import WorkspaceSection
 from app.widgets.accent_color_picker import AccentColorSection
 from app.widgets.section import Section
 from core.preferences import Preferences
@@ -30,12 +31,13 @@ class ProjectPage(QScrollArea):
         folder_start_resolver: Callable[[str], str] | None = None,
     ):
         super().__init__()
-        self._info = ProjectInfoPage(
-            defaults, bundle_id_fn, folder_start_resolver=folder_start_resolver
-        )
+        self._info = ProjectInfoPage(defaults, bundle_id_fn)
         self._type = PluginTypePage()
         self._formats = FormatsPage()
         self._compilation = CompilationSection()
+        self._workspace = WorkspaceSection(
+            prefs, folder_start_resolver=folder_start_resolver
+        )
         self._artefacts = ArtefactsSection(
             prefs, folder_start_resolver=folder_start_resolver
         )
@@ -56,6 +58,7 @@ class ProjectPage(QScrollArea):
         values["pluginType"] = self._type.selected_type()
         values["pluginFormats"] = self._formats.value()
         values.update(self._compilation.values())
+        values.update(self._workspace.values())
         return values
 
     def config(self) -> dict:
@@ -66,11 +69,17 @@ class ProjectPage(QScrollArea):
         d["pluginType"] = self._type.selected_type()
         d["pluginFormats"] = self._formats.value()
         d.update(self._compilation.values())
+        d.update(self._workspace.values())
         d.update(self._artefacts.values())
         return ProjectSpec.from_dict(d)
 
     def is_valid(self) -> bool:
-        return self._info.is_valid() and self._formats.is_valid() and self._artefacts.is_valid()
+        return (
+            self._info.is_valid()
+            and self._formats.is_valid()
+            and self._workspace.is_valid()
+            and self._artefacts.is_valid()
+        )
 
     def reset(self, defaults: dict) -> None:
         self.load(ProjectSpec.from_dict(new_project_seed(defaults)))
@@ -84,6 +93,7 @@ class ProjectPage(QScrollArea):
         self._type.set_type(spec.plugin_type)
         self._formats.set_formats(spec.plugin_formats)
         self._compilation.load(d)
+        self._workspace.load(d)
         self._artefacts.load(d)
         self._capture_baseline()
 
@@ -91,7 +101,7 @@ class ProjectPage(QScrollArea):
         self._baseline = self.spec().to_dict()
 
     def set_destination(self, value: str) -> None:
-        self._info.set_destination(value)
+        self._workspace.set_host_destination(value)
 
     def _build_ui(self) -> None:
         body = QWidget()
@@ -123,12 +133,14 @@ class ProjectPage(QScrollArea):
             ("Plugin Type", self._type),
             ("Formats", self._formats),
             ("Compilation", self._compilation),
+            ("Workspace", self._workspace),
             ("Artefacts", self._artefacts),
         ]
 
     def _connect_signals(self) -> None:
         self._info.validityChanged.connect(self._emit_validity)
         self._formats.validityChanged.connect(self._emit_validity)
+        self._workspace.validityChanged.connect(self._emit_validity)
         self._artefacts.validityChanged.connect(self._emit_validity)
 
     def _emit_validity(self, _ok: bool = False) -> None:

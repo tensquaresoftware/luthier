@@ -68,3 +68,10 @@ Ces entrées ne sont **plus** de la dette ouverte — décision de design, hors 
 | 7.4 Hygiène tests + UI mineur | done | Legacy tests, polish prefs/templates |
 
 **Prochaine étape produit :** QA manuelle (semaine 2026-07-07). Pas d'Epic 8 « vider deferred-work » sans signal utilisateur.
+
+---
+
+## Deferred from: code review of 8-1-workspace-per-os-paths (2026-07-01)
+
+- `project-context.md` still documents single `destination`/`juceDir` keys — stale agent context; update when convenient.
+- `host_workspace_field_key` lives in `core/paths.py` not `app/pages/path_specs.py` as spec suggested — works via re-export; cosmetic spec alignment only.
