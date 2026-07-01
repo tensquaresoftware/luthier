@@ -71,18 +71,28 @@ set(ARTEFACTS_DIR_LINUX   {artefactsDirLinux})
 set(CMAKE_CXX_STANDARD {cxxStandard})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-{juceDirSetLine}# Reference JUCE: priority cache (preset/-D), then ENV, then platform default
+set(JUCE_DIR_WINDOWS {juceDirWindows})
+set(JUCE_DIR_MACOS   {juceDirMacos})
+set(JUCE_DIR_LINUX   {juceDirLinux})
+
+# Reference JUCE: priority cache (preset/-D), then ENV, then workspace per-OS, then platform default
 # Portable logic - works on any platform regardless of where the project was generated
 set(JUCE_DIR_CANDIDATE "")
 if(DEFINED JUCE_DIR AND NOT JUCE_DIR STREQUAL "" AND EXISTS "${{JUCE_DIR}}")
     set(JUCE_DIR_CANDIDATE "${{JUCE_DIR}}")
 elseif(DEFINED ENV{{JUCE_DIR}} AND NOT "$ENV{{JUCE_DIR}}" STREQUAL "")
     set(JUCE_DIR_CANDIDATE "$ENV{{JUCE_DIR}}")
+elseif(WIN32 AND NOT JUCE_DIR_WINDOWS STREQUAL "" AND EXISTS "${{JUCE_DIR_WINDOWS}}")
+    set(JUCE_DIR_CANDIDATE "${{JUCE_DIR_WINDOWS}}")
+elseif(APPLE AND NOT JUCE_DIR_MACOS STREQUAL "" AND EXISTS "${{JUCE_DIR_MACOS}}")
+    set(JUCE_DIR_CANDIDATE "${{JUCE_DIR_MACOS}}")
+elseif(UNIX AND NOT APPLE AND NOT JUCE_DIR_LINUX STREQUAL "" AND EXISTS "${{JUCE_DIR_LINUX}}")
+    set(JUCE_DIR_CANDIDATE "${{JUCE_DIR_LINUX}}")
 elseif(APPLE AND EXISTS "/Applications/JUCE")
     set(JUCE_DIR_CANDIDATE "/Applications/JUCE")
 elseif(WIN32 AND EXISTS "C:/Program Files/JUCE")
     set(JUCE_DIR_CANDIDATE "C:/Program Files/JUCE")
-elseif(UNIX AND EXISTS "/usr/local/JUCE")
+elseif(UNIX AND NOT APPLE AND EXISTS "/usr/local/JUCE")
     set(JUCE_DIR_CANDIDATE "/usr/local/JUCE")
 endif()
 

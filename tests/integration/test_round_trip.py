@@ -105,6 +105,21 @@ def test_juce_dir_sidecar_round_trip(tmp_path):
     assert loaded.host_juce_dir() == juce_path
 
 
+def test_generated_cmake_uses_per_os_juce_workspace(tmp_path):
+    spec = make_spec(
+        tmp_path,
+        juce_dir_windows="C:/Users/Guillaume/Dev/SDKs/JUCE",
+        juce_dir_macos="/Volumes/Guillaume/Dev/SDKs/JUCE",
+        juce_dir_linux="/home/guillaume/Dev/SDKs/JUCE",
+    )
+    project_dir, _ = generate_project(tmp_path, spec=spec)
+    cmake = (project_dir / "CMakeLists.txt").read_text(encoding="utf-8")
+    assert 'set(JUCE_DIR_WINDOWS "C:/Users/Guillaume/Dev/SDKs/JUCE")' in cmake
+    assert 'set(JUCE_DIR_MACOS   "/Volumes/Guillaume/Dev/SDKs/JUCE")' in cmake
+    assert 'set(JUCE_DIR_LINUX   "/home/guillaume/Dev/SDKs/JUCE")' in cmake
+    assert 'set(JUCE_DIR "/Volumes' not in cmake
+
+
 def test_regenerate_preserves_juce_dir(tmp_path):
     from core import project_reader
     from core.project_generator import ProjectGenerator
@@ -114,7 +129,15 @@ def test_regenerate_preserves_juce_dir(tmp_path):
     generator = ProjectGenerator()
     project_dir = generator.generate(spec)
     cmake_before = (project_dir / "CMakeLists.txt").read_text(encoding="utf-8")
-    assert f'set(JUCE_DIR "{juce_path}")' in cmake_before
+    host_juce = host_workspace_field_key("juce")
+    host_var = {
+        "juceDirMacos": "JUCE_DIR_MACOS",
+        "juceDirWindows": "JUCE_DIR_WINDOWS",
+        "juceDirLinux": "JUCE_DIR_LINUX",
+    }[host_juce]
+    assert f"set({host_var}" in cmake_before
+    assert f'"{juce_path}"' in cmake_before
+    assert f'set(JUCE_DIR "{juce_path}")' not in cmake_before
     sidecar_before = json.loads((project_dir / ".luthier.json").read_text(encoding="utf-8"))
 
     loaded = project_reader.read_project_result(project_dir).spec
@@ -123,4 +146,4 @@ def test_regenerate_preserves_juce_dir(tmp_path):
     sidecar_after = json.loads((project_dir / ".luthier.json").read_text(encoding="utf-8"))
     assert sidecar_after == sidecar_before
     cmake_after = (project_dir / "CMakeLists.txt").read_text(encoding="utf-8")
-    assert f'set(JUCE_DIR "{juce_path}")' in cmake_after
+    assert cmake_after == cmake_before

@@ -136,12 +136,19 @@ def juce_dir_for_tests() -> str | None:
 
 def canonical_cross_platform_spec(tmp_path, **kwargs) -> ProjectSpec:
     juce = kwargs.pop("juce_dir", None) or juce_dir_for_tests() or "/Applications/JUCE"
+    host_attr = workspace_attr(host_workspace_field_key("juce"))
+    juce_kwargs = {
+        "juce_dir_windows": kwargs.pop("juce_dir_windows", "C:/Program Files/JUCE"),
+        "juce_dir_macos": kwargs.pop("juce_dir_macos", "/Applications/JUCE"),
+        "juce_dir_linux": kwargs.pop("juce_dir_linux", "/usr/local/JUCE"),
+    }
+    juce_kwargs[host_attr] = juce
     return make_spec(
         tmp_path,
-        juce_dir=juce,
         artefacts_dir_windows="C:/out/win",
         artefacts_dir_macos="/out/mac",
         artefacts_dir_linux="/out/linux",
         copy_to_artefacts_dir=True,
+        **juce_kwargs,
         **kwargs,
     )

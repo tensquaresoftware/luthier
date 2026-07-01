@@ -140,30 +140,37 @@ def test_build_context_value_keys_passthrough():
         assert ctx[key] == d[key]
 
 
-def test_build_context_juce_dir_empty():
+def test_build_context_juce_workspace_paths_empty():
     spec = _make_spec(juce_dir="")
-    assert build_context(spec)["juceDirSetLine"] == ""
-    spec_whitespace = _make_spec(juce_dir="   ")
-    assert build_context(spec_whitespace)["juceDirSetLine"] == ""
+    ctx = build_context(spec)
+    assert ctx["juceDirWindows"] == '""'
+    assert ctx["juceDirMacos"] == '""'
+    assert ctx["juceDirLinux"] == '""'
 
 
-def test_build_context_juce_dir_set():
-    spec = _make_spec(juce_dir="/Applications/JUCE")
-    line = build_context(spec)["juceDirSetLine"]
-    assert line == 'set(JUCE_DIR "/Applications/JUCE")\n'
+def test_build_context_juce_workspace_paths_set():
+    spec = _make_spec(
+        juce_dir_windows="C:/JUCE",
+        juce_dir_macos="/Applications/JUCE",
+        juce_dir_linux="/usr/local/JUCE",
+    )
+    ctx = build_context(spec)
+    assert ctx["juceDirWindows"] == '"C:/JUCE"'
+    assert ctx["juceDirMacos"] == '"/Applications/JUCE"'
+    assert ctx["juceDirLinux"] == '"/usr/local/JUCE"'
 
 
 @pytest.mark.parametrize(
-    "juce_dir,expected_fragment",
+    "field_kwargs,expected_key,expected_fragment",
     [
-        ("/Applications/My JUCE", 'set(JUCE_DIR "/Applications/My JUCE")\n'),
-        ('C:/JUCE"bad', 'set(JUCE_DIR "C:/JUCE\\"bad")\n'),
-        ("$ENV{HOME}/JUCE", 'set(JUCE_DIR "\\$ENV{HOME}/JUCE")\n'),
+        ({"juce_dir_windows": 'C:/JUCE"bad'}, "juceDirWindows", '"C:/JUCE\\"bad"'),
+        ({"juce_dir_macos": "/Applications/My JUCE"}, "juceDirMacos", '"/Applications/My JUCE"'),
+        ({"juce_dir_linux": "$ENV{HOME}/JUCE"}, "juceDirLinux", '"\\$ENV{HOME}/JUCE"'),
     ],
 )
-def test_build_context_juce_dir_special_characters(juce_dir, expected_fragment):
-    spec = _make_spec(juce_dir=juce_dir)
-    assert build_context(spec)["juceDirSetLine"] == expected_fragment
+def test_build_context_juce_workspace_special_characters(field_kwargs, expected_key, expected_fragment):
+    spec = _make_spec(**field_kwargs)
+    assert build_context(spec)[expected_key] == expected_fragment
 
 
 def test_build_context_unknown_plugin_type_raises():

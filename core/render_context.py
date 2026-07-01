@@ -25,7 +25,7 @@ def build_context(spec: ProjectSpec) -> dict:
     context.update(_categories(flags))
     context.update(_copy_config(d))
     context.update(_artefact_entries(d))
-    context.update(_juce_dir_line(spec.host_juce_dir()))
+    context.update(_juce_workspace_paths(d))
     context["bundleId"] = plugin_settings.bundle_id(d["manufacturerName"], d["projectName"])
     context.update(_extra_fields(d))
     return context
@@ -36,11 +36,12 @@ def _cmake_quoted(value: str) -> str:
     return f'"{escaped}"'
 
 
-def _juce_dir_line(juce_dir: str) -> dict:
-    path = normalize_portable_path((juce_dir or "").strip())
-    if not path:
-        return {"juceDirSetLine": ""}
-    return {"juceDirSetLine": f"set(JUCE_DIR {_cmake_quoted(path)})\n"}
+def _juce_workspace_paths(config: dict) -> dict:
+    return {
+        "juceDirWindows": _cmake_path_value(config.get("juceDirWindows", "")),
+        "juceDirMacos": _cmake_path_value(config.get("juceDirMacos", "")),
+        "juceDirLinux": _cmake_path_value(config.get("juceDirLinux", "")),
+    }
 
 
 def _categories(flags: dict) -> dict:
