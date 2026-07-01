@@ -78,7 +78,7 @@ def test_load_project_clears_dirty_state():
     """After load (e.g. post-generate), the form should not appear unsaved."""
     baseline = ProjectSpec(project_name="MyPlugin", project_version="1.0.0").to_dict()
     edited = dict(baseline)
-    edited["projectVersion"] = "1.0.1"
+    edited["projectVersion"] = "1.0.2"
     assert not form_snapshots_equal(baseline, edited)
     assert form_snapshots_equal(edited, edited)
 

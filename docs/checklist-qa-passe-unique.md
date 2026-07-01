@@ -1,12 +1,12 @@
-# Luthier — Passe QA unique (post-correctifs 1.0.1)
+# Luthier — Passe QA unique (v1.0.0 — Workspace)
 
-**Version visée :** 1.0.1 (build contenant les correctifs QA)  
+**Version visée :** 1.0.0 (build release pre-publication)  
 **Public :** testeur sans connaissance technique  
 **Langue de l’app :** anglais (libellés cités tels qu’à l’écran)  
 **Durée indicative :** 3 à 5 h sur les trois OS (ou 1 à 2 h si vous ne refaites que les régressions + fin du parcours Git)
 
 > **Objectif :** une seule lecture, une seule passe. Cochez `- [ ]` → `- [x]` au fur et à mesure.  
-> Ancienne checklist détaillée : [checklist-qa-manuelle.md](checklist-qa-manuelle.md) (archive des tests 1.0.0).
+> Ancienne checklist détaillée : [checklist-qa-manuelle.md](checklist-qa-manuelle.md) (archive détaillée pré-Workspace).
 
 ---
 
@@ -14,7 +14,7 @@
 
 ### Sur chaque machine
 
-- [x] Build **1.0.1** installé (même type sur les trois OS si possible : app autonome **ou** sources).
+- [x] Build **1.0.0** installé (même type sur les trois OS si possible : app autonome **ou** sources).
 - [x] **JUCE** installé localement ; notez le chemin.
 
 - macOS : /Volumes/Guillaume/Dev/SDKs/JUCE
@@ -23,7 +23,7 @@
 
 - [x] Dossier de travail pour les projets tests (ex. Bureau, `Téléchargements`, ou dossier `été 2026` — pour valider les accents).
 - [x] **Git** disponible pour la partie cross-plateforme.
-- [x] Onglet **About** : version **1.0.1** (ou votre numéro de build).
+- [x] Onglet **About** : version **1.0.0**, revision date **2026-07-01**.
 
 ### Fichiers de test suggérés
 
@@ -49,7 +49,7 @@
 
 ### R1 — Chemins avec accents et caractères spéciaux
 
-- [x] **Preferences** → **Destination folder** → **Choose…** → dossier dont le nom contient des **accents** (ex. `Téléchargements`, `été 2026`).
+- [x] **Preferences** → **Workspace** → **Destination folder** (ligne OS hôte) → **Choose…** → dossier dont le nom contient des **accents** (ex. `Téléchargements`, `été 2026`).
 - [x] **Aucune** erreur rouge sous le champ ; badge **Saved** possible.
 - [x] **Create New Project** → `TestLuthier` → **Generate Project** : succès sans dialogue de dossier intempestif (destination déjà valide).
 
@@ -107,10 +107,10 @@
 ### 2A — macOS
 
 - [ ] Lancement sans plantage ; onglets **Project**, **Preferences**, **Templates**, **About**.
-- [ ] **Preferences** : fabricant, **Generate** codes, chemins JUCE + destination, couleur d’accent, export/import `profil-qa-macos.json`.
+- [ ] **Preferences** : fabricant, **Generate** codes, section **Workspace** (destination + JUCE pour les trois OS), couleur d’accent, export/import `profil-qa-macos.json`.
 - [ ] **Create New Project** → `TestLuthier` → formats **VST3** + **AU** → **Generate Project** → dossier avec `CMakeLists.txt`, `.luthier.json`, `Source/`.
 - [ ] **Open Project…** → modifier **Version** → regénérer → rouvrir : changements conservés.
-- [ ] Déplacer le projet dans un dossier accentué → **Open Project…** : **Destination folder** mis à jour, **pas** d’erreur sur le chemin.
+- [ ] Déplacer le projet dans un dossier accentué → **Open Project…** : **Destination folder** (ligne OS hôte dans **Workspace**) mis à jour, **pas** d’erreur sur le chemin.
 - [ ] **Templates** : override `PluginProcessor.cpp` → nouveau projet → override visible → **Reset to default** → disparaît sur les nouveaux projets.
 - [ ] *(Optionnel)* Build CMake du projet généré : OK.
 
@@ -147,7 +147,7 @@
 
 ### 3.3 — Machine 2 (ex. Windows)
 
-- [ ] `git clone` → **Open Project…** → adapter **JUCE directory** Windows.
+- [ ] `git clone` → **Open Project…** → adapter **JUCE directory** Windows (ligne hôte dans **Workspace**).
 - [ ] Version `1.1.0`, **Display name** `Voyage Cross QA Windows` → **Generate Project** OK.
 - [ ] Commit + push.
 - [ ] *(Recommandé)* Build + chargement VST3 depuis dossiers système et artefacts.
@@ -165,12 +165,12 @@
 - [ ] `git pull`.
 - [ ] **Open Project…** → `VoyageLuthier`.
 - [ ] **Version** : `1.2.0` ; **Preprocessor defs** : `LINUX_QA=1`.
-- [ ] **JUCE directory** Mac remis → **Generate Project** sans erreur.
+- [ ] **JUCE directory** Mac (ligne hôte **Workspace**) remis → **Generate Project** sans erreur.
 - [ ] **Display name** → `Voyage Cross QA Final` → générer → commit + push.
 
 ### 3.6 — Vérifications finales cross-plateforme
 
-- [ ] Sur **les trois** OS : **Open Project…** dernière révision Git → projet cohérent (seuls JUCE / destination locaux à adapter).
+- [ ] Sur **les trois** OS : **Open Project…** dernière révision Git → projet cohérent (seuls les chemins **Workspace** hôte à adapter si besoin).
 - [ ] **Import Preferences…** depuis un JSON exporté sur une autre machine : **Preferences** mis à jour, projet ouvert **inchangé**.
 - [ ] Conflit Git simulé (versions différentes sans pull) : merge → `.luthier.json` reflète le dépôt.
 - [ ] **Aucun plantage** Luthier pendant toute la Partie 3.
@@ -211,6 +211,6 @@ La passe QA est **réussie** si :
 
 ## Références
 
-- [Checklist QA 1.0.0 (archive)](checklist-qa-manuelle.md)
+- [Checklist QA détaillée (archive)](checklist-qa-manuelle.md)
 - [Manuel utilisateur (FR)](manuel-utilisateur.md)
 - [User manual (EN)](user-manual.md)

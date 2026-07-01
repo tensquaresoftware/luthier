@@ -1,6 +1,6 @@
 # Deferred Work
 
-**Gel MVP — 2026-06-29.** Epic 7 terminée ; critères MUST/SHOULD du sprint change proposal satisfaits. Ce registre ne sert plus de backlog sprint : il distingue **limitations acceptées pour v1**, **pistes post-MVP**, et **items retirés** (décisions de design ou hors périmètre).
+**Gel MVP — 2026-07-01.** Epic 8 terminée ; section **Workspace** livrée. Ce registre ne sert plus de backlog sprint : il distingue **limitations acceptées pour v1**, **pistes post-MVP**, et **items retirés** (décisions de design ou hors périmètre).
 
 Détails historiques par story : fichiers `_*-*.md` dans ce dossier (sections `[Review][Defer]`).
 
@@ -67,7 +67,13 @@ Ces entrées ne sont **plus** de la dette ouverte — décision de design, hors 
 | 7.3 Core robustness | done | Cas limites génération / reload |
 | 7.4 Hygiène tests + UI mineur | done | Legacy tests, polish prefs/templates |
 
-**Prochaine étape produit :** QA manuelle (semaine 2026-07-07). Pas d'Epic 8 « vider deferred-work » sans signal utilisateur.
+## Référence rapide Epic 8
+
+| Story | Statut | Livrable |
+|-------|--------|----------|
+| 8.1 Workspace per-OS paths | done | Section **Workspace**, six clés, migration legacy |
+
+**Prochaine étape produit :** QA manuelle post-Epic 8 (checklists `docs/checklist-qa-*.md`, parcours Git cross-plateforme avec **Workspace**). Passage public v1.0.0 quand QA validée.
 
 ---
 

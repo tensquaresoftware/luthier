@@ -115,7 +115,7 @@ Les étapes sont identiques d’un OS à l’autre ; seules les notes spécifiqu
 
 ### A4 — Rouvrir et modifier un projet
 
-- [x] Modifiez **Version** (ex. `1.0.1`) **sans** générer.
+- [x] Modifiez **Version** (ex. `1.0.2`) **sans** générer.
 - [x] **Create New Project** → boîte de confirmation → **No** : vos changements restent ; refaites → **Yes** : formulaire réinitialisé.
 - [x] **Open Project…** → dossier `TestLuthier`.
 - [x] Message *Loaded TestLuthier from…* et champs cohérents avec le projet.
@@ -252,7 +252,7 @@ Les étapes sont identiques d’un OS à l’autre ; seules les notes spécifiqu
 
 ### B4 — Rouvrir et modifier un projet
 
-- [x] Modifiez **Version** (ex. `1.0.1`) **sans** générer.
+- [x] Modifiez **Version** (ex. `1.0.2`) **sans** générer.
 - [x] **Create New Project** → boîte de confirmation → **No** : vos changements restent ; refaites → **Yes** : formulaire réinitialisé.
 
 📌 **Note GD** : le bouton Yes est à gauche et No à droite dans la modale, sous macOS c'est le contraire : je préfère l'ordre d'affichage macOS
@@ -400,7 +400,7 @@ Les étapes sont identiques d’un OS à l’autre ; seules les notes spécifiqu
 
 ### C4 — Rouvrir et modifier un projet
 
-- [x] Modifiez **Version** (ex. `1.0.1`) **sans** générer.
+- [x] Modifiez **Version** (ex. `1.0.2`) **sans** générer.
 - [x] **Create New Project** → boîte de confirmation → **No** : vos changements restent ; refaites → **Yes** : formulaire réinitialisé.
 - [x] **Open Project…** → dossier `TestLuthier`.
 - [x] Message *Loaded TestLuthier from…* et champs cohérents avec le projet.

@@ -1,5 +1,5 @@
 # generated: 2026-06-23
-# last_updated: 2026-07-01 # story 8-1 done — workspace per-OS paths
+# last_updated: 2026-07-01 # epic 8 done — workspace per-OS paths (v1.0.0 target)
 # project: Luthier
 # project_key: NOKEY
 # tracking_system: file-system
@@ -107,6 +107,6 @@ development_status:
   epic-7-retrospective: optional
 
   # Epic 8: Workspace (pre-public release — v1.0.0)
-  epic-8: in-progress
+  epic-8: done
   8-1-workspace-per-os-paths: done
   epic-8-retrospective: optional
