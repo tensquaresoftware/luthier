@@ -10,7 +10,7 @@ from collections.abc import Callable
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QCheckBox, QVBoxLayout, QWidget
 
-from app.pages.path_specs import host_artefact_field_key
+from app.pages.path_specs import OS_FIELD_LEFT_MARGIN, host_artefact_field_key
 from app.widgets.folder_field import FolderField
 from app.widgets.validated_field import FieldSpec, ValidatedField
 from core import validation
@@ -98,7 +98,7 @@ class ArtefactsSection(QWidget):
     def _build_path_fields(self, folder_start_resolver: Callable[[str], str] | None) -> None:
         host_key = host_artefact_field_key()
         paths_layout = QVBoxLayout(self._paths_host)
-        paths_layout.setContentsMargins(0, 0, 0, 0)
+        paths_layout.setContentsMargins(OS_FIELD_LEFT_MARGIN, 0, 0, 0)
         paths_layout.setSpacing(2)
         for spec in _artefact_specs(self._prefs):
             if spec.key == host_key:

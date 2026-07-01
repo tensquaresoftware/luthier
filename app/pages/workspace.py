@@ -10,6 +10,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from app.pages.path_specs import (
+    OS_FIELD_LEFT_MARGIN,
     host_workspace_field_key,
     workspace_destination_specs,
     workspace_juce_specs,
@@ -92,7 +93,7 @@ class WorkspaceSection(QWidget):
         host_dest = host_workspace_field_key("destination")
         host_juce = host_workspace_field_key("juce")
         layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(OS_FIELD_LEFT_MARGIN, 0, 0, 0)
         layout.setSpacing(2)
         for spec in specs:
             if spec.key in (host_dest, host_juce):

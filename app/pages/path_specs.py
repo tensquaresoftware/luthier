@@ -6,6 +6,9 @@ from app.widgets.validated_field import FieldSpec
 from core import validation
 from core.paths import WORKSPACE_DESTINATION_KEYS, WORKSPACE_JUCE_KEYS, host_workspace_field_key
 
+# Left margin for per-OS rows nested under section headings (Workspace, Artefacts).
+OS_FIELD_LEFT_MARGIN = 16
+
 _WORKSPACE_DEST_LABELS = {
     "destinationDirWindows": "Windows",
     "destinationDirMacos": "macOS",
