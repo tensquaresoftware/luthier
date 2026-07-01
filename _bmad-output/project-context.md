@@ -126,7 +126,7 @@ Only two tokens exist for source files: `@PROJECT_NAME@` and `@PROJECT_DISPLAY_N
 - Sidecar missing or invalid → `ProjectReadResult(spec=None, error=...)`
 - No CMake regex fallback
 - On success, host **destination** is injected from the parent of the opened project folder
-- `ProjectSpec.from_dict()` deserialises the sidecar JSON (six workspace keys per OS)
+- `ProjectSpec.from_dict()` deserialises the sidecar JSON (six workspace keys per OS, **`accentColor`** for per-project UI theme)
 
 ### Template Overrides
 
@@ -143,7 +143,7 @@ Keys: `manufacturer`, `manufacturerCode`, `pluginCode`, `companyCopyright`, `com
 ### App State
 
 `core/app_state.py` — JSON at `~/.../AppConfigLocation/Luthier/app_state.json` (sibling of `preferences.json`, **not** part of Import/Export profile).  
-Fields: `lastUsedParentDir`, `lastPrefsProfileDir`, `windowGeometry` (Qt bytes), `windowRect`, `windowMaximized`. Written after successful Generate (`remember_parent`), Import/Export path picks, and window resize/move (debounced). Used by Choose… / Open dialog start dirs via `dialog_start_dir()` and by `MainWindow` to restore size, position, and maximized state.
+Fields: `lastUsedParentDir`, `lastPrefsProfileDir`, `windowGeometry` (Qt bytes, macOS/Windows), `windowRect`, `windowMaximized`. Written after successful Generate (`remember_parent`), Import/Export path picks, and window resize/move (debounced). Used by Choose… / Open dialog start dirs via `dialog_start_dir()` and by `MainWindow` to restore size, position (macOS/Windows), and maximized state. On Linux, size is restored from `windowRect`; position is best-effort and not guaranteed under Wayland.
 
 ---
 

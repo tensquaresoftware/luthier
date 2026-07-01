@@ -15,6 +15,7 @@ Pas de story planifiée. Réouvrir seulement si retour utilisateur ou QA manuell
 | Pas de `fsync` après écriture temp (`atomic_write_text`) | Même niveau de durabilité qu'AD-4 `ProjectWriter` ; trade-off documenté (AD-10). |
 | Fichiers `.tmp` orphelins après SIGKILL / coupure | Limitation inhérente à l'écriture atomique ; nettoyage manuel suffisant pour v1. |
 | Pas de tests widget Qt (rollback import prefs, `MainWindow`, etc.) | Invariant **AD-6** ; logique core couverte par tests unitaires ; UI vérifiée en QA manuelle. |
+| Position fenêtre Linux non garantie (Wayland / WM) | Limitation plateforme acceptée v1.0.0 ; taille restaurée, placement laissé au gestionnaire de fenêtres. |
 | Garde no-Qt in-process (`test_core_imports.py`) | Choix explicite Story 7.4 ; couvre l'intention sans cold-import subprocess. |
 | `read_project()` supprimé (Story 8.2) | API unique : `read_project_result()` avec `error`. |
 | Conflit `set()` vs `juce_add_plugin` dans `_quoted_fields` | CMake legacy rare ; `set()` privilégié de façon cohérente. |

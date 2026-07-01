@@ -129,11 +129,13 @@ On read failure (`JSONDecodeError`, `OSError`, or non-`dict` root), `Preferences
 
 `MainWindow` surfaces `load_warning` via the status bar at startup (after generator errors, before accent warnings).
 
-## juce_dir (AD-7 revised)
+## juce_dir and accent colour (AD-7 revised)
 
 - `ProjectSpec.juce_dir` is written to `.luthier.json` and participates in round-trip.
+- `ProjectSpec.accent_color` (`accentColor` in JSON) is written to `.luthier.json` on Generate and restored on Open Project — per-project UI theme, independent of `preferences.json`.
 - `render_context.build_context(spec)` reads `spec.juce_dir` — no separate parameter.
 - `Preferences.juce_dir` is the **default seed only** for new projects — copied at startup and Create New Project, not read at Generate time.
+- `Preferences.accent_color` seeds the Project tab on Create New Project; persisted project colour lives in the sidecar after Generate.
 
 ## Template overrides (AD-9)
 

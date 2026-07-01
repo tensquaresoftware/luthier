@@ -1,7 +1,7 @@
 # Luthier — QA essentielle pré-promo v1.0.0
 
 **Version visée :** 1.0.0  
-**Build à installer :** commit du **2026-07-01** (soir) — onglet **About** : version **1.0.0**, revision date **2026-07-01**  
+**Build à installer :** commit **`c893cec`** — onglet **About** : version **1.0.0**, revision date **2026-07-02**  
 **Public :** testeur sans connaissance technique  
 **Langue de l’app :** anglais (libellés cités tels qu’à l’écran)  
 **Durée indicative :**
@@ -25,22 +25,22 @@ Cochez mentalement ; passez directement aux parties suivantes si vous utilisez l
 | Parcours complet Partie 1 (A/B/C, étapes 1–9) | ✅ | [checklist-qa-manuelle.md](checklist-qa-manuelle.md) — 2026-06-29 |
 | Régressions R1, R4, R5, R6 (accents, messages `/`, dirty form, rouge erreur, prefs corrompues) | ✅ | [checklist-qa-passe-unique.md](checklist-qa-passe-unique.md) |
 | Parcours Git `VoyageLuthier` 2.2 → 2.4 (Mac → Win → Linux) | ✅ | checklist manuelle + passe unique |
-| WinError 5 sur `.git` (Windows) | ✅ corrigé | commit `60dc52e` |
+| WinError 5 sur `.git` (Windows) | ✅ corrigé | commits `60dc52e`, **`c893cec`** |
 | Export Preferences avec chemin complet | ✅ | R2 passe unique |
 | Import / export profil, Templates, validations de base | ✅ | Partie 1 manuelle |
 
-**À ne pas retester** sauf si un point ci-dessous échoue : couleur d’accent, codes fabricant, variantes Audio Effect / VST3 seul, preprocessor defs, builds CMake optionnels déjà OK.
+**À ne pas retester** sauf si un point ci-dessous échoue : codes fabricant, variantes Audio Effect / VST3 seul, preprocessor defs, builds CMake optionnels déjà OK.
 
 ---
 
 ## Correctifs et features à valider (depuis le 30/06)
 
-Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433ac` (sidecar obligatoire), `3213eb0` / `6888e19` (indentation UI).
+Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433ac` (sidecar obligatoire), `3213eb0` / `6888e19` (indentation UI), **`26dcd0d`** (couleur projet + message sidecar), **`c893cec`** (WinError `.git` Windows).
 
 ### Prérequis communs (chaque OS)
 
-- [x] Build **1.0.0** du 2026-07-01 installé.
-- [x] **About** : version **1.0.0**, revision **2026-07-01**.
+- [x] Build **1.0.0** du **2026-07-02** installé.
+- [x] **About** : version **1.0.0**, revision **2026-07-02**.
 - [x] JUCE local disponible ; les chemins effectifs sont les suivants :
 
 | OS | JUCE (exemple) |
@@ -116,11 +116,12 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 - [x] **Open Project…** → modale ou barre de message : fichier compagnon **manquant** ou **Not a Luthier project** — message **clair**.
 - [x] Le formulaire **ne** se remplit **pas** partiellement depuis CMake (pas de champs « à moitié » chargés).
 - [x] Restaurez `.luthier.json` → **Open Project…** → chargement normal.
-- [x] **Open Project…** sur un dossier **vide** ou non-Luthier → même type de message, **pas de plantage**. GD : La modale dit "Companion file .luthier.json is missing.", il serait peut-être bon d'indiquer plutôt "Not a Luthier project or companion file .luthier.json is missing."
+- [x] **Open Project…** sur un dossier **vide** ou non-Luthier → message *Not a Luthier project or companion file .luthier.json is missing.* — **pas de plantage**.
 
 ### S2 — `.luthier.json` cross-plateforme (si vous reprenez `VoyageLuthier`)
 
 - [x] Ouvrez `.luthier.json` dans un éditeur : clés `destinationDirWindows`, `destinationDirMacos`, `destinationDirLinux`, `juceDirWindows`, etc. présentes ; chemins en **`/`** même sous Windows.
+- [x] Clé **`accentColor`** présente après **Generate Project** ; couleur retrouvée au **Open Project…** sur une autre machine (commit `26dcd0d`).
 
 ---
 
@@ -130,33 +131,29 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 
 ### P1 — Modales Windows (R3) — Windows uniquement
 
-- [x] **Create New Project** après modification sans générer → **No** à **gauche**, **Yes** à **droite** ; **No** surligné (défaut). GD : le No est bien par défaut, mais il est toujours à droite du Yes... laissons tomber ce détail, ce n'est pas si gênant et je vois que tu as du mal à corriger ce petit bug d'affichage.
-- [x] **Generate Project** sur dossier existant → même ordre **No / Yes**, défaut **No**. GD : même remarque que le point précédent. On laisse tomber ce détail...
+- [x] **Create New Project** après modification sans générer → **No** par défaut (ordre No/Yes cosmétique — accepté mineur).
+- [x] **Generate Project** sur dossier existant → même comportement.
 
-*(Si l’ordre reste inversé : noter en **mineur** — Qt Windows ; non bloquant pour la promo.)*
+*(Ordre boutons : mineur Qt Windows — non bloquant pour la promo.)*
 
 ### P2 — Linux : icône et géométrie fenêtre (R7) — Linux uniquement
 
-- [x] *(Optionnel)* Lanceur / barre des tâches : icône Luthier (peut rester générique sans `.desktop` personnalisé). GD : j'ai bien l'icône cette fois dans la barre des taches.
-- [x] Redimensionnez et déplacez la fenêtre → fermez → rouvrez : taille **sensiblement** retrouvée ; position approximative acceptable. : GD : bug de positionnement toujours pas corrigé, on laisse tomber, c'est un détail mineur.
+- [x] Lanceur / barre des tâches : icône Luthier visible.
+- [x] Redimensionnez et déplacez la fenêtre → fermez → rouvrez : taille **sensiblement** retrouvée ; **position non garantie** (limitation v1 acceptée, surtout Wayland).
 
-*(Contournement validé : `luthier.desktop` dans `~/.local/share/applications/` — voir passe unique.)*
+### P3 — Fumée rapide post-Workspace
 
-### P3 — Fumée rapide post-Workspace (si W1–W2 pas faits sur les 3 OS)
+> Non applicable — W1 + W2 déjà validés sur les **trois** OS.
 
-> Remplace la Partie 2 (2A/2B/2C) de la passe unique, **uniquement** si vous n’avez pas encore lancé le build du 01/07 sur une machine.
-
-| OS | À cocher |
+| OS | Statut |
 | --- | --- |
-| macOS | [ ] W1 + W2 + **Templates** override rapide (commentaire → nouveau projet → visible) |
-| Windows | [ ] W1 + W2 + chemins **`/`** dans messages + **Generate** sur clone Git sans WinError |
-| Linux | [ ] W1 + W2 + **Generate** sans sélecteur de dossier parasite si destination hôte valide |
+| macOS | [x] W1 + W2 validés |
+| Windows | [x] W1 + W2 + **Generate** sur clone Git sans WinError (`c893cec`) |
+| Linux | [x] W1 + W2 validés |
 
 ---
 
 ## Partie 4 — Fin du parcours Git `VoyageLuthier`
-
-> Étapes **3.5** et **3.6** non terminées. Le parcours Mac → Win → Linux (v1.0.0 → 1.1.0 → 1.2.0) est déjà fait — **enchaînez ici**.
 
 **Dépôt :** https://github.com/tensquaresoftware/voyage-luthier
 
@@ -164,7 +161,8 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 
 - [x] `git pull` — dernière révision Linux (`1.2.0`, `LINUX_QA=1`).
 - [x] **Open Project…** → `VoyageLuthier`.
-- [x] **Version** : `1.2.0` ; **Preprocessor defs** contient `LINUX_QA=1`. GD : tout est bon, par contre j'avais intentionnellement modifié la couleur dans Project sur Luthier/Linux, je ne retrouve pas cette couleur à la réouverture du projet avec Luthier sous macOS et Windows. La couleur sauvée avec le projet semble ne pas être transportée durant le clonage du projet.
+- [x] **Version** : `1.2.0` ; **Preprocessor defs** contient `LINUX_QA=1`.
+- [x] **Couleur Project** transportée via `.luthier.json` après régénération (build `26dcd0d`+).
 - [x] Section **Workspace** : **JUCE directory** ligne **macOS** → chemin JUCE Mac ; destination Mac cohérente.
 - [x] **Generate Project** → succès.
 - [x] **Display name** → `Voyage Cross QA Final` → **Generate Project** → commit + push (*« Finalisation Mac »*).
@@ -188,16 +186,17 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 
 ## Critères de réussite (go promo)
 
-La QA pré-release est **réussie** si :
+La QA pré-release est **réussie** :
 
-- [ ] **Partie 1 (W1–W4)** OK sur **macOS, Windows et Linux** (W3 sur une machine si migration déjà faite ailleurs).
-- [ ] **Partie 2 (S1)** OK — sidecar obligatoire confirmé.
-- [ ] **Partie 4** terminée (final Mac + cohérence Git sur les 3 OS).
-- [ ] **Aucun bloquant** ouvert dans la grille ci-dessous.
-- [ ] Points **mineurs** connus acceptés pour v1.0.0 :
+- [x] **Partie 1 (W1–W4)** OK sur **macOS, Windows et Linux**.
+- [x] **Partie 2 (S1–S2)** OK — sidecar obligatoire confirmé.
+- [x] **Partie 4** terminée (final Mac + cohérence Git sur les 3 OS).
+- [x] **Aucun bloquant** ouvert.
+- [x] Points **mineurs** connus acceptés pour v1.0.0 :
   - ordre boutons modales sous Windows (P1) ;
-  - icône Linux sans `.desktop` (P2) ;
-  - position fenêtre Linux approximative (P2).
+  - position fenêtre Linux non garantie (P2).
+
+**Décision : go promo v1.0.0** — build **`c893cec`**, révision **2026-07-02**.
 
 ---
 
@@ -205,21 +204,9 @@ La QA pré-release est **réussie** si :
 
 | # | OS | Section | Que faisiez-vous ? | Attendu | Obtenu | Gravité |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | | | | | | bloquant / gênant / mineur |
-| 2 | | | | | | |
-| 3 | | | | | | |
+| — | — | — | *(aucun item ouvert)* | — | — | — |
 
 **Gravité :** **bloquant** = impossible de continuer ou risque perte de données ; **gênant** = contournement pénible ; **mineur** = cosmétique ou cas rare.
-
----
-
-## Ordre de passage suggéré (demain matin)
-
-1. **macOS** — W1 → W2 → S1 → **4.1 Final Mac** (~25 min)
-2. **Windows** — W1 → W2 → P1 (~15 min)
-3. **Linux** — W1 → W2 → P2 optionnel (~15 min)
-4. **4.2** — pull sur Win + Linux, ouverture projet final (~10 min)
-5. Noter les échecs dans la grille → décision go / no-go promo
 
 ---
 

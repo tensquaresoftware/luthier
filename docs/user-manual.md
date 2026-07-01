@@ -6,7 +6,7 @@ Title: Luthier User Manual
 Version: 1.0
 Product-Version: 1.0.0
 Created: 2026-06-26
-Updated: 2026-07-01
+Updated: 2026-07-02
 References:
   - docs/architecture.md
   - CONTRIBUTING.md
@@ -178,7 +178,7 @@ The buttons at the bottom **change with the active tab**:
 
 ### Window size and position
 
-Luthier remembers your window size, position, and maximized state between sessions. If the saved position is no longer valid (for example you unplugged a monitor), the window opens centred at a comfortable default size.
+Luthier remembers window size and maximized state between sessions. On **macOS** and **Windows**, position is restored as well. On **Linux**, size is usually restored; **position is not guaranteed** (especially under Wayland, where the window manager may ignore client-requested placement). If the saved geometry is no longer valid (for example you unplugged a monitor), the window opens centred at a comfortable default size.
 
 ---
 
@@ -260,13 +260,16 @@ The same control appears at the top of the **Preferences** tab (above **Identity
 | Tab | Effect of choosing a colour |
 |-----|----------------------------|
 | **Preferences** | **Immediate** save to `preferences.json` (no **Saved** badge). Appearance updates while you stay on this tab. |
-| **Project** | **Visual change for the session** only; **not** written to `preferences.json`. |
+| **Project** | **Immediate** appearance update; saved to `.luthier.json` on **Generate Project**; restored on **Open Project…**. |
 
 When you switch tabs, Luthier applies the colour from the **active tab’s** picker. The **Project** picker picks up the value stored in **Preferences** at **startup** and when you click **Create New Project**.
 
-The persisted colour is stored under the key **`accentColor`** in `preferences.json`. It is also included when you **Export Preferences…**, so each exported profile can carry its own accent — handy if you work for **several clients or brands**: assign a distinct colour per client (for example teal for Client A, amber for Client B), export one JSON file per context, and **import** the right profile before starting work. At a glance, the tab bar and buttons tell you whether you are in the right “workspace”, even before you read the manufacturer name on the form.
+Two persistence levels apply:
 
-Changing the accent colour does **not** change project fields, templates, or generated JUCE files — only Luthier’s appearance. Only a change in **Preferences** (or **Import Preferences…**) updates `preferences.json`.
+- **`accentColor` in `preferences.json`** — default colour for **new** projects and profiles exported via **Export Preferences…** / **Import Preferences…**. Handy to distinguish clients or brands before you create a project.
+- **`accentColor` in `.luthier.json`** — colour **specific to the JUCE project**; written on **Generate Project**, read back on **Open Project…**, and carried with the project folder (Git, USB drive, etc.).
+
+Changing the accent colour does **not** change project fields, templates, or generated JUCE files — only Luthier’s appearance. A change in **Preferences** updates `preferences.json`; a change on **Project** is written to the sidecar only after **Generate Project**.
 
 ### 7.1 Project Info
 
@@ -469,7 +472,7 @@ The **Preferences** tab saves you from retyping the same information for every n
 
 ### 8.1 Sections
 
-At the top of the tab, **Luthier Accent Color** (see [§7 Luthier Accent Color](#luthier-accent-color)) uses the same twelve-preset picker as on **Project**. **This** is where the choice is **saved** to `preferences.json` and included in exported profiles. The **Project** tab picker is independent — it realigns only at startup or via **Create New Project**.
+At the top of the tab, **Luthier Accent Color** (see [§7 Luthier Accent Color](#luthier-accent-color)) uses the same twelve-preset picker as on **Project**. **This** is where the choice is **saved** to `preferences.json` and included in exported profiles. The **Project** tab keeps its **own** project colour (in `.luthier.json` after generation); it realigns to **Preferences** only at startup and via **Create New Project**.
 
 | Section | Contents |
 |---------|----------|
@@ -639,7 +642,7 @@ Given a valid **Project name** `MySynth` and a **host** **Destination folder** `
 | `CMakeLists.txt` | Main JUCE CMake project |
 | `CMakeUserPresets.json` | Multi-platform CMake presets (debug/release per OS) |
 | `Source/` | Processor and editor `.h` / `.cpp` from templates |
-| `.luthier.json` | Companion file: full configuration snapshot for reopen |
+| `.luthier.json` | Companion file: full configuration snapshot for reopen (form fields, Workspace paths, **`accentColor`**, …) |
 | `.gitignore` | From template (customizable) |
 | `.vscode/` and `.cursorrules` | **Optional** helpers for VS Code and Cursor (CMake presets, build tasks, suggested extensions). Safe to ignore or delete if you use Xcode, Visual Studio, or another IDE. |
 | `CMake/CopyVst3Elevated.ps1` | Windows VST3 copy helper |
@@ -661,7 +664,7 @@ Luthier splits data between **application configuration** (defaults, templates, 
 | `app_state.json` | Last destination parent, last import/export folder, window geometry | Successful Generate, Import/Export paths, window resize/move |
 | Exported `*.json` files | Preference profile copies (including `accentColor`) | Export Preferences… (manual files you choose) |
 | Template overrides (`templates/`) | Custom template content | Save override, Reset |
-| Generated project folder | CMake project + companion file `.luthier.json` | Generate Project |
+| Generated project folder / `.luthier.json` | CMake project + sidecar (form fields, Workspace, **`accentColor`**, …) | Generate Project |
 
 Typical **Luthier config directory** locations:
 
@@ -747,7 +750,7 @@ Global operation feedback (Generate, Open, Create New Project, Import/Export Pre
 
 | Situation | What happens |
 |-----------|--------------|
-| Open non-Luthier folder or missing `.luthier.json` | Dialog: *Not a Luthier project* or companion file missing/invalid. |
+| Open non-Luthier folder or missing `.luthier.json` | Dialog: *Not a Luthier project or companion file .luthier.json is missing.* (or invalid sidecar message). |
 | Invalid `.luthier.json` | Dialog: companion file invalid or unreadable. |
 | No plugin formats in opened project | Dialog: no formats detected. |
 | Import invalid JSON | Warning dialog. Previous preferences kept. |
@@ -763,7 +766,8 @@ A few pointers when behaviour surprises you. Most follow the logic in [§5](#5-t
 - **Plugin missing in GarageBand** — check that manufacturer and plugin codes follow the GarageBand casing rules ([§14](#14-field-validation-rules)). Use **Generate** to replace invalid codes.
 - **"Generate Project" is greyed out** — check required fields (*), formats, and artefact paths when central copy is on.
 - **Wrong destination after move** — use **Open Project…** at the new folder location. Do not rely on an old destination path.
-- **Preferences change not on Project tab** — expected. Click **Create New Project** to apply.
+- **Preferences change not on Project tab** — expected for form fields. Click **Create New Project** to apply new defaults (accent included). An **already open** project keeps its **Project** colour until the next **Open Project…** or **Generate Project**.
+- **Different colour after Git clone** — project colour lives in `.luthier.json`; reopen or regenerate after pull to restore it.
 - **Regenerate without edits** — Open → **Generate Project** should produce a consistent project. The companion file preserves full state.
 
 ---
