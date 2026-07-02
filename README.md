@@ -4,6 +4,13 @@ A Projucer-inspired desktop GUI for creating, reopening, and configuring CMake-b
 
 ![Luthier](luthier.png)
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://github.com/tensquaresoftware/luthier)
+[![GUI: PySide6](https://img.shields.io/badge/GUI-PySide6-41CD52?style=for-the-badge)](https://doc.qt.io/qtforpython/)
+[![Sponsor](https://img.shields.io/badge/Sponsor-Ten%20Square%20Software-ff69b4?style=for-the-badge&logo=github-sponsors&logoColor=white)](https://github.com/sponsors/tensquaresoftware)
+
+> 💛 If you find this project useful, consider [sponsoring its development](https://github.com/sponsors/tensquaresoftware) — every contribution helps keep the work going!
+
 Luthier is a self-contained [PySide6](https://doc.qt.io/qtforpython/) desktop app that generates ready-to-build, CMake-based JUCE plugin projects (AU / VST3 / Standalone): fill a form, validate inline, and generate. It can also reopen an existing generated project to tweak and regenerate it, and stores your defaults in a persistent preferences file — no hand-editing of configuration scripts.
 
 ## Features
@@ -60,6 +67,14 @@ On Windows: `.venv\Scripts\python.exe publish/build-dist.py`
 | Linux   | `dist/Luthier/Luthier` + `_internal/`       |
 
 Platform variants, headless bundle checks, and timings: see **[CONTRIBUTING.md](CONTRIBUTING.md#build-a-standalone-bundle-optional-extended-step)**.
+
+## Supporting the project
+
+Luthier is developed in my free time, alongside a day job as an instructional designer. [Cursor](https://cursor.com) has been a key part of my workflow for building this tool and related projects.
+
+If you find Luthier useful, sponsoring on [GitHub Sponsors](https://github.com/sponsors/tensquaresoftware) is the most direct way to help cover tooling costs and keep development going. Every contribution, no matter the size, is genuinely appreciated.
+
+Also see **[Matrix-Control](https://github.com/tensquaresoftware/matrix-control)** — a cross-platform SysEx MIDI editor for the Oberheim Matrix-1000 (JUCE 8 plugin) from the same author.
 
 ## License
 
