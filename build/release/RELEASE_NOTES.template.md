@@ -1,0 +1,28 @@
+## Luthier {{VERSION}}
+
+<!-- Replace this paragraph with a summary of new features and fixes. -->
+
+### Downloads
+
+| Platform | File | Instructions |
+|----------|------|----------------|
+| macOS | `Luthier-{{VERSION}}-macos.zip` | Unzip → open `Luthier.app` (see README.txt inside) |
+| Windows | `Luthier-{{VERSION}}-windows.zip` | Unzip → run `Luthier\Luthier.exe` (SmartScreen: More info → Run anyway) |
+| Linux | `Luthier-{{VERSION}}-linux.tar.gz` | Extract → `chmod +x Luthier/Luthier` if needed |
+| Documentation | `Luthier-{{VERSION}}-docs.zip` | User manuals (EN + FR) |
+
+Verify downloads with `SHA256SUMS.txt` included in this release.
+
+### Documentation (online)
+
+- [User Manual (EN)](https://github.com/tensquaresoftware/luthier/blob/{{VERSION}}/docs/user/user-manual.md)
+- [Manuel utilisateur (FR)](https://github.com/tensquaresoftware/luthier/blob/{{VERSION}}/docs/user/manuel-utilisateur.md)
+
+### Requirements
+
+- JUCE SDK on disk (not bundled with Luthier)
+- macOS / Windows 10+ (64-bit) / Linux x86_64
+
+### License
+
+MIT — packaged builds include Qt (PySide6) under LGPLv3. See [THIRD-PARTY-NOTICES.md](https://github.com/tensquaresoftware/luthier/blob/{{VERSION}}/THIRD-PARTY-NOTICES.md).
