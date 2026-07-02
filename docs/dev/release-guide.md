@@ -187,7 +187,7 @@ git pull origin main
 
 ```bash
 cd <chemin-vers-le-projet>
-git status          # doit être propre
+git status
 git pull origin main
 
 .venv/bin/python publish/prepare-release.py publish
