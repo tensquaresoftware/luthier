@@ -177,6 +177,8 @@ cd <chemin-vers-le-projet>
 
 ```powershell
 cd <chemin-vers-le-projet>
+
+# Le repo doit être propre avant de publier
 git status
 git pull origin main
 
@@ -187,6 +189,8 @@ git pull origin main
 
 ```bash
 cd <chemin-vers-le-projet>
+
+# Le repo doit être propre avant de publier
 git status
 git pull origin main
 
