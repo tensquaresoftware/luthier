@@ -6,6 +6,35 @@
 
 ---
 
+## Invocation Python (lire en premier)
+
+Toutes les commandes ci-dessous s'exécutent **depuis la racine du dépôt** (le dossier qui contient `main.py`, `publish/`, `app/`, etc.), avec le venv activé ou en appelant explicitement son interpréteur.
+
+Placez-vous d'abord dans votre clone :
+
+```text
+cd <chemin-vers-le-projet>
+```
+
+| OS | Interpréteur du venv |
+|----|----------------------|
+| **macOS / Linux** | `.venv/bin/python` |
+| **Windows (PowerShell)** | `.venv\Scripts\python.exe` |
+
+> **Windows :** ne copiez pas les blocs `bash` contenant `.venv/bin/python` — ce chemin n'existe pas sous Windows. Utilisez les blocs **Windows (PowerShell)** de chaque section.
+
+Alternative sous Windows après activation du venv :
+
+```powershell
+cd <chemin-vers-le-projet>
+.venv\Scripts\activate
+python publish/prepare-release.py pack
+```
+
+Les chemins **relatifs** du guide (`publish/…`, `_local/releases/…`, `dist/…`) sont toujours exprimés par rapport à cette racine.
+
+---
+
 ## Convention de nommage
 
 **`X.Y.Z` sans préfixe `v`** — tag Git, dossiers, archives, About, release GitHub.
@@ -22,21 +51,19 @@
 ### Arborescence
 
 ```text
-_local/releases/
-  release-guide.md              ← ce fichier
-  1.0.0/
-    Luthier-1.0.0-macos.zip
-    Luthier-1.0.0-windows.zip
-    Luthier-1.0.0-linux.zip
-    Luthier-1.0.0-docs.zip
-    SHA256SUMS.txt
-    RELEASE_NOTES.md
-  1.0.1/
-    ...
+<chemin-vers-le-projet>/
+  _local/releases/
+    X.Y.Z/
+      Luthier-X.Y.Z-macos.zip
+      Luthier-X.Y.Z-windows.zip
+      Luthier-X.Y.Z-linux.zip
+      Luthier-X.Y.Z-docs.zip
+      SHA256SUMS.txt
+      RELEASE_NOTES.md
 ```
 
 Modèles README et notes : `publish/templates/*.template.*`  
-Scripts d’automatisation : **`publish/`** (`publish/build-dist.py`, `publish/prepare-release.py`).
+Scripts d'automatisation : **`publish/`** (`build-dist.py`, `prepare-release.py`).
 
 ---
 
@@ -50,75 +77,124 @@ Scripts d’automatisation : **`publish/`** (`publish/build-dist.py`, `publish/p
 
 ### 1. Sur **chaque** OS — build + pack
 
+**macOS / Linux**
+
 ```bash
-cd /Volumes/Guillaume/Dev/Projects/Apps/Luthier
+cd <chemin-vers-le-projet>
 
 .venv/bin/python publish/build-dist.py
 .venv/bin/python publish/prepare-release.py pack
 ```
 
-Windows (PowerShell, depuis la racine du dépôt) :
+**Windows (PowerShell)**
 
 ```powershell
+cd <chemin-vers-le-projet>
+
 .venv\Scripts\python.exe publish/build-dist.py
 .venv\Scripts\python.exe publish/prepare-release.py pack
 ```
 
-Résultat : une archive plateforme dans `_local/releases/1.0.0/` (version lue depuis `app/version.py`).
+Résultat : une archive plateforme dans `_local/releases/X.Y.Z/` (version lue depuis `app/version.py`).
 
-> Synchronisez ce dossier entre machines (Git n’est **pas** utilisé — `_local/` est gitignoré).  
+> Synchronisez ce dossier entre machines (Git n'est **pas** utilisé — `_local/` est gitignoré).  
 > Copie réseau, clé USB, cloud perso, etc.
 
-**Alternative** — importer une archive déjà créée ailleurs :
+**Alternative** — importer une archive déjà créée ailleurs (chemins **absolus ou relatifs** acceptés pour le fichier source) :
+
+**macOS / Linux**
 
 ```bash
-.venv/bin/python publish/prepare-release.py import macos /chemin/vers/Luthier-1.0.0-macos.zip
-.venv/bin/python publish/prepare-release.py import windows /chemin/vers/Luthier-1.0.0-windows.zip
-.venv/bin/python publish/prepare-release.py import linux /chemin/vers/Luthier-1.0.0-linux.zip
+cd <chemin-vers-le-projet>
+
+.venv/bin/python publish/prepare-release.py import macos <chemin-vers-l-archive-macos>
+.venv/bin/python publish/prepare-release.py import windows <chemin-vers-l-archive-windows>
+.venv/bin/python publish/prepare-release.py import linux <chemin-vers-l-archive-linux>
 ```
 
-Windows : remplacez `.venv/bin/python` par `.venv\Scripts\python.exe` et les chemins par des chemins Windows (ex. `C:\...\Luthier-1.0.0-windows.zip`).
+**Windows (PowerShell)**
+
+```powershell
+cd <chemin-vers-le-projet>
+
+.venv\Scripts\python.exe publish/prepare-release.py import macos <chemin-vers-l-archive-macos>
+.venv\Scripts\python.exe publish/prepare-release.py import windows <chemin-vers-l-archive-windows>
+.venv\Scripts\python.exe publish/prepare-release.py import linux <chemin-vers-l-archive-linux>
+```
+
+Exemples de chemins d'archive : `~/Downloads/Luthier-1.0.0-macos.zip`, `./Luthier-1.0.0-windows.zip`, `D:\releases\Luthier-1.0.0-linux.zip`.
 
 Écraser une archive existante : ajoutez `--force` (ex. `publish/prepare-release.py --force pack`).
 
 ### 2. Quand les **3** archives plateforme sont réunies — finaliser
 
-Sur **une** machine (souvent celle qui a les 3 fichiers) :
+Sur **une** machine (souvent celle qui a les 3 fichiers), depuis la racine du projet :
+
+**macOS / Linux**
 
 ```bash
+cd <chemin-vers-le-projet>
+
 .venv/bin/python publish/prepare-release.py status    # les 3 [OK] ?
 .venv/bin/python publish/prepare-release.py finalize  # docs + notes + SHA256SUMS.txt
 .venv/bin/python publish/prepare-release.py verify
 ```
 
-Windows : `.venv\Scripts\python.exe publish/prepare-release.py status` (idem pour `finalize`, `verify`).
+**Windows (PowerShell)**
 
-Éditez l’intro de `RELEASE_NOTES.md` (remplacez le commentaire HTML).
+```powershell
+cd <chemin-vers-le-projet>
+
+.venv\Scripts\python.exe publish/prepare-release.py status
+.venv\Scripts\python.exe publish/prepare-release.py finalize
+.venv\Scripts\python.exe publish/prepare-release.py verify
+```
+
+Éditez l'intro de `_local/releases/X.Y.Z/RELEASE_NOTES.md` (remplacez le commentaire HTML).
 
 ### 3. Publier sur GitHub
 
+**macOS / Linux**
+
 ```bash
-cd /Volumes/Guillaume/Dev/Projects/Apps/Luthier
+cd <chemin-vers-le-projet>
 git status          # doit être propre
 git pull origin main
 
 .venv/bin/python publish/prepare-release.py publish
 ```
 
-Windows : `.venv\Scripts\python.exe publish/prepare-release.py publish`
+**Windows (PowerShell)**
+
+```powershell
+cd <chemin-vers-le-projet>
+git status
+git pull origin main
+
+.venv\Scripts\python.exe publish/prepare-release.py publish
+```
 
 Le script :
 
 1. Vérifie archives + checksums  
-2. Crée le tag annoté `1.0.0`  
+2. Crée le tag annoté `X.Y.Z`  
 3. Pousse le tag  
 4. Crée la GitHub Release + upload des 5 assets via `gh`
 
 Options :
 
+**macOS / Linux**
+
 ```bash
 .venv/bin/python publish/prepare-release.py publish -y          # sans confirmation
 .venv/bin/python publish/prepare-release.py publish --prerelease # bêta
+```
+
+**Windows (PowerShell)**
+
+```powershell
+.venv\Scripts\python.exe publish/prepare-release.py publish -y
+.venv\Scripts\python.exe publish/prepare-release.py publish --prerelease
 ```
 
 ### 4. Contrôle final
@@ -126,7 +202,7 @@ Options :
 - https://github.com/tensquaresoftware/luthier/releases/latest  
 - [ ] 5 assets téléchargeables  
 - [ ] Notes de release OK  
-- [ ] Tag = `1.0.0` (sans `v`)
+- [ ] Tag = `X.Y.Z` (sans `v`)
 
 ---
 
@@ -135,7 +211,7 @@ Options :
 | Commande | Rôle |
 |----------|------|
 | `status` | Inventaire des assets dans `_local/releases/X.Y.Z/` |
-| `pack` | Archive `dist/` de l’OS courant + `README.txt` |
+| `pack` | Archive `dist/` de l'OS courant + `README.txt` |
 | `import <os> <fichier>` | Copie une archive externe au bon nom |
 | `finalize` | Zip docs, `RELEASE_NOTES.md`, `SHA256SUMS.txt` |
 | `verify` | Présence + checksums |
@@ -143,21 +219,23 @@ Options :
 
 Version explicite (si différente de `app/version.py`) :
 
-```bash
-.venv/bin/python publish/prepare-release.py --version 1.0.1 status
-```
+**macOS / Linux :** `.venv/bin/python publish/prepare-release.py --version 1.0.1 status`  
+**Windows :** `.venv\Scripts\python.exe publish/prepare-release.py --version 1.0.1 status`
 
 ---
 
 ## Publication manuelle (secours)
 
-Si `gh` ou `publish` échoue :
+Si `gh` ou `publish` échoue — depuis la racine du projet :
+
+**macOS / Linux**
 
 ```bash
-export VERSION="1.0.0"
-export RELEASE_DIR="/Volumes/Guillaume/Dev/Projects/Apps/Luthier/_local/releases/${VERSION}"
+cd <chemin-vers-le-projet>
 
-cd /Volumes/Guillaume/Dev/Projects/Apps/Luthier
+export VERSION="1.0.0"
+export RELEASE_DIR="_local/releases/${VERSION}"
+
 git tag -a "$VERSION" -m "Luthier ${VERSION}"
 git push origin "$VERSION"
 
@@ -173,11 +251,34 @@ gh release create "$VERSION" \
   SHA256SUMS.txt
 ```
 
+**Windows (PowerShell)**
+
+```powershell
+cd <chemin-vers-le-projet>
+
+$VERSION = "1.0.0"
+$RELEASE_DIR = "_local/releases/$VERSION"
+
+git tag -a $VERSION -m "Luthier $VERSION"
+git push origin $VERSION
+
+cd $RELEASE_DIR
+gh release create $VERSION `
+  --repo tensquaresoftware/luthier `
+  --title "Luthier $VERSION" `
+  --notes-file RELEASE_NOTES.md `
+  Luthier-$VERSION-macos.zip `
+  Luthier-$VERSION-windows.zip `
+  Luthier-$VERSION-linux.zip `
+  Luthier-$VERSION-docs.zip `
+  SHA256SUMS.txt
+```
+
 ---
 
 ## Après la publication (optionnel)
 
-- Lien dans `README.md` : `[Download Luthier 1.0.0](https://github.com/tensquaresoftware/luthier/releases/latest)`
+- Lien dans `README.md` : `[Download Luthier X.Y.Z](https://github.com/tensquaresoftware/luthier/releases/latest)`
 - Commit sur `main` **après** le tag (nouveau commit)
 
 ---
@@ -186,7 +287,8 @@ gh release create "$VERSION" \
 
 | Problème | Action |
 |----------|--------|
-| `dist/` introuvable au `pack` | Lancer `publish/build-dist.py` sur cette machine |
+| `.venv/bin/python` introuvable (Windows) | Utiliser `.venv\Scripts\python.exe` — voir section *Invocation Python* |
+| `dist/` introuvable au `pack` | Lancer `publish/build-dist.py` sur cette machine (depuis la racine du projet) |
 | Archive déjà existante | `--force` |
 | `verify` échoue | `finalize` à nouveau après correction des zip |
 | Tag déjà sur GitHub | Ne pas republier ; éditer la release ou supprimer le tag si non annoncée |
@@ -197,13 +299,28 @@ gh release create "$VERSION" \
 
 ## Récapitulatif express
 
+**macOS / Linux**
+
 ```text
-publish/build-dist.py          (×3 OS)
-publish/prepare-release.py pack          (×3 OS, sync dossier _local/releases/1.0.0/)
-publish/prepare-release.py finalize
-éditer RELEASE_NOTES.md
-publish/prepare-release.py verify
-publish/prepare-release.py publish
+cd <chemin-vers-le-projet>
+.venv/bin/python publish/build-dist.py          (×3 OS)
+.venv/bin/python publish/prepare-release.py pack          (×3 OS, sync _local/releases/X.Y.Z/)
+.venv/bin/python publish/prepare-release.py finalize
+éditer _local/releases/X.Y.Z/RELEASE_NOTES.md
+.venv/bin/python publish/prepare-release.py verify
+.venv/bin/python publish/prepare-release.py publish
+```
+
+**Windows (PowerShell)**
+
+```text
+cd <chemin-vers-le-projet>
+.venv\Scripts\python.exe publish/build-dist.py          (×3 OS)
+.venv\Scripts\python.exe publish/prepare-release.py pack
+.venv\Scripts\python.exe publish/prepare-release.py finalize
+éditer _local/releases/X.Y.Z/RELEASE_NOTES.md
+.venv\Scripts\python.exe publish/prepare-release.py verify
+.venv\Scripts\python.exe publish/prepare-release.py publish
 ```
 
 ---
