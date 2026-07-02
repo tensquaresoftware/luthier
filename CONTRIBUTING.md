@@ -57,7 +57,7 @@ Regenerate after editing `luthier-icon.png`:
 .venv/bin/python build/generate_icons.py
 ```
 
-PyInstaller **fails fast** if the platform icon file is missing (`build/luthier.spec`). `build-dist.py` regenerates icons before each build; on macOS the generator also produces `.ico` for Windows commits. Run `build/generate_icons.py` manually only when you changed `luthier-icon.png` and are not doing a full bundle build.
+PyInstaller **fails fast** if the platform icon file is missing (`build/luthier.spec`). `publish/build-dist.py` regenerates icons before each build; on macOS the generator also produces `.ico` for Windows commits. Run `build/generate_icons.py` manually only when you changed `luthier-icon.png` and are not doing a full bundle build.
 
 **Observed timings (macOS, maintainer machine, 2026-06-26):**
 
@@ -71,19 +71,19 @@ Steps 2–5 (venv → pip → pytest → `--check`) fit comfortably within the 1
 
 ## Build a standalone bundle (optional, extended step)
 
-PyInstaller bundles templates and resources into a self-contained app. Build on each target OS — there is no cross-compilation. Use **`build-dist.py`** at the repo root (icons, PyInstaller, and a headless `--check` smoke test):
+PyInstaller bundles templates and resources into a self-contained app. Build on each target OS — there is no cross-compilation. Use **`publish/build-dist.py`** (icons, PyInstaller, and a headless `--check` smoke test):
 
 ```bash
-.venv/bin/python build-dist.py
+.venv/bin/python publish/build-dist.py
 ```
 
-On Windows: `.venv\Scripts\python.exe build-dist.py`
+On Windows: `.venv\Scripts\python.exe publish/build-dist.py`
 
 | OS | Output | Headless check |
 |----|--------|----------------|
-| macOS | `dist/Luthier.app` | included in `build-dist.py` |
-| Windows | `dist/Luthier/Luthier.exe` + `_internal/` | included in `build-dist.py` |
-| Linux | `dist/Luthier/Luthier` + `_internal/` | included in `build-dist.py` |
+| macOS | `dist/Luthier.app` | included in `publish/build-dist.py` |
+| Windows | `dist/Luthier/Luthier.exe` + `_internal/` | included in `publish/build-dist.py` |
+| Linux | `dist/Luthier/Luthier` + `_internal/` | included in `publish/build-dist.py` |
 
 Options: `--skip-icons`, `--skip-check`. There is no separate debug bundle — use `python main.py` for day-to-day development.
 
@@ -186,4 +186,4 @@ No CMake, JUCE, or PyInstaller build runs in CI. Tests that need those tools ski
 
 On Linux, match CI when running tests locally: install the same Qt runtime packages and set `export QT_QPA_PLATFORM=offscreen` before `pytest`.
 
-Local checks beyond CI: `main.py --check` and optional `build-dist.py`.
+Local checks beyond CI: `main.py --check` and optional `publish/build-dist.py`.

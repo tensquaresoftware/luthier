@@ -8,7 +8,7 @@
 |----------|------|----------------|
 | macOS | `Luthier-{{VERSION}}-macos.zip` | Unzip → open `Luthier.app` (see README.txt inside) |
 | Windows | `Luthier-{{VERSION}}-windows.zip` | Unzip → run `Luthier\Luthier.exe` (SmartScreen: More info → Run anyway) |
-| Linux | `Luthier-{{VERSION}}-linux.tar.gz` | Extract → `chmod +x Luthier/Luthier` if needed |
+| Linux | `Luthier-{{VERSION}}-linux.zip` | Unzip -> `chmod +x Luthier/Luthier` if needed |
 | Documentation | `Luthier-{{VERSION}}-docs.zip` | User manuals (EN + FR) |
 
 Verify downloads with `SHA256SUMS.txt` included in this release.

@@ -48,10 +48,10 @@ See **[CONTRIBUTING.md](CONTRIBUTING.md)** for full developer setup (venv, pytes
 PyInstaller bundles templates and resources into a self-contained app (build on each target OS — no cross-compilation):
 
 ```bash
-.venv/bin/python build-dist.py
+.venv/bin/python publish/build-dist.py
 ```
 
-On Windows: `.venv\Scripts\python.exe build-dist.py`
+On Windows: `.venv\Scripts\python.exe publish/build-dist.py`
 
 | OS      | Output                                      |
 | ------- | ------------------------------------------- |

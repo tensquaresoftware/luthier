@@ -1,7 +1,7 @@
 # Luthier — Guide de publication GitHub (toute version)
 
 **Objectif :** publier une release `X.Y.Z` sur https://github.com/tensquaresoftware/luthier  
-**Durée estimée :** 5–15 minutes avec `prepare-release.py` (archives déjà testées)  
+**Durée estimée :** 5–15 minutes avec `publish/prepare-release.py` (archives déjà testées)  
 **Prérequis :** builds QA validés, `gh` connecté, repo Git propre.
 
 ---
@@ -27,7 +27,7 @@ _local/releases/
   1.0.0/
     Luthier-1.0.0-macos.zip
     Luthier-1.0.0-windows.zip
-    Luthier-1.0.0-linux.tar.gz
+    Luthier-1.0.0-linux.zip
     Luthier-1.0.0-docs.zip
     SHA256SUMS.txt
     RELEASE_NOTES.md
@@ -35,8 +35,8 @@ _local/releases/
     ...
 ```
 
-Modèles README et notes : `build/release/*.template.*`  
-Script d’automatisation : **`prepare-release.py`** (racine du dépôt).
+Modèles README et notes : `publish/templates/*.template.*`  
+Scripts d’automatisation : **`publish/`** (`publish/build-dist.py`, `publish/prepare-release.py`).
 
 ---
 
@@ -53,8 +53,15 @@ Script d’automatisation : **`prepare-release.py`** (racine du dépôt).
 ```bash
 cd /Volumes/Guillaume/Dev/Projects/Apps/Luthier
 
-.venv/bin/python build-dist.py
-.venv/bin/python prepare-release.py pack
+.venv/bin/python publish/build-dist.py
+.venv/bin/python publish/prepare-release.py pack
+```
+
+Windows (PowerShell, depuis la racine du dépôt) :
+
+```powershell
+.venv\Scripts\python.exe publish/build-dist.py
+.venv\Scripts\python.exe publish/prepare-release.py pack
 ```
 
 Résultat : une archive plateforme dans `_local/releases/1.0.0/` (version lue depuis `app/version.py`).
@@ -65,22 +72,26 @@ Résultat : une archive plateforme dans `_local/releases/1.0.0/` (version lue de
 **Alternative** — importer une archive déjà créée ailleurs :
 
 ```bash
-.venv/bin/python prepare-release.py import macos /chemin/vers/Luthier-1.0.0-macos.zip
-.venv/bin/python prepare-release.py import windows /chemin/vers/Luthier-1.0.0-windows.zip
-.venv/bin/python prepare-release.py import linux /chemin/vers/Luthier-1.0.0-linux.tar.gz
+.venv/bin/python publish/prepare-release.py import macos /chemin/vers/Luthier-1.0.0-macos.zip
+.venv/bin/python publish/prepare-release.py import windows /chemin/vers/Luthier-1.0.0-windows.zip
+.venv/bin/python publish/prepare-release.py import linux /chemin/vers/Luthier-1.0.0-linux.zip
 ```
 
-Écraser une archive existante : ajoutez `--force` (ex. `prepare-release.py --force pack`).
+Windows : remplacez `.venv/bin/python` par `.venv\Scripts\python.exe` et les chemins par des chemins Windows (ex. `C:\...\Luthier-1.0.0-windows.zip`).
+
+Écraser une archive existante : ajoutez `--force` (ex. `publish/prepare-release.py --force pack`).
 
 ### 2. Quand les **3** archives plateforme sont réunies — finaliser
 
 Sur **une** machine (souvent celle qui a les 3 fichiers) :
 
 ```bash
-.venv/bin/python prepare-release.py status    # les 3 [OK] ?
-.venv/bin/python prepare-release.py finalize  # docs + notes + SHA256SUMS.txt
-.venv/bin/python prepare-release.py verify
+.venv/bin/python publish/prepare-release.py status    # les 3 [OK] ?
+.venv/bin/python publish/prepare-release.py finalize  # docs + notes + SHA256SUMS.txt
+.venv/bin/python publish/prepare-release.py verify
 ```
+
+Windows : `.venv\Scripts\python.exe publish/prepare-release.py status` (idem pour `finalize`, `verify`).
 
 Éditez l’intro de `RELEASE_NOTES.md` (remplacez le commentaire HTML).
 
@@ -91,8 +102,10 @@ cd /Volumes/Guillaume/Dev/Projects/Apps/Luthier
 git status          # doit être propre
 git pull origin main
 
-.venv/bin/python prepare-release.py publish
+.venv/bin/python publish/prepare-release.py publish
 ```
+
+Windows : `.venv\Scripts\python.exe publish/prepare-release.py publish`
 
 Le script :
 
@@ -104,8 +117,8 @@ Le script :
 Options :
 
 ```bash
-.venv/bin/python prepare-release.py publish -y          # sans confirmation
-.venv/bin/python prepare-release.py publish --prerelease # bêta
+.venv/bin/python publish/prepare-release.py publish -y          # sans confirmation
+.venv/bin/python publish/prepare-release.py publish --prerelease # bêta
 ```
 
 ### 4. Contrôle final
@@ -131,7 +144,7 @@ Options :
 Version explicite (si différente de `app/version.py`) :
 
 ```bash
-.venv/bin/python prepare-release.py --version 1.0.1 status
+.venv/bin/python publish/prepare-release.py --version 1.0.1 status
 ```
 
 ---
@@ -155,7 +168,7 @@ gh release create "$VERSION" \
   --notes-file RELEASE_NOTES.md \
   Luthier-${VERSION}-macos.zip \
   Luthier-${VERSION}-windows.zip \
-  Luthier-${VERSION}-linux.tar.gz \
+  Luthier-${VERSION}-linux.zip \
   Luthier-${VERSION}-docs.zip \
   SHA256SUMS.txt
 ```
@@ -173,7 +186,7 @@ gh release create "$VERSION" \
 
 | Problème | Action |
 |----------|--------|
-| `dist/` introuvable au `pack` | Lancer `build-dist.py` sur cette machine |
+| `dist/` introuvable au `pack` | Lancer `publish/build-dist.py` sur cette machine |
 | Archive déjà existante | `--force` |
 | `verify` échoue | `finalize` à nouveau après correction des zip |
 | Tag déjà sur GitHub | Ne pas republier ; éditer la release ou supprimer le tag si non annoncée |
@@ -185,12 +198,12 @@ gh release create "$VERSION" \
 ## Récapitulatif express
 
 ```text
-build-dist.py          (×3 OS)
-prepare-release.py pack          (×3 OS, sync dossier _local/releases/1.0.0/)
-prepare-release.py finalize
+publish/build-dist.py          (×3 OS)
+publish/prepare-release.py pack          (×3 OS, sync dossier _local/releases/1.0.0/)
+publish/prepare-release.py finalize
 éditer RELEASE_NOTES.md
-prepare-release.py verify
-prepare-release.py publish
+publish/prepare-release.py verify
+publish/prepare-release.py publish
 ```
 
 ---

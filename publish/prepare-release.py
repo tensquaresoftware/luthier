@@ -9,16 +9,15 @@ import re
 import shutil
 import subprocess
 import sys
-import tarfile
 import zipfile
 from dataclasses import dataclass
-from io import BytesIO
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PUBLISH_DIR = Path(__file__).resolve().parent
 GITHUB_REPO = "tensquaresoftware/luthier"
 RELEASES_ROOT = PROJECT_ROOT / "_local" / "releases"
-TEMPLATE_DIR = PROJECT_ROOT / "build" / "release"
+TEMPLATE_DIR = PUBLISH_DIR / "templates"
 
 PLATFORM_ASSETS = ("macos", "windows", "linux")
 CHECKSUM_FILE = "SHA256SUMS.txt"
@@ -46,7 +45,7 @@ class ReleasePaths:
 
     @property
     def linux_archive(self) -> Path:
-        return self.release_dir / f"Luthier-{self.version}-linux.tar.gz"
+        return self.release_dir / f"Luthier-{self.version}-linux.zip"
 
     @property
     def docs_archive(self) -> Path:
@@ -136,23 +135,6 @@ def _zip_directory(
             raise ValueError("Either macos_app or folder must be provided")
 
 
-def _tar_directory(
-    archive_path: Path,
-    readme_text: str,
-    folder: Path,
-) -> None:
-    archive_path.parent.mkdir(parents=True, exist_ok=True)
-    readme_bytes = readme_text.encode("utf-8")
-    with tarfile.open(archive_path, "w:gz") as tf:
-        info = tarfile.TarInfo(name="README.txt")
-        info.size = len(readme_bytes)
-        tf.addfile(info, fileobj=BytesIO(readme_bytes))
-        for item in sorted(folder.rglob("*")):
-            if item.is_file():
-                arcname = Path("Luthier") / item.relative_to(folder)
-                tf.add(item, arcname=str(arcname).replace("\\", "/"))
-
-
 def pack_host(paths: ReleasePaths, *, force: bool) -> None:
     platform = host_platform()
     archive = paths.platform_archive(platform)
@@ -162,18 +144,16 @@ def pack_host(paths: ReleasePaths, *, force: bool) -> None:
     bundle = dist_bundle_root()
     if not bundle.exists():
         raise SystemExit(
-            f"Build output not found: {bundle}\nRun build-dist.py on this machine first."
+            f"Build output not found: {bundle}\nRun publish/build-dist.py on this machine first."
         )
 
     readme = render_template(f"README-{platform}.template.txt", paths.version)
-    print(f"Packing {platform} → {archive.name}")
+    print(f"Packing {platform} -> {archive.name}")
 
     if platform == "macos":
         _zip_directory(archive, readme, macos_app=bundle)
-    elif platform == "windows":
-        _zip_directory(archive, readme, folder=bundle)
     else:
-        _tar_directory(archive, readme, folder=bundle)
+        _zip_directory(archive, readme, folder=bundle)
 
     size_mb = archive.stat().st_size / (1024 * 1024)
     print(f"  Created {archive} ({size_mb:.1f} MiB)")
@@ -199,7 +179,7 @@ def import_archive(
 
     ensure_release_dir(paths)
     shutil.copy2(source, target)
-    print(f"Imported {source.name} → {target}")
+    print(f"Imported {source.name} -> {target}")
 
 
 def create_docs_archive(paths: ReleasePaths, *, force: bool) -> None:
@@ -251,7 +231,7 @@ def sha256_file(path: Path) -> str:
 def write_checksums(paths: ReleasePaths) -> None:
     missing = [p.name for p in paths.distributable_archives() if not p.is_file()]
     if missing:
-        raise SystemExit(f"Cannot write checksums — missing archives: {', '.join(missing)}")
+        raise SystemExit(f"Cannot write checksums - missing archives: {', '.join(missing)}")
 
     lines = [f"{sha256_file(path)}  {path.name}" for path in paths.distributable_archives()]
     ensure_release_dir(paths)
@@ -289,10 +269,10 @@ def verify_release(paths: ReleasePaths) -> None:
     if errors:
         print("Verification FAILED:")
         for err in errors:
-            print(f"  • {err}")
+            print(f"  * {err}")
         raise SystemExit(1)
 
-    print("Verification OK — all archives present and checksums match.")
+    print("Verification OK - all archives present and checksums match.")
 
 
 def status(paths: ReleasePaths) -> None:
@@ -341,7 +321,7 @@ def publish_release(
     verify_release(paths)
 
     if not paths.notes.is_file():
-        raise SystemExit(f"Missing {NOTES_FILE}. Run: prepare-release.py finalize")
+        raise SystemExit(f"Missing {NOTES_FILE}. Run: publish/prepare-release.py finalize")
 
     if _git_output("status", "--porcelain"):
         raise SystemExit("Git working tree is not clean. Commit or stash changes first.")

@@ -20,7 +20,7 @@ work.
 
 INSTALLATION
 ------------
-1. Extract the archive to a folder of your choice (e.g. ~/Apps/Luthier).
+1. Unzip the archive to a folder of your choice (e.g. ~/Apps/Luthier).
 2. Make the binary executable if needed:
      chmod +x Luthier/Luthier
 3. Launch from a file manager or terminal:
@@ -81,7 +81,7 @@ Conservez le dossier Luthier/ entier. L'exécutable seul ne fonctionnera pas.
 
 INSTALLATION
 ------------
-1. Extrayez l'archive dans un dossier de votre choix (ex. ~/Apps/Luthier).
+1. Décompressez le fichier zip dans un dossier de votre choix (ex. ~/Apps/Luthier).
 2. Rendez le binaire exécutable si nécessaire :
      chmod +x Luthier/Luthier
 3. Lancez depuis le gestionnaire de fichiers ou le terminal :

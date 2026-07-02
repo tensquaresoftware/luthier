@@ -51,7 +51,7 @@
       "windows": {
         "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe"
       },
-      "args": ["build-dist.py"],
+      "args": ["publish/build-dist.py"],
       "options": {
         "cwd": "${workspaceFolder}"
       },
