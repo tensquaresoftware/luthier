@@ -19,8 +19,7 @@ cd <chemin-vers-le-projet>
 | OS | Interpréteur du venv |
 |----|----------------------|
 | **Windows (PowerShell)** | `.venv\Scripts\python.exe` |
-| **macOS** | `.venv/bin/python` |
-| **Linux** | `.venv/bin/python` |
+| **macOS & Linux** | `.venv/bin/python` |
 
 > **Windows :** ne copiez pas les blocs `bash` contenant `.venv/bin/python` — ce chemin n'existe pas sous Windows. Utilisez les blocs **Windows (PowerShell)** de chaque section.
 
@@ -87,16 +86,7 @@ cd <chemin-vers-le-projet>
 .venv\Scripts\python.exe publish/prepare-release.py pack
 ```
 
-**macOS**
-
-```bash
-cd <chemin-vers-le-projet>
-
-.venv/bin/python publish/build-dist.py
-.venv/bin/python publish/prepare-release.py pack
-```
-
-**Linux**
+**macOS & Linux**
 
 ```bash
 cd <chemin-vers-le-projet>
@@ -123,16 +113,7 @@ cd <chemin-vers-le-projet>
 .venv\Scripts\python.exe publish/prepare-release.py finalize
 ```
 
-**macOS**
-
-```bash
-cd <chemin-vers-le-projet>
-
-# docs + notes + SHA256SUMS.txt (+ inventaire des assets à la fin)
-.venv/bin/python publish/prepare-release.py finalize
-```
-
-**Linux**
+**macOS & Linux**
 
 ```bash
 cd <chemin-vers-le-projet>
@@ -151,15 +132,7 @@ cd <chemin-vers-le-projet>
 .venv\Scripts\python.exe publish/prepare-release.py status
 ```
 
-**macOS**
-
-```bash
-cd <chemin-vers-le-projet>
-
-.venv/bin/python publish/prepare-release.py status
-```
-
-**Linux**
+**macOS & Linux**
 
 ```bash
 cd <chemin-vers-le-projet>
@@ -190,15 +163,7 @@ cd <chemin-vers-le-projet>
 .venv\Scripts\python.exe publish/prepare-release.py verify
 ```
 
-**macOS**
-
-```bash
-cd <chemin-vers-le-projet>
-
-.venv/bin/python publish/prepare-release.py verify
-```
-
-**Linux**
+**macOS & Linux**
 
 ```bash
 cd <chemin-vers-le-projet>
@@ -218,17 +183,7 @@ git pull origin main
 .venv\Scripts\python.exe publish/prepare-release.py publish
 ```
 
-**macOS**
-
-```bash
-cd <chemin-vers-le-projet>
-git status          # doit être propre
-git pull origin main
-
-.venv/bin/python publish/prepare-release.py publish
-```
-
-**Linux**
+**macOS & Linux**
 
 ```bash
 cd <chemin-vers-le-projet>
@@ -254,14 +209,7 @@ Options :
 .venv\Scripts\python.exe publish/prepare-release.py publish --prerelease
 ```
 
-**macOS**
-
-```bash
-.venv/bin/python publish/prepare-release.py publish -y          # sans confirmation
-.venv/bin/python publish/prepare-release.py publish --prerelease # bêta
-```
-
-**Linux**
+**macOS & Linux**
 
 ```bash
 .venv/bin/python publish/prepare-release.py publish -y          # sans confirmation
@@ -290,8 +238,7 @@ Options :
 Version explicite (si différente de `app/version.py`) :
 
 **Windows :** `.venv\Scripts\python.exe publish/prepare-release.py --version 1.0.1 status`  
-**macOS :** `.venv/bin/python publish/prepare-release.py --version 1.0.1 status`  
-**Linux :** `.venv/bin/python publish/prepare-release.py --version 1.0.1 status`
+**macOS & Linux :** `.venv/bin/python publish/prepare-release.py --version 1.0.1 status`
 
 ---
 
@@ -322,30 +269,7 @@ gh release create $VERSION `
   SHA256SUMS.txt
 ```
 
-**macOS**
-
-```bash
-cd <chemin-vers-le-projet>
-
-export VERSION="1.0.0"
-export RELEASE_DIR="_local/releases/${VERSION}"
-
-git tag -a "$VERSION" -m "Luthier ${VERSION}"
-git push origin "$VERSION"
-
-cd "$RELEASE_DIR"
-gh release create "$VERSION" \
-  --repo tensquaresoftware/luthier \
-  --title "Luthier ${VERSION}" \
-  --notes-file RELEASE_NOTES.md \
-  Luthier-${VERSION}-windows.zip \
-  Luthier-${VERSION}-macos.zip \
-  Luthier-${VERSION}-linux.zip \
-  Luthier-${VERSION}-docs.zip \
-  SHA256SUMS.txt
-```
-
-**Linux**
+**macOS & Linux**
 
 ```bash
 cd <chemin-vers-le-projet>
@@ -405,19 +329,7 @@ compléter _local/releases/X.Y.Z/RELEASE_NOTES.md  (remplacer <!-- Replace this 
 .venv\Scripts\python.exe publish/prepare-release.py publish
 ```
 
-**macOS**
-
-```text
-cd <chemin-vers-le-projet>
-.venv/bin/python publish/build-dist.py          (×3 OS)
-.venv/bin/python publish/prepare-release.py pack          (×3 OS, sync _local/releases/X.Y.Z/)
-.venv/bin/python publish/prepare-release.py finalize
-compléter _local/releases/X.Y.Z/RELEASE_NOTES.md  (remplacer <!-- Replace this paragraph… -->)
-.venv/bin/python publish/prepare-release.py verify
-.venv/bin/python publish/prepare-release.py publish
-```
-
-**Linux**
+**macOS & Linux**
 
 ```text
 cd <chemin-vers-le-projet>
