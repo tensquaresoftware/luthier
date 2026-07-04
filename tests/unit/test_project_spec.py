@@ -120,21 +120,14 @@ def test_to_dict_camel_case_keys():
     assert d["projectName"] == "Alpha"
     assert d["copyToArtefactsDir"] is False
     assert d["artefactsDirLinux"] == "/linux/out"
-    assert d["accentColor"] == spec.accent_color
+    assert "accentColor" not in d
     assert ProjectSpec.from_dict(d).project_name == "Alpha"
 
 
-def test_accent_color_round_trip():
-    original = _make_spec(accent_color="#6113D7")
-    restored = ProjectSpec.from_dict(original.to_dict())
-    assert restored.accent_color == "#6113D7"
-
-
-def test_from_dict_normalizes_invalid_accent_color():
-    restored = ProjectSpec.from_dict({"accentColor": "#FF0000"})
-    from core.accent_colors import DEFAULT_ACCENT_COLOR
-
-    assert restored.accent_color == DEFAULT_ACCENT_COLOR
+def test_from_dict_ignores_legacy_accent_color_key():
+    restored = ProjectSpec.from_dict({"projectName": "Alpha", "accentColor": "#6113D7"})
+    assert restored.project_name == "Alpha"
+    assert "accentColor" not in restored.to_dict()
 
 
 def test_from_dict_coerces_string_bools():

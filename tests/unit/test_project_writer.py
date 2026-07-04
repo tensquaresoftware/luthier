@@ -1,5 +1,6 @@
 """Unit tests for core.project_writer — atomic write and cleanup."""
 
+import json
 import os
 import stat
 from pathlib import Path
@@ -65,6 +66,13 @@ def test_regenerate_preserves_git_directory(tmp_path):
 def test_write_leaves_no_tmp_dir_on_success(tmp_path):
     dest, spec = write_project(tmp_path, make_spec(tmp_path))
     assert not (dest.parent / (dest.name + ".tmp")).exists()
+
+
+def test_sidecar_omits_accent_color(tmp_path):
+    dest, spec = write_project(tmp_path, make_spec(tmp_path))
+    data = json.loads((dest / ".luthier.json").read_text(encoding="utf-8"))
+    assert data == spec.to_dict()
+    assert "accentColor" not in data
 
 
 def test_write_cleans_tmp_on_failure(tmp_path):

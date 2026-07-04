@@ -1,5 +1,5 @@
 # generated: 2026-06-23
-# last_updated: 2026-07-01 # story 8-2 done — pre-release legacy cleanup
+# last_updated: 2026-07-04 # Story 9.1 done
 # project: Luthier
 # project_key: NOKEY
 # tracking_system: file-system
@@ -41,7 +41,7 @@
 # - Retrospective appends its action items to action_items; sprint-status surfaces open ones
 
 generated: 2026-06-23
-last_updated: 2026-07-01
+last_updated: 2026-07-04
 project: Luthier
 project_key: NOKEY
 tracking_system: file-system
@@ -111,3 +111,15 @@ development_status:
   8-1-workspace-per-os-paths: done
   8-2-pre-release-legacy-cleanup: done
   epic-8-retrospective: optional
+
+  # Epic 9: v1.0 Scaffold-Only Release
+  # (Correct Course 2026-07-04 — implementation order: 9.1 → 9.7 → 9.2 → 9.3 → 9.4 → 9.6 → 9.5)
+  epic-9: in-progress
+  9-1-remove-open-project-scaffold-only-positioning: done
+  9-7-ui-accent-preferences-only-os-tree-connectors: backlog
+  9-2-block-generate-non-empty-destination: backlog
+  9-3-decoupled-plugin-characteristics-and-projectspec: backlog
+  9-4-template-pipeline-audio-io-midi-description: backlog
+  9-6-test-suite-scaffold-only-regression: backlog
+  9-5-documentation-v1-guide-manuals-readme: backlog
+  epic-9-retrospective: optional

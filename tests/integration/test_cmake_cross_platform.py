@@ -9,6 +9,8 @@ from pathlib import Path
 
 import pytest
 
+from core.paths import host_workspace_field_key
+from core.project_spec import ProjectSpec
 from tests.conftest import (
     assert_spec_equal,
     canonical_cross_platform_spec,
@@ -172,10 +174,8 @@ def test_windows_debug_preset_structure_ac3(tmp_path):
     assert cache["ARTEFACTS_DIR_WINDOWS"] == "C:/out/win"
 
 
-def test_cross_origin_sidecar_round_trip_ac4(tmp_path):
-    """AC4: Windows-oriented ProjectSpec survives clone via .luthier.json sidecar."""
-    from core import project_reader
-
+def test_cross_origin_sidecar_preserves_spec_ac4(tmp_path):
+    """AC4: Windows-oriented ProjectSpec sidecar survives clone without app reload."""
     spec = make_spec(
         tmp_path,
         artefacts_dir_windows="C:/team/out",
@@ -189,15 +189,13 @@ def test_cross_origin_sidecar_round_trip_ac4(tmp_path):
     clone_dir = tmp_path / "clone"
     shutil.copytree(project_dir, clone_dir)
 
-    loaded = project_reader.read_project_result(clone_dir).spec
-    assert loaded is not None
-    assert_spec_equal(loaded, spec)
+    data = json.loads((clone_dir / ".luthier.json").read_text(encoding="utf-8"))
+    assert "accentColor" not in data
+    assert_spec_equal(ProjectSpec.from_dict(data), spec)
 
 
-def test_sidecar_required_for_cross_origin_juce_dir(tmp_path):
-    """AD-3: juce_dir from a Windows-oriented spec is only restored via sidecar."""
-    from core import project_reader
-
+def test_sidecar_carries_cross_origin_juce_dir(tmp_path):
+    """AD-3: juce_dir from a Windows-oriented spec is persisted in write-only sidecar."""
     spec = make_spec(
         tmp_path,
         artefacts_dir_windows="C:/team/out",
@@ -206,12 +204,7 @@ def test_sidecar_required_for_cross_origin_juce_dir(tmp_path):
     )
     project_dir, spec = generate_project(tmp_path, spec=spec)
 
-    loaded = project_reader.read_project_result(project_dir).spec
-    assert loaded is not None
-    assert loaded.host_juce_dir() == "C:/Program Files/JUCE"
-
-    (project_dir / ".luthier.json").unlink()
-    fallback = project_reader.read_project_result(project_dir)
-    assert fallback.spec is None
-    assert fallback.error
-    assert ".luthier.json" in fallback.error
+    data = json.loads((project_dir / ".luthier.json").read_text(encoding="utf-8"))
+    host_juce = host_workspace_field_key("juce")
+    assert data[host_juce] == "C:/Program Files/JUCE"
+    assert "accentColor" not in data

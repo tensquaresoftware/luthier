@@ -7,7 +7,6 @@ import pytest
 
 from core.paths import host_workspace_field_key, normalize_path_dict_values
 from core.preferences import Preferences, factory_defaults, validate_profile
-from core.project_reader import read_project_result
 from core.project_spec import ProjectSpec
 from tests.conftest import make_spec
 
@@ -82,30 +81,6 @@ def test_apply_profile_rejects_legacy_workspace_keys_only(tmp_path):
     prefs = Preferences(path)
     with pytest.raises(ValueError):
         prefs.apply_profile(legacy)
-
-
-def test_open_project_updates_host_destination_only(tmp_path, monkeypatch):
-    monkeypatch.setattr(sys, "platform", "darwin")
-    project_dir = tmp_path / "parent" / "MyPlugin"
-    project_dir.mkdir(parents=True)
-    sidecar = {
-        "projectName": "MyPlugin",
-        "pluginFormats": "VST3",
-        "pluginType": "instrument",
-        "destinationDirWindows": "C:/win",
-        "destinationDirMacos": "/old/mac",
-        "destinationDirLinux": "/linux",
-        "juceDirWindows": "C:/juce",
-        "juceDirMacos": "/juce/mac",
-        "juceDirLinux": "/juce/linux",
-    }
-    import json
-    (project_dir / ".luthier.json").write_text(json.dumps(sidecar), encoding="utf-8")
-    result = read_project_result(project_dir)
-    assert result.spec is not None
-    assert result.spec.destination_dir_macos == str(project_dir.parent)
-    assert result.spec.destination_dir_windows == "C:/win"
-    assert result.spec.juce_dir_macos == "/juce/mac"
 
 
 def test_validate_profile_allows_empty_non_host_destination():

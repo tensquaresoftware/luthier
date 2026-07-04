@@ -40,12 +40,10 @@ from core import plugin_settings, templates_store
 from core.app_state import AppState
 from core.preferences import Preferences
 from core.project_generator import ProjectGenerator
-from core.project_reader import read_project_result
 from core.paths import normalize_portable_path, resolve_dir
 from core.project_spec import ProjectSpec
 
 _TABS = ["Project", "Preferences", "Templates", "About"]
-_OPEN_PROJECT_DIALOG_TITLE = "Open Luthier project"
 _PROJECT_TAB_INDEX = _TABS.index("Project")
 _PREFS_TAB_INDEX = _TABS.index("Preferences")
 _ABOUT_TAB_INDEX = _TABS.index("About")
@@ -145,10 +143,6 @@ class MainWindow(QMainWindow):
         row.addStretch(1)
         return container
 
-    def _on_project_accent_changed(self, color: str) -> None:
-        if self._tab_bar.currentIndex() == _PROJECT_TAB_INDEX:
-            self._apply_accent_theme(color)
-
     def _on_prefs_accent_changed(self, color: str) -> None:
         if self._tab_bar.currentIndex() == _PREFS_TAB_INDEX:
             self._apply_accent_theme(color)
@@ -160,19 +154,12 @@ class MainWindow(QMainWindow):
         if self._status_text and self._status_ok:
             self._status._dismiss.set_tone(True)
 
-    def _accent_color_for_tab(self, index: int) -> str:
-        if index == _PROJECT_TAB_INDEX:
-            return self._project_page.accent_section().color()
-        if index == _PREFS_TAB_INDEX:
-            return self._prefs_page.accent_section().color()
-        return self._project_page.accent_section().color()
-
     def _on_section_changed(self, index: int) -> None:
         self._stack.setCurrentIndex(index)
         self._btn_stack.setCurrentIndex(index)
         self._bottom_bar.setVisible(index != _ABOUT_TAB_INDEX)
         if index in (_PROJECT_TAB_INDEX, _PREFS_TAB_INDEX):
-            self._apply_accent_theme(self._accent_color_for_tab(index))
+            self._apply_accent_theme(self._prefs.accent_color)
 
     def _build_stack(self) -> QStackedWidget:
         stack = QStackedWidget()
@@ -187,7 +174,6 @@ class MainWindow(QMainWindow):
         stack.addWidget(self._templates_page)
         stack.addWidget(self._about_page)
         self._project_page.validityChanged.connect(self._refresh_generate_enabled)
-        self._project_page.accent_section().colorChanged.connect(self._on_project_accent_changed)
         self._prefs_page.accent_section().colorChanged.connect(self._on_prefs_accent_changed)
         self._stack = stack
         return stack
@@ -247,9 +233,8 @@ class MainWindow(QMainWindow):
 
     def _project_buttons(self) -> QWidget:
         self._new_btn = _make_btn("Create New Project", "ActionButton", self._on_create_new_project)
-        self._open_btn = _make_btn("Open Project…", "OpenButton", self._on_open)
         self._generate_btn = _make_btn("Generate Project", "GenerateButton", self._on_generate)
-        return _make_button_bar([self._new_btn, self._open_btn, self._generate_btn])
+        return _make_button_bar([self._new_btn, self._generate_btn])
 
     def _prefs_buttons(self) -> QWidget:
         return _make_button_bar([
@@ -490,38 +475,7 @@ class MainWindow(QMainWindow):
             ):
                 return
         self._project_page.reset(self._form_defaults())
-        self._project_page.accent_section().set_color(self._prefs.accent_color)
-        if self._tab_bar.currentIndex() == _PROJECT_TAB_INDEX:
-            self._apply_accent_theme(self._prefs.accent_color)
         self._set_status("New project — defaults from Preferences.", ok=True)
-
-    def _on_open(self) -> None:
-        start = self._app_state.dialog_start_dir()
-        directory = QFileDialog.getExistingDirectory(self, _OPEN_PROJECT_DIALOG_TITLE, start)
-        if directory:
-            self._load_project(Path(directory))
-
-    def _load_project(self, project_dir: Path) -> None:
-        result = read_project_result(project_dir)
-        spec = result.spec
-        if spec is None:
-            message = result.error or f"Not a Luthier project: {_display_path(project_dir)}"
-            status = message
-            QMessageBox.critical(self, "Open Project", message)
-            self._set_status(status, ok=False)
-            return
-        if not spec.plugin_formats:
-            message = f"No plugin formats detected in: {_display_path(project_dir)}"
-            QMessageBox.critical(self, "Open Project", message)
-            self._set_status(message, ok=False)
-            return
-        self._project_page.load(spec)
-        if self._tab_bar.currentIndex() == _PROJECT_TAB_INDEX:
-            self._apply_accent_theme(self._project_page.accent_section().color())
-        self._set_status(
-            f"Loaded {spec.project_name} from {_display_path(project_dir)}",
-            ok=True,
-        )
 
     def _confirm_overwrite(self, spec: ProjectSpec) -> bool:
         if not self._generator.project_exists(spec.host_destination_dir(), spec.project_name):
@@ -540,8 +494,6 @@ class MainWindow(QMainWindow):
             self._set_status(f"Generation failed: {error}", ok=False)
             return
         self._project_page.load(spec)
-        if self._tab_bar.currentIndex() == _PROJECT_TAB_INDEX:
-            self._apply_accent_theme(self._project_page.accent_section().color())
         self._app_state.remember_parent(spec.host_destination_dir())
         try:
             self._app_state.save()

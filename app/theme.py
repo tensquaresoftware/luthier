@@ -290,16 +290,6 @@ def build_stylesheet() -> str:
     #GenerateButton:hover {{ background: {primary_hover}; }}
     #GenerateButton:disabled {{ background: {p.BG_DISABLED}; color: {p.TEXT_DIM}; }}
 
-    #OpenButton {{
-        background: {primary};
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 7px 20px;
-        font-weight: bold;
-    }}
-    #OpenButton:hover {{ background: {primary_hover}; }}
-
     #SaveButton, #ActionButton {{
         background: {primary};
         color: white;

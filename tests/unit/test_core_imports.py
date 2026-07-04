@@ -11,7 +11,6 @@ import pytest
     [
         "core.project_generator",
         "core.project_writer",
-        "core.project_reader",
     ],
 )
 def test_core_module_import_does_not_load_qt(module):

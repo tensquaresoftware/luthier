@@ -1,5 +1,6 @@
 """Integration tests for PyInstaller frozen bundle (Stories 4.1–4.2)."""
 
+import json
 import os
 import subprocess
 import sys
@@ -74,7 +75,7 @@ def test_frozen_bundle_assets_present():
 def test_generate_project_from_bundled_templates(tmp_path):
     """Validate bundled templates/ tree in the frozen bundle (not the frozen GUI Generate path)."""
     _require_frozen_bundle()
-    from core import project_reader, render_context
+    from core import render_context
     from core.project_writer import ProjectWriter
 
     from tests.conftest import make_spec
@@ -89,6 +90,8 @@ def test_generate_project_from_bundled_templates(tmp_path):
         spec,
     )
     assert (dest / "CMakeLists.txt").is_file()
-    assert (dest / ".luthier.json").is_file()
-    reloaded = project_reader.read_project_result(dest).spec
-    assert reloaded.project_name == spec.project_name
+    sidecar_path = dest / ".luthier.json"
+    assert sidecar_path.is_file()
+    data = json.loads(sidecar_path.read_text(encoding="utf-8"))
+    assert data["projectName"] == spec.project_name
+    assert "accentColor" not in data

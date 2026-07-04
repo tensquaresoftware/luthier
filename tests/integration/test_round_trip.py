@@ -1,4 +1,4 @@
-"""Integration tests for ProjectSpec → generate → read round-trip fidelity."""
+"""Integration tests for ProjectSpec → generate → sidecar fidelity."""
 
 import json
 
@@ -31,13 +31,11 @@ def test_writer_output_contains_required_files(tmp_path):
         assert (dest / rel).is_file(), rel
 
 
-def test_read_project_returns_equivalent_spec(tmp_path):
-    from core import project_reader
-
+def test_sidecar_json_matches_spec(tmp_path):
     project_dir, spec = generate_project(tmp_path)
-    loaded = project_reader.read_project_result(project_dir).spec
-    assert loaded is not None
-    assert_spec_equal(loaded, spec)
+    data = json.loads((project_dir / ".luthier.json").read_text(encoding="utf-8"))
+    assert data == spec.to_dict()
+    assert "accentColor" not in data
 
 
 def test_sidecar_json_round_trip(tmp_path):
@@ -50,7 +48,6 @@ def test_sidecar_json_round_trip(tmp_path):
 
 
 def test_regenerate_produces_identical_tree(tmp_path):
-    from core import project_reader
     from core.project_generator import ProjectGenerator
 
     spec = make_spec(tmp_path)
@@ -58,21 +55,8 @@ def test_regenerate_produces_identical_tree(tmp_path):
     project_dir = generator.generate(spec)
     before = all_files(project_dir)
 
-    loaded = project_reader.read_project_result(project_dir).spec
-    assert loaded is not None
-    project_dir = generator.generate(loaded)
+    project_dir = generator.generate(spec)
     assert_trees_equal(before, all_files(project_dir))
-
-
-def test_open_without_sidecar_returns_error(tmp_path):
-    from core import project_reader
-
-    project_dir, _ = generate_project(tmp_path)
-    (project_dir / ".luthier.json").unlink()
-    result = project_reader.read_project_result(project_dir)
-    assert result.spec is None
-    assert result.error
-    assert ".luthier.json" in result.error
 
 
 def test_generated_cmakelists_has_no_project_configuration_reference(tmp_path):
@@ -91,18 +75,16 @@ def test_template_override_applied_at_generation(tmp_path):
     assert marker in content
 
 
-def test_juce_dir_sidecar_round_trip(tmp_path):
-    from core import project_reader
-
+def test_juce_dir_written_to_sidecar(tmp_path):
     juce_path = "/tmp/juce-test"
     host_juce = host_workspace_field_key("juce")
     spec = make_spec(tmp_path, juce_dir=juce_path)
     project_dir, _ = generate_project(tmp_path, spec=spec)
     data = json.loads((project_dir / ".luthier.json").read_text(encoding="utf-8"))
     assert data[host_juce] == juce_path
-    loaded = project_reader.read_project_result(project_dir).spec
-    assert loaded is not None
-    assert loaded.host_juce_dir() == juce_path
+    assert "accentColor" not in data
+    restored = ProjectSpec.from_dict(data)
+    assert restored.host_juce_dir() == juce_path
 
 
 def test_generated_cmake_uses_per_os_juce_workspace(tmp_path):
@@ -121,7 +103,6 @@ def test_generated_cmake_uses_per_os_juce_workspace(tmp_path):
 
 
 def test_regenerate_preserves_juce_dir(tmp_path):
-    from core import project_reader
     from core.project_generator import ProjectGenerator
 
     juce_path = "/Applications/JUCE"
@@ -140,9 +121,7 @@ def test_regenerate_preserves_juce_dir(tmp_path):
     assert f'set(JUCE_DIR "{juce_path}")' not in cmake_before
     sidecar_before = json.loads((project_dir / ".luthier.json").read_text(encoding="utf-8"))
 
-    loaded = project_reader.read_project_result(project_dir).spec
-    assert loaded is not None
-    generator.generate(loaded)
+    generator.generate(spec)
     sidecar_after = json.loads((project_dir / ".luthier.json").read_text(encoding="utf-8"))
     assert sidecar_after == sidecar_before
     cmake_after = (project_dir / "CMakeLists.txt").read_text(encoding="utf-8")

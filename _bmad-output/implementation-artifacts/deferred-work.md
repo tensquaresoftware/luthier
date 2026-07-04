@@ -93,3 +93,12 @@ Ces entrées ne sont **plus** de la dette ouverte — décision de design, hors 
 
 - `project-context.md` still documents single `destination`/`juceDir` keys — stale agent context; update when convenient.
 - `host_workspace_field_key` lives in `core/paths.py` not `app/pages/path_specs.py` as spec suggested — works via re-export; cosmetic spec alignment only.
+
+---
+
+## Deferred from: code review of 9-1-remove-open-project-scaffold-only-positioning (2026-07-04)
+
+- `_confirm_overwrite` still allows destructive regeneration — Story 9.2 scope (non-empty guard).
+- `test_regenerate_*` no longer load sidecar before second generate — intentional 9.1 rewrite; sidecar→regenerate coverage deferred to Epic 9.6 if needed.
+- `pluginType` validation removed with `project_reader` — acceptable while no runtime sidecar read (AC3).
+- Import Preferences applies accent theme only when Prefs tab active — pre-existing; manual QA per AD-6.
