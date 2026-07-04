@@ -78,6 +78,7 @@ class Palette:
     BORDER = "#44525a"
     TEXT = "#e8eaeb"
     TEXT_DIM = "#9aa6ac"
+    TEXT_MUTED = _blend(TEXT_DIM, BG_MAIN, 0.28)
     ERR = "#f44336"
     ERR_DARK = _darken("#f44336", 0.22)
 
@@ -176,7 +177,7 @@ def build_stylesheet() -> str:
     }}
 
     QCheckBox, QRadioButton {{ spacing: 8px; padding: 4px 2px; }}
-    QCheckBox:disabled, QRadioButton:disabled {{ color: {p.TEXT_DIM}; }}
+    QCheckBox:disabled, QRadioButton:disabled {{ color: {p.TEXT_MUTED}; }}
     QCheckBox::indicator, QRadioButton::indicator {{
         width: 16px;
         height: 16px;
@@ -191,7 +192,7 @@ def build_stylesheet() -> str:
     }}
     QCheckBox::indicator:checked:disabled {{
         border: 1px solid {p.BG_DISABLED};
-        background: {p.BG_DISABLED};
+        background: {p.BG_INPUT};
         image: url("{check_disabled}");
     }}
     QRadioButton::indicator:checked {{
