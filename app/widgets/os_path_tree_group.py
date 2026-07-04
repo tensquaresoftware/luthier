@@ -6,7 +6,9 @@ from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from app.pages.path_specs import (
     OS_FIELD_LEFT_MARGIN,
+    OS_TREE_ANCHOR_GAP,
     OS_TREE_BRANCH_END,
+    OS_TREE_BRANCH_Y_OFFSET,
     OS_TREE_LINE_WIDTH,
     OS_TREE_TRUNK_X,
 )
@@ -51,7 +53,7 @@ class OsPathTreeGroup(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         painter.setPen(self._line_pen())
-        start_y = self._anchor.mapTo(self, self._anchor.rect().bottomLeft()).y()
+        start_y = self._anchor.mapTo(self, self._anchor.rect().bottomLeft()).y() + OS_TREE_ANCHOR_GAP
         trunk_x = float(OS_TREE_TRUNK_X)
         branch_end = float(OS_TREE_BRANCH_END)
         self._draw_trunk(painter, trunk_x, start_y, branch_ys)
@@ -84,8 +86,10 @@ class OsPathTreeGroup(QWidget):
     def _branch_y_for_child(self, child: QWidget) -> float | None:
         label = child.findChild(QLabel, "FieldLabel")
         if label is not None and label.isVisible():
-            return float(label.mapTo(self, label.rect().center()).y())
-        return float(child.mapTo(self, child.rect().center()).y())
+            branch_y = float(label.mapTo(self, label.rect().center()).y())
+        else:
+            branch_y = float(child.mapTo(self, child.rect().center()).y())
+        return branch_y + OS_TREE_BRANCH_Y_OFFSET
 
     def _line_pen(self):
         pen = QPen(QColor(Palette.BORDER))

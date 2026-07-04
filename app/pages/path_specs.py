@@ -7,10 +7,14 @@ from core import validation
 from core.paths import WORKSPACE_DESTINATION_KEYS, WORKSPACE_JUCE_KEYS, host_workspace_field_key
 
 # Left margin for per-OS rows nested under section headings (Workspace, Artefacts).
-# Checkbox label inset (theme.py): padding-left 2 + indicator 16 + spacing 8 = 26;
-# +2 px so FieldLabel text lines up with QCheckBox label text.
-OS_FIELD_LEFT_MARGIN = 28
-OS_TREE_TRUNK_X = 14
+# Base checkbox label inset (theme.py): padding-left 2 + indicator 16 + spacing 8 = 26;
+# +2 px aligns FieldLabel text with QCheckBox label text; +20 px indents OS rows per tree layout.
+OS_FIELD_LEFT_MARGIN = 48
+# Trunk X sits 3 px left of the prior 14 px anchor; gap below anchor label before trunk starts.
+OS_TREE_TRUNK_X = 11
+OS_TREE_ANCHOR_GAP = 5
+# Horizontal branches were 2 px high relative to OS label midline.
+OS_TREE_BRANCH_Y_OFFSET = 2
 OS_TREE_LABEL_GAP = 7
 OS_TREE_BRANCH_END = OS_FIELD_LEFT_MARGIN - OS_TREE_LABEL_GAP
 OS_TREE_LINE_WIDTH = 1.0
