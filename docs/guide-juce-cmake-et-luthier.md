@@ -3,6 +3,8 @@
 > **Document de référence** — rédigé en juillet 2026 par Guillaume DUPONT, auteur de [Luthier](https://github.com/tensquaresoftware/luthier).  
 > **Public visé :** développeur amateur ou débutant en JUCE et en CMake, souhaitant comprendre *pourquoi* et *comment* démarrer un projet audio multi-plateforme sans se perdre dans la jungle des outils.
 
+**Voir aussi :** [README du dépôt](../../README.md) · [Manuel utilisateur (FR)](user/manuel-utilisateur.md) · [User manual (EN)](user/user-manual.md)
+
 ---
 
 ## Table des matières
@@ -340,7 +342,7 @@ Pour un nouveau projet, Luthier crée notamment :
 | `CMakeLists.txt` | Description complète du build (JUCE, plugin, sources de base) |
 | `CMakeUserPresets.json` | Presets Debug/Release pour macOS (arm64 + x86_64), Windows, Linux |
 | `Source/` | Squelette `PluginProcessor` / `PluginEditor` (ou équivalent app) |
-| `.luthier.json` | Sidecar JSON : miroir des métadonnées saisies dans le formulaire |
+| `.luthier.json` | Sidecar JSON en **écriture seule** : photographie des métadonnées saisies au Generate — Luthier **ne le relit jamais** |
 | `.vscode/`, `.cursorrules` | Aide à l'ouverture dans un IDE moderne |
 
 ### Ce que vous obtenez concrètement

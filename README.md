@@ -1,6 +1,6 @@
 # Luthier
 
-A Projucer-inspired desktop GUI for creating, reopening, and configuring CMake-based JUCE audio plugin projects.
+A Projucer-inspired desktop GUI for **one-shot generation** of CMake-based JUCE audio plugin project skeletons.
 
 ![Luthier](luthier.png)
 
@@ -11,18 +11,23 @@ A Projucer-inspired desktop GUI for creating, reopening, and configuring CMake-b
 
 > 💛 If you find this project useful, consider [sponsoring its development](https://github.com/sponsors/tensquaresoftware) — every contribution helps keep the work going!
 
-Luthier is a self-contained [PySide6](https://doc.qt.io/qtforpython/) desktop app that generates ready-to-build, CMake-based JUCE plugin projects (AU / VST3 / Standalone): fill a form, validate inline, and generate. It can also reopen an existing generated project to tweak and regenerate it, and stores your defaults in a persistent preferences file — no hand-editing of configuration scripts.
+Luthier is a self-contained [PySide6](https://doc.qt.io/qtforpython/) desktop app that generates ready-to-build, CMake-based JUCE plugin projects (AU / VST3 / Standalone): fill a form, validate inline, and generate a complete skeleton once. After generation, continue development in your IDE — Luthier does **not** reload or reopen existing projects. Your defaults live in a persistent preferences file; each generate also writes a **write-only** `.luthier.json` sidecar as metadata for you or AI tools.
+
+**Further reading:** [JUCE, CMake et Luthier — guide](docs/guide-juce-cmake-et-luthier.md) (French, scaffold-only philosophy) · [User manual EN](docs/user/user-manual.md) · [Manuel FR](docs/user/manuel-utilisateur.md)
 
 ## Features
 
 - **Project** — one scrollable page for the whole plugin:
   - identity: technical/display names, version, manufacturer, copyright, website, e-mail, plugin & manufacturer codes, auto-computed bundle ID, with live inline validation;
-  - plugin type (Instrument, Audio Effect, MIDI Effect) and formats (AU, VST3, Standalone);
+  - plugin type (Instrument, Audio Effect, MIDI Effect), decoupled **plugin characteristics** (synth/MIDI flags, Audio I/O preset, VST MIDI channel counts), and **plugin description** (CMake `DESCRIPTION`);
+  - formats (AU, VST3, Standalone);
   - compilation: C++ standard, preprocessor definitions, header search paths;
+  - workspace: per-OS destination and JUCE paths with tree-style grouping;
   - artefacts: copy to system plugin folders and/or a central per-OS directory.
-- **Preferences** — persistent defaults (identity + default artefact settings) stored as JSON in the OS configuration directory.
+- **Generate guard** — blocked when the destination `{folder}/{projectName}/` is non-empty (including hidden files like `.git/` or `.DS_Store`); **session regenerate** in the same app session rewrites the tree except `.git` after a destructive confirm.
+- **Preferences** — persistent defaults (identity, workspace, accent colour, default artefact settings) stored as JSON in the OS configuration directory.
 - **Templates** — view, edit, replace, or reset the C++ source templates (`PluginProcessor` / `PluginEditor`) used for new projects; overrides persist on disk.
-- **Reopen a project** — read an existing generated project back into the form and regenerate it in place.
+- **Write-only `.luthier.json`** — configuration snapshot written at generate; optional reference for humans or tooling — Luthier never reads it back into the form.
 
 ## Requirements
 

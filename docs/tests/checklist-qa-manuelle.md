@@ -10,11 +10,11 @@
 
 1. **Lisez d’abord** la section [Avant de commencer](#avant-de-commencer).
 2. **Partie 1** — cochez les cases dans **chaque** bloc : [A — macOS](#a--macos), [B — Windows](#b--windows), [C — Linux](#c--linux).
-3. **Partie 2** — une seule fois, avec **les trois machines** (ou deux machines + une VM), suivez le parcours « projet qui voyage » (Git, modifications, réouverture).
+3. **Partie 2** — une seule fois, avec **les trois machines** (ou deux machines + une VM), suivez le parcours « projet qui voyage » (Git, builds CMake cross-plateforme — **sans** rouvrir dans Luthier depuis v1.0.0 scaffold-only).
 4. Cochez chaque case : `- [ ]` → `- [x]` quand c’est OK.
 5. Notez les problèmes dans la [Grille de suivi](#grille-de-suivi-des-problèmes) en bas.
 
-**Ce que vous testez :** Luthier crée et rouvre des **projets JUCE** (plugins VST/AU & apps audio/MIDI standalone). Luthier **ne compile pas** le plugin à votre place — vous vérifiez surtout l’application Luthier elle-même. Si vous voulez aller plus loin, un build CMake rapide sur chaque OS est un plus (étape optionnelle en fin de chaque bloc).
+**Ce que vous testez :** Luthier **génère** des squelettes de **projets JUCE** (plugins VST/AU et applications audio/MIDI Standalone). Luthier **ne compile pas** le plugin à votre place — vous vérifiez surtout l’application Luthier elle-même. Si vous voulez aller plus loin, un build CMake rapide sur chaque OS est un plus (étape optionnelle en fin de chaque bloc).
 
 ---
 
@@ -43,6 +43,18 @@
 Chaque système a **son propre bloc** (A, B ou C) avec les mêmes étapes numérotées de 1 à 9. Cochez les cases **dans les trois blocs** avant de passer à la Partie 2.
 
 Les étapes sont identiques d’un OS à l’autre ; seules les notes spécifiques (installation, chemins, formats) changent.
+
+---
+
+## Epic 9 — Fumée scaffold-only (v1.0.0 — 2026-07-04)
+
+> **Open Project…** retiré. Voir aussi [checklist-qa-passe-unique.md § Epic 9](checklist-qa-passe-unique.md#epic-9--fumée-scaffold-only-v100--2026-07-04) pour le détail des scénarios S9.1–S9.4 (garde non-vide, session regenerate, accent Preferences-only, characteristics).
+
+- [ ] Barre d’actions **Project** : **Create New Project** et **Generate Project** uniquement (pas **Open Project…**).
+- [ ] Garde dossier non-empty après redémarrage app (S9.1).
+- [ ] Session regenerate avec confirm **Regenerate Project** (S9.2).
+- [ ] Accent via **Luthier appearance** (**Preferences** seulement) ; pas de `accentColor` dans `.luthier.json` (S9.3).
+- [ ] **Plugin Type** **Instrument** + **Plugin MIDI Output** → **Generate Project** → intent CMake cohérent (S9.4, optionnel — voir [passe-unique S9.4](checklist-qa-passe-unique.md#s94--plugin-characteristics-optionnel)).
 
 ---
 
@@ -113,27 +125,20 @@ Les étapes sont identiques d’un OS à l’autre ; seules les notes spécifiqu
 - [x] Tous les formats décochés → **Generate Project** désactivé.
 - [x] **Manufacturer code** en minuscules partout → erreur (il faut une majuscule puis des minuscules).
 
-### A4 — Rouvrir et modifier un projet
+### A4 — Session regenerate et garde generate *(remplace « Rouvrir » — archive Epic 9)*
 
 - [x] Modifiez **Version** (ex. `1.0.2`) **sans** générer.
 - [x] **Create New Project** → boîte de confirmation → **No** : vos changements restent ; refaites → **Yes** : formulaire réinitialisé.
-- [x] **Open Project…** → dossier `TestLuthier`.
-- [x] Message *Loaded TestLuthier from…* et champs cohérents avec le projet.
-- [x] Changez **Display name** → **Generate Project** → confirmez l’écrasement si demandé → succès.
-- [x] Rouvrez le projet : **Display name** et **Version** reflètent vos changements.
-- [x] Déplacez `TestLuthier` ailleurs sur le disque → **Open Project…** au nouvel emplacement → **Destination folder** mis à jour.
+- [ ] **Generate Project** sur `TestLuthier` (session en cours) après changement **Version** → modale **Regenerate Project** → **Yes** → fichiers mis à jour ; `.git/` préservé.
+- [ ] Redémarrez Luthier → **Generate Project** sur le même dossier → **bloqué** (*folder not empty*).
 
-📌 **Note GD** : fonctionne en déplaçant le projet dans un dossier "été 2026", mais message rouge indiquant que les caractères sont interdits, or ils sont valides ici.
-
-- [x] **Open Project…** sur un dossier qui n’est **pas** un projet Luthier → message d’erreur clair, pas de plantage.
-
-📌 **Note GD** : la modale d'erreur indique que le dossier ne correspond pas à un projet de plugin JUCE, il faut changer cela en disant qu'il ne s'agit pas d'un projet Luthier.
+> *Archive pré-Epic 9 : les étapes **Open Project…** / rouvrir ne s’appliquent plus.*
 
 ### A5 — Variantes de projet
 
 - [x] **Create New Project** → **Plugin Type** : **Audio Effect** → `TestLuthierFX` → **Generate Project** → OK.
 - [x] **Create New Project** → **VST3** seul (décochez **Standalone**) → `TestLuthierVST3` → OK.
-- [x] **Compilation** → **Preprocessor defs** : `QA_FLAG=1` → projet `TestLuthierDefs` → rouvrez : la ligne est toujours là.
+- [x] **Compilation** → **Preprocessor defs** : `QA_FLAG=1` → projet `TestLuthierDefs` → vérifiez la ligne dans `CMakeLists.txt` généré (pas de rouvrir dans Luthier).
 - [x] Projet avec **AU** coché → génération OK.
 
 ### A6 — Dossier central des binaires (optionnel)
@@ -250,36 +255,23 @@ Les étapes sont identiques d’un OS à l’autre ; seules les notes spécifiqu
 - [x] Tous les formats décochés → **Generate Project** désactivé.
 - [x] **Manufacturer code** en minuscules partout → erreur (il faut une majuscule puis des minuscules).
 
-### B4 — Rouvrir et modifier un projet
+### B4 — Session regenerate et garde generate *(remplace « Rouvrir » — archive Epic 9)*
 
 - [x] Modifiez **Version** (ex. `1.0.2`) **sans** générer.
 - [x] **Create New Project** → boîte de confirmation → **No** : vos changements restent ; refaites → **Yes** : formulaire réinitialisé.
 
 📌 **Note GD** : le bouton Yes est à gauche et No à droite dans la modale, sous macOS c'est le contraire : je préfère l'ordre d'affichage macOS
 
-- [x] **Open Project…** → dossier `TestLuthier`.
+- [ ] **Generate Project** sur `TestLuthier` (session en cours) → modale **Regenerate Project** → **Yes** → succès.
+- [ ] Redémarrez Luthier → **Generate Project** sur le même dossier → **bloqué** (*folder not empty*).
 
-📌 **Note GD** : le chemin dans le message utilisateur utilise des anti-slashes au lieu de slashes, il faut corriger cela pour rester homogène avec le reste de l'app.
-
-- [x] Message *Loaded TestLuthier from…* et champs cohérents avec le projet.
-- [x] Changez **Display name** → **Generate Project** → confirmez l’écrasement si demandé → succès.
-
-📌 **Note GD** : ici aussi l'ordre des boutons Yes et No doivent être inversés. Aucun bouton n'est pré-sélectionné par défaut.
-
-- [x] Rouvrez le projet : **Display name** et **Version** reflètent vos changements.
-- [x] Déplacez `TestLuthier` ailleurs sur le disque → **Open Project…** au nouvel emplacement → **Destination folder** mis à jour.
-
-📌 **Note GD** : fonctionne en déplaçant le projet dans Téléchargements, mais message rouge indiquant que les caractères sont interdits, or ils sont valides ici.
-
-- [x] **Open Project…** sur un dossier qui n’est **pas** un projet Luthier → message d’erreur clair, pas de plantage.
-
-📌 **Note GD** : la modale d'erreur indique que le dossier ne correspond pas à un projet de plugin JUCE, il faut changer cela en disant qu'il ne s'agit pas d'un projet Luthier.
+> *Archive pré-Epic 9 : étapes **Open Project…**, message `Loaded … from`, déplacement + rouvrir — ne s’appliquent plus.*
 
 ### B5 — Variantes de projet
 
 - [x] **Create New Project** → **Plugin Type** : **Audio Effect** → `TestLuthierFX` → **Generate Project** → OK.
 - [x] **Create New Project** → **VST3** seul (décochez **Standalone**) → `TestLuthierVST3` → OK.
-- [x] **Compilation** → **Preprocessor defs** : `QA_FLAG=1` → projet `TestLuthierDefs` → rouvrez : la ligne est toujours là.
+- [x] **Compilation** → **Preprocessor defs** : `QA_FLAG=1` → projet `TestLuthierDefs` → vérifiez la ligne dans `CMakeLists.txt` généré (pas de rouvrir dans Luthier).
 - [x] **AU** coché (même si vous ne builderez pas sur Mac) → génération OK quand même.
 
 ### B6 — Dossier central des binaires (optionnel)
@@ -398,22 +390,20 @@ Les étapes sont identiques d’un OS à l’autre ; seules les notes spécifiqu
 - [x] Tous les formats décochés → **Generate Project** désactivé.
 - [x] **Manufacturer code** en minuscules partout → erreur (il faut une majuscule puis des minuscules).
 
-### C4 — Rouvrir et modifier un projet
+### C4 — Session regenerate et garde generate *(remplace « Rouvrir » — archive Epic 9)*
 
 - [x] Modifiez **Version** (ex. `1.0.2`) **sans** générer.
 - [x] **Create New Project** → boîte de confirmation → **No** : vos changements restent ; refaites → **Yes** : formulaire réinitialisé.
-- [x] **Open Project…** → dossier `TestLuthier`.
-- [x] Message *Loaded TestLuthier from…* et champs cohérents avec le projet.
-- [x] Changez **Display name** → **Generate Project** → confirmez l’écrasement si demandé → succès.
-- [x] Rouvrez le projet : **Display name** et **Version** reflètent vos changements.
-- [x] Déplacez `TestLuthier` ailleurs sur le disque → **Open Project…** au nouvel emplacement → **Destination folder** mis à jour.
-- [x] **Open Project…** sur un dossier qui n’est **pas** un projet Luthier → message d’erreur clair, pas de plantage.
+- [ ] **Generate Project** sur `TestLuthier` (session en cours) après changement → modale **Regenerate Project** → **Yes** → succès.
+- [ ] Redémarrez Luthier → **Generate Project** sur le même dossier → **bloqué**.
+
+> *Archive pré-Epic 9 : étapes **Open Project…** — ne s’appliquent plus.*
 
 ### C5 — Variantes de projet
 
 - [x] **Create New Project** → **Plugin Type** : **Audio Effect** → `TestLuthierFX` → **Generate Project** → OK.
 - [x] **Create New Project** → **VST3** seul (décochez **Standalone**) → `TestLuthierVST3` → OK.
-- [x] **Compilation** → **Preprocessor defs** : `QA_FLAG=1` → projet `TestLuthierDefs` → rouvrez : la ligne est toujours là.
+- [x] **Compilation** → **Preprocessor defs** : `QA_FLAG=1` → projet `TestLuthierDefs` → vérifiez la ligne dans `CMakeLists.txt` généré (pas de rouvrir dans Luthier).
 - [x] **AU** coché (même si vous ne builderez pas sur Mac) → génération OK quand même.
 
 ### C6 — Dossier central des binaires (optionnel)
@@ -509,16 +499,14 @@ Les étapes sont identiques d’un OS à l’autre ; seules les notes spécifiqu
 
 ---
 
-## 2.3 — Machine 2 (ex. Windows) — Clone, réouverture, adaptation
+## 2.3 — Machine 2 (ex. Windows) — Clone, build CMake *(archive : plus d’Open Project…)*
 
 - [x] `git clone` (ou `git pull` si déjà cloné) du dépôt.
-- [x] Ouvrez Luthier → **Open Project…** → dossier `VoyageLuthier` cloné.
-- [x] **Destination folder** : parent correct sur Windows (mis à jour automatiquement à l’ouverture).
-- [x] **JUCE directory** : remplacez par le chemin JUCE **Windows** (obligatoire — le chemin Mac ne fonctionne pas ici).
-- [x] Vérifiez que **Project name**, **Display name**, **Version**, formats et options **Artefacts** sont bien revenus depuis `.luthier.json`.
-- [x] **Version** → `1.1.0`.
-- [x] **Display name** → `Voyage Cross QA Windows`.
-- [x] **Generate Project** → succès (plus de message d'erreur WinError 5).
+- [x] Ouvrez `.luthier.json` dans l’éditeur → chemins Workspace ; adaptez **JUCE directory** Windows manuellement si besoin.
+- [x] Build CMake depuis le dossier cloné (pas de rechargement Luthier).
+- [x] Pour **regénérer le squelette** : **Create New Project** dans Luthier + dossier **vide**, ou session regenerate sur la même machine/session.
+
+> *Archive pré-Epic 9 : **Open Project…** / rechargement formulaire — retiré v1.0.0.*
 
 ### Cursor
 
@@ -535,15 +523,12 @@ Les étapes sont identiques d’un OS à l’autre ; seules les notes spécifiqu
 
 ---
 
-## 2.4 — Machine 3 (ex. Linux) — Pull, modification Templates + projet
+## 2.4 — Machine 3 (ex. Linux) — Pull, build CMake
 
 - [x] `git pull` — vous devez voir les changements de la machine 2.
-- [x] Luthier → **Open Project…** → `VoyageLuthier`.
-- [x] **JUCE directory** → chemin JUCE **Linux**.
-- [x] Onglet **Templates** → petit override (commentaire `// Linux QA` dans `PluginProcessor.h`) → **Save override** (reste **local** à cette installation Luthier — normal).
-- [x] **Project** → **Version** `1.2.0`, **Preprocessor defs** : ajoutez `LINUX_QA=1`.
-- [x] **Generate Project**.
-- [x] Vérifiez que le commentaire template apparaît dans `Source/PluginProcessor.h`.
+- [x] Éditez `.luthier.json` ou **Preferences** pour le chemin JUCE **Linux** ; build CMake.
+- [x] Onglet **Templates** → override local (commentaire `// Linux QA`) → **Save override** (local à cette installation — normal).
+- [x] Pour regénérer le squelette avec **Version** `1.2.0` et `LINUX_QA=1` : **Create New Project** + generate dans dossier vide, ou session regenerate.
 
 ### Cursor
 
@@ -562,12 +547,9 @@ Les étapes sont identiques d’un OS à l’autre ; seules les notes spécifiqu
 ## 2.5 — Retour machine 1 (ex. macOS) — Synchronisation finale
 
 - [ ] `git pull`.
-- [ ] **Open Project…** → `VoyageLuthier`.
-- [ ] **Version** affichée : `1.2.0`.
-- [ ] **Preprocessor defs** contient `LINUX_QA=1`.
-- [ ] **JUCE directory** : remettez le chemin JUCE **Mac** (le chemin Linux/Windows ne doit pas rester si invalide sur Mac).
-- [ ] **Generate Project** sans erreur.
-- [ ] Changez **Display name** → `Voyage Cross QA Final` → générez → commit + push *« Finalisation Mac »*.
+- [ ] Vérifiez `.luthier.json` : **Version** `1.2.0`, **Preprocessor defs** contient `LINUX_QA=1`.
+- [ ] Chemin JUCE **Mac** dans `.luthier.json` ou **Preferences** ; build CMake.
+- [ ] Regénération squelette si nécessaire : session regenerate ou **Create New Project** + dossier vide.
 
 ---
 
@@ -577,17 +559,17 @@ Les réglages globaux Luthier **ne voyagent pas** avec le projet Git. Testez la 
 
 - [x] Sur la machine 1 : **Export Preferences…** → `voyage-profil.json`.
 - [x] Transférez le fichier (cloud, clé USB, e-mail).
-- [x] Sur la machine 2 : **Import Preferences…** → le profil s’applique dans **Preferences** (couleur + chemins + fabricant) ; le sélecteur de l’onglet **Project** n’est pas mis à jour tant que vous ne faites pas **Create New Project**.
+- [x] Sur la machine 2 : **Import Preferences…** → profil dans **Preferences** ; formulaire **Project** inchangé jusqu’à **Create New Project**.
 - [x] Ajustez **JUCE directory** et **Destination folder** pour la machine 2 (chemins locaux).
-- [x] **Open Project…** sur `VoyageLuthier` : le **projet** n’a pas été écrasé par l’import (seul un **Create New Project** prendrait le profil entier).
+- [x] Le dépôt Git `VoyageLuthier` n’est **pas** écrasé par l’import (comportement attendu).
 
 ---
 
 ## 2.7 — Cas limites cross-plateforme
 
 - [x] **Chemins dans `.luthier.json`** : ouvrez le fichier dans un éditeur de texte — les chemins utilisent des `/` même sur Windows.
-- [x] **Sidecar manquant** : générez un projet, renommez ou supprimez temporairement `.luthier.json` → **Open Project…** → message clair (fichier compagnon absent ou invalide), pas d’analyse CMake.
-- [x] **Conflit Git** : sur deux machines, modifiez **Version** différemment sans pull → poussez/pull/remergez → rouvrez dans Luthier : le fichier `.luthier.json` final reflète l’état du dépôt.
+- [x] ~~**Sidecar manquant + Open**~~ *(retiré)* — Luthier n’offre plus de rouvrir ; le sidecar reste une référence optionnelle dans le repo.
+- [x] **Conflit Git** : merge `.luthier.json` comme tout fichier source ; build CMake après résolution.
 - [ ] ❌ **Fichier prefs corrompu** (test avancé, une machine jetable) : sauvegardez `preferences.json`, remplacez son contenu par `{` → relancez Luthier → message d’avertissement dans la barre de message, valeurs par défaut ou secours — **pas** de plantage. Restaurez la sauvegarde après le test. GD : l'app plante sous macOS (pas testé sous Windows & Linux), au deuxième lancement elle se lance sans crash.
 
 Emplacement des fichiers de config Luthier :
@@ -609,7 +591,7 @@ Emplacement des fichiers de config Luthier :
 | Après Linux (2.4)   |         | 1.2.0            | (inchangé ou …) |          |
 | Final Mac (2.5)     |         | 1.2.0            | … Final         |          |
 
-- [x] Sur les **trois** OS, **Open Project…** sur la dernière révision Git donne un projet **cohérent** (même version, mêmes options — seuls les chemins JUCE/destination doivent être adaptés localement).
+- [x] Sur les **trois** OS, clone Git dernière révision → **build CMake** cohérent (chemins JUCE/destination adaptés manuellement dans `.luthier.json` si besoin).
 - [ ] ❌ Aucun plantage Luthier pendant tout le parcours de la Partie 2. GD : si, voir 2.7.
 
 ---

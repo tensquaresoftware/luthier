@@ -1,8 +1,8 @@
 # Contributing to Luthier
 
-Thank you for contributing to Luthier. This guide walks you through environment setup, running the test suite, launching the app, and building a standalone bundle.
+Thank you for contributing to Luthier — a **one-shot JUCE/CMake skeleton generator** (scaffold-only: no Open/reload workflow). This guide walks you through environment setup, running the test suite, launching the app, and building a standalone bundle.
 
-For architecture and module contracts, see [_bmad-output/architecture.md](_bmad-output/architecture.md). For end-user documentation, see [docs/user/user-manual.md](docs/user/user-manual.md) (English) or [docs/user/manuel-utilisateur.md](docs/user/manuel-utilisateur.md) (French).
+For architecture and module contracts, see [_bmad-output/architecture.md](_bmad-output/architecture.md). For end-user documentation, see [docs/user/user-manual.md](docs/user/user-manual.md) (English) or [docs/user/manuel-utilisateur.md](docs/user/manuel-utilisateur.md) (French). For the scaffold-only product philosophy and a JUCE/CMake primer, see [docs/guide-juce-cmake-et-luthier.md](docs/guide-juce-cmake-et-luthier.md) (French).
 
 ## Prerequisites
 

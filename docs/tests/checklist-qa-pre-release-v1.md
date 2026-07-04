@@ -70,9 +70,7 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 
 - [x] **Create New Project** → les champs **Workspace** reprennent vos **Preferences** (six chemins).
 - [x] **Project name** `TestLuthier` → **Generate Project** → succès **sans** dialogue de dossier intempestif (destination hôte déjà valide).
-- [x] **Open Project…** → `TestLuthier` : les six chemins reviennent depuis `.luthier.json`.
-- [x] Déplacez le dossier projet dans un parent accentué → **Open Project…** : la ligne **destination hôte** se met à jour ; **pas** d’erreur sur le chemin.
-- [x] Les chemins **JUCE** et **destination** des **autres OS** restent ceux enregistrés (non écrasés par le déplacement).
+- [x] Ouvrez `.luthier.json` dans le dossier généré : les six chemins Workspace y sont (référence metadata).
 - [x] **Choose…** sur une ligne hôte → badge **Saved** visible (comme dans **Preferences**).
 
 ### W3 — Migration anciens réglages (une machine suffit)
@@ -106,22 +104,20 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 
 ---
 
-## Partie 2 — Sidecar obligatoire (Epic 8.2)
+## Partie 2 — Sidecar write-only (Epic 9 — remplace « sidecar obligatoire pour Open »)
 
-> **Changement breaking v1.0.0 :** plus de rechargement depuis `CMakeLists.txt` seul. Sans `.luthier.json`, **Open Project…** échoue proprement.
+> **v1.0.0 scaffold-only :** `.luthier.json` est **écrit** au **Generate Project** ; Luthier **ne le relit pas**. Pas de bouton **Open Project…**.
 
-### S1 — Sidecar absent ou invalide (~3 min, une machine suffit ; refaire sur un second OS si doute)
+### S1 — Sidecar présent après generate (~3 min)
 
-- [x] Projet existant `TestLuthier` : renommez temporairement `.luthier.json` (ex. `.luthier.json.bak`).
-- [x] **Open Project…** → modale ou barre de message : fichier compagnon **manquant** ou **Not a Luthier project** — message **clair**.
-- [x] Le formulaire **ne** se remplit **pas** partiellement depuis CMake (pas de champs « à moitié » chargés).
-- [x] Restaurez `.luthier.json` → **Open Project…** → chargement normal.
-- [x] **Open Project…** sur un dossier **vide** ou non-Luthier → message *Not a Luthier project or companion file .luthier.json is missing.* — **pas de plantage**.
+- [x] **Generate Project** → `.luthier.json` présent dans le dossier projet.
+- [x] Ouvrez `.luthier.json` : chemins Workspace en **`/`** ; **pas** de clé `accentColor`.
+- [x] Luthier n’offre **aucun** moyen de recharger le sidecar dans le formulaire.
 
-### S2 — `.luthier.json` cross-plateforme (si vous reprenez `VoyageLuthier`)
+### S2 — `.luthier.json` cross-plateforme (référence Git)
 
-- [x] Ouvrez `.luthier.json` dans un éditeur : clés `destinationDirWindows`, `destinationDirMacos`, `destinationDirLinux`, `juceDirWindows`, etc. présentes ; chemins en **`/`** même sous Windows.
-- [x] Clé **`accentColor`** présente après **Generate Project** ; couleur retrouvée au **Open Project…** sur une autre machine (commit `26dcd0d`).
+- [x] Clés `destinationDirWindows`, `juceDirMacos`, etc. présentes après generate.
+- [x] Sur une autre machine : éditez manuellement le chemin JUCE **hôte** dans `.luthier.json` ou **Preferences**, puis build CMake — **sans** Open dans Luthier.
 
 ---
 
@@ -160,17 +156,14 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 ### 4.1 — Retour macOS (finalisation)
 
 - [x] `git pull` — dernière révision Linux (`1.2.0`, `LINUX_QA=1`).
-- [x] **Open Project…** → `VoyageLuthier`.
-- [x] **Version** : `1.2.0` ; **Preprocessor defs** contient `LINUX_QA=1`.
-- [x] **Couleur Project** transportée via `.luthier.json` après régénération (build `26dcd0d`+).
-- [x] Section **Workspace** : **JUCE directory** ligne **macOS** → chemin JUCE Mac ; destination Mac cohérente.
-- [x] **Generate Project** → succès.
-- [x] **Display name** → `Voyage Cross QA Final` → **Generate Project** → commit + push (*« Finalisation Mac »*).
+- [x] Ouvrez `.luthier.json` dans l’éditeur : **Version** `1.2.0` ; **Preprocessor defs** contient `LINUX_QA=1`.
+- [x] Ajustez **JUCE directory** ligne **macOS** dans `.luthier.json` ou **Preferences** si besoin → build CMake (pas d’Open Luthier).
+- [x] **Create New Project** dans Luthier pour une **nouvelle** génération si vous devez regénérer le squelette (dossier vide ou session regenerate).
 
 ### 4.2 — Vérifications finales (3 OS, ~10 min/OS ou 1 OS + spot-check)
 
-- [x] **Open Project…** dernière révision Git → projet **cohérent** (même version, defs, options Artefacts ; seuls chemins **Workspace hôte** à adapter si besoin).
-- [x] **Import Preferences…** depuis un JSON d’une autre machine → **Preferences** mis à jour ; projet ouvert **inchangé**.
+- [x] Clone Git → éditez chemins hôte dans `.luthier.json` si besoin → **build CMake** cohérent sur chaque OS (pas de **Open Project…**).
+- [x] **Import Preferences…** depuis un JSON d’une autre machine → **Preferences** mis à jour ; formulaire **Project** inchangé jusqu’à **Create New Project**.
 - [x] **Aucun plantage** Luthier pendant 4.1–4.2.
 
 ### Récapitulatif VoyageLuthier

@@ -152,3 +152,10 @@ Ces entrées ne sont **plus** de la dette ouverte — décision de design, hors 
 - Double-click Generate race — no guard against overlapping `_run_generation(allow_overwrite=True)` calls.
 - Partial success if `save()` fails after generate — `remember_generated_project` already updated but parent-dir memory failed; ambiguous retry UX.
 - AC3 session scenario test gap — different-path block tested at helper level only, not with `AppState.remember_generated_project(A)` + target B.
+
+---
+
+## Deferred from: code review of 9-5-documentation-v1-guide-manuals-readme (2026-07-04)
+
+- Plugin Type dirty-form confirm dialog undocumented in manuals — real UX gap but out of Story 9.5 AC scope; document in follow-up doc pass.
+- Epic 9 anchor slug uses accented characters (`#epic-9--fumée-scaffold-only-v100--2026-07-04`) — may not resolve in all Markdown renderers; renderer-dependent.

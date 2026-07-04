@@ -10,6 +10,35 @@
 
 ---
 
+## Epic 9 — Fumée scaffold-only (v1.0.0 — 2026-07-04)
+
+> **Changement produit :** plus de bouton **Open Project…**. Luthier génère le squelette une fois ; `.luthier.json` est **écrit seulement** (jamais relu dans le formulaire).
+
+### S9.1 — Garde dossier non vide (session fraîche)
+
+- [ ] Fermez et relancez Luthier (ou utilisez un chemin jamais généré).
+- [ ] **Create New Project** → `TestLuthier` → **Generate Project** une première fois → succès.
+- [ ] Fermez et relancez Luthier → même destination / nom → **Generate Project** → **bloqué** : modale + barre *This folder already exists and is not empty…*
+
+### S9.2 — Session regenerate (même session)
+
+- [ ] **Create New Project** → `TestRegen` → **Generate Project** → succès.
+- [ ] Modifiez **Version** (ex. `2.0.0`) **sans** fermer Luthier.
+- [ ] **Generate Project** → modale **Regenerate Project** (défaut **No**) → **Yes** → succès ; `.git/` préservé si présent.
+- [ ] Vérifiez `CMakeLists.txt` / sources reflètent la nouvelle version.
+
+### S9.3 — Accent couleur (Preferences uniquement)
+
+- [ ] Onglet **Project** : **pas** de sélecteur de couleur d’accent.
+- [ ] **Preferences** → **Luthier appearance** → autre preset → thème mis à jour sur tous les onglets.
+- [ ] **Generate Project** → ouvrez `.luthier.json` : **pas** de clé `accentColor`.
+
+### S9.4 — Plugin Characteristics (optionnel)
+
+- [ ] **Plugin Type** **Instrument** → cochez **Plugin MIDI Output** → **Generate Project** → `CMakeLists.txt` reflète MIDI out (ex. Matrix-Control).
+
+---
+
 ## Avant de commencer
 
 ### Sur chaque machine
@@ -56,8 +85,7 @@
 ### R2 — Messages et chemins affichés
 
 - [x] **Generate Project** → barre de message : chemin avec des **`/`** (pas de `\` sous Windows).
-- [x] **Open Project…** sur un dossier **vide** ou non-Luthier → modale : **Not a Luthier project** ou fichier compagnon manquant.
-- [ ] **Open Project…** sur un dossier sans `.luthier.json` (renommer temporairement le fichier) → erreur claire ; pas de rechargement depuis CMake.
+- [x] ~~**Open Project…**~~ *(retiré v1.0.0 scaffold-only)* — voir [S9.1–S9.2](#epic-9--fumée-scaffold-only-v100--2026-07-04).
 - [x] **Export Preferences…** → message avec le **chemin complet** du fichier exporté.
 
 ### R3 — Modales de confirmation
@@ -66,7 +94,8 @@
 
 ❌ GD : sous Windows, le bouton No est encore à droite et le bouton Yes à sa gauche (inversé par rapport à macOS et Linux)
 
-- [x] **Generate Project** sur un dossier existant → modale d’écrasement : même ordre **No** / **Yes**, défaut sur **No**.
+- [x] **Generate Project** sur un dossier **non vide** (session fraîche ou après redémarrage app) → **bloqué** : modale + barre *This folder already exists and is not empty…*
+- [x] **Generate Project** sur le **même chemin** après un Generate réussi **dans cette session** → modale **Regenerate Project** : **No** / **Yes**, défaut sur **No**.
 
 ❌ GD : sous Windows, le bouton No est encore à droite et le bouton Yes à sa gauche (inversé par rapport à macOS et Linux)
 
@@ -110,8 +139,8 @@
 - [ ] Lancement sans plantage ; onglets **Project**, **Preferences**, **Templates**, **About**.
 - [ ] **Preferences** : fabricant, **Generate** codes, section **Workspace** (destination + JUCE pour les trois OS), couleur d’accent, export/import `profil-qa-macos.json`.
 - [ ] **Create New Project** → `TestLuthier` → formats **VST3** + **AU** → **Generate Project** → dossier avec `CMakeLists.txt`, `.luthier.json`, `Source/`.
-- [ ] **Open Project…** → modifier **Version** → regénérer → rouvrir : changements conservés.
-- [ ] Déplacer le projet dans un dossier accentué → **Open Project…** : **Destination folder** (ligne OS hôte dans **Workspace**) mis à jour, **pas** d’erreur sur le chemin.
+- [ ] **Session regenerate** (même session) : modifiez **Version** → **Generate Project** → confirmez **Regenerate Project** → changements visibles sur disque.
+- [ ] *(Après redémarrage app)* **Generate Project** sur le même dossier → **bloqué** (dossier non vide).
 - [ ] **Templates** : override `PluginProcessor.cpp` → nouveau projet → override visible → **Reset to default** → disparaît sur les nouveaux projets.
 - [ ] *(Optionnel)* Build CMake du projet généré : OK.
 
@@ -148,31 +177,28 @@
 
 ### 3.3 — Machine 2 (ex. Windows)
 
-- [ ] `git clone` → **Open Project…** → adapter **JUCE directory** Windows (ligne hôte dans **Workspace**).
-- [ ] Version `1.1.0`, **Display name** `Voyage Cross QA Windows` → **Generate Project** OK.
-- [ ] Commit + push.
-- [ ] *(Recommandé)* Build + chargement VST3 depuis dossiers système et artefacts.
+- [ ] `git clone` → éditez **JUCE directory** Windows dans `.luthier.json` → **build CMake** (pas d’Open Luthier).
+- [ ] Vérifiez metadata dans `.luthier.json` (version `1.1.0`, **Display name** `Voyage Cross QA Windows` si commitée sur machine 1) ; build + chargement VST3 depuis dossiers système et artefacts.
+- [ ] *(Optionnel — nouvelle génération Luthier)* Dossier **vide** + **Create New Project** → regénérez le squelette si vous devez changer les métadonnées côté Luthier ; sinon éditez `.luthier.json` / `CMakeLists.txt` à la main.
 
 ### 3.4 — Machine 3 (ex. Linux)
 
-- [ ] `git pull` → ouvrir projet → JUCE Linux.
-- [ ] Override **Templates** local (`// Linux QA` dans `PluginProcessor.h`) → **Save override**.
-- [ ] Version `1.2.0`, **Preprocessor defs** `LINUX_QA=1` → **Generate Project**.
-- [ ] Commit projet (pas les templates locaux) + push.
-- [ ] *(Recommandé)* Build + chargement VST3.
+- [ ] `git pull` → éditez **JUCE directory** Linux dans `.luthier.json` → **build CMake**.
+- [ ] Override **Templates** local (`// Linux QA` dans `PluginProcessor.h`) → **Save override** (s’applique aux **nouvelles** générations Luthier uniquement).
+- [ ] Vérifiez metadata commitée (version `1.2.0`, **Preprocessor defs** `LINUX_QA=1` si présents dans le dépôt) ; build + chargement VST3.
+- [ ] Commit projet (pas les templates locaux) + push si vous avez modifié des fichiers.
 
 ### 3.5 — Retour machine 1 (ex. macOS) — Finalisation
 
 - [ ] `git pull`.
-- [ ] **Open Project…** → `VoyageLuthier`.
-- [ ] **Version** : `1.2.0` ; **Preprocessor defs** : `LINUX_QA=1`.
-- [ ] **JUCE directory** Mac (ligne hôte **Workspace**) remis → **Generate Project** sans erreur.
-- [ ] **Display name** → `Voyage Cross QA Final` → générer → commit + push.
+- [ ] Vérifiez `.luthier.json` dans `VoyageLuthier` cloné (metadata) ; **build CMake** sur Mac (chemins **Workspace** hôte adaptés dans `.luthier.json` si besoin).
+- [ ] **Version** : `1.2.0` ; **Preprocessor defs** : `LINUX_QA=1` ; **Display name** : `Voyage Cross QA Final` — reflétés dans le dépôt ou édités manuellement.
+- [ ] *(Pas de **Generate Project** sur le dossier cloné après redémarrage Luthier — dossier non vide ; build CMake ou session regenerate volontaire uniquement.)*
 
 ### 3.6 — Vérifications finales cross-plateforme
 
-- [ ] Sur **les trois** OS : **Open Project…** dernière révision Git → projet cohérent (seuls les chemins **Workspace** hôte à adapter si besoin).
-- [ ] **Import Preferences…** depuis un JSON exporté sur une autre machine : **Preferences** mis à jour, projet ouvert **inchangé**.
+- [ ] Sur **les trois** OS : clone Git dernière révision → build CMake cohérent (chemins **Workspace** hôte adaptés manuellement si besoin).
+- [ ] **Import Preferences…** depuis un JSON exporté sur une autre machine : **Preferences** mis à jour ; formulaire **Project** inchangé jusqu’à **Create New Project**.
 - [ ] Conflit Git simulé (versions différentes sans pull) : merge → `.luthier.json` reflète le dépôt.
 - [ ] **Aucun plantage** Luthier pendant toute la Partie 3.
 
