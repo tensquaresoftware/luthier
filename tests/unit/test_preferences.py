@@ -147,6 +147,7 @@ def test_seed_dict_maps_project_form_keys(tmp_path):
     assert seed[host_dest] == "/seed/dest"
     assert seed["pluginFormats"] == "VST3"
     assert seed["manufacturer"] == "Seed Co"
+    assert "accentColor" not in seed
 
 
 def test_seed_dict_round_trips_through_project_spec(tmp_path):

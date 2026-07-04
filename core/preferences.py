@@ -360,7 +360,6 @@ class Preferences:
         }
         for key in WORKSPACE_KEYS:
             seed[key] = self.get(key)
-        seed["accentColor"] = self.accent_color
         seed["manufacturer"] = seed["manufacturerName"]
         return seed
 

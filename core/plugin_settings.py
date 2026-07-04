@@ -1,6 +1,6 @@
 """Plugin type flags, AU/VST3 categories and bundle identifier.
 
-Pure functions shared by the form, the project reader and the generator.
+Pure functions shared by the form and the generator.
 """
 
 import re
@@ -172,14 +172,6 @@ def flags_for_type(type_key: str) -> dict:
         "needsMidiInput": _bool_to_cmake(chars["needs_midi_input"]),
         "needsMidiOutput": _bool_to_cmake(chars["needs_midi_output"]),
     }
-
-
-def type_for_flags(is_synth: str, is_midi_effect: str) -> str:
-    if is_synth == "TRUE":
-        return TYPE_INSTRUMENT
-    if is_midi_effect == "TRUE":
-        return TYPE_MIDI_EFFECT
-    return TYPE_AUDIO_EFFECT
 
 
 def bundle_id(manufacturer_name: str, project_name: str) -> str:

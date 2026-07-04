@@ -13,7 +13,6 @@ from core.plugin_settings import (
     bundle_id,
     flags_for_type,
     preset_characteristics,
-    type_for_flags,
 )
 
 _EXPECTED_FLAGS = {
@@ -76,12 +75,6 @@ def test_au_and_vst3_categories(type_key):
 )
 def test_bundle_id(manufacturer, project, expected):
     assert bundle_id(manufacturer, project) == expected
-
-
-@pytest.mark.parametrize("type_key", [key for key, _ in PLUGIN_TYPES])
-def test_type_for_flags_round_trip(type_key):
-    flags = flags_for_type(type_key)
-    assert type_for_flags(flags["isSynth"], flags["isMidiEffect"]) == type_key
 
 
 def test_flags_for_type_unknown_raises():
