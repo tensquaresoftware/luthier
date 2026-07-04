@@ -39,6 +39,15 @@ def _make_spec(**kwargs):
         artefacts_dir_windows="C:/out",
         artefacts_dir_macos="/out/mac",
         artefacts_dir_linux="/out/linux",
+        needs_midi_input=True,
+        needs_midi_output=False,
+        is_synth=True,
+        is_midi_effect=False,
+        editor_wants_keyboard_focus=False,
+        plugin_description="Matrix style",
+        audio_io_preset="stereo",
+        vst_num_midi_ins=16,
+        vst_num_midi_outs=8,
     )
     host_dest = host_workspace_field_key("destination")
     defaults[workspace_attr(host_dest)] = "/tmp/out"
@@ -115,13 +124,45 @@ def test_to_dict_camel_case_keys():
         project_name="Alpha",
         copy_to_artefacts_dir=False,
         artefacts_dir_linux="/linux/out",
+        needs_midi_output=True,
+        plugin_description="Desc",
+        vst_num_midi_outs=4,
     )
     d = spec.to_dict()
     assert d["projectName"] == "Alpha"
     assert d["copyToArtefactsDir"] is False
     assert d["artefactsDirLinux"] == "/linux/out"
+    assert d["needsMidiOutput"] is True
+    assert d["pluginDescription"] == "Desc"
+    assert d["vstNumMidiOuts"] == 4
     assert "accentColor" not in d
     assert ProjectSpec.from_dict(d).project_name == "Alpha"
+
+
+def test_from_dict_missing_characteristic_keys_use_instrument_defaults():
+    restored = ProjectSpec.from_dict({"projectName": "OnlyName"})
+    assert restored.needs_midi_input is True
+    assert restored.needs_midi_output is False
+    assert restored.is_synth is True
+    assert restored.is_midi_effect is False
+    assert restored.editor_wants_keyboard_focus is False
+    assert restored.plugin_description == ""
+    assert restored.audio_io_preset == "stereo"
+    assert restored.vst_num_midi_ins == 16
+    assert restored.vst_num_midi_outs == 16
+
+
+@pytest.mark.parametrize("value,expected", [("synth_no_input", "synth-no-input"), ("midi_effect", "midi-effect")])
+def test_from_dict_normalizes_legacy_audio_io_values(value, expected):
+    restored = ProjectSpec.from_dict({"audioIoPreset": value})
+    assert restored.audio_io_preset == expected
+
+
+@pytest.mark.parametrize("value,expected", [(0, 16), (17, 16), ("12", 12), ("x", 16)])
+def test_from_dict_clamps_midi_counts(value, expected):
+    restored = ProjectSpec.from_dict({"vstNumMidiIns": value, "vstNumMidiOuts": value})
+    assert restored.vst_num_midi_ins == expected
+    assert restored.vst_num_midi_outs == expected
 
 
 def test_from_dict_ignores_legacy_accent_color_key():

@@ -42,6 +42,7 @@ class ProjectPage(QScrollArea):
         )
         self._build_ui()
         self._connect_signals()
+        self._type.set_dirty_callback(lambda: self.is_dirty())
         self._baseline: dict = {}
         self._seed_new_project(defaults)
 
@@ -66,11 +67,13 @@ class ProjectPage(QScrollArea):
         d.update(self._compilation.values())
         d.update(self._workspace.values())
         d.update(self._artefacts.values())
+        d.update(self._type.characteristics_values())
         return ProjectSpec.from_dict(d)
 
     def is_valid(self) -> bool:
         return (
             self._info.is_valid()
+            and self._type.is_valid()
             and self._formats.is_valid()
             and self._workspace.is_valid()
             and self._artefacts.is_valid()
@@ -85,7 +88,7 @@ class ProjectPage(QScrollArea):
     def load(self, spec: ProjectSpec) -> None:
         d = spec.to_dict()
         self._info.load(d)
-        self._type.set_type(spec.plugin_type)
+        self._type.load(d)
         self._formats.set_formats(spec.plugin_formats)
         self._compilation.load(d)
         self._workspace.load(d)
@@ -124,7 +127,7 @@ class ProjectPage(QScrollArea):
     def _sections(self) -> list:
         return [
             ("Project Info", self._info),
-            ("Plugin Type", self._type),
+            ("Plugin Type & Characteristics", self._type),
             ("Formats", self._formats),
             ("Compilation", self._compilation),
             ("Workspace", self._workspace),
@@ -133,6 +136,7 @@ class ProjectPage(QScrollArea):
 
     def _connect_signals(self) -> None:
         self._info.validityChanged.connect(self._emit_validity)
+        self._type.validityChanged.connect(self._emit_validity)
         self._formats.validityChanged.connect(self._emit_validity)
         self._workspace.validityChanged.connect(self._emit_validity)
         self._artefacts.validityChanged.connect(self._emit_validity)

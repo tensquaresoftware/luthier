@@ -15,26 +15,130 @@ PLUGIN_TYPES = [
     (TYPE_MIDI_EFFECT, "MIDI Effect"),
 ]
 
-# type_key -> (isSynth, isMidiEffect, needsMidiInput, needsMidiOutput)
-_FLAGS = {
-    TYPE_INSTRUMENT: ("TRUE", "FALSE", "TRUE", "FALSE"),
-    TYPE_AUDIO_EFFECT: ("FALSE", "FALSE", "FALSE", "FALSE"),
-    TYPE_MIDI_EFFECT: ("FALSE", "TRUE", "TRUE", "TRUE"),
+AUDIO_IO_PRESETS = ("stereo", "mono", "synth-no-input", "midi-effect")
+
+_AUDIO_IO_LEGACY = {
+    "synth_no_input": "synth-no-input",
+    "midi_effect": "midi-effect",
+}
+
+LOCKED_ON = "locked_on"
+LOCKED_OFF = "locked_off"
+OPTIONAL = "optional"
+
+# type_key -> (is_synth, is_midi_effect, needs_midi_input, needs_midi_output)
+_PRESET_BOOLS = {
+    TYPE_INSTRUMENT: (True, False, True, False),
+    TYPE_AUDIO_EFFECT: (False, False, False, False),
+    TYPE_MIDI_EFFECT: (False, True, True, True),
+}
+
+_PRESET_AUDIO_IO = {
+    TYPE_INSTRUMENT: "stereo",
+    TYPE_AUDIO_EFFECT: "stereo",
+    TYPE_MIDI_EFFECT: "midi-effect",
+}
+
+_PRESET_CHECKBOX_RULES = {
+    TYPE_INSTRUMENT: {
+        "is_synth": LOCKED_ON,
+        "needs_midi_input": LOCKED_ON,
+        "needs_midi_output": OPTIONAL,
+        "is_midi_effect": LOCKED_OFF,
+        "editor_wants_keyboard_focus": OPTIONAL,
+    },
+    TYPE_AUDIO_EFFECT: {
+        "is_synth": LOCKED_OFF,
+        "needs_midi_input": OPTIONAL,
+        "needs_midi_output": OPTIONAL,
+        "is_midi_effect": LOCKED_OFF,
+        "editor_wants_keyboard_focus": OPTIONAL,
+    },
+    TYPE_MIDI_EFFECT: {
+        "is_synth": LOCKED_OFF,
+        "needs_midi_input": LOCKED_ON,
+        "needs_midi_output": LOCKED_ON,
+        "is_midi_effect": LOCKED_ON,
+        "editor_wants_keyboard_focus": OPTIONAL,
+    },
 }
 
 
-def flags_for_type(type_key: str) -> dict:
-    if type_key not in _FLAGS:
+def _require_type_key(type_key: str) -> None:
+    if type_key not in _PRESET_BOOLS:
         valid = ", ".join(key for key, _ in PLUGIN_TYPES)
         raise ValueError(
             f"Unknown plugin type {type_key!r}. Expected one of: {valid}."
         )
-    is_synth, is_midi, midi_in, midi_out = _FLAGS[type_key]
+
+
+def preset_characteristics(type_key: str) -> dict[str, bool]:
+    _require_type_key(type_key)
+    is_synth, is_midi, midi_in, midi_out = _PRESET_BOOLS[type_key]
     return {
-        "isSynth": is_synth,
-        "isMidiEffect": is_midi,
-        "needsMidiInput": midi_in,
-        "needsMidiOutput": midi_out,
+        "is_synth": is_synth,
+        "is_midi_effect": is_midi,
+        "needs_midi_input": midi_in,
+        "needs_midi_output": midi_out,
+    }
+
+
+def preset_audio_io(type_key: str) -> str:
+    _require_type_key(type_key)
+    return _PRESET_AUDIO_IO[type_key]
+
+
+def preset_checkbox_rules(type_key: str) -> dict[str, str]:
+    _require_type_key(type_key)
+    return dict(_PRESET_CHECKBOX_RULES[type_key])
+
+
+def normalize_audio_io_preset(value: str) -> str:
+    text = str(value or "").strip()
+    text = _AUDIO_IO_LEGACY.get(text, text)
+    if text not in AUDIO_IO_PRESETS:
+        return "stereo"
+    return text
+
+
+def audio_io_combo_options(type_key: str) -> list[tuple[str, str]]:
+    _require_type_key(type_key)
+    if type_key == TYPE_MIDI_EFFECT:
+        return [("MIDI Effect", "midi-effect")]
+    return [
+        ("Stereo", "stereo"),
+        ("Mono", "mono"),
+        ("Synth No Input", "synth-no-input"),
+    ]
+
+
+def characteristics_conflict(is_synth: bool, is_midi_effect: bool) -> tuple[bool, str]:
+    if is_synth and is_midi_effect:
+        return False, "Synth and MIDI Effect cannot both be enabled."
+    return True, ""
+
+
+def clamp_midi_count(value, default: int = 16) -> int:
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        return default
+    if number < 1 or number > 16:
+        return default
+    return number
+
+
+def _bool_to_cmake(value: bool) -> str:
+    return "TRUE" if value else "FALSE"
+
+
+def flags_for_type(type_key: str) -> dict:
+    chars = preset_characteristics(type_key)
+    return {
+        "isSynth": _bool_to_cmake(chars["is_synth"]),
+        "isMidiEffect": _bool_to_cmake(chars["is_midi_effect"]),
+        "needsMidiInput": _bool_to_cmake(chars["needs_midi_input"]),
+        "needsMidiOutput": _bool_to_cmake(chars["needs_midi_output"]),
     }
 
 

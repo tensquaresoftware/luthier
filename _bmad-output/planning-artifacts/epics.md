@@ -29,7 +29,7 @@ FR6: Users can customize the 5 editable templates (4 source files + .gitignore) 
 FR7: Preferences hold a complete global profile in preferences.json (identity, destination folder, JUCE default seed, plugin type, formats, compilation, artefacts). Factory defaults on first launch only; thereafter all Project seeding reads preferences.json. Auto-save on valid edit; Import replaces profile; Export copies without touching preferences.json. Open and Generate never write preferences.json.
 FR8: Tab bar (Project, Preferences, Templates, About) with per-tab action bar: Project — Create New Project, Generate Project (**Open Project… removed**, Epic 9); Preferences — Import Preferences…, Export Preferences…; Templates — Load from file…, Reset to default, Save override. Project form sections with Destination folder and JUCE directory (label → Choose… → field); Preferences mirrors defaults with same labels; auto-save indicator in tab bar. Dark theme; accent colour from Preferences only (not Project tab or sidecar).
 FR9: Luthier is distributable as a self-contained bundle (PyInstaller, no system Python) on macOS ARM64, macOS x86_64, Windows x64, and Linux x86_64, with full feature parity across platforms.
-FR10: Generate is **hard-blocked** when the target project directory exists and is non-empty (or contains Luthier project markers). No overwrite-with-confirmation in v1.0.
+FR10: Generate is **hard-blocked** when the target project directory exists and is non-empty, **except** a **session-only carve-out**: after a successful Generate in the same app session, the user may regenerate to the **same** `{destination}/{projectName}/` path via **explicit destructive confirmation** (replaces the entire tree except `.git`; Finder/IDE edits since last generate are lost). Brownfield protection applies on fresh app launch or when the target was not produced by Luthier in this session. No Open/reload workflow (Epic 9.1).
 FR11: Plugin type uses **presets + independent characteristic toggles** (Synth, MIDI In/Out, MIDI Effect, keyboard focus), Audio I/O preset combo, MIDI channel counts, and Plugin Description — persisted in `.luthier.json` for reference only.
 FR12: Accent colour is **Preferences-only** (`preferences.json`); Workspace and Artefacts OS path groups display **tree connector lines** (Project + Preferences tabs).
 
@@ -1041,7 +1041,7 @@ Remove CMake-regex Open fallback, workspace JSON migration, and stale generated-
 
 **Supersedes:** Epic 2 (reload)
 
-**Recommended implementation order:** `9.1 → 9.7 → 9.2 → 9.3 → 9.4 → 9.6 → 9.5`
+**Recommended implementation order:** `9.1 → 9.7 → 9.2 → 9.3 → 9.8 → 9.4 → 9.6 → 9.5`
 
 ### Story 9.1: Remove Open Project (Scaffold-Only Positioning)
 
@@ -1168,6 +1168,36 @@ So that I can configure cases like Instrument + MIDI Output (Matrix-Control) wit
 
 ---
 
+### Story 9.8: Session Regenerate with Warning
+
+As a JUCE developer,
+I want to regenerate the project I just created in this session after fixing a form setting,
+So that I can iterate on the scaffold without manually deleting the folder, while brownfield folders stay protected after I close the app.
+
+**Acceptance Criteria:**
+
+**Given** a successful Generate in this app session to `{destination}/{projectName}/`  
+**When** user clicks Generate again with the **same** resolved path and the folder is non-empty  
+**Then** show destructive confirmation (not the FR10 hard-block message) explaining that all files except `.git` will be replaced and Finder/IDE edits will be lost  
+**And** on confirm, generation proceeds from current `ProjectSpec` (form-driven; writer does not read existing sources)
+
+**Given** user declines the destructive confirm  
+**Then** generation does not start; no disk change
+
+**Given** app restarted (new session) or target path never successfully generated in this session  
+**When** target folder exists and is non-empty  
+**Then** Story 9.2 hard-block applies unchanged
+
+**Given** user changes destination or project name to a different non-empty folder  
+**Then** Story 9.2 hard-block applies (no session carve-out)
+
+**Given** unit tests  
+**Then** cover session same-path regenerate (with overwrite flag), post-session block, different-path block, `.git` preservation on regenerate
+
+**UX default:** single **Generate Project** button + destructive confirm on session same-path; dedicated **Regenerate** button is optional alternative — not default unless PO overrides during dev.
+
+---
+
 ### Story 9.4: Template Pipeline — Audio I/O, MIDI, Description
 
 As a JUCE developer,
@@ -1208,7 +1238,8 @@ So that CI catches regressions in generate guard and plugin characteristics with
 - References in `test_frozen_bundle.py`, `test_cmake_cross_platform.py`, `test_project_dirty_guard.py` to Open/reload/accent sidecar
 
 **Add:**
-- Generate blocked on non-empty dir
+- Generate blocked on non-empty dir (brownfield / post-session)
+- Session regenerate: same path in session allowed after confirm; fresh session still blocked
 - Characteristics validation matrix (synth+midi effect invalid; instrument + midi out valid)
 - Template emission spot-checks (CMake flags)
 - Remove / update `test_project_spec` accent round-trip; `test_project_dirty_guard` accent snapshot if field removed
@@ -1262,9 +1293,10 @@ So that I understand Luthier's role in my CMake workflow without expecting Proju
 | 2 | 9.7 | `9-7-ui-accent-preferences-only-os-tree-connectors` | 9.1 |
 | 3 | 9.2 | `9-2-block-generate-non-empty-destination` | — |
 | 4 | 9.3 | `9-3-decoupled-plugin-characteristics-and-projectspec` | — |
-| 5 | 9.4 | `9-4-template-pipeline-audio-io-midi-description` | 9.3 |
-| 6 | 9.6 | `9-6-test-suite-scaffold-only-regression` | 9.1–9.4, 9.7 |
-| 7 | 9.5 | `9-5-documentation-v1-guide-manuals-readme` | 9.1, 9.7 |
+| 5 | 9.8 | `9-8-session-regenerate-with-warning` | 9.2 |
+| 6 | 9.4 | `9-4-template-pipeline-audio-io-midi-description` | 9.3 |
+| 7 | 9.6 | `9-6-test-suite-scaffold-only-regression` | 9.1–9.4, 9.7, 9.8 |
+| 8 | 9.5 | `9-5-documentation-v1-guide-manuals-readme` | 9.1, 9.7 |
 
 **Backward compatibility:** None. PO §2.3 — delete legacy paths; do not migrate sidecars or projects.
 

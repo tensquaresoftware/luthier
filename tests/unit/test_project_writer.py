@@ -9,7 +9,7 @@ from unittest.mock import patch
 import pytest
 
 from core import render_context
-from core.project_generator import ProjectGenerator, templates_dir
+from core.project_generator import templates_dir
 from core.project_writer import ProjectWriter, _relocate_git_directory, _robust_rmtree
 from tests.conftest import make_spec, write_project
 
@@ -41,26 +41,6 @@ def test_relocate_git_directory_removes_readonly_source(tmp_path):
     assert (
         dst / "objects" / "06" / "f8e57e6fedf09e55548fb0554bdc1f2f7c3f19"
     ).read_bytes() == b"fake git object"
-
-
-def test_regenerate_preserves_git_directory(tmp_path):
-    spec = make_spec(tmp_path)
-    generator = ProjectGenerator()
-    project_dir = generator.generate(spec)
-
-    git_dir = project_dir / ".git"
-    objects_dir = git_dir / "objects" / "06"
-    objects_dir.mkdir(parents=True)
-    git_object = objects_dir / "f8e57e6fedf09e55548fb0554bdc1f2f7c3f19"
-    git_object.write_bytes(b"fake git object")
-    os.chmod(git_object, stat.S_IREAD)
-    (git_dir / "HEAD").write_text("ref: refs/heads/main\n", encoding="utf-8")
-
-    generator.generate(spec)
-
-    assert (project_dir / ".git" / "HEAD").read_text(encoding="utf-8") == "ref: refs/heads/main\n"
-    assert git_object.read_bytes() == b"fake git object"
-    assert (project_dir / "CMakeLists.txt").is_file()
 
 
 def test_write_leaves_no_tmp_dir_on_success(tmp_path):

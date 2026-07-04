@@ -98,10 +98,20 @@ Ces entrées ne sont **plus** de la dette ouverte — décision de design, hors 
 
 ## Deferred from: code review of 9-1-remove-open-project-scaffold-only-positioning (2026-07-04)
 
-- `_confirm_overwrite` still allows destructive regeneration — Story 9.2 scope (non-empty guard).
+- ~~`_confirm_overwrite` still allows destructive regeneration~~ — **Resolved in Story 9.2** (non-empty guard + overwrite dialog removed).
 - `test_regenerate_*` no longer load sidecar before second generate — intentional 9.1 rewrite; sidecar→regenerate coverage deferred to Epic 9.6 if needed.
 - `pluginType` validation removed with `project_reader` — acceptable while no runtime sidecar read (AC3).
 - Import Preferences applies accent theme only when Prefs tab active — pre-existing; manual QA per AD-6.
+
+---
+
+## Deferred from: code review of 9-2-block-generate-non-empty-destination (2026-07-04)
+
+- `iterdir()` PermissionError uncaught in `destination_blocks_generate` — rare desktop edge; would need OSError handler to surface block UX instead of generic failure.
+- TOCTOU between guard check and `ProjectWriter.write()` — concurrent directory population between UI check and write is out of v1.0 scope.
+- Tilde paths not expanded in `project_dir_for_spec()` — pre-existing; `resolve_dir()` expands `~` but guard uses raw `Path(host_destination_dir())`.
+- Hidden-file block scenario not tested (`.DS_Store`, `.git`) — behavior correct; broader test coverage deferred to Story 9.6.
+- No integration test for end-to-end UI block flow — AD-6 manual smoke; Qt widget tests out of scope.
 
 ---
 
@@ -110,3 +120,10 @@ Ces entrées ne sont **plus** de la dette ouverte — décision de design, hors 
 - Open Project removal bundled in same `main_window.py` diff — Story 9.1 scope; not a 9.7 regression.
 - HiDPI 1.0px cosmetic pen without device-pixel-ratio scaling — story Dev Notes flag HiDPI as low risk for v1.
 - Shared `OS_TREE_TRUNK_X` for FieldLabel and QCheckBox anchors — needs visual smoke on Project + Preferences tabs; not provably wrong in code.
+
+---
+
+## Deferred from: code review of 9-3-decoupled-plugin-characteristics-and-projectspec (2026-07-04)
+
+- `type_for_flags()` not deprecated — still used by `render_context` path and round-trip tests until Story 9.4 wires spec-derived flags.
+- Preset confirm dialog omits description/MIDI count reset from message — UX polish; toggles-only wording is misleading but not blocking.

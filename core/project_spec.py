@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from core.paths import host_workspace_field_key, normalize_path_dict_values
-from core.plugin_settings import TYPE_INSTRUMENT
+from core.plugin_settings import TYPE_INSTRUMENT, clamp_midi_count, normalize_audio_io_preset
 
 
 def _coerce_bool(value, default: bool) -> bool:
@@ -48,6 +48,15 @@ class ProjectSpec:
     artefacts_dir_windows: str = ""
     artefacts_dir_macos: str = ""
     artefacts_dir_linux: str = ""
+    needs_midi_input: bool = True
+    needs_midi_output: bool = False
+    is_synth: bool = True
+    is_midi_effect: bool = False
+    editor_wants_keyboard_focus: bool = False
+    plugin_description: str = ""
+    audio_io_preset: str = "stereo"
+    vst_num_midi_ins: int = 16
+    vst_num_midi_outs: int = 16
 
     def host_destination_dir(self) -> str:
         key = host_workspace_field_key("destination")
@@ -95,6 +104,15 @@ class ProjectSpec:
             "artefactsDirWindows": self.artefacts_dir_windows,
             "artefactsDirMacos": self.artefacts_dir_macos,
             "artefactsDirLinux": self.artefacts_dir_linux,
+            "needsMidiInput": self.needs_midi_input,
+            "needsMidiOutput": self.needs_midi_output,
+            "isSynth": self.is_synth,
+            "isMidiEffect": self.is_midi_effect,
+            "editorWantsKeyboardFocus": self.editor_wants_keyboard_focus,
+            "pluginDescription": self.plugin_description,
+            "audioIoPreset": self.audio_io_preset,
+            "vstNumMidiIns": self.vst_num_midi_ins,
+            "vstNumMidiOuts": self.vst_num_midi_outs,
         }
 
     @classmethod
@@ -126,4 +144,15 @@ class ProjectSpec:
             artefacts_dir_windows=d.get("artefactsDirWindows", ""),
             artefacts_dir_macos=d.get("artefactsDirMacos", ""),
             artefacts_dir_linux=d.get("artefactsDirLinux", ""),
+            needs_midi_input=_coerce_bool(d.get("needsMidiInput"), True),
+            needs_midi_output=_coerce_bool(d.get("needsMidiOutput"), False),
+            is_synth=_coerce_bool(d.get("isSynth"), True),
+            is_midi_effect=_coerce_bool(d.get("isMidiEffect"), False),
+            editor_wants_keyboard_focus=_coerce_bool(
+                d.get("editorWantsKeyboardFocus"), False
+            ),
+            plugin_description=d.get("pluginDescription", ""),
+            audio_io_preset=normalize_audio_io_preset(d.get("audioIoPreset", "stereo")),
+            vst_num_midi_ins=clamp_midi_count(d.get("vstNumMidiIns"), 16),
+            vst_num_midi_outs=clamp_midi_count(d.get("vstNumMidiOuts"), 16),
         )

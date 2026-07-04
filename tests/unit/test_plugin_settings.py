@@ -12,6 +12,7 @@ from core.plugin_settings import (
     au_and_vst3_categories,
     bundle_id,
     flags_for_type,
+    preset_characteristics,
     type_for_flags,
 )
 
@@ -41,6 +42,16 @@ _EXPECTED_CATEGORIES = {
     TYPE_AUDIO_EFFECT: ("kAudioUnitType_Effect", "Fx"),
     TYPE_MIDI_EFFECT: ("kAudioUnitType_MIDIProcessor", "Fx|MIDI"),
 }
+
+
+@pytest.mark.parametrize("type_key", [key for key, _ in PLUGIN_TYPES])
+def test_preset_characteristics_match_flags_for_type(type_key):
+    chars = preset_characteristics(type_key)
+    flags = flags_for_type(type_key)
+    assert flags["isSynth"] == ("TRUE" if chars["is_synth"] else "FALSE")
+    assert flags["isMidiEffect"] == ("TRUE" if chars["is_midi_effect"] else "FALSE")
+    assert flags["needsMidiInput"] == ("TRUE" if chars["needs_midi_input"] else "FALSE")
+    assert flags["needsMidiOutput"] == ("TRUE" if chars["needs_midi_output"] else "FALSE")
 
 
 @pytest.mark.parametrize("type_key", [key for key, _ in PLUGIN_TYPES])

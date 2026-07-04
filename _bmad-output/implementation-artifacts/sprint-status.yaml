@@ -1,5 +1,5 @@
 # generated: 2026-06-23
-# last_updated: 2026-07-04 # Story 9.7 done (code review)
+# last_updated: 2026-07-04 # Story 9.3 done (code review patches applied)
 # project: Luthier
 # project_key: NOKEY
 # tracking_system: file-system
@@ -113,12 +113,13 @@ development_status:
   epic-8-retrospective: optional
 
   # Epic 9: v1.0 Scaffold-Only Release
-  # (Correct Course 2026-07-04 — implementation order: 9.1 → 9.7 → 9.2 → 9.3 → 9.4 → 9.6 → 9.5)
+  # (Correct Course 2026-07-04 — implementation order: 9.1 → 9.7 → 9.2 → 9.3 → 9.8 → 9.4 → 9.6 → 9.5)
   epic-9: in-progress
   9-1-remove-open-project-scaffold-only-positioning: done
   9-7-ui-accent-preferences-only-os-tree-connectors: done
-  9-2-block-generate-non-empty-destination: backlog
-  9-3-decoupled-plugin-characteristics-and-projectspec: backlog
+  9-2-block-generate-non-empty-destination: done
+  9-3-decoupled-plugin-characteristics-and-projectspec: done
+  9-8-session-regenerate-with-warning: ready-for-dev
   9-4-template-pipeline-audio-io-midi-description: backlog
   9-6-test-suite-scaffold-only-regression: backlog
   9-5-documentation-v1-guide-manuals-readme: backlog

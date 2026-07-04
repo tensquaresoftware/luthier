@@ -61,7 +61,7 @@ graph TD
 
 - **Binds:** `ProjectWriter`
 - **Prevents:** a half-written, corrupted project directory when generation fails mid-way
-- **Rule:** `ProjectWriter.write()` writes to a sibling temp directory (`<name>.tmp/`) then renames atomically to the final path — replacing the existing directory if present. On error, the temp directory is cleaned up and the original is left untouched. The old directory is never archived; the rename is the commit point and the overwrite is intentional (confirmed via the existing `MainWindow._confirm_overwrite()` guard). [ADOPTED]
+- **Rule:** `ProjectWriter.write()` writes to a sibling temp directory (`<name>.tmp/`) then renames atomically to the final path — replacing an **empty** existing directory if present. On error, the temp directory is cleaned up and the original is left untouched. Generate is **hard-blocked** when the target project directory exists and is non-empty (`destination_blocks_generate()` in `core/project_generator.py`; UI shows `QMessageBox.warning` before calling `generate()`), **except** a **session-only carve-out** (Story 9.8): same path as last successful Generate this session + user confirms destructive replace via `confirm_yes_no`; core accepts explicit `allow_overwrite=True` only after that confirm. Post-session or unknown non-empty folders remain hard-blocked. [ADOPTED — revised Epic 9.2 + 9.8, 2026-07-04]
 
 ### AD-5 — Preferences persistence is Preferences-driven only; save is app-layer only
 

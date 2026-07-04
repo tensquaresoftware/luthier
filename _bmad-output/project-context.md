@@ -101,11 +101,17 @@ Luthier/
 User fills form (ProjectPage)
   → ProjectPage.spec() → ProjectSpec
   → MainWindow._on_generate()
-      → ProjectGenerator.generate(spec)
+      → (optional) destination folder picker
+      → destination_blocks_generate(project_dir)?
+          → if non-empty AND NOT session same-path carve-out → status error + QMessageBox.warning → STOP
+          → if non-empty AND session same-path → confirm_yes_no (destructive regenerate) → cancel → STOP
+      → ProjectGenerator.generate(spec [, allow_overwrite=True when confirmed])
+          → guard: raise GenerateBlockedError if target non-empty and not allow_overwrite (defense-in-depth)
           → render_context.build_context(spec) → context dict (str.format keys)
           → render_context.build_tokens(spec) → tokens dict (@KEY@ keys)
           → ProjectWriter(templates_dir, project_dir, overrides).write(context, tokens)
-              → files on disk + .luthier.json sidecar (write-only metadata)
+              → files on disk + .luthier.json sidecar (write-only metadata); preserves `.git` on replace
+      → record in-memory lastGeneratedProjectDir (session only, not persisted)
       → ProjectPage.load(spec)   ← baseline sync after successful Generate
       → AppState.remember_parent(spec.host_destination_dir()) + save()  [app_state.json only]
 Preferences.accent_color → apply_accent_theme() on all tabs
@@ -259,7 +265,7 @@ When modifying Source templates:
 These were identified during brownfield analysis and represent the main refactoring targets:
 
 1. **Test coverage** — core validators, generation pipeline, and write-only sidecar covered by `tests/unit/` and `tests/integration/`; Qt widget tests remain manual (AD-6)
-2. **`ProjectWriter._reset_project_dir()` is destructive** — silently deletes and recreates the entire project dir on every generation; no backup or diff
+2. **`ProjectWriter._reset_project_dir()` is destructive** — replaces the project dir on generation, but users cannot trigger overwrite on non-empty dirs (Story 9.2 hard block); empty-dir replace remains for first-time scaffold into an empty folder
 3. **Preferences auto-save** — `PreferencesPage` auto-saves on valid edit; Generate no longer writes `preferences.json` (Story 5.4)
 4. **`MainWindow` orchestration is wide** — handles generation, status, prefs, templates: borderline single responsibility
 5. **JUCE dir on Project tab** — exposed via `FolderField`; persisted on `ProjectSpec` / `.luthier.json` sidecar (write-only)

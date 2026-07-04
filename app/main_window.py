@@ -23,7 +23,7 @@ from app.pages.about import AboutPage
 from app.pages.preferences import PreferencesPage
 from app.pages.project import ProjectPage
 from app.pages.templates import TemplatesPage
-from app.confirm import confirm_discard_unsaved, confirm_yes_no
+from app.confirm import confirm_discard_unsaved
 from app.widgets.status_capsule import (
     BAR_MIN_HEIGHT,
     STATUS_BAR_MARGIN_LEFT,
@@ -39,7 +39,13 @@ from app.theme import apply_accent_theme
 from core import plugin_settings, templates_store
 from core.app_state import AppState
 from core.preferences import Preferences
-from core.project_generator import ProjectGenerator
+from core.project_generator import (
+    GENERATE_BLOCKED_MESSAGE,
+    GenerateBlockedError,
+    ProjectGenerator,
+    destination_blocks_generate,
+    project_dir_for_spec,
+)
 from core.paths import normalize_portable_path, resolve_dir
 from core.project_spec import ProjectSpec
 
@@ -460,7 +466,10 @@ class MainWindow(QMainWindow):
             spec = self._project_page.spec()
             if not self._project_page.is_valid():
                 return
-        if not self._confirm_overwrite(spec):
+        project_dir = project_dir_for_spec(spec)
+        if destination_blocks_generate(project_dir):
+            self._set_status(GENERATE_BLOCKED_MESSAGE, ok=False)
+            QMessageBox.warning(self, "Generate Project", GENERATE_BLOCKED_MESSAGE)
             return
         self._run_generation(spec)
 
@@ -475,19 +484,13 @@ class MainWindow(QMainWindow):
         self._project_page.reset(self._form_defaults())
         self._set_status("New project — defaults from Preferences.", ok=True)
 
-    def _confirm_overwrite(self, spec: ProjectSpec) -> bool:
-        if not self._generator.project_exists(spec.host_destination_dir(), spec.project_name):
-            return True
-        return confirm_yes_no(
-            self,
-            "Overwrite project",
-            f"A folder named '{spec.project_name}' already exists. Overwrite it?",
-            default_yes=False,
-        )
-
     def _run_generation(self, spec: ProjectSpec) -> None:
         try:
             project_dir = self._generator.generate(spec)
+        except GenerateBlockedError as error:
+            self._set_status(error.message, ok=False)
+            QMessageBox.warning(self, "Generate Project", error.message)
+            return
         except Exception as error:
             self._set_status(f"Generation failed: {error}", ok=False)
             return

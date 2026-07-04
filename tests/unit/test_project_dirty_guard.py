@@ -54,6 +54,13 @@ def test_new_project_seed_clears_identity_preserves_profile_fields():
     assert seed["preprocessorDefinitions"] == "FOO=1"
 
 
+def test_form_snapshots_equal_detects_characteristic_toggle_change():
+    baseline = ProjectSpec(needs_midi_output=False).to_dict()
+    current = dict(baseline)
+    current["needsMidiOutput"] = True
+    assert not form_snapshots_equal(baseline, current)
+
+
 def test_form_snapshots_equal_detects_plugin_type_change():
     baseline = ProjectSpec(plugin_type=TYPE_INSTRUMENT).to_dict()
     current = dict(baseline)

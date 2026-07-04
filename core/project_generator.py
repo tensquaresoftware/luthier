@@ -12,6 +12,30 @@ from core import render_context
 from core.project_spec import ProjectSpec
 from core.project_writer import ProjectWriter
 
+GENERATE_BLOCKED_MESSAGE = (
+    "This folder already exists and is not empty. "
+    "Luthier only creates new projects. "
+    "Choose an empty folder or a different project name."
+)
+
+
+class GenerateBlockedError(Exception):
+    def __init__(self, message: str = GENERATE_BLOCKED_MESSAGE) -> None:
+        super().__init__(message)
+        self.message = message
+
+
+def project_dir_for_spec(spec: ProjectSpec) -> Path:
+    return Path(spec.host_destination_dir()) / spec.project_name
+
+
+def destination_blocks_generate(project_dir: Path) -> bool:
+    if not project_dir.exists():
+        return False
+    if not project_dir.is_dir():
+        return True
+    return any(project_dir.iterdir())
+
 
 def templates_dir() -> Path:
     """Bundled templates when frozen (PyInstaller), the repo copy otherwise."""
@@ -33,11 +57,10 @@ class ProjectGenerator:
             return None
         return f"templates not found at {self._templates}"
 
-    def project_exists(self, destination: str, project_name: str) -> bool:
-        return (Path(destination) / project_name).exists()
-
     def generate(self, spec: ProjectSpec) -> Path:
-        project_dir = Path(spec.host_destination_dir()) / spec.project_name
+        project_dir = project_dir_for_spec(spec)
+        if destination_blocks_generate(project_dir):
+            raise GenerateBlockedError()
         context = render_context.build_context(spec)
         tokens = render_context.build_tokens(spec)
         ProjectWriter(self._templates, project_dir, self._overrides).write(context, tokens, spec)

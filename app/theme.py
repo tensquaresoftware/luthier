@@ -51,6 +51,15 @@ def _darken(color: str, amount: float) -> str:
     return "#" + "".join(f"{value:02X}" for value in mixed)
 
 
+def _blend(color_a: str, color_b: str, ratio: float) -> str:
+    """Blend color_a toward color_b; ratio 0 keeps a, 1 returns b."""
+    pairs = zip(
+        (int(color_a[i: i + 2], 16) for i in (1, 3, 5)),
+        (int(color_b[i: i + 2], 16) for i in (1, 3, 5)),
+    )
+    return "#" + "".join(f"{round(a + (b - a) * ratio):02X}" for a, b in pairs)
+
+
 def _icon_url(name: str, svg: str, color: str) -> str:
     """Write a colour-themed SVG into the cache dir and return its file URL path."""
     cache = Path(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.CacheLocation))
@@ -95,7 +104,9 @@ def build_stylesheet() -> str:
     primary = p.PRIMARY()
     primary_hover = p.PRIMARY_HOVER()
     primary_dark = p.PRIMARY_DARK()
+    accent_muted = _blend(accent, p.TEXT_DIM, 0.55)
     check = _icon_url("check.svg", _CHECK_SVG, accent)
+    check_disabled = _icon_url("check-disabled.svg", _CHECK_SVG, accent_muted)
     caret = _icon_url("caret.svg", _CARET_SVG, p.TEXT_DIM)
     return f"""
     QWidget {{
@@ -165,6 +176,7 @@ def build_stylesheet() -> str:
     }}
 
     QCheckBox, QRadioButton {{ spacing: 8px; padding: 4px 2px; }}
+    QCheckBox:disabled, QRadioButton:disabled {{ color: {p.TEXT_DIM}; }}
     QCheckBox::indicator, QRadioButton::indicator {{
         width: 16px;
         height: 16px;
@@ -176,6 +188,11 @@ def build_stylesheet() -> str:
     QCheckBox::indicator:checked {{
         border: 1px solid {p.BORDER};
         image: url("{check}");
+    }}
+    QCheckBox::indicator:checked:disabled {{
+        border: 1px solid {p.BG_DISABLED};
+        background: {p.BG_DISABLED};
+        image: url("{check_disabled}");
     }}
     QRadioButton::indicator:checked {{
         background: qradialgradient(cx:0.5, cy:0.5, radius:0.5, fx:0.5, fy:0.5,
@@ -245,6 +262,15 @@ def build_stylesheet() -> str:
     QPushButton:disabled {{ color: {p.TEXT_DIM}; }}
 
     #BottomBar {{ background: {p.BG_BAR}; border-top: 1px solid {p.BORDER}; }}
+    #PluginTypeHintPanel {{
+        background: {p.BG_BAR};
+        border: 1px solid {p.BORDER};
+        border-radius: 6px;
+    }}
+    #PluginTypeHintTitle {{
+        color: white;
+        font-weight: bold;
+    }}
     #StatusBar {{
         background: {p.BG_INPUT};
         border-top: 1px solid {p.BORDER};
