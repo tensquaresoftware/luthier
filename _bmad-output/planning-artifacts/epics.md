@@ -7,7 +7,8 @@ inputDocuments:
   - _bmad-output/planning-artifacts/sprint-change-proposal-2026-06-25.md
   - _bmad-output/planning-artifacts/sprint-change-proposal-2026-07-04-v1-scaffold-only.md
   - _bmad-output/planning-artifacts/correct-course-handoff-v1-scaffold-only.md
-  - docs/guide-juce-cmake-et-luthier.md
+  - docs/user/guide-juce-cmake-et-luthier.md
+  - docs/user/juce-cmake-and-luthier-guide.md
 ---
 
 # Luthier - Epic Breakdown
@@ -1035,7 +1036,7 @@ Remove CMake-regex Open fallback, workspace JSON migration, and stale generated-
 
 **Pivot (2026-07-04):** Luthier becomes a **one-shot JUCE/CMake skeleton generator**. Remove Open Project / reload; block Generate on non-empty destinations; enrich plugin characteristics; accent colour Preferences-only; OS tree connectors in Workspace & Artefacts. **No backward compatibility** (PO §2.3). Version stays **1.0.0**; update `REVISION_DATE` only at release (Story 9.5).
 
-**Planning reference:** `sprint-change-proposal-2026-07-04-v1-scaffold-only.md`, `correct-course-handoff-v1-scaffold-only.md`, `docs/guide-juce-cmake-et-luthier.md`
+**Planning reference:** `sprint-change-proposal-2026-07-04-v1-scaffold-only.md`, `correct-course-handoff-v1-scaffold-only.md`, `docs/user/guide-juce-cmake-et-luthier.md`, `docs/user/juce-cmake-and-luthier-guide.md`
 
 **FRs covered:** FR8 (revised), FR10, FR11, FR12; removes FR4
 
@@ -1258,7 +1259,7 @@ So that I understand Luthier's role in my CMake workflow without expecting Proju
 
 **Acceptance Criteria:**
 
-**Given** `docs/guide-juce-cmake-et-luthier.md`  
+**Given** `docs/user/guide-juce-cmake-et-luthier.md` (FR) and `docs/user/juce-cmake-and-luthier-guide.md` (EN)  
 **Then** linked from README, `user-manual.md`, `manuel-utilisateur.md` (Philosophy or equivalent section)
 
 **Given** EN/FR user manuals  

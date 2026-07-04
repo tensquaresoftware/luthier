@@ -33,7 +33,8 @@ Nouvelle conversation BMad — **enchaînement recommandé :**
 
 **Document de référence produit (PO-validated, juillet 2026) :**
 
-- `docs/guide-juce-cmake-et-luthier.md` — vision, Projucer vs CMake, limites Luthier, workflow IDE agentique
+- `docs/user/guide-juce-cmake-et-luthier.md` (FR) — vision, Projucer vs CMake, limites Luthier, workflow IDE agentique
+- `docs/user/juce-cmake-and-luthier-guide.md` (EN) — same content, English edition
 
 ---
 
@@ -105,7 +106,7 @@ Nouvelle conversation BMad — **enchaînement recommandé :**
 
 ## 3. Contexte — pourquoi ce pivot
 
-Synthèse de la réflexion PO (juillet 2026) — détail dans `docs/guide-juce-cmake-et-luthier.md` :
+Synthèse de la réflexion PO (juillet 2026) — détail dans `docs/user/guide-juce-cmake-et-luthier.md` :
 
 1. **Projucer** fusionne métadonnées + arborescence sources ; resync = écrasement IDE depuis `.jucer`. Incompatible avec workflow Cursor/IA.
 2. **CMake** vit dans `CMakeLists.txt` ; resync IDE = `cmake --preset`, sans toucher aux sources.
@@ -123,7 +124,7 @@ Synthèse de la réflexion PO (juillet 2026) — détail dans `docs/guide-juce-c
 |----------|--------|
 | Epics 1–8 | **done** (`sprint-status.yaml`, last_updated 2026-07-01) |
 | Epic 9 | **Absent** — à créer via Correct Course + CE |
-| `docs/guide-juce-cmake-et-luthier.md` | **Présent** (2026-07-04) — à référencer depuis manuels |
+| Guides JUCE/CMake/Luthier (`docs/user/`) | **Présents** (FR 2026-07-04, EN 2026-07-04) — référencés depuis manuels |
 | README | Mentionne encore **reopen** — **STALE** |
 | Manuels `docs/user/user-manual.md`, `manuel-utilisateur.md` | Sections Open Project — **STALE** |
 | `core/project_reader.py` | Existe — **à retirer** (ou réduire à zero usage app) |
@@ -428,7 +429,7 @@ vst_num_midi_outs: int  # 1-16, default 16
 
 ### Story 9.5 — Documentation
 
-**Given** `docs/guide-juce-cmake-et-luthier.md`  
+**Given** `docs/user/guide-juce-cmake-et-luthier.md`  
 **Then** linked from README, user-manual.md, manuel-utilisateur.md (section « Philosophy » ou équivalent)
 
 **Given** manuels EN/FR  
@@ -515,7 +516,8 @@ vst_num_midi_outs: int  # 1-16, default 16
 | `README.md` | Scaffold-only positioning |
 | `docs/user/user-manual.md` | Major update |
 | `docs/user/manuel-utilisateur.md` | Major update |
-| `docs/guide-juce-cmake-et-luthier.md` | Already OK — add cross-links |
+| `docs/user/guide-juce-cmake-et-luthier.md` | Already OK — add cross-links; moved to `docs/user/` |
+| `docs/user/juce-cmake-and-luthier-guide.md` | EN translation — add cross-links |
 | `docs/tests/checklist-qa-*.md` | Update |
 | `templates/README.md` | Post-generation workflow, no Luthier reopen |
 
@@ -625,7 +627,7 @@ Le workflow Correct Course doit proposer les révisions suivantes dans `prd.md` 
 /bmad-correct-course
 
 Passation PO : _bmad-output/planning-artifacts/correct-course-handoff-v1-scaffold-only.md
-Référence vision : docs/guide-juce-cmake-et-luthier.md
+Référence vision : docs/user/guide-juce-cmake-et-luthier.md (FR), docs/user/juce-cmake-and-luthier-guide.md (EN)
 
 Contexte : Pivot v1.0.0 scaffold-only — supprimer Open Project, bloquer Generate sur dossier non vide, enrichir characteristics plugin (§5), accent Preferences-only + connecteurs OS (§5.8), **aucune rétrocompatibilité** (§2.3), docs EN/FR + README. AUv3 exclu.
 

@@ -6,7 +6,7 @@ approved_by: Guillaume DUPONT (PO)
 created: 2026-07-04
 author: Correct Course workflow (PO handoff)
 handoff: _bmad-output/planning-artifacts/correct-course-handoff-v1-scaffold-only.md
-vision: docs/guide-juce-cmake-et-luthier.md
+vision: docs/user/guide-juce-cmake-et-luthier.md  # EN: docs/user/juce-cmake-and-luthier-guide.md
 target_version: 1.0.0
 ---
 
@@ -16,7 +16,7 @@ target_version: 1.0.0
 
 ### Problem statement
 
-Luthier was built (Epics 1–8) around a **create → reopen → regenerate** lifecycle: Open Project… reloads `.luthier.json`, the user edits configuration, and Generate overwrites the project directory. PO validation (July 2026, documented in `docs/guide-juce-cmake-et-luthier.md`) concludes this model is **incompatible with real brownfield development** and with agentic IDE workflows (Cursor + CMake).
+Luthier was built (Epics 1–8) around a **create → reopen → regenerate** lifecycle: Open Project… reloads `.luthier.json`, the user edits configuration, and Generate overwrites the project directory. PO validation (July 2026, documented in `docs/user/guide-juce-cmake-et-luthier.md`) concludes this model is **incompatible with real brownfield development** and with agentic IDE workflows (Cursor + CMake).
 
 Key failures of the current model:
 

@@ -32,7 +32,7 @@ So that I understand Luthier's role in my CMake workflow without expecting Proju
 - `_bmad-output/planning-artifacts/epics.md` — Epic 9, Story 9.5
 - `_bmad-output/planning-artifacts/correct-course-handoff-v1-scaffold-only.md` — §9.4 Documentation inventory, §8 Story 9.5, §10 versioning, §12 release criteria
 - `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-04-v1-scaffold-only.md`
-- `docs/guide-juce-cmake-et-luthier.md` — already scaffold-only in §8–9; needs cross-links only
+- `docs/user/guide-juce-cmake-et-luthier.md` (FR) — already scaffold-only in §8–9; moved to `docs/user/`; EN edition `juce-cmake-and-luthier-guide.md`
 
 **Recommended Epic 9 order:** `9.1 → 9.7 → 9.2 → 9.3 → 9.8 → 9.4 → 9.6 → 9.5`
 
@@ -69,7 +69,7 @@ So that I understand Luthier's role in my CMake workflow without expecting Proju
 
 ### AC1 — Guide linked from README and manuals
 
-**Given** `docs/guide-juce-cmake-et-luthier.md`  
+**Given** `docs/user/guide-juce-cmake-et-luthier.md` (FR) and `docs/user/juce-cmake-and-luthier-guide.md` (EN)  
 **Then** linked from:
 - `README.md` (dedicated subsection or bullet under Features / Philosophy)
 - `docs/user/user-manual.md` — new or renamed section (e.g. **Philosophy & further reading** or **§1 What is Luthier?** cross-link)
@@ -195,7 +195,7 @@ Destination folder *
   - [x] Track every hit; map to replacement text before editing
 - [x] **README.md** (AC: 1, 8)
   - [x] Rewrite intro + Features for scaffold-only
-  - [x] Link `docs/guide-juce-cmake-et-luthier.md`
+  - [x] Link `docs/user/guide-juce-cmake-et-luthier.md`
   - [x] Link user manuals
   - [x] Preserve sponsor badges and Supporting the project section verbatim
 - [x] **User manual EN** (AC: 2, 3, 4, 5, 6)
@@ -242,7 +242,7 @@ Destination folder *
 - [x] [Review][Patch] EN §16 troubleshooting intro still cites « folder that is not a Luthier project » — fixed [docs/user/user-manual.md:759]
 - [x] [Review][Patch] EN §8.1 still says « project is already open in Project » — fixed [docs/user/user-manual.md:499]
 - [x] [Review][Patch] Import §8.3 should clarify imported accent updates theme on all tabs immediately — fixed [both manuals §8.3]
-- [x] [Review][Patch] Guide `.luthier.json` table still describes sidecar as « miroir » — fixed write-only wording [docs/guide-juce-cmake-et-luthier.md]
+- [x] [Review][Patch] Guide `.luthier.json` table still describes sidecar as « miroir » — fixed write-only wording [docs/user/guide-juce-cmake-et-luthier.md]
 - [x] [Review][Patch] `CONTRIBUTING.md` missing link to guide — fixed [CONTRIBUTING.md]
 - [x] [Review][Patch] Epic 9 smoke block in manuelle lists S9.1–S9.3 only — added S9.4 checkbox [docs/tests/checklist-qa-manuelle.md:53-56]
 - [x] [Review][Patch] B4 missing post-restart blocked-generate check — fixed (parity with A4/C4) [docs/tests/checklist-qa-manuelle.md:257-266]
@@ -276,7 +276,7 @@ Destination folder *
 
 **docs/tests/** — extensive Open Project checkboxes in all three QA files; pre-release v1 doc still describes sidecar reload and accent in sidecar as v1.0 behaviour.
 
-**docs/guide-juce-cmake-et-luthier.md:** Content is **already correct** (§9 limits, write-only sidecar). Only add inbound links; do not rewrite philosophy.
+**docs/user/guide-juce-cmake-et-luthier.md:** Content is **already correct** (§9 limits, write-only sidecar). Only add inbound links; do not rewrite philosophy.
 
 **templates/README.md:** No Luthier reopen references today — **add** post-generation guidance (AC10).
 
@@ -383,13 +383,13 @@ Update `REVISION_DATE` only. About page reads these constants — no UI code cha
 - **Do not** document accent on Project tab or in `.luthier.json`
 - **Do not** change `VERSION` from `1.0.0` or tag git without PO request
 - **Do not** scope-creep into app/core/test code
-- **Do not** rewrite `docs/guide-juce-cmake-et-luthier.md` philosophy — cross-link only
+- **Do not** rewrite `docs/user/guide-juce-cmake-et-luthier.md` philosophy — cross-link only
 - **Do not** remove sponsor block from README
 - **Do not** ship EN manual updates without matching FR sections
 
 ### Project Structure Notes
 
-- **Docs layout:** lowercase `docs/` — user manuals in `docs/user/`, QA in `docs/tests/`, guide at `docs/guide-juce-cmake-et-luthier.md`
+- **Docs layout:** lowercase `docs/` — user docs in `docs/user/` (manuals + guides FR/EN), QA in `docs/tests/`
 - **Generated project README:** `templates/README.md` → rendered into each generated project
 - **Architecture reference:** `_bmad-output/architecture.md` already scaffold-only — do not duplicate into user manuals
 - **Manual YAML front matter:** bump `Updated:` on both manuals when editing
@@ -398,7 +398,7 @@ Update `REVISION_DATE` only. About page reads these constants — no UI code cha
 
 - [Source: _bmad-output/planning-artifacts/epics.md#Story 9.5]
 - [Source: _bmad-output/planning-artifacts/correct-course-handoff-v1-scaffold-only.md §8 Story 9.5, §9.4]
-- [Source: docs/guide-juce-cmake-et-luthier.md §8–9]
+- [Source: docs/user/guide-juce-cmake-et-luthier.md §8–9]
 - [Source: _bmad-output/implementation-artifacts/9-1-remove-open-project-scaffold-only-positioning.md]
 - [Source: _bmad-output/implementation-artifacts/9-7-ui-accent-preferences-only-os-tree-connectors.md]
 - [Source: _bmad-output/implementation-artifacts/9-8-session-regenerate-with-warning.md]
@@ -441,7 +441,8 @@ Update `REVISION_DATE` only. About page reads these constants — no UI code cha
 | `README.md` | Scaffold-only intro + features; guide link |
 | `docs/user/user-manual.md` | Major rewrite — remove Open/reload/accent sidecar; add characteristics, guard, regenerate |
 | `docs/user/manuel-utilisateur.md` | Mirror EN changes (French prose) |
-| `docs/guide-juce-cmake-et-luthier.md` | Cross-links only (minimal) |
+| `docs/user/guide-juce-cmake-et-luthier.md` | Cross-links only (minimal); FR edition in `docs/user/` |
+| `docs/user/juce-cmake-and-luthier-guide.md` | EN translation; cross-links only (minimal) |
 | `docs/tests/checklist-qa-manuelle.md` | Remove Open scenarios; add guard/regenerate |
 | `docs/tests/checklist-qa-passe-unique.md` | Same |
 | `docs/tests/checklist-qa-pre-release-v1.md` | Same; fix stale v1 Open claims |
@@ -552,7 +553,8 @@ claude-sonnet-5-thinking-high
 - README.md
 - CONTRIBUTING.md
 - app/version.py
-- docs/guide-juce-cmake-et-luthier.md
+- docs/user/guide-juce-cmake-et-luthier.md
+- docs/user/juce-cmake-and-luthier-guide.md
 - docs/user/user-manual.md
 - docs/user/manuel-utilisateur.md
 - docs/tests/checklist-qa-manuelle.md

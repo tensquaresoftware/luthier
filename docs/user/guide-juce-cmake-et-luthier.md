@@ -3,7 +3,7 @@
 > **Document de référence** — rédigé en juillet 2026 par Guillaume DUPONT, auteur de [Luthier](https://github.com/tensquaresoftware/luthier).  
 > **Public visé :** développeur amateur ou débutant en JUCE et en CMake, souhaitant comprendre *pourquoi* et *comment* démarrer un projet audio multi-plateforme sans se perdre dans la jungle des outils.
 
-**Voir aussi :** [README du dépôt](../../README.md) · [Manuel utilisateur (FR)](user/manuel-utilisateur.md) · [User manual (EN)](user/user-manual.md)
+**Voir aussi :** [README du dépôt](../../README.md) · [Manuel utilisateur (FR)](manuel-utilisateur.md) · [User manual (EN)](user-manual.md) · [Guide (EN)](juce-cmake-and-luthier-guide.md)
 
 ---
 
@@ -359,7 +359,7 @@ En quelques minutes, vous passez de « rien » à un projet qui build — et vou
 
 ## 9. Les limites volontaires de Luthier
 
-C'est ici le cœur de la **vision actuelle** de Luthier, affinée après des mois de développement et d'usage réel (notamment sur [Matrix-Control](https://github.com/tensquaresoftware/matrix-control), un éditeur SysEx pour Oberheim Matrix-1000).
+C'est ici le cœur de la **vision actuelle** de Luthier, affinée après des mois de développement et d'usage réel.
 
 ### Luthier n'est pas un « Projucer CMake » complet
 
@@ -464,7 +464,6 @@ Vous démarrez un NOUVEAU projet JUCE desktop (plugin ou app audio)
 ### Outils et projets connexes
 
 - [Luthier](https://github.com/tensquaresoftware/luthier) — générateur de squelette (ce document)
-- [Matrix-Control](https://github.com/tensquaresoftware/matrix-control) — exemple de plugin JUCE/CMake complexe, développé avec un IDE agentique
 - [FRUT / Jucer2CMake](https://github.com/McMartin/FRUT) — conversion `.jucer` → CMake (approche différente, communautaire)
 - [CMake — site officiel](https://cmake.org/)
 

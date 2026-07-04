@@ -75,7 +75,7 @@ These limits are intentional: Luthier stays a lightweight, predictable **skeleto
 
 ### Philosophy & further reading
 
-For the product philosophy (scaffold-only vs Projucer-like round-trip) and a beginner-friendly JUCE/CMake overview, see **[JUCE, CMake et Luthier — guide](../guide-juce-cmake-et-luthier.md)** (French). The guide’s §9 describes what Luthier deliberately does **not** do — including reopening projects.
+For the product philosophy (scaffold-only vs Projucer-like round-trip) and a beginner-friendly JUCE/CMake overview, see **[JUCE, CMake & Luthier — guide](juce-cmake-and-luthier-guide.md)** ([FR](guide-juce-cmake-et-luthier.md)). The guide’s §9 describes what Luthier deliberately does **not** do — including reopening projects.
 
 ---
 
@@ -293,7 +293,7 @@ Below **Plugin Type**, the **Plugin Characteristics** section controls how JUCE 
 |---------|-------------|
 | **Plugin is a Synth** | Synth flag (Instrument preset). |
 | **Plugin MIDI Input** | Enables MIDI input. |
-| **Plugin MIDI Output** | Enables MIDI output (e.g. Instrument + MIDI Output for controller-style plugins like Matrix-Control). |
+| **Plugin MIDI Output** | Enables MIDI output (e.g. Instrument + MIDI Output for an instrument that sends MIDI to the host). |
 | **MIDI Effect Plugin** | MIDI-effect flag (MIDI Effect preset). |
 | **Editor Requires Keyboard Focus** | Keyboard focus for the plugin editor. |
 | **Audio I/O** | Preset combo: **Stereo**, **Mono**, **Synth No Input**, **MIDI Effect** (no audio buses). |
@@ -302,7 +302,7 @@ Below **Plugin Type**, the **Plugin Characteristics** section controls how JUCE 
 
 **Preset hints:**
 
-- **Instrument** — MIDI Output can be enabled (Matrix-Control-style instruments).
+- **Instrument** — MIDI Output can be enabled for instruments that send MIDI to the host.
 - **Audio Effect** — MIDI Input or Output optional for MIDI-driven effects.
 - **MIDI Effect** — characteristics fixed by the preset; **Synth** and **MIDI Effect Plugin** together are invalid.
 
@@ -849,7 +849,7 @@ Once you have read the concepts above, use this table to find an action quickly:
 | Custom processor boilerplate | **Templates** → edit → **Save override** |
 | Pin a JUCE version to one project | Set **JUCE directory** (host row) in **Workspace** on **Project** |
 | Build same repo on three OSes | Fill six **Workspace** paths → share via `.luthier.json` + CMake; edit host paths manually per machine |
-| Understand scaffold-only philosophy | [Guide JUCE/CMake/Luthier](../guide-juce-cmake-et-luthier.md) |
+| Understand scaffold-only philosophy | [Guide JUCE/CMake/Luthier](juce-cmake-and-luthier-guide.md) |
 
 ---
 

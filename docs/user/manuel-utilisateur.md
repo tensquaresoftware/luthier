@@ -73,7 +73,7 @@ Ces limites sont volontaires : Luthier reste un **générateur de squelette** l�
 
 ### Philosophie et pour aller plus loin
 
-Pour la philosophie produit (squelette uniquement vs aller-retour type Projucer) et une introduction JUCE/CMake accessible, consultez **[JUCE, CMake et Luthier — guide](../guide-juce-cmake-et-luthier.md)**. Le §9 du guide décrit ce que Luthier choisit délibérément de **ne pas** faire — y compris rouvrir des projets.
+Pour la philosophie produit (squelette uniquement vs aller-retour type Projucer) et une introduction JUCE/CMake accessible, consultez **[JUCE, CMake et Luthier — guide](guide-juce-cmake-et-luthier.md)** ([EN](juce-cmake-and-luthier-guide.md)). Le §9 du guide décrit ce que Luthier choisit délibérément de **ne pas** faire — y compris rouvrir des projets.
 
 ---
 
@@ -291,7 +291,7 @@ Sous **Plugin Type**, la section **Plugin Characteristics** contrôle la façon 
 |----------|-------------|
 | **Plugin is a Synth** | Drapeau synth (préréglage Instrument). |
 | **Plugin MIDI Input** | Active l’entrée MIDI. |
-| **Plugin MIDI Output** | Active la sortie MIDI (ex. Instrument + MIDI Output pour des plugins type contrôleur comme Matrix-Control). |
+| **Plugin MIDI Output** | Active la sortie MIDI (ex. Instrument + MIDI Output pour un instrument qui envoie du MIDI vers la DAW). |
 | **MIDI Effect Plugin** | Drapeau effet MIDI (préréglage MIDI Effect). |
 | **Editor Requires Keyboard Focus** | Focus clavier pour l’éditeur du plugin. |
 | **Audio I/O** | Liste déroulante préréglée : **Stereo**, **Mono**, **Synth No Input**, **MIDI Effect** (pas de bus audio). |
@@ -300,7 +300,7 @@ Sous **Plugin Type**, la section **Plugin Characteristics** contrôle la façon 
 
 **Indices par préréglage :**
 
-- **Instrument** — MIDI Output peut être activé (instruments type Matrix-Control).
+- **Instrument** — MIDI Output peut être activé pour les instruments qui transmettent du MIDI.
 - **Audio Effect** — MIDI Input ou Output optionnels pour des effets pilotés par MIDI.
 - **MIDI Effect** — caractéristiques figées par le préréglage ; **Synth** et **MIDI Effect Plugin** ensemble sont invalides.
 
@@ -847,7 +847,7 @@ Pour retrouver rapidement une action une fois les concepts ci-dessus lus :
 | Personnaliser le boilerplate processeur | **Templates** → modifier → **Save override** |
 | Épingler une version JUCE à un projet | Renseigner **JUCE directory** (ligne hôte) dans **Workspace** sur **Project** |
 | Compiler le même dépôt sur trois OS | Renseigner les six chemins **Workspace** → partage via `.luthier.json` + CMake ; ajuster les chemins hôte manuellement par machine |
-| Comprendre la philosophie squelette uniquement | [Guide JUCE/CMake/Luthier](../guide-juce-cmake-et-luthier.md) |
+| Comprendre la philosophie squelette uniquement | [Guide JUCE/CMake/Luthier](guide-juce-cmake-et-luthier.md) |
 
 ---
 
