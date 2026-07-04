@@ -160,7 +160,10 @@ juce_add_plugin({projectName}
     NEEDS_MIDI_INPUT {needsMidiInput}
     NEEDS_MIDI_OUTPUT {needsMidiOutput}
     IS_MIDI_EFFECT {isMidiEffect}
-    EDITOR_WANTS_KEYBOARD_FOCUS FALSE
+    EDITOR_WANTS_KEYBOARD_FOCUS {editorWantsKeyboardFocus}
+    DESCRIPTION {pluginDescription}
+    VST_NUM_MIDI_INS {vstNumMidiIns}
+    VST_NUM_MIDI_OUTS {vstNumMidiOuts}
     COPY_PLUGIN_AFTER_BUILD ${{COPY_PLUGIN_AFTER_BUILD_VALUE}}
     VST3_CATEGORIES "{vst3Categories}"
     AU_MAIN_TYPE "{auMainType}"

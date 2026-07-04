@@ -117,6 +117,27 @@ def test_characteristics_conflict_accepts_instrument_defaults():
     assert message == ""
 
 
+def test_instrument_with_midi_output_matrix_control_valid():
+    """Matrix-Control: instrument preset + needs_midi_output=True is valid."""
+    from core.project_spec import ProjectSpec
+
+    chars = preset_characteristics(TYPE_INSTRUMENT)
+    assert chars["needs_midi_output"] is False
+    spec = ProjectSpec(
+        project_name="MatrixControl",
+        project_version="1.0.0",
+        plugin_type=TYPE_INSTRUMENT,
+        is_synth=chars["is_synth"],
+        is_midi_effect=chars["is_midi_effect"],
+        needs_midi_input=chars["needs_midi_input"],
+        needs_midi_output=True,
+    )
+    ok, message = characteristics_conflict(spec.is_synth, spec.is_midi_effect)
+    assert ok is True
+    assert message == ""
+    assert spec.needs_midi_output is True
+
+
 @pytest.mark.parametrize(
     "value,expected",
     [

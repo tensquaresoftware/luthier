@@ -78,7 +78,7 @@ def test_generate_project_from_bundled_templates(tmp_path):
     from core import render_context
     from core.project_writer import ProjectWriter
 
-    from tests.conftest import make_spec
+    from tests.conftest import assert_sidecar_omits_accent, make_spec
 
     bundled_templates = BUNDLED_ASSETS_ROOT / "templates"
     spec = make_spec(tmp_path)
@@ -94,4 +94,4 @@ def test_generate_project_from_bundled_templates(tmp_path):
     assert sidecar_path.is_file()
     data = json.loads(sidecar_path.read_text(encoding="utf-8"))
     assert data["projectName"] == spec.project_name
-    assert "accentColor" not in data
+    assert_sidecar_omits_accent(data)

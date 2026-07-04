@@ -1,4 +1,4 @@
-"""Tests that Open/Generate workflows do not modify preferences.json."""
+"""Tests that Generate workflow does not modify preferences.json."""
 
 import json
 
@@ -42,8 +42,8 @@ def _valid_profile(**overrides) -> dict:
     return data
 
 
-def test_preferences_file_unchanged_after_simulated_open_generate_workflow(tmp_path):
-    """Simulate post-5.4 MainWindow: load project + remember parent without prefs writes."""
+def test_preferences_file_unchanged_after_simulated_generate_workflow(tmp_path):
+    """Simulate post-5.4 MainWindow: seed form from prefs + remember parent without prefs writes."""
     prefs_path = tmp_path / "preferences.json"
     state_path = tmp_path / "app_state.json"
     prefs = Preferences(prefs_path)

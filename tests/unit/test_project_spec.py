@@ -139,6 +139,17 @@ def test_to_dict_camel_case_keys():
     assert ProjectSpec.from_dict(d).project_name == "Alpha"
 
 
+def test_to_dict_key_order_matches_project_form():
+    from core.project_spec import _SIDECAR_KEY_ORDER
+
+    spec = _make_spec()
+    keys = list(spec.to_dict())
+    assert keys == list(_SIDECAR_KEY_ORDER)
+    assert keys.index("pluginType") < keys.index("pluginFormats")
+    assert keys.index("pluginFormats") < keys.index("cxxStandard")
+    assert keys.index("copyToSystemFolders") < keys.index("artefactsDirWindows")
+
+
 def test_from_dict_missing_characteristic_keys_use_instrument_defaults():
     restored = ProjectSpec.from_dict({"projectName": "OnlyName"})
     assert restored.needs_midi_input is True

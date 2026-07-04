@@ -1,5 +1,5 @@
 # generated: 2026-06-23
-# last_updated: 2026-07-04 # Story 9.8 done (code review patches applied)
+# last_updated: 2026-07-04 # Story 9.6 done (code review patches applied)
 # project: Luthier
 # project_key: NOKEY
 # tracking_system: file-system
@@ -120,7 +120,7 @@ development_status:
   9-2-block-generate-non-empty-destination: done
   9-3-decoupled-plugin-characteristics-and-projectspec: done
   9-8-session-regenerate-with-warning: done
-  9-4-template-pipeline-audio-io-midi-description: backlog
-  9-6-test-suite-scaffold-only-regression: backlog
+  9-4-template-pipeline-audio-io-midi-description: done
+  9-6-test-suite-scaffold-only-regression: done
   9-5-documentation-v1-guide-manuals-readme: backlog
   epic-9-retrospective: optional

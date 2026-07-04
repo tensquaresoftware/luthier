@@ -11,7 +11,7 @@ import pytest
 from core import render_context
 from core.project_generator import templates_dir
 from core.project_writer import ProjectWriter, _relocate_git_directory, _robust_rmtree
-from tests.conftest import make_spec, write_project
+from tests.conftest import assert_sidecar_omits_accent, make_spec, write_project
 
 
 def test_robust_rmtree_removes_readonly_files(tmp_path):
@@ -52,7 +52,7 @@ def test_sidecar_omits_accent_color(tmp_path):
     dest, spec = write_project(tmp_path, make_spec(tmp_path))
     data = json.loads((dest / ".luthier.json").read_text(encoding="utf-8"))
     assert data == spec.to_dict()
-    assert "accentColor" not in data
+    assert_sidecar_omits_accent(data)
 
 
 def test_write_cleans_tmp_on_failure(tmp_path):

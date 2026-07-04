@@ -17,9 +17,28 @@ _VALUE_KEYS = (
 )
 
 
+def _cmake_quoted(value: str) -> str:
+    escaped = value.replace("\\", "\\\\").replace('"', '\\"').replace("$", "\\$")
+    return f'"{escaped}"'
+
+
+def characteristics_cmake_context(spec: ProjectSpec) -> dict:
+    to_cmake = plugin_settings._bool_to_cmake
+    return {
+        "isSynth": to_cmake(spec.is_synth),
+        "isMidiEffect": to_cmake(spec.is_midi_effect),
+        "needsMidiInput": to_cmake(spec.needs_midi_input),
+        "needsMidiOutput": to_cmake(spec.needs_midi_output),
+        "editorWantsKeyboardFocus": to_cmake(spec.editor_wants_keyboard_focus),
+        "pluginDescription": _cmake_quoted(spec.plugin_description or ""),
+        "vstNumMidiIns": str(spec.vst_num_midi_ins),
+        "vstNumMidiOuts": str(spec.vst_num_midi_outs),
+    }
+
+
 def build_context(spec: ProjectSpec) -> dict:
     d = spec.to_dict()
-    flags = plugin_settings.flags_for_type(d["pluginType"])
+    flags = characteristics_cmake_context(spec)
     context = {key: d[key] for key in _VALUE_KEYS}
     context.update(flags)
     context.update(_categories(flags))
@@ -29,11 +48,6 @@ def build_context(spec: ProjectSpec) -> dict:
     context["bundleId"] = plugin_settings.bundle_id(d["manufacturerName"], d["projectName"])
     context.update(_extra_fields(d))
     return context
-
-
-def _cmake_quoted(value: str) -> str:
-    escaped = value.replace("\\", "\\\\").replace('"', '\\"').replace("$", "\\$")
-    return f'"{escaped}"'
 
 
 def _juce_workspace_paths(config: dict) -> dict:
@@ -97,6 +111,9 @@ def build_tokens(spec: ProjectSpec) -> dict:
     return {
         "PROJECT_NAME": spec.project_name,
         "PROJECT_DISPLAY_NAME": spec.project_display_name,
+        "CREATE_BUSES_PROPERTIES_BODY": plugin_settings.buses_properties_body(
+            spec.is_synth, spec.is_midi_effect, spec.audio_io_preset
+        ),
     }
 
 

@@ -12,6 +12,7 @@ import pytest
 from core.paths import host_workspace_field_key
 from core.project_spec import ProjectSpec
 from tests.conftest import (
+    assert_sidecar_omits_accent,
     assert_spec_equal,
     canonical_cross_platform_spec,
     cmake_available,
@@ -175,7 +176,7 @@ def test_windows_debug_preset_structure_ac3(tmp_path):
 
 
 def test_cross_origin_sidecar_preserves_spec_ac4(tmp_path):
-    """AC4: Windows-oriented ProjectSpec sidecar survives clone without app reload."""
+    """AC4: Windows-oriented ProjectSpec sidecar survives directory clone (write-only fidelity)."""
     spec = make_spec(
         tmp_path,
         artefacts_dir_windows="C:/team/out",
@@ -190,7 +191,7 @@ def test_cross_origin_sidecar_preserves_spec_ac4(tmp_path):
     shutil.copytree(project_dir, clone_dir)
 
     data = json.loads((clone_dir / ".luthier.json").read_text(encoding="utf-8"))
-    assert "accentColor" not in data
+    assert_sidecar_omits_accent(data)
     assert_spec_equal(ProjectSpec.from_dict(data), spec)
 
 
@@ -207,4 +208,4 @@ def test_sidecar_carries_cross_origin_juce_dir(tmp_path):
     data = json.loads((project_dir / ".luthier.json").read_text(encoding="utf-8"))
     host_juce = host_workspace_field_key("juce")
     assert data[host_juce] == "C:/Program Files/JUCE"
-    assert "accentColor" not in data
+    assert_sidecar_omits_accent(data)

@@ -132,6 +132,38 @@ def _bool_to_cmake(value: bool) -> str:
     return "TRUE" if value else "FALSE"
 
 
+_EMPTY_BUSES_BODY = "    return {};"
+
+_OUT_STEREO_ONLY_BODY = """\
+    juce::AudioProcessor::BusesProperties properties;
+    return properties.withOutput("Output", juce::AudioChannelSet::stereo(), true);"""
+
+_STEREO_EFFECT_BODY = """\
+    juce::AudioProcessor::BusesProperties properties;
+    properties = properties.withInput("Input", juce::AudioChannelSet::stereo(), true);
+    return properties.withOutput("Output", juce::AudioChannelSet::stereo(), true);"""
+
+_MONO_EFFECT_BODY = """\
+    juce::AudioProcessor::BusesProperties properties;
+    properties = properties.withInput("Input", juce::AudioChannelSet::mono(), true);
+    return properties.withOutput("Output", juce::AudioChannelSet::mono(), true);"""
+
+_MONO_OUT_ONLY_BODY = """\
+    juce::AudioProcessor::BusesProperties properties;
+    return properties.withOutput("Output", juce::AudioChannelSet::mono(), true);"""
+
+
+def buses_properties_body(is_synth: bool, is_midi_effect: bool, audio_io_preset: str) -> str:
+    preset = normalize_audio_io_preset(audio_io_preset)
+    if is_midi_effect or preset == "midi-effect":
+        return _EMPTY_BUSES_BODY
+    if preset == "synth-no-input":
+        return _OUT_STEREO_ONLY_BODY
+    if preset == "mono":
+        return _MONO_OUT_ONLY_BODY if is_synth else _MONO_EFFECT_BODY
+    return _OUT_STEREO_ONLY_BODY if is_synth else _STEREO_EFFECT_BODY
+
+
 def flags_for_type(type_key: str) -> dict:
     chars = preset_characteristics(type_key)
     return {

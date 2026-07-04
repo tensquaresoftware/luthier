@@ -99,7 +99,7 @@ Ces entrées ne sont **plus** de la dette ouverte — décision de design, hors 
 ## Deferred from: code review of 9-1-remove-open-project-scaffold-only-positioning (2026-07-04)
 
 - ~~`_confirm_overwrite` still allows destructive regeneration~~ — **Resolved in Story 9.2** (non-empty guard + overwrite dialog removed).
-- `test_regenerate_*` no longer load sidecar before second generate — intentional 9.1 rewrite; sidecar→regenerate coverage deferred to Epic 9.6 if needed.
+- `test_regenerate_*` no longer load sidecar before second generate — intentional 9.1 rewrite; ~~sidecar→regenerate coverage deferred to Epic 9.6 if needed~~ **Resolved in Story 9.4/9.6** (`test_session_regenerate_updates_characteristics`, guard overwrite tests).
 - `pluginType` validation removed with `project_reader` — acceptable while no runtime sidecar read (AC3).
 - Import Preferences applies accent theme only when Prefs tab active — pre-existing; manual QA per AD-6.
 
@@ -110,7 +110,7 @@ Ces entrées ne sont **plus** de la dette ouverte — décision de design, hors 
 - `iterdir()` PermissionError uncaught in `destination_blocks_generate` — rare desktop edge; would need OSError handler to surface block UX instead of generic failure.
 - TOCTOU between guard check and `ProjectWriter.write()` — concurrent directory population between UI check and write is out of v1.0 scope.
 - Tilde paths not expanded in `project_dir_for_spec()` — pre-existing; `resolve_dir()` expands `~` but guard uses raw `Path(host_destination_dir())`.
-- Hidden-file block scenario not tested (`.DS_Store`, `.git`) — behavior correct; broader test coverage deferred to Story 9.6.
+- Hidden-file block scenario not tested (`.DS_Store`, `.git`) — ~~behavior correct; broader test coverage deferred to Story 9.6~~ **Resolved in Story 9.6** (`test_destination_blocks_hidden_ds_store`, `test_destination_blocks_git_directory`).
 - No integration test for end-to-end UI block flow — AD-6 manual smoke; Qt widget tests out of scope.
 
 ---
@@ -127,6 +127,21 @@ Ces entrées ne sont **plus** de la dette ouverte — décision de design, hors 
 
 - `type_for_flags()` not deprecated — still used by `render_context` path and round-trip tests until Story 9.4 wires spec-derived flags.
 - Preset confirm dialog omits description/MIDI count reset from message — UX polish; toggles-only wording is misleading but not blocking.
+
+---
+
+## Deferred from: code review of 9-4-template-pipeline-audio-io-midi-description (2026-07-04)
+
+- `_cmake_quoted` newline/tab not escaped for `pluginDescription` — same v1 acceptance as existing path quoting (see « Accepté pour v1 »).
+- Unknown `audio_io_preset` silent fallback to `"stereo"` — intentional `normalize_audio_io_preset()` behavior; UI constrains valid presets.
+- User template override may retain unreplaced `@CREATE_BUSES_PROPERTIES_BODY@` — pre-existing token-override pattern; user manual in Story 9.5.
+
+---
+
+## Deferred from: code review of 9-6-test-suite-scaffold-only-regression (2026-07-04)
+
+- Substring-based CMake/cpp assertions fragile to template formatting — pre-existing integration test style; structured parsing out of v1.0 scope.
+- Regenerate test mutates `ProjectSpec` in place instead of constructing fresh instance — minor test-style debt; behavior covered by integration assertions.
 
 ---
 

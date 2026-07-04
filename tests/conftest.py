@@ -83,6 +83,10 @@ def assert_spec_equal(actual: ProjectSpec, expected: ProjectSpec) -> None:
         assert getattr(actual, field.name) == getattr(expected, field.name), field.name
 
 
+def assert_sidecar_omits_accent(data: dict) -> None:
+    assert "accentColor" not in data
+
+
 def assert_trees_equal(before: dict[Path, bytes], after: dict[Path, bytes]) -> None:
     assert set(before) == set(after)
     for rel in before:
@@ -106,13 +110,13 @@ def write_project(tmp_path, spec, *, overrides=None) -> tuple[Path, ProjectSpec]
 
 
 def generate_project(
-    tmp_path, spec=None, *, overrides=None
+    tmp_path, spec=None, *, overrides=None, allow_overwrite: bool = False
 ) -> tuple[Path, ProjectSpec]:
     from core.project_generator import ProjectGenerator
 
     spec = spec or make_spec(tmp_path)
     generator = ProjectGenerator(overrides=overrides)
-    project_dir = generator.generate(spec)
+    project_dir = generator.generate(spec, allow_overwrite=allow_overwrite)
     return project_dir, spec
 
 

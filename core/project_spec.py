@@ -1,6 +1,11 @@
 from dataclasses import dataclass
 
-from core.paths import host_workspace_field_key, normalize_path_dict_values
+from core.paths import (
+    WORKSPACE_DESTINATION_KEYS,
+    WORKSPACE_JUCE_KEYS,
+    host_workspace_field_key,
+    normalize_path_dict_values,
+)
 from core.plugin_settings import TYPE_INSTRUMENT, clamp_midi_count, normalize_audio_io_preset
 
 
@@ -19,6 +24,47 @@ def _coerce_bool(value, default: bool) -> bool:
             return False
         return default
     return default
+
+
+# Mirrors Project tab section order (app/pages/project.py _sections + field layout).
+_SIDECAR_KEY_ORDER = (
+    # Project Info
+    "projectName",
+    "projectDisplayName",
+    "projectVersion",
+    "manufacturerName",
+    "companyCopyright",
+    "companyWebsite",
+    "companyEmail",
+    "manufacturerCode",
+    "pluginCode",
+    # Plugin Type & Characteristics
+    "pluginType",
+    "isSynth",
+    "needsMidiInput",
+    "needsMidiOutput",
+    "isMidiEffect",
+    "editorWantsKeyboardFocus",
+    "audioIoPreset",
+    "vstNumMidiIns",
+    "vstNumMidiOuts",
+    "pluginDescription",
+    # Formats
+    "pluginFormats",
+    # Compilation
+    "cxxStandard",
+    "preprocessorDefinitions",
+    "headerSearchPaths",
+    # Workspace
+    *WORKSPACE_DESTINATION_KEYS,
+    *WORKSPACE_JUCE_KEYS,
+    # Artefacts
+    "copyToSystemFolders",
+    "copyToArtefactsDir",
+    "artefactsDirWindows",
+    "artefactsDirMacos",
+    "artefactsDirLinux",
+)
 
 
 @dataclass
@@ -78,7 +124,7 @@ class ProjectSpec:
         return str(mapping.get(key, "") or "").strip()
 
     def to_dict(self):
-        return {
+        values = {
             "projectName": self.project_name,
             "projectDisplayName": self.project_display_name,
             "projectVersion": self.project_version,
@@ -114,6 +160,7 @@ class ProjectSpec:
             "vstNumMidiIns": self.vst_num_midi_ins,
             "vstNumMidiOuts": self.vst_num_midi_outs,
         }
+        return {key: values[key] for key in _SIDECAR_KEY_ORDER}
 
     @classmethod
     def from_dict(cls, d):

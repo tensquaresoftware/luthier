@@ -3,15 +3,7 @@
 
 juce::AudioProcessor::BusesProperties PluginProcessor::createBusesProperties()
 {
-#if JucePlugin_IsMidiEffect
-    return {};
-#else
-    juce::AudioProcessor::BusesProperties properties;
-#if !JucePlugin_IsSynth
-    properties = properties.withInput("Input", juce::AudioChannelSet::stereo(), true);
-#endif
-    return properties.withOutput("Output", juce::AudioChannelSet::stereo(), true);
-#endif
+@CREATE_BUSES_PROPERTIES_BODY@
 }
 
 PluginProcessor::PluginProcessor()

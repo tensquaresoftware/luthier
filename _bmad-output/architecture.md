@@ -169,9 +169,9 @@ Strategy (AD-6):
 | Tier | Location | Scope |
 |------|----------|-------|
 | Unit | `tests/unit/` | Public `core/` APIs; a few tests import `app/` field-spec helpers; no GUI |
-| Integration | `tests/integration/` | Full `ProjectSpec → write → read` round-trip with `tmp_path` |
+| Integration | `tests/integration/` | Full `ProjectSpec → generate → sidecar fidelity` with `tmp_path`; no app reload/Open path |
 
-- **158 tests** collected; no display required for the default suite.
+- **319 tests** collected (3 skipped when frozen bundle or host-specific CMake unavailable); scaffold-only semantics — sidecar read via `ProjectSpec.from_dict()` asserts write-only generation fidelity, not app reload.
 - `tests/integration/test_frozen_bundle.py` — validates PyInstaller output when `dist/` exists on the current host; skipped when no bundle is present.
 - `tests/integration/test_cmake_cross_platform.py` — CMake configure validation on generated projects; Windows and Linux configure tests run only on matching hosts (validated 2026-06-26).
 - Legacy `tests/test_story_*.py` unittest modules remain collected.

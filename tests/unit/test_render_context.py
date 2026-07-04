@@ -12,9 +12,11 @@ from core.plugin_settings import (
     TYPE_AUDIO_EFFECT,
     TYPE_INSTRUMENT,
     TYPE_MIDI_EFFECT,
+    buses_properties_body,
+    preset_characteristics,
 )
 from core.project_spec import ProjectSpec
-from core.render_context import build_context, build_tokens
+from core.render_context import build_context, build_tokens, characteristics_cmake_context
 from tests.conftest import workspace_attr
 
 _VALUE_KEYS = (
@@ -118,18 +120,62 @@ def test_build_context_populated_cmake_blocks():
     assert "MyPlugin" in ctx["headerSearchPathsBlock"]
 
 
+def _spec_with_preset(plugin_type: str, **kwargs):
+    chars = preset_characteristics(plugin_type)
+    return _make_spec(plugin_type=plugin_type, **chars, **kwargs)
+
+
 @pytest.mark.parametrize(
     "plugin_type",
     [TYPE_INSTRUMENT, TYPE_AUDIO_EFFECT, TYPE_MIDI_EFFECT],
 )
 def test_build_context_plugin_type_flags_and_categories(plugin_type):
-    spec = _make_spec(plugin_type=plugin_type)
+    spec = _spec_with_preset(plugin_type)
     ctx = build_context(spec)
     for key, value in _EXPECTED_FLAGS[plugin_type].items():
         assert ctx[key] == value
     au_main_type, vst3_categories = _EXPECTED_CATEGORIES[plugin_type]
     assert ctx["auMainType"] == au_main_type
     assert ctx["vst3Categories"] == vst3_categories
+
+
+def test_build_context_spec_override_matrix_control_midi_output():
+    spec = _make_spec(
+        plugin_type=TYPE_INSTRUMENT,
+        is_synth=True,
+        needs_midi_input=True,
+        needs_midi_output=True,
+    )
+    ctx = build_context(spec)
+    assert ctx["needsMidiOutput"] == "TRUE"
+    assert ctx["needsMidiInput"] == "TRUE"
+    assert ctx["isSynth"] == "TRUE"
+    assert ctx["auMainType"] == "kAudioUnitType_MusicDevice"
+    assert ctx["vst3Categories"] == "Instrument|Synth"
+
+
+def test_characteristics_cmake_context_plugin_description_quoting():
+    spec = _make_spec(plugin_description='Say "hello" \\ world $HOME')
+    ctx = characteristics_cmake_context(spec)
+    assert ctx["pluginDescription"] == '"Say \\"hello\\" \\\\ world \\$HOME"'
+
+
+def test_build_context_editor_wants_keyboard_focus_and_midi_counts():
+    spec = _make_spec(
+        editor_wants_keyboard_focus=True,
+        vst_num_midi_ins=4,
+        vst_num_midi_outs=8,
+    )
+    ctx = build_context(spec)
+    assert ctx["editorWantsKeyboardFocus"] == "TRUE"
+    assert ctx["vstNumMidiIns"] == "4"
+    assert ctx["vstNumMidiOuts"] == "8"
+
+
+def test_build_context_empty_plugin_description():
+    spec = _make_spec(plugin_description="")
+    ctx = build_context(spec)
+    assert ctx["pluginDescription"] == '""'
 
 
 def test_build_context_value_keys_passthrough():
@@ -173,10 +219,17 @@ def test_build_context_juce_workspace_special_characters(field_kwargs, expected_
     assert build_context(spec)[expected_key] == expected_fragment
 
 
-def test_build_context_unknown_plugin_type_raises():
-    spec = _make_spec(plugin_type="Instrument")
-    with pytest.raises(ValueError, match="Unknown plugin type"):
-        build_context(spec)
+def test_build_context_unknown_plugin_type_uses_spec_fields():
+    spec = _make_spec(
+        plugin_type="Instrument",
+        is_synth=False,
+        is_midi_effect=False,
+        needs_midi_input=False,
+        needs_midi_output=True,
+    )
+    ctx = build_context(spec)
+    assert ctx["needsMidiOutput"] == "TRUE"
+    assert ctx["isSynth"] == "FALSE"
 
 
 def test_artefact_entry_escapes_quotes_and_control_chars():
@@ -205,13 +258,19 @@ def test_rendered_presets_json_is_valid(tmp_path):
     json.loads(rendered)
 
 
-def test_build_tokens_returns_project_keys():
-    spec = _make_spec(project_name="Alpha", project_display_name="Alpha Display")
+def test_build_tokens_returns_project_keys_and_buses_body():
+    spec = _make_spec(
+        project_name="Alpha",
+        project_display_name="Alpha Display",
+        is_synth=True,
+        audio_io_preset="stereo",
+    )
     tokens = build_tokens(spec)
-    assert tokens == {
-        "PROJECT_NAME": "Alpha",
-        "PROJECT_DISPLAY_NAME": "Alpha Display",
-    }
+    assert tokens["PROJECT_NAME"] == "Alpha"
+    assert tokens["PROJECT_DISPLAY_NAME"] == "Alpha Display"
+    assert tokens["CREATE_BUSES_PROPERTIES_BODY"] == buses_properties_body(
+        True, False, "stereo"
+    )
 
 
 def test_render_context_import_without_qt():

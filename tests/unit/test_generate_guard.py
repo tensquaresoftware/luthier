@@ -112,6 +112,20 @@ def test_destination_blocks_non_directory(tmp_path):
     assert destination_blocks_generate(project_dir) is True
 
 
+def test_destination_blocks_hidden_ds_store(tmp_path):
+    project_dir = tmp_path / "MyPlugin"
+    project_dir.mkdir()
+    (project_dir / ".DS_Store").write_bytes(b"\x00")
+    assert destination_blocks_generate(project_dir) is True
+
+
+def test_destination_blocks_git_directory(tmp_path):
+    project_dir = tmp_path / "MyPlugin"
+    project_dir.mkdir()
+    (project_dir / ".git").mkdir()
+    assert destination_blocks_generate(project_dir) is True
+
+
 def test_project_dir_for_spec(tmp_path):
     spec = make_spec(tmp_path)
     assert project_dir_for_spec(spec) == tmp_path / "MyPlugin"

@@ -81,8 +81,8 @@ def test_form_snapshots_equal_ignores_display_name_fallback():
     assert form_snapshots_equal(baseline, current)
 
 
-def test_load_project_clears_dirty_state():
-    """After load (e.g. post-generate), the form should not appear unsaved."""
+def test_post_generate_baseline_clears_dirty_state():
+    """After post-generate baseline sync (ProjectPage.load(spec)), matching snapshot is not dirty."""
     baseline = ProjectSpec(project_name="MyPlugin", project_version="1.0.0").to_dict()
     edited = dict(baseline)
     edited["projectVersion"] = "1.0.2"

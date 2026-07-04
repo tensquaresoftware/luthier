@@ -128,7 +128,7 @@ Preferences.accent_color → apply_accent_theme() on all tabs
 
 In str.format templates, literal CMake braces must be doubled: `${{VAR}}` renders as `${VAR}`.
 
-Only two tokens exist for source files: `@PROJECT_NAME@` and `@PROJECT_DISPLAY_NAME@`.
+Source file tokens: `@PROJECT_NAME@`, `@PROJECT_DISPLAY_NAME@`, and `@CREATE_BUSES_PROPERTIES_BODY@` (multi-line bus layout body for `PluginProcessor.cpp`).
 
 ### Write-only sidecar (AD-3, Epic 9)
 
@@ -255,8 +255,8 @@ When modifying `Templates/CMakeLists.txt` or `*.cmake`:
 - Optional blocks (headerSearchPaths, extraDefinitionsBlock) are injected as pre-formatted multiline strings or empty strings — never conditional in the template itself
 
 When modifying Source templates:
-- Use `@PROJECT_NAME@` and `@PROJECT_DISPLAY_NAME@` only
-- Templates must be valid C++ without substitution (no `{` placeholders)
+- Use `@PROJECT_NAME@`, `@PROJECT_DISPLAY_NAME@`, and optionally `@CREATE_BUSES_PROPERTIES_BODY@` in `PluginProcessor.cpp`
+- Templates must be valid C++ without substitution where possible (no `{` placeholders); `@CREATE_BUSES_PROPERTIES_BODY@` is replaced at generation time
 
 ---
 
