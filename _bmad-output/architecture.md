@@ -46,16 +46,19 @@ User fills form (ProjectPage)
           → render_context.build_context(spec)  → dict for str.format
           → render_context.build_tokens(spec)   → dict for @KEY@ replace
           → ProjectWriter.write(context, tokens, spec)
-              → files on disk + .luthier.json sidecar
+              → files on disk + .luthier.json sidecar (write-only)
+      → ProjectPage.load(spec)   ← baseline sync after successful Generate
+      → AppState.remember_parent() + save()
+Preferences.accent_color → apply_accent_theme() on all tabs
 ```
 
-### Round-trip reload (AD-3)
+### Write-only sidecar (AD-3, Epic 9)
 
-[`core/project_reader.py`](../core/project_reader.py) `read_project_result(project_dir)` is the sole deserialiser:
+[`core/project_writer.py`](../core/project_writer.py) `_write_sidecar()` writes `.luthier.json` at generation time:
 
-1. **Sidecar required** — reads `.luthier.json` at the project root.
-2. **Missing or invalid sidecar → error** — returns `ProjectReadResult(spec=None, error=...)`; the UI shows the message; never parses `CMakeLists.txt`.
-3. **On successful open** — injects the host **destination** from the filesystem parent of the opened folder (Workspace behaviour from story 8.1).
+1. **Write-only** — content is `ProjectSpec.to_dict()`; no module in `app/` or `core/` reads the sidecar at runtime.
+2. **No `accentColor`** — accent lives in `preferences.json` only (Preferences tab).
+3. **Epic 2 superseded** — Reliable Project Reload (open → edit → regenerate) removed in Epic 9; Luthier is a one-shot scaffold generator.
 
 ## Two-pass rendering
 
@@ -118,7 +121,7 @@ Copied unchanged from `templates/` (or user override):
 ## Preferences and persistence (AD-5 revised)
 
 - `preferences.json` is written **only** by: first-launch factory file, Preferences tab auto-save, or successful Import Preferences.
-- **Open Project** and **Generate Project** never call `prefs.save()`.
+- **Generate Project** never calls `prefs.save()`.
 - `core/` never calls `prefs.save()` directly.
 
 ## Atomic JSON persistence (AD-10)
@@ -131,11 +134,10 @@ On read failure (`JSONDecodeError`, `OSError`, or non-`dict` root), `Preferences
 
 ## juce_dir and accent colour (AD-7 revised)
 
-- `ProjectSpec.juce_dir` is written to `.luthier.json` and participates in round-trip.
-- `ProjectSpec.accent_color` (`accentColor` in JSON) is written to `.luthier.json` on Generate and restored on Open Project — per-project UI theme, independent of `preferences.json`.
-- `render_context.build_context(spec)` reads `spec.juce_dir` — no separate parameter.
+- `ProjectSpec` six workspace keys (`destinationDir*`, `juceDir*`) are written to `.luthier.json` on Generate (write-only sidecar).
+- `render_context.build_context(spec)` reads workspace paths from `ProjectSpec` — no separate parameter.
 - `Preferences.juce_dir` is the **default seed only** for new projects — copied at startup and Create New Project, not read at Generate time.
-- `Preferences.accent_color` seeds the Project tab on Create New Project; persisted project colour lives in the sidecar after Generate.
+- `Preferences.accent_color` (`accentColor` in JSON) drives Luthier theme on all tabs — not stored in `ProjectSpec` or `.luthier.json`.
 
 ## Template overrides (AD-9)
 
@@ -149,9 +151,8 @@ Each `core/*.py` module follows the schema: **Purpose | Inputs | Outputs | Invar
 |--------|---------|--------|---------|------------|
 | [`project_spec.py`](../core/project_spec.py) | Typed cross-layer data model | Field values / JSON dict | `ProjectSpec`, `to_dict()` | No raw dict across boundaries (AD-1); snake_case fields |
 | [`project_generator.py`](../core/project_generator.py) | Orchestrates generation | `ProjectSpec`, optional template/override paths | `Path` to project dir | Uses `templates_dir()`; raises via writer on failure |
-| [`project_writer.py`](../core/project_writer.py) | Renders + writes project tree | `context`, `tokens`, `ProjectSpec` | Files on disk + `.luthier.json` | Atomic temp-dir rename (AD-4); overrides at write time (AD-9) |
-| [`project_reader.py`](../core/project_reader.py) | Reload project into spec | `project_dir: Path` | `ProjectReadResult` (`spec`, `error`) | Sidecar required (AD-3) |
-| [`render_context.py`](../core/render_context.py) | Spec → template data | `ProjectSpec` | `build_context()` dict, `build_tokens()` dict | Reads `spec.juce_dir` (AD-7); camelCase template keys |
+| [`project_writer.py`](../core/project_writer.py) | Renders + writes project tree | `context`, `tokens`, `ProjectSpec` | Files on disk + `.luthier.json` | Atomic temp-dir rename (AD-4); write-only sidecar (AD-3); overrides at write time (AD-9) |
+| [`render_context.py`](../core/render_context.py) | Spec → template data | `ProjectSpec` | `build_context()` dict, `build_tokens()` dict | Reads workspace paths from spec (AD-7); camelCase template keys |
 | [`rendering.py`](../core/rendering.py) | Template substitution | template str + dict | rendered str | Two mechanisms: `format` vs `@KEY@` replace |
 | [`validation.py`](../core/validation.py) | Field validators | `str` field value | `(bool, str)` tuple | Pure functions; no I/O |
 | [`plugin_settings.py`](../core/plugin_settings.py) | JUCE flag/category helpers | type strings / flags | dicts, bundle_id, categories | Pure; no side effects |

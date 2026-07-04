@@ -57,7 +57,6 @@ Luthier/
 │   ├── project_writer.py          # ProjectWriter — writes files from templates
 │   ├── render_context.py          # build_context() + build_tokens() — data for templates
 │   ├── rendering.py               # render() [str.format] + render_tokens() [@KEY@]
-│   ├── project_reader.py          # read_project_result() — sidecar-only reload into ProjectSpec
 │   ├── plugin_settings.py         # Pure functions: flags_for_type, bundle_id, categories
 │   ├── validation.py              # Pure field validators → (bool, str) tuples
 │   ├── preferences.py             # Preferences — JSON persistence in OS config dir
@@ -106,9 +105,10 @@ User fills form (ProjectPage)
           → render_context.build_context(spec) → context dict (str.format keys)
           → render_context.build_tokens(spec) → tokens dict (@KEY@ keys)
           → ProjectWriter(templates_dir, project_dir, overrides).write(context, tokens)
+              → files on disk + .luthier.json sidecar (write-only metadata)
+      → ProjectPage.load(spec)   ← baseline sync after successful Generate
       → AppState.remember_parent(spec.host_destination_dir()) + save()  [app_state.json only]
-  → MainWindow._on_open()
-      → read_project_result() → ProjectSpec → ProjectPage.load(spec)  [no prefs write]
+Preferences.accent_color → apply_accent_theme() on all tabs
 ```
 
 ### Two-Pass Template Rendering
@@ -124,13 +124,12 @@ In str.format templates, literal CMake braces must be doubled: `${{VAR}}` render
 
 Only two tokens exist for source files: `@PROJECT_NAME@` and `@PROJECT_DISPLAY_NAME@`.
 
-### Round-Trip: Reading Back a Generated Project
+### Write-only sidecar (AD-3, Epic 9)
 
-`project_reader.read_project_result(project_dir)` reads `.luthier.json` only (AD-3, story 8.2). Key rules:
-- Sidecar missing or invalid → `ProjectReadResult(spec=None, error=...)`
-- No CMake regex fallback
-- On success, host **destination** is injected from the parent of the opened project folder
-- `ProjectSpec.from_dict()` deserialises the sidecar JSON (six workspace keys per OS, **`accentColor`** for per-project UI theme)
+`ProjectWriter._write_sidecar()` writes `.luthier.json` alongside CMake/sources at generation time. Key rules:
+- Sidecar content is `ProjectSpec.to_dict()` — full project metadata **except** `accentColor`
+- **No module reads `.luthier.json` at runtime** — reference metadata for humans and AI tools only
+- Epic 2 (Reliable Project Reload) is **superseded by Epic 9** (scaffold-only generator)
 
 ### Template Overrides
 
@@ -142,12 +141,12 @@ Users can override the 4 Source files. Override path: `~/.../AppConfigLocation/L
 `core/preferences.py` — JSON at `~/.../AppConfigLocation/Luthier/preferences.json`.  
 Keys: `manufacturer`, `manufacturerCode`, `pluginCode`, `companyCopyright`, `companyWebsite`, `companyEmail`, six workspace keys (`destinationDirWindows/Macos/Linux`, `juceDirWindows/Macos/Linux`), `artefactsDirWindows/Macos/Linux`, `copyToSystemFolders`, `copyToArtefactsDir`.
 
-**AD-5 (revised):** `preferences.json` is written **only** by: (1) first-launch factory file creation, (2) Preferences tab auto-save on valid edit, (3) successful Import Preferences. `MainWindow` calls `prefs.save()` only after auto-save or import — **never** after Open Project or Generate Project. Open and Generate must not call `Preferences.update(ProjectSpec)`.
+**AD-5 (revised):** `preferences.json` is written **only** by: (1) first-launch factory file creation, (2) Preferences tab auto-save on valid edit, (3) successful Import Preferences. `MainWindow` calls `prefs.save()` only after auto-save or import — **never** after Generate Project. Generate must not call `Preferences.update(ProjectSpec)`.
 
 ### App State
 
 `core/app_state.py` — JSON at `~/.../AppConfigLocation/Luthier/app_state.json` (sibling of `preferences.json`, **not** part of Import/Export profile).  
-Fields: `lastUsedParentDir`, `lastPrefsProfileDir`, `windowGeometry` (Qt bytes, macOS/Windows), `windowRect`, `windowMaximized`. Written after successful Generate (`remember_parent`), Import/Export path picks, and window resize/move (debounced). Used by Choose… / Open dialog start dirs via `dialog_start_dir()` and by `MainWindow` to restore size, position (macOS/Windows), and maximized state. On Linux, size is restored from `windowRect`; position is best-effort and not guaranteed under Wayland.
+Fields: `lastUsedParentDir`, `lastPrefsProfileDir`, `windowGeometry` (Qt bytes, macOS/Windows), `windowRect`, `windowMaximized`. Written after successful Generate (`remember_parent`), Import/Export path picks, and window resize/move (debounced). Used by Choose… dialog start dirs via `dialog_start_dir()` and by `MainWindow` to restore size, position (macOS/Windows), and maximized state. On Linux, size is restored from `windowRect`; position is best-effort and not guaranteed under Wayland.
 
 ---
 
@@ -179,7 +178,7 @@ Pages emit `validityChanged = Signal(bool)`. `MainWindow` connects to `ProjectPa
 
 All styling is in `app/theme.py:build_stylesheet()`. The `Palette` class defines all colours. `kMainColor_ = "#FF6633"` is the single accent source.
 
-Orange action buttons use `objectName`: `#GenerateButton`, `#OpenButton`, `#SaveButton`, `#ActionButton`.
+Orange action buttons use `objectName`: `#GenerateButton`, `#SaveButton`, `#ActionButton`.
 
 Status labels: `#StatusOk` (green) / `#StatusErr` (red). Apply with `repolish()` after changing `objectName` property.
 
@@ -259,16 +258,15 @@ When modifying Source templates:
 
 These were identified during brownfield analysis and represent the main refactoring targets:
 
-1. **Test coverage** — core validators, generation pipeline, and sidecar reload covered by `tests/unit/` and `tests/integration/`; Qt widget tests remain manual (AD-6)
-2. **`project_reader.py`** — sidecar-only; malformed sidecar returns explicit `error` string
-3. **`ProjectWriter._reset_project_dir()` is destructive** — silently deletes and recreates the entire project dir on every generation; no backup or diff
-4. **Preferences auto-save** — `PreferencesPage` auto-saves on valid edit; Open/Generate no longer write `preferences.json` (Story 5.4)
-5. **`MainWindow` orchestration is wide** — handles generation, open, status, prefs, templates: borderline single responsibility
-6. **JUCE dir on Project tab** — exposed via `FolderField`; persisted on `ProjectSpec` / `.luthier.json`, not synced to global prefs on Open/Generate
-7. **`_field_specs` and `_pref_specs` exceed 15 lines** — conscious deviation; acceptable as pure data (complexity 1)
-8. **`build_stylesheet()` exceeds 15 lines** — acceptable as pure data (QSS string); matches pre-existing pattern
-9. **No error boundary for template rendering** — `str.format` with a malformed template raises `KeyError`; not caught gracefully
-10. **`ProjectPage.config()` returns artefact values only** — naming is misleading; `config` sounds like "all settings" but is only the copy/artefact half
+1. **Test coverage** — core validators, generation pipeline, and write-only sidecar covered by `tests/unit/` and `tests/integration/`; Qt widget tests remain manual (AD-6)
+2. **`ProjectWriter._reset_project_dir()` is destructive** — silently deletes and recreates the entire project dir on every generation; no backup or diff
+3. **Preferences auto-save** — `PreferencesPage` auto-saves on valid edit; Generate no longer writes `preferences.json` (Story 5.4)
+4. **`MainWindow` orchestration is wide** — handles generation, status, prefs, templates: borderline single responsibility
+5. **JUCE dir on Project tab** — exposed via `FolderField`; persisted on `ProjectSpec` / `.luthier.json` sidecar (write-only)
+6. **`_field_specs` and `_pref_specs` exceed 15 lines** — conscious deviation; acceptable as pure data (complexity 1)
+7. **`build_stylesheet()` exceeds 15 lines** — acceptable as pure data (QSS string); matches pre-existing pattern
+8. **No error boundary for template rendering** — `str.format` with a malformed template raises `KeyError`; not caught gracefully
+9. **`ProjectPage.config()` returns artefact values only** — naming is misleading; `config` sounds like "all settings" but is only the copy/artefact half
 
 ---
 
@@ -276,12 +274,11 @@ These were identified during brownfield analysis and represent the main refactor
 
 From user requirements stated at project init:
 
-1. **Modify existing project settings** — fully functional round-trip (open → edit any field → regenerate); currently works but needs robustness (issue #2, #3 above)
+1. **One-shot scaffold generation** — Luthier generates JUCE/CMake skeletons only; no reload/reopen path (Epic 9)
 2. **User-supplied source templates** — already implemented via `templates_store`; needs UX polish and documentation
-3. **Test suite** — unit tests for `core/` (validators, reader, render_context, plugin_settings) as baseline; no mocking needed (pure functions)
-4. **Robustness of CMake parsing** — consider a more structured parser or normalize generated output to guarantee round-trip
-5. **JUCE version / path management** — expose JUCE location in Preferences for users who don't use the default `/Applications/JUCE`
-6. **CLAP format support** — mentioned in CMakeLists.txt comment as future; Linux priority
+3. **Test suite** — unit tests for `core/` (validators, render_context, plugin_settings) as baseline; no mocking needed (pure functions)
+4. **JUCE version / path management** — expose JUCE location in Preferences for users who don't use the default `/Applications/JUCE`
+5. **CLAP format support** — mentioned in CMakeLists.txt comment as future; Linux priority
 
 ---
 
