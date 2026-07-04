@@ -10,12 +10,12 @@ from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from app.pages.path_specs import (
-    OS_FIELD_LEFT_MARGIN,
     host_workspace_field_key,
     workspace_destination_specs,
     workspace_juce_specs,
 )
 from app.widgets.folder_field import FolderField
+from app.widgets.os_path_tree_group import OsPathTreeGroup
 from app.widgets.validated_field import ValidatedField, make_field_label
 from core.display import display_str
 from core.preferences import Preferences
@@ -71,30 +71,29 @@ class WorkspaceSection(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(8)
-        layout.addWidget(make_field_label("Destination folder *"))
-        layout.addLayout(self._build_path_group(
+        layout.addWidget(self._build_path_tree(
+            make_field_label("Destination folder *"),
             workspace_destination_specs(defaults),
             folder_start_resolver,
             "Choose destination folder",
         ))
-        layout.addWidget(make_field_label("JUCE directory"))
-        layout.addLayout(self._build_path_group(
+        layout.addWidget(self._build_path_tree(
+            make_field_label("JUCE directory"),
             workspace_juce_specs(defaults),
             folder_start_resolver,
             "Choose JUCE directory",
         ))
 
-    def _build_path_group(
+    def _build_path_tree(
         self,
+        anchor,
         specs,
         folder_start_resolver: Callable[[str], str] | None,
         choose_title: str,
-    ) -> QVBoxLayout:
+    ) -> OsPathTreeGroup:
         host_dest = host_workspace_field_key("destination")
         host_juce = host_workspace_field_key("juce")
-        layout = QVBoxLayout()
-        layout.setContentsMargins(OS_FIELD_LEFT_MARGIN, 0, 0, 0)
-        layout.setSpacing(2)
+        fields = []
         for spec in specs:
             if spec.key in (host_dest, host_juce):
                 field = FolderField(
@@ -106,5 +105,5 @@ class WorkspaceSection(QWidget):
                 field = ValidatedField(spec)
             field.validityChanged.connect(self.validityChanged)
             self._path_fields[spec.key] = field
-            layout.addWidget(field)
-        return layout
+            fields.append(field)
+        return OsPathTreeGroup(anchor, fields)

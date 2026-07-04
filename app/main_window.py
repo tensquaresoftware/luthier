@@ -144,8 +144,7 @@ class MainWindow(QMainWindow):
         return container
 
     def _on_prefs_accent_changed(self, color: str) -> None:
-        if self._tab_bar.currentIndex() == _PREFS_TAB_INDEX:
-            self._apply_accent_theme(color)
+        self._apply_accent_theme(color)
 
     def _apply_accent_theme(self, color: str) -> None:
         app = QGuiApplication.instance()
@@ -422,8 +421,7 @@ class MainWindow(QMainWindow):
         ok, message = self._prefs_page.import_from_file(path)
         if ok:
             self._defaults = self._prefs.seed_dict()
-            if self._tab_bar.currentIndex() == _PREFS_TAB_INDEX:
-                self._apply_accent_theme(self._prefs.accent_color)
+            self._apply_accent_theme(self._prefs.accent_color)
             self._set_status(f"Preferences imported from {_display_path(path)}.", ok=True)
         else:
             QMessageBox.warning(self, "Import Preferences", message)

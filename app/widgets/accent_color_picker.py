@@ -151,9 +151,9 @@ class AccentColorSection(QWidget):
         row.setContentsMargins(0, 4, 0, 4)
         row.setSpacing(_ROW_SPACING)
 
-        title = QLabel("Luthier Accent Color")
+        title = QLabel("Luthier appearance")
         title.setObjectName("AccentColorTitle")
-        hint = QLabel("Pick a preset accent color.")
+        hint = QLabel("Pick a preset accent for the Luthier interface.")
         hint.setObjectName("AccentColorHint")
         hint.setWordWrap(True)
 

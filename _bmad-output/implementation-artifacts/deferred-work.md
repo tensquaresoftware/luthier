@@ -102,3 +102,11 @@ Ces entrées ne sont **plus** de la dette ouverte — décision de design, hors 
 - `test_regenerate_*` no longer load sidecar before second generate — intentional 9.1 rewrite; sidecar→regenerate coverage deferred to Epic 9.6 if needed.
 - `pluginType` validation removed with `project_reader` — acceptable while no runtime sidecar read (AC3).
 - Import Preferences applies accent theme only when Prefs tab active — pre-existing; manual QA per AD-6.
+
+---
+
+## Deferred from: code review of 9-7-ui-accent-preferences-only-os-tree-connectors (2026-07-04)
+
+- Open Project removal bundled in same `main_window.py` diff — Story 9.1 scope; not a 9.7 regression.
+- HiDPI 1.0px cosmetic pen without device-pixel-ratio scaling — story Dev Notes flag HiDPI as low risk for v1.
+- Shared `OS_TREE_TRUNK_X` for FieldLabel and QCheckBox anchors — needs visual smoke on Project + Preferences tabs; not provably wrong in code.

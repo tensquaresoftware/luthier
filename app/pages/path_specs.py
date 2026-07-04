@@ -10,6 +10,10 @@ from core.paths import WORKSPACE_DESTINATION_KEYS, WORKSPACE_JUCE_KEYS, host_wor
 # Checkbox label inset (theme.py): padding-left 2 + indicator 16 + spacing 8 = 26;
 # +2 px so FieldLabel text lines up with QCheckBox label text.
 OS_FIELD_LEFT_MARGIN = 28
+OS_TREE_TRUNK_X = 14
+OS_TREE_LABEL_GAP = 7
+OS_TREE_BRANCH_END = OS_FIELD_LEFT_MARGIN - OS_TREE_LABEL_GAP
+OS_TREE_LINE_WIDTH = 1.0
 
 _WORKSPACE_DEST_LABELS = {
     "destinationDirWindows": "Windows",

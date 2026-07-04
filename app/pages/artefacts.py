@@ -10,8 +10,9 @@ from collections.abc import Callable
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QCheckBox, QVBoxLayout, QWidget
 
-from app.pages.path_specs import OS_FIELD_LEFT_MARGIN, host_artefact_field_key
+from app.pages.path_specs import host_artefact_field_key
 from app.widgets.folder_field import FolderField
+from app.widgets.os_path_tree_group import OsPathTreeGroup
 from app.widgets.validated_field import FieldSpec, ValidatedField
 from core import validation
 from core.display import display_str
@@ -47,8 +48,8 @@ class ArtefactsSection(QWidget):
         super().__init__()
         self._prefs = prefs
         self._path_fields: dict[str, ValidatedField | FolderField] = {}
-        self._paths_host = QWidget()
         self._checks: dict[str, QCheckBox] = {}
+        self._paths_tree: OsPathTreeGroup | None = None
         self._build_ui(folder_start_resolver)
         self._sync_paths_enabled()
 
@@ -90,16 +91,13 @@ class ArtefactsSection(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(4)
-        for key, label in _COPY_FLAGS:
-            layout.addWidget(self._make_check(key, label))
-        self._build_path_fields(folder_start_resolver)
-        layout.addWidget(self._paths_host)
+        layout.addWidget(self._make_check("copyToSystemFolders", _COPY_FLAGS[0][1]))
+        layout.addWidget(self._build_paths_tree(folder_start_resolver))
 
-    def _build_path_fields(self, folder_start_resolver: Callable[[str], str] | None) -> None:
+    def _build_paths_tree(self, folder_start_resolver: Callable[[str], str] | None) -> OsPathTreeGroup:
+        anchor = self._make_check("copyToArtefactsDir", _COPY_FLAGS[1][1])
         host_key = host_artefact_field_key()
-        paths_layout = QVBoxLayout(self._paths_host)
-        paths_layout.setContentsMargins(OS_FIELD_LEFT_MARGIN, 0, 0, 0)
-        paths_layout.setSpacing(2)
+        fields = []
         for spec in _artefact_specs(self._prefs):
             if spec.key == host_key:
                 field = FolderField(
@@ -111,7 +109,9 @@ class ArtefactsSection(QWidget):
                 field = ValidatedField(spec)
             field.validityChanged.connect(self.validityChanged)
             self._path_fields[spec.key] = field
-            paths_layout.addWidget(field)
+            fields.append(field)
+        self._paths_tree = OsPathTreeGroup(anchor, fields)
+        return self._paths_tree
 
     def _make_check(self, key: str, label: str) -> QCheckBox:
         box = QCheckBox(label)
@@ -122,4 +122,8 @@ class ArtefactsSection(QWidget):
         return box
 
     def _sync_paths_enabled(self, _checked: bool = False) -> None:
-        self._paths_host.setEnabled(self._checks["copyToArtefactsDir"].isChecked())
+        enabled = self._checks["copyToArtefactsDir"].isChecked()
+        for field in self._path_fields.values():
+            field.setEnabled(enabled)
+        if self._paths_tree is not None:
+            self._paths_tree.update()
