@@ -23,7 +23,7 @@ from app.pages.about import AboutPage
 from app.pages.preferences import PreferencesPage
 from app.pages.project import ProjectPage
 from app.pages.templates import TemplatesPage
-from app.confirm import confirm_discard_unsaved
+from app.confirm import confirm_discard_unsaved, confirm_yes_no
 from app.widgets.status_capsule import (
     BAR_MIN_HEIGHT,
     STATUS_BAR_MARGIN_LEFT,
@@ -44,7 +44,8 @@ from core.project_generator import (
     GenerateBlockedError,
     ProjectGenerator,
     destination_blocks_generate,
-    project_dir_for_spec,
+    resolved_project_dir_for_spec,
+    session_regenerate_eligible,
 )
 from core.paths import normalize_portable_path, resolve_dir
 from core.project_spec import ProjectSpec
@@ -466,8 +467,24 @@ class MainWindow(QMainWindow):
             spec = self._project_page.spec()
             if not self._project_page.is_valid():
                 return
-        project_dir = project_dir_for_spec(spec)
+        project_dir = resolved_project_dir_for_spec(spec)
         if destination_blocks_generate(project_dir):
+            last_generated = self._app_state.last_generated_project_dir()
+            if session_regenerate_eligible(project_dir, last_generated):
+                message = (
+                    f'This will replace everything in "{spec.project_name}" except the '
+                    ".git folder. Any changes you made in Finder or your IDE since the "
+                    "last generation will be lost. Continue?"
+                )
+                if not confirm_yes_no(
+                    self,
+                    "Regenerate Project",
+                    message,
+                    default_yes=False,
+                ):
+                    return
+                self._run_generation(spec, allow_overwrite=True)
+                return
             self._set_status(GENERATE_BLOCKED_MESSAGE, ok=False)
             QMessageBox.warning(self, "Generate Project", GENERATE_BLOCKED_MESSAGE)
             return
@@ -484,9 +501,9 @@ class MainWindow(QMainWindow):
         self._project_page.reset(self._form_defaults())
         self._set_status("New project — defaults from Preferences.", ok=True)
 
-    def _run_generation(self, spec: ProjectSpec) -> None:
+    def _run_generation(self, spec: ProjectSpec, *, allow_overwrite: bool = False) -> None:
         try:
-            project_dir = self._generator.generate(spec)
+            project_dir = self._generator.generate(spec, allow_overwrite=allow_overwrite)
         except GenerateBlockedError as error:
             self._set_status(error.message, ok=False)
             QMessageBox.warning(self, "Generate Project", error.message)
@@ -496,16 +513,21 @@ class MainWindow(QMainWindow):
             return
         self._project_page.load(spec)
         self._app_state.remember_parent(spec.host_destination_dir())
+        self._app_state.remember_generated_project(project_dir)
         try:
             self._app_state.save()
         except OSError as error:
+            verb = "regenerated" if allow_overwrite else "generated"
             self._set_status(
-                "Project generated at "
+                f"Project {verb} at "
                 f"{_display_path(project_dir)} — could not remember folder: {error}",
                 ok=False,
             )
             return
-        self._set_status(f"Project generated at {_display_path(project_dir)}", ok=True)
+        if allow_overwrite:
+            self._set_status(f"Project regenerated at {_display_path(project_dir)}", ok=True)
+        else:
+            self._set_status(f"Project generated at {_display_path(project_dir)}", ok=True)
 
     def _set_status(self, text: str, ok: bool) -> None:
         self._status_text = text

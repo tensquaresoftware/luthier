@@ -29,6 +29,29 @@ def project_dir_for_spec(spec: ProjectSpec) -> Path:
     return Path(spec.host_destination_dir()) / spec.project_name
 
 
+def resolved_project_dir_for_spec(spec: ProjectSpec) -> Path:
+    dest = spec.host_destination_dir().strip()
+    if not dest:
+        return project_dir_for_spec(spec)
+    try:
+        base = Path(dest).expanduser().resolve(strict=False)
+    except OSError:
+        base = Path(dest).expanduser()
+    return base / spec.project_name
+
+
+def session_regenerate_eligible(project_dir: Path, last_generated: Path | None) -> bool:
+    if last_generated is None:
+        return False
+    try:
+        return (
+            project_dir.expanduser().resolve()
+            == last_generated.expanduser().resolve()
+        )
+    except OSError:
+        return False
+
+
 def destination_blocks_generate(project_dir: Path) -> bool:
     if not project_dir.exists():
         return False
@@ -57,9 +80,9 @@ class ProjectGenerator:
             return None
         return f"templates not found at {self._templates}"
 
-    def generate(self, spec: ProjectSpec) -> Path:
-        project_dir = project_dir_for_spec(spec)
-        if destination_blocks_generate(project_dir):
+    def generate(self, spec: ProjectSpec, *, allow_overwrite: bool = False) -> Path:
+        project_dir = resolved_project_dir_for_spec(spec)
+        if not allow_overwrite and destination_blocks_generate(project_dir):
             raise GenerateBlockedError()
         context = render_context.build_context(spec)
         tokens = render_context.build_tokens(spec)

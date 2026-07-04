@@ -127,3 +127,13 @@ Ces entrées ne sont **plus** de la dette ouverte — décision de design, hors 
 
 - `type_for_flags()` not deprecated — still used by `render_context` path and round-trip tests until Story 9.4 wires spec-derived flags.
 - Preset confirm dialog omits description/MIDI count reset from message — UX polish; toggles-only wording is misleading but not blocking.
+
+---
+
+## Deferred from: code review of 9-8-session-regenerate-with-warning (2026-07-04)
+
+- Non-directory project path on session regenerate — if path exists as a file after first generate, carve-out offers destructive confirm then `ProjectWriter` fails with generic error instead of clean block.
+- TOCTOU between eligibility check and confirm dialog — folder state can change while modal is open; no re-check before `generate(allow_overwrite=True)`.
+- Double-click Generate race — no guard against overlapping `_run_generation(allow_overwrite=True)` calls.
+- Partial success if `save()` fails after generate — `remember_generated_project` already updated but parent-dir memory failed; ambiguous retry UX.
+- AC3 session scenario test gap — different-path block tested at helper level only, not with `AppState.remember_generated_project(A)` + target B.

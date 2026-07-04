@@ -7,11 +7,12 @@ blocks: [9-6]
 implementation_order: 5
 pivot_date: 2026-07-04
 correct_course: sprint-change-proposal-2026-07-04-session-regenerate.md
+baseline_commit: 97c808c1fc6705c277f1b5b196841ad289fbfe7c
 ---
 
 # Story 9.8: Session Regenerate with Warning
 
-Status: ready-for-dev
+Status: done
 
 <!-- Validation: optional — run validate-create-story before dev-story. -->
 
@@ -130,23 +131,34 @@ Alternative acceptable: `MainWindow._last_generated_project_dir` if dev keeps se
 
 ## Tasks / Subtasks
 
-- [ ] **Session target state** (AC: 4)
-  - [ ] Add in-memory `last_generated_project_dir` on `AppState` (not persisted) with remember/query helpers
-  - [ ] Call `remember_generated_project(project_dir.resolve())` in `_run_generation` after successful generate
-- [ ] **UI flow in `_on_generate`** (AC: 1, 2, 3)
-  - [ ] Extract predicate e.g. `session_regenerate_eligible(project_dir, last_generated) -> bool` (same resolved path)
-  - [ ] If `destination_blocks_generate(project_dir)`:
+- [x] **Session target state** (AC: 4)
+  - [x] Add in-memory `last_generated_project_dir` on `AppState` (not persisted) with remember/query helpers
+  - [x] Call `remember_generated_project(project_dir.resolve())` in `_run_generation` after successful generate
+- [x] **UI flow in `_on_generate`** (AC: 1, 2, 3)
+  - [x] Extract predicate e.g. `session_regenerate_eligible(project_dir, last_generated) -> bool` (same resolved path)
+  - [x] If `destination_blocks_generate(project_dir)`:
     - If session eligible → `confirm_yes_no` → on Yes call `_run_generation(spec, allow_overwrite=True)`; on No return
     - Else → existing FR10 warning + return
-  - [ ] If not blocked → `_run_generation(spec)` as today
-- [ ] **Core flag** (AC: 5)
-  - [ ] Add `allow_overwrite: bool = False` to `ProjectGenerator.generate()`; skip guard when True
-  - [ ] Thread flag through `_run_generation` from UI
-- [ ] **Tests** (AC: 6, 7)
-  - [ ] Extend `test_generate_guard.py` per AC7
-  - [ ] Run `.venv/bin/pytest` — full suite green
-- [ ] **Docs verify** (AC: 8)
-  - [ ] Confirm project-context + architecture-spine match shipped behaviour
+  - [x] If not blocked → `_run_generation(spec)` as today
+- [x] **Core flag** (AC: 5)
+  - [x] Add `allow_overwrite: bool = False` to `ProjectGenerator.generate()`; skip guard when True
+  - [x] Thread flag through `_run_generation` from UI
+- [x] **Tests** (AC: 6, 7)
+  - [x] Extend `test_generate_guard.py` per AC7
+  - [x] Run `.venv/bin/pytest` — full suite green
+- [x] **Docs verify** (AC: 8)
+  - [x] Confirm project-context + architecture-spine match shipped behaviour
+
+### Review Findings
+
+- [x] [Review][Patch] Path resolution split breaks session carve-out for `~` destinations — UI uses `resolved_project_dir_for_spec()` (expanduser+resolve) but `ProjectGenerator.generate()` still writes via `project_dir_for_spec()`; `remember_generated_project()` resolves without expanduser, so `~/Projects/MyPlugin` ≠ `/Users/.../Projects/MyPlugin` and regenerate eligibility fails (AC1, AC4, path-resolution note). [`core/project_generator.py:81`, `core/app_state.py:152`, `app/main_window.py:471`]
+- [x] [Review][Patch] Hard-block status bar regressed to short `GENERATE_BLOCKED_STATUS` — Story 9.2 review fixed this to use full `GENERATE_BLOCKED_MESSAGE` in `_set_status`; diff reintroduces short status while dialog keeps full message (AC2, 9.2 regression). [`app/main_window.py:489`, `app/main_window.py:509`, `core/project_generator.py:20`]
+- [x] [Review][Patch] Missing tilde path test for session memory vs eligibility — no test that `remember_generated_project(generate(spec))` + `session_regenerate_eligible(resolved_project_dir_for_spec(spec), …)` stays true when `host_destination_dir` contains `~` (AC7). [`tests/unit/test_generate_guard.py`]
+- [x] [Review][Defer] Non-directory project path on session regenerate — if path exists as a file after first generate, carve-out offers destructive confirm then `ProjectWriter` fails with generic error instead of clean block. [`app/main_window.py:472`, `core/project_generator.py:83`] — deferred, rare edge
+- [x] [Review][Defer] TOCTOU between eligibility check and confirm dialog — folder state can change while modal is open; no re-check before `generate(allow_overwrite=True)`. [`app/main_window.py:474-487`] — deferred, desktop low-risk
+- [x] [Review][Defer] Double-click Generate race — no guard against overlapping `_run_generation(allow_overwrite=True)` calls. [`app/main_window.py:487`] — deferred, pre-existing pattern
+- [x] [Review][Defer] Partial success if `save()` fails after generate — `remember_generated_project` already updated but parent-dir memory failed; ambiguous retry UX. [`app/main_window.py:517-527`] — deferred, pre-existing pattern
+- [x] [Review][Defer] AC3 session scenario test gap — different-path block tested at helper level only, not with `AppState.remember_generated_project(A)` + target B. [`tests/unit/test_generate_guard.py:24-29`] — deferred, helper coverage sufficient for now
 
 ## Dev Notes
 
@@ -267,10 +279,29 @@ Use existing `confirm_yes_no(parent, title, message, default_yes=False)` — sam
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Composer (Cursor)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- Added in-memory `AppState.remember_generated_project()` / `last_generated_project_dir()` — excluded from JSON persistence.
+- Added `session_regenerate_eligible()`, `resolved_project_dir_for_spec()`, and `allow_overwrite` on `ProjectGenerator.generate()`.
+- `_on_generate` shows destructive `confirm_yes_no` for same-session same-path targets; FR10 hard-block unchanged for brownfield/different paths.
+- Status bar: "Project regenerated at …" on overwrite success.
+- Tests: 291 passed, 3 skipped. Docs verified (project-context data flow + architecture-spine AD-4 already reflect session carve-out).
+- Code review patches: unified path resolution via `resolved_project_dir_for_spec()` in `generate()` + `expanduser().resolve()` in session memory/compare; restored full `GENERATE_BLOCKED_MESSAGE` in status bar; added tilde session eligibility test.
+
 ### File List
+
+- `core/app_state.py`
+- `core/project_generator.py`
+- `app/main_window.py`
+- `tests/unit/test_generate_guard.py`
+- `tests/unit/test_app_state.py`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+- `_bmad-output/implementation-artifacts/9-8-session-regenerate-with-warning.md`
+
+### Change Log
+
+- 2026-07-04: Story 9.8 — session regenerate with destructive confirm; core `allow_overwrite` flag; in-memory session target tracking.

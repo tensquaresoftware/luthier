@@ -240,3 +240,15 @@ def test_reset_corrupt_file_survives_save_failure(tmp_path):
     ):
         state.load()
     assert state.load_warning is not None
+
+
+def test_last_generated_project_dir_not_persisted(tmp_path):
+    state_path = tmp_path / "app_state.json"
+    state = AppState(state_path)
+    project_dir = tmp_path / "MyPlugin"
+    project_dir.mkdir()
+    state.remember_generated_project(project_dir)
+    state.save()
+    reloaded = AppState(state_path)
+    reloaded.load()
+    assert reloaded.last_generated_project_dir() is None

@@ -1,15 +1,92 @@
-"""Unit tests for generate destination guard (Story 9.2)."""
+"""Unit tests for generate destination guard (Story 9.2) and session regenerate (9.8)."""
 
 import pytest
 
+from core.app_state import AppState
 from core.project_generator import (
     GENERATE_BLOCKED_MESSAGE,
     GenerateBlockedError,
     ProjectGenerator,
     destination_blocks_generate,
     project_dir_for_spec,
+    resolved_project_dir_for_spec,
+    session_regenerate_eligible,
 )
 from tests.conftest import make_spec
+
+
+def test_session_regenerate_eligible_same_path(tmp_path):
+    project_dir = tmp_path / "MyPlugin"
+    project_dir.mkdir()
+    assert session_regenerate_eligible(project_dir, project_dir) is True
+
+
+def test_session_regenerate_eligible_different_path(tmp_path):
+    a = tmp_path / "PluginA"
+    b = tmp_path / "PluginB"
+    a.mkdir()
+    b.mkdir()
+    assert session_regenerate_eligible(b, a) is False
+
+
+def test_session_regenerate_eligible_no_last_generated(tmp_path):
+    project_dir = tmp_path / "MyPlugin"
+    project_dir.mkdir()
+    assert session_regenerate_eligible(project_dir, None) is False
+
+
+def test_fresh_app_state_blocks_non_empty_without_session(tmp_path):
+    project_dir = tmp_path / "MyPlugin"
+    project_dir.mkdir()
+    (project_dir / "CMakeLists.txt").write_text("cmake", encoding="utf-8")
+    state = AppState(tmp_path / "app_state.json")
+    assert destination_blocks_generate(project_dir) is True
+    assert session_regenerate_eligible(project_dir, state.last_generated_project_dir()) is False
+
+
+def test_generate_overwrite_updates_project(tmp_path):
+    spec = make_spec(tmp_path)
+    generator = ProjectGenerator()
+    generator.generate(spec)
+    spec = make_spec(tmp_path, project_display_name="Renamed Plugin")
+    project_dir = generator.generate(spec, allow_overwrite=True)
+    assert project_dir == tmp_path / "MyPlugin"
+    sidecar = project_dir / ".luthier.json"
+    assert sidecar.is_file()
+    assert "Renamed Plugin" in sidecar.read_text(encoding="utf-8")
+
+
+def test_generate_overwrite_preserves_git(tmp_path):
+    spec = make_spec(tmp_path)
+    generator = ProjectGenerator()
+    project_dir = generator.generate(spec)
+    git_dir = project_dir / ".git"
+    git_dir.mkdir()
+    (git_dir / "HEAD").write_text("ref: refs/heads/main\n", encoding="utf-8")
+    generator.generate(spec, allow_overwrite=True)
+    assert git_dir.is_dir()
+    assert (git_dir / "HEAD").read_text(encoding="utf-8") == "ref: refs/heads/main\n"
+
+
+def test_resolved_project_dir_for_spec(tmp_path):
+    spec = make_spec(tmp_path)
+    assert resolved_project_dir_for_spec(spec) == tmp_path / "MyPlugin"
+
+
+def test_session_memory_matches_resolved_path_with_tilde(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    projects = tmp_path / "Projects"
+    projects.mkdir()
+    spec = make_spec(tmp_path, destination_dir="~/Projects")
+    generator = ProjectGenerator()
+    state = AppState(tmp_path / "app_state.json")
+
+    project_dir = generator.generate(spec)
+    state.remember_generated_project(project_dir)
+    resolved = resolved_project_dir_for_spec(spec)
+
+    assert project_dir == resolved
+    assert session_regenerate_eligible(resolved, state.last_generated_project_dir()) is True
 
 
 def test_destination_blocks_non_empty_dir(tmp_path):

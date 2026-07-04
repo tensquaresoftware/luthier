@@ -45,6 +45,7 @@ class AppState:
         self._path = path
         self._data: dict = _default_data()
         self._load_warning: str | None = None
+        self._last_generated_project_dir: Path | None = None
 
     @staticmethod
     def default_path() -> Path:
@@ -147,6 +148,15 @@ class AppState:
 
     def window_maximized(self) -> bool:
         return bool(self._data.get("windowMaximized", False))
+
+    def remember_generated_project(self, project_dir: Path) -> None:
+        try:
+            self._last_generated_project_dir = project_dir.expanduser().resolve()
+        except OSError:
+            self._last_generated_project_dir = project_dir.expanduser()
+
+    def last_generated_project_dir(self) -> Path | None:
+        return self._last_generated_project_dir
 
     def dialog_start_dir(self, field_value: str = "") -> str:
         if _is_valid_dir(field_value):
