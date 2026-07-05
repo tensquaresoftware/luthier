@@ -6,113 +6,397 @@ Title: Luthier User Manual
 Version: 1.0
 Product-Version: 1.0.0
 Created: 2026-06-26
-Updated: 2026-07-04
+Updated: 2026-07-05
 References:
+  - docs/user/manuel-utilisateur.md
   - _bmad-output/architecture.md
   - CONTRIBUTING.md
-  - docs/user/manuel-utilisateur.md
   - README.md
 ---
 
 # Luthier User Manual
 
-This manual guides you through Luthier, a desktop app for **creating** CMake-based JUCE project skeletons (audio plugins and/or Standalone apps). Luthier generates once; you continue development in your IDE — it does **not** reopen or reload existing projects.
+This manual is the reference document for **Luthier**: it first explains *why* the tool exists and how it fits into the JUCE/CMake ecosystem, then *how* to use it step by step — from your first generation to building in your IDE.
 
-It is written for people new to JUCE or the audio-project build toolchain: each section explains what a setting is for first, then how to use it in the interface. Tables and lists remain for quick reference. The surrounding text is meant to steer you away from the most common pitfalls.
+Luthier creates **ready-to-build JUCE starter projects** (AU/VST3 plugins and Standalone apps) for Windows, macOS, and Linux. You fill in a form, click **Generate Project**, then continue development in the environment of your choice. Luthier does not reopen or reload existing projects: one generation, then the handoff is yours (or your agentic IDE's).
 
-> **Interface language** — Luthier displays in **English**. All UI labels cited below match what you see on screen exactly.
->
-> **French translation** — See [manuel-utilisateur.md](manuel-utilisateur.md) for the French edition of this manual.
+Each section explains what a concept or setting is for first, then how to use it. To move fast: [Your first project in minutes](#7-your-first-project-in-minutes).
+
+> **Interface language** — Luthier displays in **English**. All UI labels cited below match what you see on screen exactly. French edition: [manuel-utilisateur.md](manuel-utilisateur.md).
 
 ---
 
 ## Table of contents
 
-1. [What is Luthier?](#1-what-is-luthier)
-2. [Before you start](#2-before-you-start)
-3. [Installing and running Luthier](#3-installing-and-running-luthier)
-4. [The main window](#4-the-main-window)
-5. [Three kinds of settings for your JUCE projects](#5-three-kinds-of-settings-for-your-juce-projects)
-6. [First launch](#6-first-launch)
-7. [Project tab](#7-project-tab)
-8. [Preferences tab](#8-preferences-tab)
-9. [Templates tab](#9-templates-tab)
-10. [About tab](#10-about-tab)
-11. [Typical workflows](#11-typical-workflows)
-12. [What Luthier generates](#12-what-luthier-generates)
-13. [Where your data is stored](#13-where-your-data-is-stored)
-14. [Field validation rules](#14-field-validation-rules)
-15. [Path normalization](#15-path-normalization)
-16. [Messages, errors, and troubleshooting](#16-messages-errors-and-troubleshooting)
-17. [Using the standalone app](#17-using-the-standalone-app)
+**Part I — Context**
+
+1. [Luthier at a glance](#1-luthier-at-a-glance)
+2. [Creating a plugin or audio/MIDI app](#2-creating-a-plugin-or-audiomidi-app)
+3. [JUCE and the ecosystem](#3-juce-and-the-ecosystem)
+4. [Projucer and CMake: two approaches](#4-projucer-and-cmake-two-approaches)
+5. [CMake by hand](#5-cmake-by-hand)
+6. [Luthier scope and handoff to the IDE](#6-luthier-scope-and-handoff-to-the-ide)
+
+**Part II — Getting started**
+
+7. [Your first project in minutes](#7-your-first-project-in-minutes)
+8. [Installing and running Luthier](#8-installing-and-running-luthier)
+
+**Part III — Using Luthier**
+
+9. [The main window](#9-the-main-window)
+10. [Three kinds of settings for your JUCE projects](#10-three-kinds-of-settings-for-your-juce-projects)
+11. [First launch](#11-first-launch)
+12. [Project tab](#12-project-tab)
+13. [Preferences tab](#13-preferences-tab)
+14. [Templates tab](#14-templates-tab)
+15. [About tab](#15-about-tab)
+16. [Typical workflows](#16-typical-workflows)
+17. [What Luthier generates](#17-what-luthier-generates)
+18. [Where your data is stored](#18-where-your-data-is-stored)
+19. [Field validation rules](#19-field-validation-rules)
+20. [Path normalization](#20-path-normalization)
+21. [Messages, errors, and troubleshooting](#21-messages-errors-and-troubleshooting)
+22. [Using the standalone app](#22-using-the-standalone-app)
+23. [Further reading](#23-further-reading)
 
 ---
 
-## 1. What is Luthier?
+## 1. Luthier at a glance
 
-Luthier helps you **create JUCE project skeletons** (AU/VST3/Standalone) without hand-editing CMake files. You fill in a form in the project editor, Luthier validates your input as you type, and when you click **Generate Project** it writes a complete project folder ready to open in your IDE and build with CMake.
+**Luthier** is a desktop application (Windows, macOS, Linux) that generates a complete **JUCE starter project** in one step: CMake files, starter C++ sources, plugin metadata, multi-platform presets. The result opens in Cursor, VS Code, Xcode, Visual Studio, or any CMake-compatible environment — and builds immediately without touching the initial configuration.
 
-In practice, Luthier sits **upstream** of compilation: it prepares the JUCE project skeleton (CMake files, starter source code, plugin metadata). The next step — configuring CMake, building, and testing in a DAW — happens in whichever development environment you choose (Visual Studio, Xcode, Cursor, Antigravity, Ninja, etc.).
+### What you get
 
-Think of it as a Projucer-style workflow (which Luthier is largely inspired by), oriented toward **portable CMake projects** and **one-shot skeleton generation**. If you have used the Projucer before, you will recognise familiar concepts (plugin identity, formats, manufacturer codes). If not, the sections below walk through them step by step.
+| What Luthier gives you | Detail |
+|------------------------|--------|
+| **Fast start** | Projucer-inspired form → ready-to-build folder in minutes |
+| **Cross-platform** | CMake presets for Windows, macOS (ARM, Intel, Universal…), and Linux |
+| **Common formats** | AU, VST3, Standalone — according to your checkboxes |
+| **Native CMake** | Compatible with modern IDEs, CI/CD, and agentic tools (Cursor, Antigravity, Claude Code…) |
+| **Customization** | Persistent defaults, editable C++ templates, exportable profiles |
 
 ### What Luthier does
 
-- Builds AU, VST3, and/or Standalone JUCE projects from a single form in the project editor.
-- Writes `CMakeLists.txt`, `CMakeUserPresets.json`, source files, optional IDE helpers, and the **companion file** `.luthier.json` (configuration snapshot written at generate — reference only; Luthier never reads it back).
-- Stores your **default values** (manufacturer, paths, plugin type, accent colour, and so on) in a preferences file on your machine (`preferences.json`).
-- Lets you customize the **C++ source templates** used for every new project (`PluginProcessor.h/.cpp` and `PluginEditor.h/.cpp`).
-- Blocks generation into a **non-empty** destination folder; allows **session regenerate** (same app session, same path) with a destructive confirm that preserves `.git`.
+- Generates AU, VST3, and/or Standalone projects from a form ( **Project** tab).
+- Writes `CMakeLists.txt`, `CMakeUserPresets.json`, sources, optional IDE helpers, and `.luthier.json` (snapshot written at generation — reference only; Luthier never reads it back).
+- Stores your **default values** in `preferences.json` on your machine.
+- Lets you customize **C++ source templates** (`PluginProcessor`, `PluginEditor`).
+- Blocks generation into a **non-empty** folder; allows **session regenerate** (same session, same path) with a destructive confirm that preserves `.git`.
 
 ### What Luthier does not do
 
-- It does not **reopen** or reload a generated project into the form — edit in your IDE after the first generate.
-- It does not compile your JUCE project — you still use CMake and your IDE or toolchain (Visual Studio, Xcode, Cursor, Antigravity, Ninja, etc.).
-- It does not download or install JUCE for you — you point Luthier at an existing JUCE folder on disk.
-- It does not sync settings across machines automatically — use **Export Preferences…** / **Import Preferences…** to move profiles manually (handy if, for example, you are an independent developer working for multiple clients).
+- **Reopen** or reload a project into the form — after generation, work in your IDE.
+- **Compile** your project — CMake and your toolchain handle that.
+- **Download or install** JUCE — you point at an existing SDK folder.
+- **Sync** settings across machines — use **Export Preferences…** / **Import Preferences…**.
 
-These limits are intentional: Luthier stays a lightweight, predictable **skeleton generator**. Once the project folder exists, you keep full control over your toolchain, JUCE updates, and deployment.
+These limits are intentional: Luthier stays a **lightweight, predictable** starter generator. Sections [§5](#5-cmake-by-hand) and [§6](#6-luthier-scope-and-handoff-to-the-ide) explain why.
 
-### Philosophy & further reading
+> **Takeaway** — Luthier saves you from day-zero setup. CMake and your IDE carry you from day one onward.
 
-For the product philosophy (scaffold-only vs Projucer-like round-trip) and a beginner-friendly JUCE/CMake overview, see **[JUCE, CMake & Luthier — guide](juce-cmake-and-luthier-guide.md)** ([FR](guide-juce-cmake-et-luthier.md)). The guide’s §9 describes what Luthier deliberately does **not** do — including reopening projects.
-
----
-
-## 2. Before you start
-
-Before opening Luthier, make sure you have the items below. You do not need to master everything upfront: most users set up **Preferences** first, generate a test project, then refine as they go.
-
-### You will need
-
-- A **JUCE SDK** installed somewhere on your computer (or a path you plan to use).
-- A **destination folder** where new project folders should be created (for example your Desktop folder or Documents, etc.).
-- **CMake 3.22+** and a C++ toolchain appropriate for your platform (details in each generated project's `README.md`).
-- Basic familiarity with **plugin formats** on your platform (AU on macOS, VST3 on Windows/macOS/Linux, Standalone for a desktop app build).
-
-### What is JUCE?
-
-**JUCE** is a widely used open-source C++ framework for audio plugins and cross-platform audio applications. It provides the audio API, VST3/AU/Standalone wrappers, and much of the boilerplate code for a plugin.
-
-Luthier generates projects that *use* JUCE but does not ship it in the repository: you need the SDK on your machine. Download it from [juce.com](https://juce.com) or clone the [JUCE repository](https://github.com/juce-framework/JUCE), unpack it wherever you like, then point **JUCE directory** at that folder in **Workspace** (see [§7.6](#76-workspace)). That path is the default so CMake knows where to find JUCE at generation time.
-
-Nothing stops you from using a **separate JUCE copy per JUCE project**: set a project-specific **JUCE directory** for your current OS in the **Workspace** section on the **Project** tab (see [§11.2](#112-juce-project-with-a-specific-juce-version)). Many teams place that copy **inside the project folder** (for example `MySynth/JUCE/`) to pin the framework version and avoid a global JUCE update breaking every project at once.
-
-If you build on **several operating systems**, enter one **JUCE directory** (and **Destination folder**) per platform in **Workspace** — the same pattern as artefact paths. Export your **Preferences** profile once; every new project inherits all six paths.
-
-### Supported platforms
-
-Luthier runs on **Windows**, **macOS**, and **Linux**. Depending on your profile, you can run it from source (Python + PySide6), handy for contributors, or as a **standalone app** built with PyInstaller on each platform. Both offer the same interface. Only installation differs — see [§17](#17-using-the-standalone-app).
+Repository: [github.com/tensquaresoftware/luthier](https://github.com/tensquaresoftware/luthier)
 
 ---
 
-## 3. Installing and running Luthier
+## 2. Creating a plugin or audio/MIDI app
 
-Choose the path that matches how you use Luthier. If you are just getting started and received an installer or archive, use the standalone app. If you work in the Luthier repository itself, follow the developer setup.
+Before opening Luthier, here is what creating an **audio plugin** (VST3, AU…) or a **standalone** audio/MIDI application for Windows, macOS, and Linux involves.
+
+### Product types
+
+| Type | Description | Typical formats |
+|------|-------------|-----------------|
+| **Audio plugin** | Processes or generates signal inside a DAW | **VST3**, **AU** (macOS), **Standalone** |
+| **Standalone application** | Audio/MIDI app with a graphical interface | Native executable (`.app`, `.exe`…) |
+| **Instrument / effect / MIDI effect** | Sub-types by role | VST3/AU categories set by JUCE |
+
+### What you will need
+
+| Item | Role |
+|------|------|
+| **JUCE SDK** | C++ framework — libraries and build tooling |
+| **CMake 3.22+** | Describes *how* to compile the project |
+| **C++ toolchain** | Compiler for your OS (Visual Studio, Xcode, GCC/Clang…) |
+| **IDE or editor** | Cursor, VS Code, Xcode, Visual Studio… to code and launch builds |
+| **Destination folder** | Where Luthier will create your project folder |
+
+Each generated project's `README.md` lists exact prerequisites and build commands for your platform.
+
+### CMake and IDE: two distinct roles
+
+- **CMake** *configures* the build (which files to compile, JUCE path, output formats). Luthier generates these files for you.
+- Your **IDE** *runs* that build. Cursor and VS Code with the **CMake Tools** extension are the most direct path: every Luthier project includes presets and tasks in `.vscode/`.
+
+### Plugin formats (reminder)
+
+- **VST3** — Windows, macOS, Linux
+- **AU** (*Audio Unit*) — macOS only at compile time
+- **Standalone** — self-contained plugin app; ideal for a first test without a DAW
+
+---
+
+## 3. JUCE and the ecosystem
+
+### JUCE in brief
+
+**JUCE** (*Jules' Utility Class Extensions*) is an open-source C++ framework and the reference stack for audio plugins and cross-platform audio applications. You write your business logic; JUCE provides the audio API, VST3/AU/Standalone wrappers, GUI, MIDI, and much more.
+
+- Website: [juce.com](https://juce.com)
+- Repository: [github.com/juce-framework/JUCE](https://github.com/juce-framework/JUCE)
+- Licence: free for open source (AGPL) or commercial depending on use — [juce.com/legal](https://juce.com/legal)
+
+Luthier generates projects that *use* JUCE but does not bundle it: install the SDK separately, then set its path in **JUCE directory** (see [§12.6](#126-workspace)).
+
+### Alternatives to know
+
+JUCE is not the only choice for audio plugins, but it is the most complete for a multi-format desktop project:
+
+| Framework | Strengths | Limit vs Luthier |
+|-----------|-----------|------------------|
+| **[iPlug2](https://github.com/iPlug2/iPlug2)** | Lightweight, good for VST3/AU/CLAP, moderate learning curve | Smaller ecosystem and GUI than JUCE; Luthier does not target it |
+| **[DPF](https://github.com/DISTRHO/DPF)** (*DISTRHO Plugin Framework*) | Minimal, open source, LV2/VST2/VST3/CLAP | Fewer all-in-one features; no rich built-in GUI like JUCE |
+
+Luthier is designed **exclusively for JUCE + CMake**. If you choose iPlug2 or DPF, other generators or templates apply.
+
+> **Note — CLAP and JUCE 9**  
+> The **CLAP** format is gaining traction in the open-source ecosystem. JUCE 9 announces work in progress. As of this manual (2026), VST3 and AU remain the production references; watch [JUCE releases](https://github.com/juce-framework/JUCE/releases).
+
+---
+
+## 4. Projucer and CMake: two approaches
+
+JUCE offers **tools** to structure your projects. Two philosophies coexist:
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                        PROJUCER                                  │
+│  Source of truth = .jucer file (XML)                             │
+│  Output = native IDE projects (Builds/Xcode, Builds/VS…)         │
+│  Regeneration = rewrites IDE view on every Save                  │
+└──────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────┐
+│                         CMAKE                                    │
+│  Source of truth = CMakeLists.txt                                │
+│  Output = build cache + binaries (Builds/…)                      │
+│  Reconfigure = re-reads CMakeLists.txt, does not touch sources  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+Both can produce the **same working plugin**. What changes is **who owns configuration** and **how the IDE resynchronizes**.
+
+### Projucer: strengths and limits
+
+**Projucer** is the application shipped with JUCE: configuration form + file explorer, not an IDE.
+
+On **Save** or **Save and Open in IDE**, Projucer writes the `.jucer`, **regenerates** Xcode/Visual Studio/Makefile projects under `Builds/`, then opens the IDE. It does **not** produce `CMakeLists.txt`.
+
+**Essential Projucer rule** — create and organize source files **from Projucer**, not directly in Xcode or Visual Studio. On every Save, Projucer rewrites the IDE project from the `.jucer`. A file added only in the IDE disappears from the build on the next Save.
+
+| Limit | Consequence |
+|-------|-------------|
+| **No native CMake export** | Exporters for Xcode, VS, Makefile — not CMake |
+| **IDE regeneration** | Every Save can overwrite changes made only in the IDE |
+| **Single source of truth (.jucer)** | Hard to mix with an "IDE-first" workflow |
+| **Modern IDEs not targeted** | Cursor, Antigravity, Claude Code… consume CMake + `compile_commands.json`, not `.xcodeproj` |
+
+Projucer remains relevant for a classic "Xcode + Projucer" workflow. It becomes constraining when you want CMake, multi-IDE, CI/CD, or AI-assisted development.
+
+### What the JUCE team recommends
+
+> **For new projects, prefer CMake.**
+
+- Documentation: [JUCE CMake API](https://github.com/juce-framework/JUCE/blob/master/docs/CMake%20API.md)
+- Examples: [examples/CMake](https://github.com/juce-framework/JUCE/tree/master/examples/CMake)
+- Functions: `juce_add_plugin`, `juce_add_gui_app`, etc.
+- Projucer is still maintained, but no longer the preferred starting path
+
+| CMake advantage | Detail |
+|-----------------|--------|
+| **IDE-agnostic** | Same project in Cursor, VS Code, CLion, or Terminal |
+| **Industry standard** | Skill reusable outside JUCE |
+| **No opaque regeneration** | You edit the build description; CMake reconfigures |
+| **CI/CD** | GitHub Actions, cross-compilation |
+| **Agentic coding** | AI reads and edits `CMakeLists.txt` like any text file |
+
+---
+
+## 5. CMake by hand
+
+You can create a JUCE/CMake project **without Luthier** — by copying the [official examples](https://github.com/juce-framework/JUCE/tree/master/examples/CMake) or following the [CMake API](https://github.com/juce-framework/JUCE/blob/master/docs/CMake%20API.md). Here is what that involves.
+
+### The two central files
+
+**`CMakeLists.txt`** — the build plan: project name, JUCE path, sources to compile, plugin type, formats, JUCE modules, C++ options. **This file evolves with your project**; it is not set once and forgotten.
+
+**`CMakeUserPresets.json`** — shortcuts to configure and build without retyping options (Debug/Release, OS, architecture). Luthier generates a full set; manually, you compose it yourself.
+
+### Day-to-day CMake maintenance
+
+| Situation | Typical action |
+|-----------|----------------|
+| New class / `.cpp` | Add the file to the source list |
+| New resource (image, font) | Update `juce_add_binary_data` or equivalent |
+| New JUCE module | Add `juce::juce_xxx` in `target_link_libraries` |
+| Custom build option | Add commented `option()` or `set()` |
+
+Then **reconfigure** CMake (often automatic with CMake Tools).
+
+Unlike Projucer, your **source files are never overwritten** by reconfiguration — only the build cache is updated.
+
+### If you are comfortable with the Terminal and command-line
+
+CMake is fully driven from the CLI:
+
+```bash
+cmake --preset macos-debug-arm64      # configure
+cmake --build --preset macos-debug-arm64   # build
+```
+
+A minimal editor + Terminal is enough if you accept less C++ autocompletion (without `compile_commands.json`) and command-line debugging (`lldb`/`gdb`). Most developers prefer an IDE or enriched editor that *consumes* the CMake files.
+
+**Who maintains CMake over time?**
+
+| Context | Approach |
+|---------|----------|
+| **Agentic IDE** (Cursor, Antigravity, Claude Code…) | AI updates `CMakeLists.txt` on request ("add this class to the build") |
+| **Classic IDE** (VS Code + CMake Tools, CLion, Xcode…) | You edit `CMakeLists.txt` directly |
+
+Both approaches are valid; the difference is *who* types the changes.
+
+---
+
+## 6. Luthier scope and handoff to the IDE
+
+### Why Luthier exists
+
+Starting a JUCE/CMake project **correctly configured** requires many decisions in the first minute: GarageBand-compatible plugin codes, multi-OS presets, formats, copy-to-system-folder options, C++ standard… Luthier condenses all of that into a **form** inspired by Projucer and produces a native CMake project directly.
+
+### What Luthier does — and does not
+
+| ✅ Luthier | ❌ Luthier does not |
+|-----------|---------------------|
+| Generates the **starter project** once | Reopen and reconfigure an existing project |
+| Sets up CMake + presets + base sources | Manage the source tree as development progresses |
+| Writes `.luthier.json` as an archive of initial metadata | Cleanly merge a complex `CMakeLists.txt` |
+| Accelerates **day zero** | Replace Projucer for every scenario |
+
+Building a "CMake Projucer" that reopens, edits characteristics, and resynchronizes the IDE **without breaking anything** would require merge mechanisms and protected zones in CMake — a major investment, comparable to community tools like [FRUT](https://github.com/McMartin/FRUT), plus a GUI layer. For an IDE- or AI-centred workflow, the effort/benefit ratio is not there.
+
+Projucer reminder: every configuration or source-list change goes back through the application. With Luthier + CMake, **the source list and config evolve in the IDE** (or via AI), not in an external form.
+
+### Where Luthier stops, development begins
+
+```mermaid
+flowchart LR
+  subgraph Luthier
+    A[Form] --> B[Generate Project]
+  end
+  subgraph Your environment
+    B --> C[Sources in Source/]
+    B --> D[Initial CMakeLists.txt]
+    C --> E[Edit + build]
+    D --> E
+    E --> F[CMake evolves with the project]
+  end
+```
+
+1. **Generate Project** writes the initial structure to disk.
+2. Your **sources** live in `Source/` (and elsewhere) — created **from your IDE**, freely.
+3. Your **`CMakeLists.txt` evolves** — by you, or by AI in an agentic IDE.
+4. Do **not** run Generate again on a developed project (except intentional session regenerate — see [§16.3](#163-session-regenerate-same-app-session)): it would overwrite accumulated work.
+5. **Reconfigure CMake** when the build description changes.
+
+### Working with an agentic IDE or AI
+
+In Cursor, Antigravity, or Claude Code, an instruction like:
+
+> *"Create class `FooBar` in `Source/Core/` and add it to the build"*
+
+typically causes: creation of `.h`/`.cpp`, update of the source list in `CMakeLists.txt`, project reconfiguration. That is **smoother** than returning to a generator — especially when the project has hundreds of files, BinaryData blocks, tests, or post-build hooks.
+
+The `.luthier.json` file remains a **snapshot** of initial choices (name, codes, paths…). Useful as reference for you or for AI; Luthier does not read it back.
+
+Manual `CMakeLists.txt` management remains fully possible — it is the standard JUCE/CMake community workflow.
+
+### Which path to choose?
+
+| Criterion | Projucer + native IDE | Manual CMake | **Luthier → CMake** |
+|-----------|----------------------|--------------|---------------------|
+| Getting started | Fast | Slow | **Fast** |
+| Cursor / agentic IDE | No (natively) | Yes | **Yes** |
+| Multi-IDE / CI | Limited | Yes | **Yes** |
+| Sources over time | From Projucer | From IDE | **From IDE** |
+| Reconfigure later | Via Projucer | Edit CMake | **Edit CMake / AI** |
+
+---
+
+## 7. Your first project in minutes
+
+From zero to a compiling Standalone app — steps in order.
+
+```mermaid
+flowchart LR
+  A[Install JUCE] --> B[Set Preferences]
+  B --> C[Generate Project]
+  C --> D[Open in Cursor / VS Code]
+  D --> E[CMake: Build]
+  E --> F[Run Standalone]
+```
+
+**Step 0 — Install JUCE (once per machine)**
+
+1. Download JUCE from [juce.com](https://juce.com) or clone [github.com/juce-framework/JUCE](https://github.com/juce-framework/JUCE).
+2. Place the folder in a stable location:
+   - macOS: `/Applications/JUCE`
+   - Windows: `C:/Program Files/JUCE`
+   - Linux: `/usr/local/JUCE`
+
+**Step 1 — Launch Luthier and set Preferences**
+
+1. Open Luthier → **Preferences** tab.
+2. Set **Manufacturer** (e.g. `My Studio`).
+3. Under **Workspace**, for **your current OS**:
+   - **Destination folder** → **Choose…** → pick a parent folder (e.g. `~/Documents/Plugins`).
+   - **JUCE directory** → **Choose…** → select the JUCE folder from step 0.
+4. Leave AU, VST3, and Standalone checked — **Standalone** is the simplest first test.
+
+**Step 2 — Generate the project**
+
+1. **Project** tab → **Project name**: `MyFirstPlugin`.
+2. Click **Generate** next to **Plugin code**.
+3. Click **Generate Project** — the status bar confirms the path.
+
+**Step 3 — Build (Cursor or VS Code)**
+
+1. Install [Cursor](https://cursor.com) or [VS Code](https://code.visualstudio.com) + **CMake Tools** extension.
+2. **File → Open Folder** → open the generated `MyFirstPlugin` folder.
+3. Wait for CMake configuration; pick a preset:
+   - macOS Apple Silicon: `macos-debug-arm64`
+   - Windows: `windows-debug`
+   - Linux: `linux-debug`
+4. Build: **Ctrl+Shift+B** / **Cmd+Shift+B**, or command palette → **CMake: Build**.
+
+**Step 4 — Test**
+
+The **Standalone** format produces an `.app`, `.exe`, or binary you can run directly — no DAW required. Typical path: `Builds/…/Standalone/` (details in the project's `README.md`).
+
+**Other IDEs** — Xcode and Visual Studio work too; the generated `README.md` also documents Terminal commands. The `.vscode/` folder and `.cursorrules` file are optional.
+
+**If you get stuck** — verify **JUCE directory**, CMake 3.22+, then [§21](#21-messages-errors-and-troubleshooting).
+
+---
+
+## 8. Installing and running Luthier
+
+Choose the path that matches how you use Luthier. If you received an installer or archive, prefer the standalone app. If you work in the Luthier repository itself, follow the developer setup.
+
+Luthier runs on **Windows**, **macOS**, and **Linux** — from source (Python + PySide6) or as a **standalone app** (PyInstaller). The interface is identical; only installation differs.
 
 ### From source (developers)
 
-This path requires Python 3.11+ and a virtual environment. See [CONTRIBUTING.md](../CONTRIBUTING.md) in the repository for full setup. In short:
+This path requires Python 3.11+ and a virtual environment. See [CONTRIBUTING.md](../../CONTRIBUTING.md) in the repository for full setup. In short:
 
 ```bash
 python3 -m venv .venv
@@ -123,27 +407,27 @@ pip install -r requirements-dev.txt
 
 ### Standalone app (end users)
 
-Download or build the bundle for your system, then launch the app like any native application — no Python installation required on the machine. Project templates and GUI libraries are bundled in the distributed folder — see [§17](#17-using-the-standalone-app) for platform-specific details.
+Download or build the bundle for your system, then launch the app like any native application — no Python installation required on the machine. Project templates and GUI libraries are bundled in the distributed folder — see [§22](#22-using-the-standalone-app) for platform-specific details.
 
 ---
 
-## 4. The main window
+## 9. The main window
 
-Luthier’s interface is deliberately simple: one tab per major task, a central form, and action buttons at the bottom. Take a moment to locate the four areas below. They come back throughout this manual.
+Luthier's interface is deliberately simple: one tab per major task, a central form, and action buttons at the bottom. Take a moment to locate the four areas below. They come back throughout this manual.
 
 When Luthier opens, you see:
 
 ```
 ┌──────────────────────────────────────────────────┐
-│  Project │ Preferences │ Templates │ About       │  ← 1. Tab bar
+│  Project │ Preferences │ Templates │ About       │  ← Tab bar
 ├──────────────────────────────────────────────────┤
 │                                                  │
-│              Active tab content                  │  ← 2. Scrollable form or editor
+│              Active tab content                  │  ← Scrollable form or editor
 │                                                  │
 ├──────────────────────────────────────────────────┤
-│        Status message (centred, full width)      │  ← 3. Dedicated status bar
+│        Status message (centred, full width)      │  ← Dedicated status bar
 ├──────────────────────────────────────────────────┤
-│          [Action buttons for this tab]           │  ← 4. Bottom action bar
+│          [Action buttons for this tab]           │  ← Action bar
 └──────────────────────────────────────────────────┘
 ```
 
@@ -151,7 +435,7 @@ When Luthier opens, you see:
 
 | Tab | Purpose |
 |-----|---------|
-| **Project** | Configure the JUCE project you are working on right now. |
+| **Project** | Configure the JUCE project you are working on. |
 | **Preferences** | Edit global defaults that pre-fill new projects. |
 | **Templates** | View and customize the C++ / `.gitignore` templates used at generation time. |
 | **About** | Credits, version, and links. |
@@ -185,11 +469,11 @@ Luthier remembers window size and maximized state between sessions. On **macOS**
 
 ---
 
-## 5. Three kinds of settings for your JUCE projects
+## 10. Three kinds of settings for your JUCE projects
 
 The most common source of confusion for new users is mixing up **the current JUCE project**, **default values**, and **starter source code**. Luthier keeps these three areas in separate tabs. The table below summarises the logic.
 
-Understanding this distinction answers most questions like “I changed Preferences — why didn’t my Project tab update?”
+Understanding this distinction answers most questions like "I changed Preferences — why didn't my Project tab update?"
 
 | Area | Tab | Scope | Answers the question |
 |------|-----|-------|----------------------|
@@ -201,13 +485,13 @@ Understanding this distinction answers most questions like “I changed Preferen
 
 - Editing **Preferences** does **not** change the **Project** tab until you click **Create New Project** (or restart the app for the initial population).
 - **Generate Project** never writes to `preferences.json`.
-- Customizations on the **Templates** tab apply on every **Generate Project**. However, **Export Preferences…** only exports the **Preferences** profile. Template overrides stay in Luthier’s `templates/` config folder (see [§13](#13-where-your-data-is-stored)). Copy them separately when you move machines.
+- Customizations on the **Templates** tab apply on every **Generate Project**. However, **Export Preferences…** only exports the **Preferences** profile. Template overrides stay in Luthier's `templates/` config folder (see [§18](#18-where-your-data-is-stored)). Copy them separately when you move machines.
 
 In short: **Preferences** and **Templates** prepare the future. **Project** describes the JUCE project you are working on *right now*. Generation reads **Project** (and templates) only — never the other way around.
 
 ---
 
-## 6. First launch
+## 11. First launch
 
 On the very first start, Luthier initialises a local profile with sensible factory defaults. You can generate a project right away, but spending a few minutes in **Preferences** (manufacturer, paths, JUCE) will save time on every JUCE project after that.
 
@@ -238,23 +522,21 @@ On the very first start, Luthier initialises a local profile with sensible facto
 
 ### Recommended first steps
 
-Here is a simple sequence to confirm everything is in place — from the Luthier form to the first project folder on disk:
+1. Open **Preferences** and set your **Manufacturer**, codes, and **Workspace** paths.
+2. Switch to **Project**, enter a **Project name**, then click **Generate Project**.
+3. Open the generated folder in your IDE and follow the project's `README.md`.
 
-1. Open **Preferences** and set your **Manufacturer**, codes, and **Workspace** paths (**Destination folder** and **JUCE directory** for each OS you use).
-2. Switch to **Project**, enter a **Project name**, and click **Generate Project**.
-3. Open the generated folder in your IDE. Read the project's `README.md` for prerequisites and build commands, then run CMake configure + build.
-
-If generation succeeds but the build fails, the issue is usually on the toolchain side (CMake, compiler, JUCE path) — the generated `README.md` is the right place to start troubleshooting.
+For a full step-by-step guide, see [§7 — Your first project in minutes](#7-your-first-project-in-minutes).
 
 ---
 
-## 7. Project tab
+## 12. Project tab
 
-This is where you describe **one** JUCE project: its name, identity, formats, compilation options, and where binaries go after a build. Think of this tab as the “identity sheet” for the project Luthier will write to disk.
+This is where you describe **one** JUCE project: its name, identity, formats, compilation options, and where binaries go after a build. Think of this tab as the "identity sheet" for the project Luthier will write to disk.
 
 The tab is one scrollable page divided into sections. Fields marked with an asterisk (*) are required. Luthier flags errors as you type and keeps **Generate Project** disabled until the form is valid.
 
-### 7.1 Project Info
+### 12.1 Project Info
 
 This section covers the plugin **identity**: names, version, manufacturer, and codes. Manufacturer and plugin codes may look cryptic at first: they matter mainly for macOS hosts (Audio Unit) and must follow strict rules — hence the **Generate** button and the table below.
 
@@ -271,9 +553,9 @@ This section covers the plugin **identity**: names, version, manufacturer, and c
 | **Plugin code** * | Yes | GarageBand-compatible AU code: first **uppercase** letter, then three **lowercase** letters or digits (e.g. `Mypl`, `Dem0`). `DEMO` is reserved by Apple. Same **Generate** button as manufacturer code. |
 | **Bundle ID** | — | Read-only. Computed from manufacturer + project name. |
 
-Where to create the project and where JUCE lives are configured in [§7.6 Workspace](#76-workspace), not here.
+Where to create the project and where JUCE lives are configured in [§12.6 Workspace](#126-workspace), not here.
 
-### 7.2 Plugin Type
+### 12.2 Plugin Type
 
 The plugin type determines how JUCE wires audio and MIDI inputs/outputs in the generated processor. You can pick only **one** at a time. Change it before the first generation if needed, or regenerate after editing.
 
@@ -285,7 +567,7 @@ Pick exactly one:
 | **Audio Effect** | Processes incoming audio. |
 | **MIDI Effect** | Processes MIDI only — no audio I/O. |
 
-### 7.3 Plugin Characteristics
+### 12.3 Plugin Characteristics
 
 Below **Plugin Type**, the **Plugin Characteristics** section controls how JUCE wires audio/MIDI buses in the generated `CMakeLists.txt` and `PluginProcessor.cpp`. Options are **preset-constrained** per plugin type — unavailable checkboxes stay disabled.
 
@@ -308,7 +590,7 @@ Below **Plugin Type**, the **Plugin Characteristics** section controls how JUCE 
 
 Generated bus layout reflects these choices — not the plugin type alone.
 
-### 7.4 Formats
+### 12.4 Formats
 
 Formats define **what shape** your JUCE project is built as: a DAW module (AU, VST3) or a desktop app (Standalone). Check at least the one you plan to test first. You can add others later with **Regenerate Project** in the **same Luthier session** (same path), or by editing `CMakeLists.txt` manually after generation.
 
@@ -322,7 +604,7 @@ If none are checked, **Generate Project** stays disabled and a hint appears unde
 
 **Note:** AU is only built on macOS. On Windows and Linux, CMake drops that format at build time. Leaving the checkbox enabled keeps AU in the project for when you open it on a Mac later without regenerating.
 
-### 7.5 Compilation
+### 12.5 Compilation
 
 These settings are passed through to the generated `CMakeLists.txt`. For a first project, the defaults (C++17, empty fields) are usually fine. Come back here when you need preprocessor flags or extra header search paths.
 
@@ -336,7 +618,7 @@ These settings are passed through to the generated `CMakeLists.txt`. For a first
 
 **Header search paths** — extra header folders the compiler should know about, **relative to the project root** (e.g. `libs/my-sdk/include`). Luthier injects them as `target_include_directories`.
 
-### 7.6 Workspace
+### 12.6 Workspace
 
 Before you generate, Luthier needs to know **where on disk** this project lives and **where JUCE is installed** — on **each** operating system you might use. **Workspace** sits at the bottom of the form, just above **Artefacts**: first you configure the plugin, then your local folders, then optional artefact copy targets.
 
@@ -357,7 +639,7 @@ Destination folder *
 
 The same pattern applies to **JUCE directory** under **Workspace**.
 
-The row for **your current OS** has **Choose…** (native folder picker). The other two rows are typed or pasted manually — a picker on your machine cannot produce a valid path for another OS. Layout: **label → Choose… (host only) → text field**. Paths are normalized to forward slashes — see [§15 Path normalization](#15-path-normalization).
+The row for **your current OS** has **Choose…** (native folder picker). The other two rows are typed or pasted manually — a picker on your machine cannot produce a valid path for another OS. Layout: **label → Choose… (host only) → text field**. Paths are normalized to forward slashes — see [§20 Path normalization](#20-path-normalization).
 
 **At generation time**, only the **host OS** values are used. The other paths are stored in `.luthier.json` as a snapshot for reference on other machines — edit host paths manually in the sidecar or Preferences before a **new** generate if needed.
 
@@ -371,7 +653,7 @@ The row for **your current OS** has **Choose…** (native folder picker). The ot
 
 Configure these once in **Preferences → Workspace**, **Export Preferences…**, then import on each machine. Per-project overrides live in **Project → Workspace** and are written to `.luthier.json` at generate.
 
-### 7.7 Artefacts
+### 12.7 Artefacts
 
 After each successful build, you often want to **find the built binary** (plugin or Standalone) without digging through `Builds/` folders. This section configures two complementary mechanisms: copy to DAW scan locations, and copy to a central folder you define.
 
@@ -412,7 +694,7 @@ A practical setup is to point each path at the **same logical folder** inside a 
 | Windows | `C:\Users\you\Dropbox\Dev\Artefacts\JUCE` |
 | Linux | `/home/you/Dropbox/Dev/Artefacts/JUCE` |
 
-After each build, Luthier copies binaries into **platform subfolders** under that root: `macOS/` (with an architecture subfolder such as `ARM/` or `Universal/`), `Windows/`, and `Linux/`. When you build the same project on several machines, sync merges those branches into one tree — useful for archiving or preparing a release without manual sorting:
+After each successful build, **CMake** (via the generated project, not Luthier) may copy binaries into **platform subfolders** under that root: `macOS/` (with an architecture subfolder such as `ARM/` or `Universal/`), `Windows/`, and `Linux/`. When you build the same project on several machines, sync merges those branches into one tree — useful for archiving or preparing a release without manual sorting:
 
 ```
 Dev/Artefacts/JUCE/
@@ -427,11 +709,11 @@ Dev/Artefacts/JUCE/
     └── VST3/
 ```
 
-Typical workflow: create the project on one machine and set the artefact path with the `Choose…` button. Clone the repository on your other systems, edit host paths in `.luthier.json` or **Preferences** if needed, and build with CMake on each OS.
+Typical workflow: create the project on one machine and set the artefact path with the **Choose…** button. Clone the repository on your other systems, edit host paths in `.luthier.json` or **Preferences** if needed, and build with CMake on each OS.
 
 Artefact settings belong to **this project**. They may differ from your global Preferences defaults.
 
-### 7.8 Project actions
+### 12.8 Project actions
 
 Two buttons structure project workflow in Luthier: start from a blank form, or write the displayed configuration to disk. Confusing them with IDE editing is a frequent source of mistakes.
 
@@ -477,15 +759,15 @@ After a successful generation, Luthier remembers the **host** destination parent
 
 ---
 
-## 8. Preferences tab
+## 13. Preferences tab
 
 The **Preferences** tab saves you from retyping the same information for every new JUCE project: default manufacturer, codes, **Workspace** paths, default formats, and so on. It is **not** where you name a specific project. That stays in **Project**.
 
-### 8.1 Sections
+### 13.1 Sections
 
 At the top of the tab, **Luthier appearance** lets you pick one of **twelve preset accent colours** for the Luthier interface. This is the **only** accent picker in the app — there is none on the **Project** tab. The choice is saved immediately to `preferences.json` (`accentColor`) and included in **Export Preferences…** / **Import Preferences…**. It is **not** written to `.luthier.json`.
 
-Changing the accent updates the theme on **all tabs** immediately. Accent colour affects Luthier’s UI only — not generated JUCE files.
+Changing the accent updates the theme on **all tabs** immediately. Accent colour affects Luthier's UI only — not generated JUCE files.
 
 | Section | Contents |
 |---------|----------|
@@ -498,7 +780,7 @@ Changing the accent updates the theme on **all tabs** immediately. Accent colour
 
 There are **no** project-specific fields here (no project name, version, or bundle ID). If you edit Preferences while a project form is already displayed in **Project**, it is normal that the Project screen does not change — click **Create New Project** to see the new defaults on a fresh form.
 
-### 8.2 Auto-save
+### 13.2 Auto-save
 
 Unlike many applications, Luthier has no **Save** button in Preferences: every valid field is **saved immediately** to `preferences.json`. You can close the app without worrying about forgetting to save, as long as the field shows no error.
 
@@ -506,7 +788,7 @@ When a field saves, a small **"Saved"** badge flashes briefly on that field (usi
 
 Invalid fields block saving until corrected.
 
-### 8.3 Import Preferences…
+### 13.3 Import Preferences…
 
 Import **replaces** your entire local profile with a previously exported JSON file — useful for restoring a backup or switching between profiles (clients, machines, studios).
 
@@ -518,7 +800,7 @@ Import **replaces** your entire local profile with a previously exported JSON fi
 
 If the file is invalid, an error dialog appears and your previous profile is kept.
 
-### 8.4 Export Preferences…
+### 13.4 Export Preferences…
 
 Export creates a **copy** of your current preferences in a file you choose. The local `preferences.json` is not modified. You can export several named profiles (`client-a.json`, `client-b.json`, `home.json`, etc.) and reimport them later.
 
@@ -528,7 +810,7 @@ Use this to back up profiles or share them between machines (one file per client
 
 Export is blocked if any preference field is currently invalid.
 
-### 8.5 Multi-client workflow
+### 13.5 Multi-client workflow
 
 If you develop for several brands or clients, export one profile per context and import it before each new JUCE project. You keep manufacturer codes, paths, metadata, and a **distinct accent colour** consistent without retyping everything — and you can spot the active client at a glance from the UI colours.
 
@@ -541,9 +823,9 @@ The current **Project** form stays unchanged until you click **Create New Projec
 
 ---
 
-## 9. Templates tab
+## 14. Templates tab
 
-Templates are the **model source files** Luthier copies into every new project: audio processor (`PluginProcessor.h/.cpp`), editor UI (`PluginEditor.h/.cpp`), `.gitignore`. Customise them once here if you want all future JUCE projects to start from your own code skeleton (usual includes, class layout, Git rules, etc.).
+Templates are the **model source files** Luthier copies into every new project: audio processor (`PluginProcessor.h/.cpp`), editor UI (`PluginEditor.h/.cpp`), `.gitignore`. Customise them once here if you want all future JUCE projects to start from **your own starter code** (usual includes, class layout, Git rules, etc.).
 
 Templates are **global**: the same files are used for **every** project you generate.
 
@@ -551,8 +833,8 @@ Templates are **global**: the same files are used for **every** project you gene
 
 | File | Role |
 |------|------|
-| `PluginProcessor.h` / `.cpp` | Main audio/MIDI processor skeleton |
-| `PluginEditor.h` / `.cpp` | Plugin editor UI skeleton |
+| `PluginProcessor.h` / `.cpp` | Main audio/MIDI processor starter template |
+| `PluginEditor.h` / `.cpp` | Plugin editor UI starter template |
 | `.gitignore` | Git ignore rules for new projects |
 
 Select a file from the dropdown, edit in the syntax-highlighted editor, then **Save override** to persist your version. Until you save the override, your edits will not be used at generation time. Remember **Save override** before leaving the tab.
@@ -570,13 +852,13 @@ Status line under the editor:
 - *"Override active — used for new projects."* when you have a custom version.
 - *"Showing the built-in default."* otherwise.
 
-Overrides are stored in the `templates/` subfolder of Luthier’s config directory, **separate from** `preferences.json`. Importing preferences does **not** import template overrides. If you move to another machine, export/import prefs and copy or recreate your template overrides if needed (see [§13](#13-where-your-data-is-stored)).
+Overrides are stored in the `templates/` subfolder of Luthier's config directory, **separate from** `preferences.json`. Importing preferences does **not** import template overrides. If you move to another machine, export/import prefs and copy or recreate your template overrides if needed (see [§18](#18-where-your-data-is-stored)).
 
 If you customize `PluginProcessor.cpp`, retain the `@CREATE_BUSES_PROPERTIES_BODY@` token unless you replace bus creation entirely — Luthier injects generated bus properties at that placeholder during **Generate Project**.
 
 ---
 
-## 10. About tab
+## 15. About tab
 
 Informational tab: Luthier version, credits, and useful links. No effect on your projects.
 
@@ -584,11 +866,11 @@ Use the e-mail and GitHub links to contact the author and visit their GitHub pag
 
 ---
 
-## 11. Typical workflows
+## 16. Typical workflows
 
 The scenarios below cover the most common combinations. Each assumes Luthier is installed and you have at least set **Workspace** paths in **Preferences** (host **JUCE directory** at minimum).
 
-### 11.1 Brand-new JUCE project (one JUCE install)
+### 16.1 Brand-new JUCE project (one JUCE install)
 
 The most common case: one JUCE SDK per machine, one destination folder, several JUCE projects in a row with the same defaults.
 
@@ -599,7 +881,7 @@ The most common case: one JUCE SDK per machine, one destination folder, several 
 
 For another JUCE project: **Create New Project** → adjust → **Generate Project**.
 
-### 11.2 JUCE project with a specific JUCE version
+### 16.2 JUCE project with a specific JUCE version
 
 Useful when this project must stay on a JUCE branch or version different from your other projects. The SDK path is stored **in the project** (per OS in **Workspace**), not only in Preferences.
 
@@ -607,9 +889,9 @@ Useful when this project must stay on a JUCE branch or version different from yo
 2. Change the **host** **JUCE directory** row in **Workspace** on the **Project** tab to the branch or copy you need.
 3. **Generate Project** — the SDK path is stored in the project and the companion file `.luthier.json`.
 
-### 11.3 Session regenerate (same app session)
+### 16.3 Session regenerate (same app session)
 
-You generated successfully **in this session** and want to change the form (characteristics, version, paths) and rewrite the scaffold:
+You generated successfully **in this session** and want to change the form (characteristics, version, paths) and **regenerate the project**:
 
 1. Edit fields on **Project**.
 2. Click **Generate Project** again → **Regenerate Project** confirm dialog (default **No**).
@@ -617,16 +899,16 @@ You generated successfully **in this session** and want to change the form (char
 
 After **app restart**, the same folder is **blocked** (non-empty guard) — delete the folder manually or use a different project name/destination.
 
-### 11.4 After generation (continue in IDE)
+### 16.4 After generation (continue in IDE)
 
-Once the skeleton exists, Luthier’s job is done for that project:
+Once the **project is generated**, Luthier's job is done for it:
 
 1. Open the project folder in your IDE or Cursor.
 2. Edit `Source/`, `CMakeLists.txt`, and other files as needed.
 3. Reconfigure and build with CMake presets (see the generated `README.md`).
-4. Do **not** run **Generate Project** on an evolved project unless you intend a full replace — and only **in the same session** with confirm (see §11.3).
+4. Do **not** run **Generate Project** on an evolved project unless you intend a full replace — and only **in the same session** with confirm (see §16.3).
 
-### 11.5 Switch client profile between projects
+### 16.5 Switch client profile between projects
 
 Typical flow for a freelance or multi-brand developer: import the right JSON (defaults **and accent colour**), create a fresh form, generate.
 
@@ -636,7 +918,7 @@ Typical flow for a freelance or multi-brand developer: import the right JSON (de
 
 Your previous **Project** form is untouched until **Create New Project**.
 
-### 11.6 Customize starting source code
+### 16.6 Customize starting source code
 
 Do this once before a batch of generations: your template overrides will be injected into **all** new projects generated afterwards.
 
@@ -644,18 +926,18 @@ Do this once before a batch of generations: your template overrides will be inje
 2. Edit → **Save override**.
 3. **Generate Project** on a new project — your override is used.
 
-### 11.7 Same project on macOS, Windows, and Linux
+### 16.7 Same project on macOS, Windows, and Linux
 
 For a Git-shared project built on several machines:
 
 1. On your main machine, fill all six **Workspace** paths in **Preferences** (or on **Project** after **Create New Project**), then **Export Preferences…** if you reuse the same layout across projects.
 2. **Generate Project** and push the repo (`.luthier.json` carries all six paths as reference metadata).
 3. On each other OS: `git clone` → edit host **JUCE directory** (and destination if needed) in `.luthier.json` or **Preferences** before a **new** generate → build with CMake on each platform.
-4. Optionally set **Artefacts** paths the same way (see [§7.7](#77-artefacts)).
+4. Optionally set **Artefacts** paths the same way (see [§12.7](#127-artefacts)).
 
 ---
 
-## 12. What Luthier generates
+## 17. What Luthier generates
 
 When you click **Generate Project**, Luthier creates a folder named after **Project name** inside the **host** **Destination folder** from **Workspace**. The example below shows a typical layout. Exact files depend on the formats checked and the target platform.
 
@@ -678,9 +960,9 @@ The generated `README.md` in the project folder documents prerequisites (CMake, 
 
 ---
 
-## 13. Where your data is stored
+## 18. Where your data is stored
 
-Luthier splits data between **application configuration** (defaults, templates, window state) and **each generated project folder**. Knowing what lives where helps with backups, moving machines, or understanding why a setting “comes back” after an action.
+Luthier splits data between **application configuration** (defaults, templates, window state) and **each generated project folder**. Knowing what lives where helps with backups, moving machines, or understanding why a setting "comes back" after an action.
 
 | Location | Contents | Changed by |
 |----------|----------|------------|
@@ -705,7 +987,7 @@ You will find `preferences.json`, `app_state.json`, and the `templates/` subfold
 
 ---
 
-## 14. Field validation rules
+## 19. Field validation rules
 
 Luthier validates fields **as you type** rather than only when you click Generate: errors appear next to the field and **Generate Project** stays greyed out until the form is fully valid. This is guidance, not an arbitrary lock. Fix the flagged field and the button re-enables.
 
@@ -729,7 +1011,7 @@ Optional text fields (Copyright, Website, E-mail, preprocessor defs) accept any 
 
 ---
 
-## 15. Path normalization
+## 20. Path normalization
 
 On Windows, paths are often written with backslashes (`\`). On macOS and Linux, with forward slashes (`/`). So that your projects and config files stay readable and portable across machines, Luthier **normalises** display and storage to forward slashes, without changing what the path means on your disk.
 
@@ -755,11 +1037,11 @@ Unix-style paths are kept as-is (except trimming). Normalization does **not** re
 
 ---
 
-## 16. Messages, errors, and troubleshooting
+## 21. Messages, errors, and troubleshooting
 
 If something does not work as expected, start with the **status line** (accent-coloured or red message) and the hints next to form fields. Most blockers come from a missing required field, an invalid path, or a **non-empty destination folder** (including hidden files such as `.git/`).
 
-Global operation feedback (Generate, Create New Project, Import/Export Preferences) appears in the **dedicated status bar** above the action buttons — see [§4 Status line](#status-line). The table below lists typical messages.
+Global operation feedback (Generate, Create New Project, Import/Export Preferences) appears in the **dedicated status bar** above the action buttons — see [§9 Status line](#status-line). The table below lists typical messages.
 
 ### Status messages (success)
 
@@ -784,17 +1066,17 @@ Global operation feedback (Generate, Create New Project, Import/Export Preferenc
 
 ### Tips
 
-A few pointers when behaviour surprises you. Most follow the logic in [§5](#5-three-kinds-of-settings-for-your-juce-projects) rather than an application fault.
+A few pointers when behaviour surprises you. Most follow the logic in [§10](#10-three-kinds-of-settings-for-your-juce-projects) rather than an application fault.
 
-- **Plugin missing in GarageBand** — check that manufacturer and plugin codes follow the GarageBand casing rules ([§14](#14-field-validation-rules)). Use **Generate** to replace invalid codes.
+- **Plugin missing in GarageBand** — check that manufacturer and plugin codes follow the GarageBand casing rules ([§19](#19-field-validation-rules)). Use **Generate** to replace invalid codes.
 - **"Generate Project" is greyed out** — check required fields (*), formats, and artefact paths when central copy is on.
-- **Generate blocked on existing folder** — expected after app restart or when the destination is not empty. Delete the folder, pick another name, or use session regenerate (same session only — §11.3).
+- **Generate blocked on existing folder** — expected after app restart or when the destination is not empty. Delete the folder, pick another name, or use session regenerate (same session only — §16.3).
 - **Preferences change not on Project tab** — expected for form fields. Click **Create New Project** to apply new defaults (accent included).
 - **Accent colour** — set only on **Preferences** (**Luthier appearance**); stored in `preferences.json` only, not in `.luthier.json`.
 
 ---
 
-## 17. Using the standalone app
+## 22. Using the standalone app
 
 Besides running from Python sources, Luthier can be distributed as a **standalone application** — convenient if you do not want to install Python or clone the repository. The interface behaves the same. Only installation and the install folder differ.
 
@@ -833,6 +1115,34 @@ Exit code `0` means the bundled templates are reachable.
 
 ---
 
+## 23. Further reading
+
+### JUCE documentation
+
+- [JUCE documentation](https://juce.com/learn/documentation)
+- [JUCE tutorials](https://juce.com/learn/tutorials)
+- [CMake API (GitHub)](https://github.com/juce-framework/JUCE/blob/master/docs/CMake%20API.md)
+- [CMake examples](https://github.com/juce-framework/JUCE/tree/master/examples/CMake)
+
+### Related tools
+
+- [FRUT / Jucer2CMake](https://github.com/McMartin/FRUT) — `.jucer` → CMake conversion (community approach, different from Luthier)
+- [CMake — official site](https://cmake.org/)
+
+### Glossary
+
+| Term | Meaning |
+|------|---------|
+| **DAW** | *Digital Audio Workstation* — Logic Pro, Reaper, Ableton… |
+| **VST3 / AU** | Audio plugin formats (Steinberg / Apple) |
+| **Standalone** | Plugin build that runs as a self-contained application |
+| **Preset (CMake)** | Named shortcut to configure/build with a fixed set of options |
+| **SDK** | *Software Development Kit* — here, the full JUCE folder |
+| **Sidecar** | Auxiliary file (`.luthier.json`) stored alongside the project |
+| **SSOT** | *Single Source of Truth* — the one authoritative configuration reference |
+
+---
+
 ## Quick reference card
 
 Once you have read the concepts above, use this table to find an action quickly:
@@ -841,7 +1151,7 @@ Once you have read the concepts above, use this table to find an action quickly:
 |------------|---------|
 | Start a fresh JUCE project | **Create New Project** → fill name → **Generate Project** |
 | Continue after generate | Open folder in IDE; edit sources; build with CMake |
-| Regenerate scaffold (same session) | Edit form → **Generate Project** → confirm **Regenerate Project** |
+| Regenerate project (same session) | Edit form → **Generate Project** → confirm **Regenerate Project** |
 | Change default manufacturer / workspace paths | **Preferences** (auto-saves) |
 | Use defaults on a new form | **Create New Project** after editing Preferences |
 | Move prefs to another machine | **Export Preferences…** / **Import Preferences…** |
@@ -849,7 +1159,8 @@ Once you have read the concepts above, use this table to find an action quickly:
 | Custom processor boilerplate | **Templates** → edit → **Save override** |
 | Pin a JUCE version to one project | Set **JUCE directory** (host row) in **Workspace** on **Project** |
 | Build same repo on three OSes | Fill six **Workspace** paths → share via `.luthier.json` + CMake; edit host paths manually per machine |
-| Understand scaffold-only philosophy | [Guide JUCE/CMake/Luthier](juce-cmake-and-luthier-guide.md) |
+| JUCE / CMake / Projucer context | [§2–§6](#2-creating-a-plugin-or-audiomidi-app) |
+| First project step-by-step | [§7 — Your first project in minutes](#7-your-first-project-in-minutes) |
 
 ---
 

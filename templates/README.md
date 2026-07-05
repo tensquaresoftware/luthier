@@ -244,7 +244,7 @@ cmake --preset macos-release-universal && cmake --build --preset macos-release-u
 
 ## After generation
 
-Luthier generates the **initial skeleton only**. Continue development in your IDE or editor:
+Luthier generates the **initial starter project only**. Continue development in your IDE or editor:
 
 1. Edit `Source/`, `CMakeLists.txt`, and other files as your plugin evolves.
 2. Reconfigure and build with CMake when you change build settings (see sections above).

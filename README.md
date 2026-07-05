@@ -1,6 +1,6 @@
 # Luthier
 
-A Projucer-inspired desktop GUI for **one-shot generation** of CMake-based JUCE audio plugin project skeletons.
+A Projucer-inspired desktop GUI for **one-shot generation** of ready-to-build CMake-based JUCE starter projects.
 
 ![Luthier](luthier.png)
 
@@ -11,9 +11,9 @@ A Projucer-inspired desktop GUI for **one-shot generation** of CMake-based JUCE 
 
 > 💛 If you find this project useful, consider [sponsoring its development](https://github.com/sponsors/tensquaresoftware) — every contribution helps keep the work going!
 
-Luthier is a self-contained [PySide6](https://doc.qt.io/qtforpython/) desktop app that generates ready-to-build, CMake-based JUCE plugin projects (AU / VST3 / Standalone): fill a form, validate inline, and generate a complete skeleton once. After generation, continue development in your IDE — Luthier does **not** reload or reopen existing projects. Your defaults live in a persistent preferences file; each generate also writes a **write-only** `.luthier.json` sidecar as metadata for you or AI tools.
+Luthier is a self-contained [PySide6](https://doc.qt.io/qtforpython/) desktop app that generates ready-to-build, CMake-based JUCE plugin projects (AU / VST3 / Standalone): fill a form, validate inline, and generate a complete starter project once. After generation, continue development in your IDE — Luthier does **not** reload or reopen existing projects. Your defaults live in a persistent preferences file; each generate also writes a **write-only** `.luthier.json` sidecar as metadata for you or AI tools.
 
-**Further reading:** [JUCE, CMake & Luthier — guide EN](docs/user/juce-cmake-and-luthier-guide.md) · [Guide FR](docs/user/guide-juce-cmake-et-luthier.md) · [User manual EN](docs/user/user-manual.md) · [Manuel FR](docs/user/manuel-utilisateur.md)
+**Further reading:** [User manual (EN)](docs/user/user-manual.md) · [Manuel utilisateur (FR)](docs/user/manuel-utilisateur.md)
 
 ## Features
 

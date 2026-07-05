@@ -158,7 +158,7 @@ Commits concernés : `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433a
 - [x] `git pull` — dernière révision Linux (`1.2.0`, `LINUX_QA=1`).
 - [x] Ouvrez `.luthier.json` dans l’éditeur : **Version** `1.2.0` ; **Preprocessor defs** contient `LINUX_QA=1`.
 - [x] Ajustez **JUCE directory** ligne **macOS** dans `.luthier.json` ou **Preferences** si besoin → build CMake (pas d’Open Luthier).
-- [x] **Create New Project** dans Luthier pour une **nouvelle** génération si vous devez regénérer le squelette (dossier vide ou session regenerate).
+- [x] **Create New Project** dans Luthier pour une **nouvelle** génération si vous devez regénérer le projet de démarrage (dossier vide ou session regenerate).
 
 ### 4.2 — Vérifications finales (3 OS, ~10 min/OS ou 1 OS + spot-check)
 

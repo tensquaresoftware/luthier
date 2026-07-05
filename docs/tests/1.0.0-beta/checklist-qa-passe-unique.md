@@ -12,7 +12,7 @@
 
 ## Epic 9 — Fumée scaffold-only (v1.0.0 — 2026-07-04)
 
-> **Changement produit :** plus de bouton **Open Project…**. Luthier génère le squelette une fois ; `.luthier.json` est **écrit seulement** (jamais relu dans le formulaire).
+> **Changement produit :** plus de bouton **Open Project…**. Luthier génère le projet de démarrage une fois ; `.luthier.json` est **écrit seulement** (jamais relu dans le formulaire).
 
 ### S9.1 — Garde dossier non vide (session fraîche)
 
@@ -179,7 +179,7 @@
 
 - [ ] `git clone` → éditez **JUCE directory** Windows dans `.luthier.json` → **build CMake** (pas d’Open Luthier).
 - [ ] Vérifiez metadata dans `.luthier.json` (version `1.1.0`, **Display name** `Voyage Cross QA Windows` si commitée sur machine 1) ; build + chargement VST3 depuis dossiers système et artefacts.
-- [ ] *(Optionnel — nouvelle génération Luthier)* Dossier **vide** + **Create New Project** → regénérez le squelette si vous devez changer les métadonnées côté Luthier ; sinon éditez `.luthier.json` / `CMakeLists.txt` à la main.
+- [ ] *(Optionnel — nouvelle génération Luthier)* Dossier **vide** + **Create New Project** → regénérez le projet si vous devez changer les métadonnées côté Luthier ; sinon éditez `.luthier.json` / `CMakeLists.txt` à la main.
 
 ### 3.4 — Machine 3 (ex. Linux)
 

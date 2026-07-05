@@ -424,7 +424,7 @@ Code de sortie **0** = templates embarqués OK.
 
 ## Phase D — Fumée Git cross-plateforme (projet généré)
 
-> Valide que le **squelette JUCE** voyage via Git et compile sur chaque OS **sans Luthier Open**. Une seule passe suffit si les Phases A, B et C sont OK.
+> Valide que le **projet JUCE de démarrage** voyage via Git et compile sur chaque OS **sans Luthier Open**. Une seule passe suffit si les Phases A, B et C sont OK.
 
 ### D0 — Préparation
 
@@ -447,7 +447,7 @@ Code de sortie **0** = templates embarqués OK.
 - [ ] Standalone **F5** sans crash ; **VST3** chargeable depuis **système** et **artefacts** (Ableton ou AudioPluginHost).
 - [ ] *(Optionnel)* Modifiez `Source/` ou metadata dans Git → commit → push.
 
-> **Ne pas** utiliser **Generate Project** sur le clone après redémarrage Luthier (dossier non vide). Pour regénérer le squelette entier : dossier vide + nouvelle session Luthier, ou **session regenerate** volontaire sur machine 1.
+> **Ne pas** utiliser **Generate Project** sur le clone après redémarrage Luthier (dossier non vide). Pour regénérer le projet entier : dossier vide + nouvelle session Luthier, ou **session regenerate** volontaire sur machine 1.
 
 ### D3 — Machine 3 (ex. Linux)
 
@@ -518,7 +518,7 @@ Par rapport aux checklists pré–Epic 9, **ne pas refaire** :
 
 ## Références
 
-- [Manuel utilisateur (FR)](../../user/manuel-utilisateur.md) — §11.7 multi-OS, §13 stockage, §17 app autonome
+- [Manuel utilisateur (FR)](../../user/manuel-utilisateur.md) — §16.7 multi-OS, §18 stockage, §22 app autonome
 - [User manual (EN)](../../user/user-manual.md)
 - README du projet généré (`SmokeTest/README.md`) — presets Cursor, dossiers système / artefacts, debugging
 - [Checklist QA passe unique (archive)](../1.0.0-beta/checklist-qa-passe-unique.md)

@@ -14,7 +14,7 @@
 4. Cochez chaque case : `- [ ]` → `- [x]` quand c’est OK.
 5. Notez les problèmes dans la [Grille de suivi](#grille-de-suivi-des-problèmes) en bas.
 
-**Ce que vous testez :** Luthier **génère** des squelettes de **projets JUCE** (plugins VST/AU et applications audio/MIDI Standalone). Luthier **ne compile pas** le plugin à votre place — vous vérifiez surtout l’application Luthier elle-même. Si vous voulez aller plus loin, un build CMake rapide sur chaque OS est un plus (étape optionnelle en fin de chaque bloc).
+**Ce que vous testez :** Luthier **génère** des **projets JUCE de démarrage** (plugins VST/AU et applications audio/MIDI Standalone). Luthier **ne compile pas** le plugin à votre place — vous vérifiez surtout l’application Luthier elle-même. Si vous voulez aller plus loin, un build CMake rapide sur chaque OS est un plus (étape optionnelle en fin de chaque bloc).
 
 ---
 
@@ -504,7 +504,7 @@ Les étapes sont identiques d’un OS à l’autre ; seules les notes spécifiqu
 - [x] `git clone` (ou `git pull` si déjà cloné) du dépôt.
 - [x] Ouvrez `.luthier.json` dans l’éditeur → chemins Workspace ; adaptez **JUCE directory** Windows manuellement si besoin.
 - [x] Build CMake depuis le dossier cloné (pas de rechargement Luthier).
-- [x] Pour **regénérer le squelette** : **Create New Project** dans Luthier + dossier **vide**, ou session regenerate sur la même machine/session.
+- [x] Pour **regénérer le projet** : **Create New Project** dans Luthier + dossier **vide**, ou session regenerate sur la même machine/session.
 
 > *Archive pré-Epic 9 : **Open Project…** / rechargement formulaire — retiré v1.0.0.*
 
@@ -528,7 +528,7 @@ Les étapes sont identiques d’un OS à l’autre ; seules les notes spécifiqu
 - [x] `git pull` — vous devez voir les changements de la machine 2.
 - [x] Éditez `.luthier.json` ou **Preferences** pour le chemin JUCE **Linux** ; build CMake.
 - [x] Onglet **Templates** → override local (commentaire `// Linux QA`) → **Save override** (local à cette installation — normal).
-- [x] Pour regénérer le squelette avec **Version** `1.2.0` et `LINUX_QA=1` : **Create New Project** + generate dans dossier vide, ou session regenerate.
+- [x] Pour regénérer le projet avec **Version** `1.2.0` et `LINUX_QA=1` : **Create New Project** + generate dans dossier vide, ou session regenerate.
 
 ### Cursor
 
@@ -549,7 +549,7 @@ Les étapes sont identiques d’un OS à l’autre ; seules les notes spécifiqu
 - [ ] `git pull`.
 - [ ] Vérifiez `.luthier.json` : **Version** `1.2.0`, **Preprocessor defs** contient `LINUX_QA=1`.
 - [ ] Chemin JUCE **Mac** dans `.luthier.json` ou **Preferences** ; build CMake.
-- [ ] Regénération squelette si nécessaire : session regenerate ou **Create New Project** + dossier vide.
+- [ ] Regénération du projet si nécessaire : session regenerate ou **Create New Project** + dossier vide.
 
 ---
 
