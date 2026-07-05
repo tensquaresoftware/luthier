@@ -109,6 +109,7 @@ def build_stylesheet() -> str:
     check = _icon_url("check.svg", _CHECK_SVG, accent)
     check_disabled = _icon_url("check-disabled.svg", _CHECK_SVG, accent_muted)
     caret = _icon_url("caret.svg", _CARET_SVG, p.TEXT_DIM)
+    caret_muted = _icon_url("caret-muted.svg", _CARET_SVG, p.TEXT_MUTED)
     return f"""
     QWidget {{
         color: {p.TEXT};
@@ -141,6 +142,11 @@ def build_stylesheet() -> str:
         padding: 6px 8px;
     }}
     QComboBox:focus {{ border: 1px solid {accent}; }}
+    QComboBox:disabled {{
+        background: {p.BG_DISABLED};
+        color: {p.TEXT_MUTED};
+        border: 1px solid {p.BG_DISABLED};
+    }}
     QComboBox::drop-down {{
         subcontrol-origin: padding;
         subcontrol-position: center right;
@@ -148,6 +154,7 @@ def build_stylesheet() -> str:
         width: 24px;
     }}
     QComboBox::down-arrow {{ image: url("{caret}"); width: 12px; height: 12px; }}
+    QComboBox:disabled::down-arrow {{ image: url("{caret_muted}"); width: 12px; height: 12px; }}
     QComboBox QAbstractItemView {{
         background: {p.BG_INPUT};
         color: {p.TEXT};
