@@ -143,7 +143,7 @@ def build_stylesheet() -> str:
     }}
     QComboBox:focus {{ border: 1px solid {accent}; }}
     QComboBox:disabled {{
-        background: {p.BG_DISABLED};
+        background: {p.BG_INPUT};
         color: {p.TEXT_MUTED};
         border: 1px solid {p.BG_DISABLED};
     }}
