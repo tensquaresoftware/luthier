@@ -175,14 +175,20 @@ The `_bmad-output/` folder is the BMad planning and implementation artifact stor
 
 [![pytest](https://github.com/tensquaresoftware/luthier/actions/workflows/pytest.yml/badge.svg)](https://github.com/tensquaresoftware/luthier/actions/workflows/pytest.yml)
 
-Every push and pull request to `main` runs [`.github/workflows/pytest.yml`](.github/workflows/pytest.yml) on `ubuntu-latest`:
+Every push and pull request to `main` runs [`.github/workflows/pytest.yml`](.github/workflows/pytest.yml) on a **three-OS matrix** (`ubuntu-latest`, `windows-latest`, `macos-latest`). Each leg:
 
-1. Install Python 3.11+
-2. Install Qt runtime libraries for headless PySide6 (`libegl1`, `libgl1`, `libxkbcommon0`, `libdbus-1-3` on Debian/Ubuntu)
-3. Create a venv and `pip install -r requirements-dev.txt`
-4. Run `pytest` with `QT_QPA_PLATFORM=offscreen` (unit + integration under `tests/`)
+1. Installs Python 3.11
+2. Creates a venv and `pip install -r requirements-dev.txt`
+3. Runs `pytest` with `QT_QPA_PLATFORM=offscreen` (unit + integration under `tests/`)
 
-No CMake, JUCE, or PyInstaller build runs in CI. Tests that need those tools skip automatically (`test_cmake_cross_platform.py` without cmake/JUCE; `test_frozen_bundle.py` without a `dist/` bundle).
+**Qt runtime per OS:**
+
+- **Linux (`ubuntu-latest`):** apt packages for headless PySide6 — `libegl1`, `libgl1`, `libxkbcommon0`, `libdbus-1-3`
+- **Windows / macOS:** PySide6 wheels bundle Qt; no extra system packages required in CI
+
+**macOS CI note:** GitHub-hosted `macos-latest` runners are **Apple Silicon** (ARM64). This matches **ARM64-only** `Luthier.app` distribution — CI does not cover Intel Mac standalone app builds.
+
+No CMake, JUCE, or PyInstaller build runs in CI. Tests that need those tools skip automatically (`test_cmake_cross_platform.py` without cmake/JUCE; `test_frozen_bundle.py` without a `dist/` bundle). Platform-specific CMake configure tests run only on the matching matrix leg.
 
 On Linux, match CI when running tests locally: install the same Qt runtime packages and set `export QT_QPA_PLATFORM=offscreen` before `pytest`.
 
