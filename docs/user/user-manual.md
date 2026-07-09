@@ -1092,6 +1092,22 @@ Besides running from Python sources, Luthier can be distributed as a **standalon
 
 **macOS:** The standalone app does not run on Intel-based Macs. If you need Mac Intel plugin builds, generate a project from Windows, Linux, or an Apple Silicon Mac — the generated CMake presets include `macos-debug-x86_64` and `macos-release-x86_64`.
 
+### First run on macOS (unsigned builds)
+
+Luthier is **not notarized** by Apple. After downloading from GitHub, macOS often shows **“Luthier.app is damaged”** — this is usually **not** corruption: Firefox, Safari, or Chrome added a **quarantine** flag. Remove it once (adjust the path):
+
+```bash
+xattr -cr /Applications/Luthier.app
+```
+
+Then launch again. If macOS instead warns about an **unidentified developer**, use **right-click → Open → Open**, or **System Settings → Privacy & Security → Open Anyway** after a blocked attempt.
+
+As a last resort, run the binary directly:
+
+```bash
+/Applications/Luthier.app/Contents/MacOS/Luthier
+```
+
 ### First run on Windows (unsigned builds)
 
 Windows SmartScreen may warn on first launch. Use **More info** → **Run anyway** for local builds. Windows Defender may scan files on first start — this can add a short delay, not a failure.

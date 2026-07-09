@@ -9,6 +9,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -109,6 +110,30 @@ def dist_bundle_root(root: Path = PROJECT_ROOT) -> Path:
     return root / "dist" / "Luthier"
 
 
+def _zip_macos_app_bundle(
+    archive_path: Path,
+    readme_text: str,
+    macos_app: Path,
+) -> None:
+    """Zip a .app for release, preserving symlinks (required for PyInstaller bundles)."""
+    if sys.platform != "darwin":
+        raise SystemExit("macOS .app release archives must be packed on macOS (symlink-safe zip).")
+
+    archive_path.parent.mkdir(parents=True, exist_ok=True)
+    if archive_path.is_file():
+        archive_path.unlink()
+
+    with tempfile.TemporaryDirectory(prefix="luthier-pack-macos-") as tmp:
+        root = Path(tmp)
+        (root / "README.txt").write_text(readme_text, encoding="utf-8")
+        shutil.copytree(macos_app, root / "Luthier.app", symlinks=True)
+        subprocess.run(
+            ["zip", "-ry", str(archive_path.resolve()), "README.txt", "Luthier.app"],
+            cwd=root,
+            check=True,
+        )
+
+
 def _zip_directory(
     archive_path: Path,
     readme_text: str,
@@ -151,7 +176,7 @@ def pack_host(paths: ReleasePaths, *, force: bool) -> None:
     print(f"Packing {platform} -> {archive.name}")
 
     if platform == "macos":
-        _zip_directory(archive, readme, macos_app=bundle)
+        _zip_macos_app_bundle(archive, readme, macos_app=bundle)
     else:
         _zip_directory(archive, readme, folder=bundle)
 

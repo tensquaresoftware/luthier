@@ -58,7 +58,7 @@ La CI (`.github/workflows/pytest.yml`) exécute **pytest sur Ubuntu, Windows et 
 
 ## Modèle produit v1 — lire avant de tester
 
-| Avant (Epics 1–8) | Maintenant (v1.0.0 scaffold-only) |
+| Avant (Epics 1–8) | Maintenant (v1.0.0 — projet de démarrage) |
 | --- | --- |
 | **Open Project…** pour recharger `.luthier.json` | **Supprimé** — Luthier ne relit jamais le sidecar |
 | Modifier le projet sur une autre machine via Luthier | **Impossible** — pas de réouverture |
@@ -121,7 +121,7 @@ Après `git push origin <tag>`, la CI publie une [GitHub Release](https://github
 | --- | --- | --- | :---: | :---: | --- |
 | R-01 | Ouvrir la Release du **tag testé** sur GitHub | Release marquée **Pre-release** si le tag contient un suffixe (`-rc1`, `-beta2`, …) | ☐ | ☐ | |
 | R-02 | Télécharger `Luthier-<tag>-macos.zip` (Phase A), `-windows.zip` (Phase B), `-linux.zip` (Phase C) | Archives présentes ; taille non nulle | ☐ | ☐ | |
-| R-03 | **macOS :** extraire le zip → `Luthier.app` ; lancer ou `--check` | Code **0** sur `--check` ; app démarre | ☐ | ☐ | Apple Silicon uniquement |
+| R-03 | **macOS :** extraire le zip → `Luthier.app` ; si « est endommagé » : `xattr -cr /chemin/vers/Luthier.app` puis lancer ; sinon `--check` | Code **0** sur `--check` ; app démarre | ☐ | ☐ | Quarantaine navigateur = normal sur build non signé |
 | R-04 | **Windows :** extraire → `Luthier\Luthier.exe` ; lancer ou `--check` | Code **0** ; app démarre | ☐ | ☐ | |
 | R-05 | **Linux :** extraire → `Luthier/Luthier` exécutable ; lancer ou `--check` | Code **0** ; app démarre | ☐ | ☐ | |
 | R-06 | Onglet **About** sur chaque OS | Version = **tag testé** ; date de révision cohérente | ☐ | ☐ | |
@@ -132,7 +132,7 @@ Après `git push origin <tag>`, la CI publie une [GitHub Release](https://github
 | --- | --- | --- | :---: | :---: | --- |
 | M-01 | **Option A — Bundle :** depuis la racine du dépôt, avec `.venv` et deps installées : `python publish/build-dist.py` | `dist/Luthier.app` créé ; `--check` termine avec code **0** | ☐ | ☐ | |
 | M-02 | **Option B — Dev :** `.venv/bin/python main.py` | Fenêtre Luthier s’ouvre | ☐ | ☐ | |
-| M-03 | Si Gatekeeper bloque le premier lancement : `xattr -cr dist/Luthier.app` ou clic droit → **Ouvrir** | App lance sans blocage persistant | ☐ | ☐ | Bundle non signé = normal |
+| M-03 | Si macOS affiche « est endommagé » après téléchargement : `xattr -cr dist/Luthier.app` ; sinon clic droit → **Ouvrir** pour développeur non identifié | App lance sans blocage persistant | ☐ | ☐ | Bundle non signé = normal |
 | M-04 | Onglet **About** : version = **tag testé**, date de révision cohérente | Infos correctes | ☐ | ☐ | |
 
 **Vérification rapide bundle (optionnel)**

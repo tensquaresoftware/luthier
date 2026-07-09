@@ -82,6 +82,16 @@ jobs:
           "$PY" publish/build-dist.py
           "$PY" publish/prepare-release.py --version "$VERSION" --force pack
 
+      - name: Verify macOS release archive roundtrip
+        if: matrix.platform == 'macos'
+        shell: bash
+        run: |
+          ARCHIVE="_local/releases/${VERSION}/Luthier-${VERSION}-macos.zip"
+          VERIFY_DIR=$(mktemp -d)
+          unzip -q "$ARCHIVE" -d "$VERIFY_DIR"
+          "$VERIFY_DIR/Luthier.app/Contents/MacOS/Luthier" --check
+          rm -rf "$VERIFY_DIR"
+
       - name: Upload platform archive
         uses: actions/upload-artifact@v4
         with:

@@ -248,5 +248,5 @@ Luthier generates the **initial starter project only**. Continue development in 
 
 1. Edit `Source/`, `CMakeLists.txt`, and other files as your plugin evolves.
 2. Reconfigure and build with CMake when you change build settings (see sections above).
-3. **Do not** re-run Luthier **Generate Project** over an evolved project folder unless you intend a full scaffold replace — and only in the **same Luthier session** with the destructive confirm (data loss otherwise).
+3. **Do not** re-run Luthier **Generate Project** over an evolved project folder unless you intend a full starter project replace — and only in the **same Luthier session** with the destructive confirm (data loss otherwise).
 4. The `.luthier.json` sidecar is **metadata written at generate** — optional reference for you or AI tools. Luthier does **not** read it back into the form.

@@ -10,8 +10,9 @@ Une version française de ce fichier est disponible plus bas.
 
 WHAT IS IN THIS ARCHIVE
 -----------------------
-This archive contains Luthier.app — a standalone desktop app to create new
-CMake-based JUCE audio plugin project skeletons (AU / VST3 / Standalone).
+This archive contains Luthier.app — a standalone desktop app to create
+ready-to-build CMake-based JUCE starter projects (AU / VST3 / Standalone).
+Fill in a form, generate once, then focus on development in your IDE.
 
 Keep the entire Luthier.app bundle together. Do not move only the executable out
 of the .app package.
@@ -24,15 +25,33 @@ INSTALLATION
 3. Double-click Luthier.app to launch.
 
 
-FIRST RUN (UNSIGNED BUILD)
---------------------------
-macOS may block an app that is not signed with an Apple Developer certificate.
+FIRST RUN (UNSIGNED BUILD — NOT NOTARIZED)
+------------------------------------------
+Luthier is not signed with an Apple Developer certificate. That is normal for
+open-source community builds.
 
-If you see a security warning:
-  • Right-click Luthier.app → Open → Open again, or
-  • System Settings → Privacy & Security → allow Luthier to run.
+After you download and unzip the archive, macOS may block the first launch.
+The message depends on how the file arrived on your Mac.
 
-This is expected for community/open-source builds.
+A) « Luthier.app is damaged and can't be opened » (French: « est endommagé »)
+   Your browser (Safari, Firefox, Chrome, …) added a quarantine flag. The app
+   is not actually damaged. Remove the flag once in Terminal (adjust the path):
+
+     xattr -cr /Applications/Luthier.app
+
+   Then double-click Luthier.app again.
+
+B) « Apple cannot check … for malicious software » / unidentified developer
+   • Right-click Luthier.app → Open → click Open in the dialog, or
+   • System Settings → Privacy & Security → Open Anyway (may appear only after
+     macOS blocked a launch attempt).
+
+If double-click still fails, use Terminal — it bypasses Finder Gatekeeper:
+
+  /Applications/Luthier.app/Contents/MacOS/Luthier
+
+(Or run the --check command in VERIFY THE BUNDLE below — exit code 0 confirms
+the bundle is fine.)
 
 
 REQUIREMENTS
@@ -81,8 +100,10 @@ FRANÇAIS
 
 CONTENU DE CETTE ARCHIVE
 ------------------------
-Cette archive contient Luthier.app — application autonome pour créer de nouveaux
-squelettes de projets JUCE basés sur CMake (AU / VST3 / Standalone).
+Cette archive contient Luthier.app — application autonome pour créer des
+projets JUCE de démarrage prêts à compiler, basés sur CMake (plugins AU /
+VST3 et Standalone). Remplissez un formulaire, générez une fois, puis
+concentrez-vous sur le développement dans votre IDE.
 
 Conservez le bundle Luthier.app entier. Ne déplacez pas uniquement l'exécutable
 hors du paquet .app.
@@ -95,15 +116,37 @@ INSTALLATION
 3. Double-cliquez sur Luthier.app pour lancer l'application.
 
 
-PREMIER LANCEMENT (BUILD NON SIGNÉ)
------------------------------------
-macOS peut bloquer une application non signée avec un certificat Apple Developer.
+PREMIER LANCEMENT (BUILD NON SIGNÉ — NON NOTARISÉ)
+--------------------------------------------------
+Luthier n'est pas signé avec un certificat Apple Developer. C'est normal pour
+un build open source communautaire.
 
-En cas d'avertissement de sécurité :
-  • Clic droit sur Luthier.app → Ouvrir → Ouvrir à nouveau, ou
-  • Réglages système → Confidentialité et sécurité → autoriser Luthier.
+Après téléchargement et décompression, macOS peut bloquer le premier lancement.
+Le message dépend de la façon dont le fichier est arrivé sur votre Mac.
 
-C'est normal pour des builds open source non signés.
+A) « Luthier.app est endommagé et ne peut pas être ouvert »
+   Votre navigateur (Safari, Firefox, Chrome, …) a posé un marqueur de
+   quarantaine. L'application n'est pas réellement endommagée. Retirez-le une
+   fois dans le Terminal (adaptez le chemin) :
+
+     xattr -cr /Applications/Luthier.app
+
+   Puis double-cliquez à nouveau sur Luthier.app.
+
+B) « Apple ne peut pas vérifier … logiciels malveillants » / développeur non
+   identifié
+   • Clic droit sur Luthier.app → Ouvrir → cliquer sur Ouvrir dans la boîte de
+     dialogue, ou
+   • Réglages système → Confidentialité et sécurité → Ouvrir quand même (peut
+     n'apparaître qu'après une tentative bloquée).
+
+Si le double-clic échoue encore, utilisez le Terminal — il contourne Gatekeeper
+dans le Finder :
+
+  /Applications/Luthier.app/Contents/MacOS/Luthier
+
+(Ou la commande --check de la section VÉRIFIER LE BUNDLE ci-dessous — code 0 =
+le bundle est sain.)
 
 
 PRÉREQUIS

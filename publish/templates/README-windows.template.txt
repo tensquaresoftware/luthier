@@ -14,6 +14,10 @@ This archive contains a Luthier\ folder with:
   • Luthier.exe          — the application
   • _internal\           — templates, Qt libraries, and other bundled files
 
+Luthier is a standalone desktop app to create ready-to-build CMake-based
+JUCE starter projects (AU / VST3 / Standalone). Fill in a form, generate
+once, then focus on development in your IDE.
+
 Keep the entire Luthier\ folder together. Luthier.exe alone will not work.
 
 
@@ -81,6 +85,11 @@ CONTENU DE CETTE ARCHIVE
 Cette archive contient un dossier Luthier\ avec :
   • Luthier.exe          — l'application
   • _internal\           — modèles, bibliothèques Qt et autres fichiers embarqués
+
+Luthier est une application autonome pour créer des projets JUCE de démarrage
+prêts à compiler, basés sur CMake (plugins AU / VST3 et Standalone).
+Remplissez un formulaire, générez une fois, puis concentrez-vous sur le
+développement dans votre IDE.
 
 Conservez le dossier Luthier\ entier. Luthier.exe seul ne fonctionnera pas.
 

@@ -144,6 +144,7 @@ def test_release_workflow_structure():
     assert "publish/build-dist.py" in build_yaml
     assert "prepare-release.py --version" in build_yaml
     assert "--force pack" in build_yaml
+    assert "Verify macOS release archive roundtrip" in build_yaml
     assert "macos-latest" in build_yaml
     assert "windows-latest" in build_yaml
     assert "ubuntu-latest" in build_yaml
@@ -152,3 +153,49 @@ def test_release_workflow_structure():
     assert "prepare-release.py --version" in publish_yaml
     assert "--force finalize" in publish_yaml
     assert "publish-ci --yes" in publish_yaml
+
+
+README_TEMPLATES_DIR = PROJECT_ROOT / "publish" / "templates"
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "README-macos.template.txt",
+        "README-windows.template.txt",
+        "README-linux.template.txt",
+    ],
+)
+def test_archive_readme_uses_starter_project_positioning(name):
+    text = (README_TEMPLATES_DIR / name).read_text(encoding="utf-8").lower()
+    assert "skeleton" not in text
+    assert "squelette" not in text
+    assert "starter project" in text
+    assert "projets juce de démarrage" in text
+
+
+def test_macos_archive_readme_documents_quarantine_workaround():
+    text = README_TEMPLATES_DIR.joinpath("README-macos.template.txt").read_text(
+        encoding="utf-8"
+    )
+    assert "xattr -cr" in text
+    assert "endommagé" in text
+    assert "damaged" in text.lower()
+
+
+@pytest.mark.skipif(sys.platform != "darwin", reason="macOS zip -y symlink preservation")
+def test_zip_macos_app_preserves_symlinks(prepare_release, tmp_path):
+    bundle = tmp_path / "Luthier.app"
+    bundle.mkdir()
+    (bundle / "real.txt").write_text("payload", encoding="utf-8")
+    (bundle / "link.txt").symlink_to("real.txt")
+
+    archive = tmp_path / "Luthier-test-macos.zip"
+    prepare_release._zip_macos_app_bundle(archive, "readme", bundle)
+
+    extract = tmp_path / "extract"
+    extract.mkdir()
+    subprocess.run(["unzip", "-q", str(archive), "-d", str(extract)], check=True)
+
+    assert (extract / "Luthier.app" / "link.txt").is_symlink()
+    assert (extract / "Luthier.app" / "link.txt").read_text(encoding="utf-8") == "payload"
