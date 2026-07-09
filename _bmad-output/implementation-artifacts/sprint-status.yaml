@@ -128,5 +128,5 @@ development_status:
   # Epic 10: CI & Release Scope
   # (Correct Course 2026-07-09 — multi-OS pytest matrix; ARM64-only macOS app scope)
   epic-10: in-progress
-  10-1-ci-multi-platform-pytest-matrix: in-progress
+  10-1-ci-multi-platform-pytest-matrix: review
   epic-10-retrospective: optional

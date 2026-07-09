@@ -12,7 +12,7 @@ baseline_workflow: .github/workflows/pytest.yml
 
 # Story 10.1: CI Multi-Platform (pytest matrix)
 
-Status: in-progress
+Status: review
 
 <!-- Epic 10 — CI & Release Scope. Extends Story 7.1. Priority: SHOULD (post-v1.0.0). -->
 
@@ -108,24 +108,24 @@ env:
 
 ## Tasks / Subtasks
 
-- [ ] Extend `.github/workflows/pytest.yml` (AC: 1–6)
-  - [ ] Add `strategy.matrix.os: [ubuntu-latest, windows-latest, macos-latest]`
-  - [ ] Set `runs-on: ${{ matrix.os }}`
-  - [ ] Factor venv + pytest step (bash on Linux/macOS; PowerShell or bash on Windows — match repo convention)
-  - [ ] Conditional Linux apt step (`if: matrix.os == 'ubuntu-latest'`)
-  - [ ] Set `QT_QPA_PLATFORM: offscreen` at job level
-  - [ ] Add YAML comment: macOS leg = Apple Silicon runner
+- [x] Extend `.github/workflows/pytest.yml` (AC: 1–6)
+  - [x] Add `strategy.matrix.os: [ubuntu-latest, windows-latest, macos-latest]`
+  - [x] Set `runs-on: ${{ matrix.os }}`
+  - [x] Factor venv + pytest step (bash on Linux/macOS; PowerShell or bash on Windows — match repo convention)
+  - [x] Conditional Linux apt step (`if: matrix.os == 'ubuntu-latest'`)
+  - [x] Set `QT_QPA_PLATFORM: offscreen` at job level
+  - [x] Add YAML comment: macOS leg = Apple Silicon runner
 
-- [ ] Verify matrix green (AC: 5–6)
-  - [ ] Push branch; confirm three legs green
-  - [ ] Confirm skip counts sensible per OS (e.g. Windows configure test runs on windows leg)
+- [x] Verify matrix green (AC: 5–6)
+  - [x] Push branch; confirm three legs green
+  - [x] Confirm skip counts sensible per OS (e.g. Windows configure test runs on windows leg)
 
-- [ ] Update `CONTRIBUTING.md` (AC: 7)
-  - [ ] Replace ubuntu-only wording with matrix description
-  - [ ] Document Apple Silicon runner note for macOS CI leg
+- [x] Update `CONTRIBUTING.md` (AC: 7)
+  - [x] Replace ubuntu-only wording with matrix description
+  - [x] Document Apple Silicon runner note for macOS CI leg
 
-- [ ] Regression
-  - [ ] Local `.venv/bin/pytest` still green on dev machine
+- [x] Regression
+  - [x] Local `.venv/bin/pytest` still green on dev machine
 
 ## Dev Notes
 
@@ -197,20 +197,32 @@ Most tests (~300+) run identically on all legs.
 
 ### Agent Model Used
 
-_(filled by dev agent)_
+Composer (Cursor)
 
 ### Debug Log
 
-_(filled by dev agent)_
+- Windows leg failed on first CI run: direct `.venv/Scripts/pip install --upgrade pip` rejected on GHA — fixed with `python -m pip`.
+- Windows leg failed on second run: 6 test failures from `C:\` vs `C:/` path mismatch and `~` expansion using `USERPROFILE` not `HOME` — fixed test fixtures in conftest and tilde tests.
 
 ### Completion Notes
 
-_(filled by dev agent)_
+- ✅ AC1–7 satisfied: triggers unchanged; three-OS matrix with Python 3.11, venv, `requirements-dev.txt`, `pytest`, `QT_QPA_PLATFORM=offscreen`; Linux apt conditional; macOS Apple Silicon documented in workflow comment and CONTRIBUTING.
+- Local regression: 313 passed, 3 skipped (~1.1s).
+- CI matrix run [29044513527](https://github.com/tensquaresoftware/luthier/actions/runs/29044513527): all three legs green — 310 passed, 6 skipped per leg (cmake/bundle skips as expected).
+- PR [#2](https://github.com/tensquaresoftware/luthier/pull/2) on branch `story/10-1-ci-multi-platform-pytest-matrix`.
 
 ### File List
 
-_(filled by dev agent)_
+- `.github/workflows/pytest.yml` (modified)
+- `CONTRIBUTING.md` (modified)
+- `tests/conftest.py` (modified)
+- `tests/integration/test_startup.py` (modified)
+- `tests/unit/test_paths.py` (modified)
+- `tests/unit/test_preferences.py` (modified)
+- `_bmad-output/implementation-artifacts/10-1-ci-multi-platform-pytest-matrix.md` (modified)
+- `_bmad-output/implementation-artifacts/sprint-status.yaml` (modified)
 
 ## Change Log
 
 - 2026-07-09: Story created via Correct Course — Epic 10 CI multi-platform matrix; ARM64-only macOS app scope documented.
+- 2026-07-09: Story 10.1 implemented — three-OS pytest matrix; Windows test path normalization fixes; CI green on PR #2.
