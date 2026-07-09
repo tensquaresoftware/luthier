@@ -34,11 +34,10 @@ jobs:
         run: |
           python -m venv .venv
           if [[ "${{ matrix.os }}" == windows-* ]]; then
-            .venv/Scripts/pip install --upgrade pip
-            .venv/Scripts/pip install -r requirements-dev.txt
-            .venv/Scripts/pytest
+            PY=".venv/Scripts/python"
           else
-            .venv/bin/pip install --upgrade pip
-            .venv/bin/pip install -r requirements-dev.txt
-            .venv/bin/pytest
+            PY=".venv/bin/python"
           fi
+          "$PY" -m pip install --upgrade pip
+          "$PY" -m pip install -r requirements-dev.txt
+          "$PY" -m pytest
