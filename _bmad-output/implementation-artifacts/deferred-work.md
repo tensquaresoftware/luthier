@@ -159,3 +159,11 @@ Ces entrées ne sont **plus** de la dette ouverte — décision de design, hors 
 
 - Plugin Type dirty-form confirm dialog undocumented in manuals — real UX gap but out of Story 9.5 AC scope; document in follow-up doc pass.
 - Epic 9 anchor slug uses accented characters (`#epic-9--fumée-scaffold-only-v100--2026-07-04`) — may not resolve in all Markdown renderers; renderer-dependent.
+
+---
+
+## Deferred from: code review of 10-1-ci-multi-platform-pytest-matrix (2026-07-09)
+
+- Cache pip/apt dans la matrice CI — hors périmètre story 10.1 ; déjà listé en post-MVP (déclencheur : latence CI > ~5 min).
+- Épingler `macos-14` au lieu de `macos-latest` — durcissement optionnel ; CI verte avec label actuel.
+- Fallback `QT_QPA_PLATFORM` par OS — hérité de story 7.1 ; les 3 legs passent avec `offscreen`.

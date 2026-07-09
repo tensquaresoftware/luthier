@@ -59,11 +59,13 @@ def _default_spec_fields(tmp_path) -> dict:
 def make_spec(tmp_path, **kwargs) -> ProjectSpec:
     defaults = _default_spec_fields(tmp_path)
     if "destination_dir" in kwargs:
-        dest = normalize_portable_path(str(kwargs.pop("destination_dir")))
+        raw = kwargs.pop("destination_dir")
+        dest = normalize_portable_path(str(raw)) if raw is not None else ""
         host_dest = host_workspace_field_key("destination")
         defaults[workspace_attr(host_dest)] = dest
     if "juce_dir" in kwargs:
-        juce = normalize_portable_path(str(kwargs.pop("juce_dir")))
+        raw = kwargs.pop("juce_dir")
+        juce = normalize_portable_path(str(raw)) if raw is not None else ""
         host_juce = host_workspace_field_key("juce")
         defaults[workspace_attr(host_juce)] = juce
     defaults.update(kwargs)

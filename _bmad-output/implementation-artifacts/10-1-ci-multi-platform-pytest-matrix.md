@@ -12,7 +12,7 @@ baseline_workflow: .github/workflows/pytest.yml
 
 # Story 10.1: CI Multi-Platform (pytest matrix)
 
-Status: review
+Status: done
 
 <!-- Epic 10 — CI & Release Scope. Extends Story 7.1. Priority: SHOULD (post-v1.0.0). -->
 
@@ -126,6 +126,14 @@ env:
 
 - [x] Regression
   - [x] Local `.venv/bin/pytest` still green on dev machine
+
+### Review Findings
+
+- [x] [Review][Patch] Guard `None` in `make_spec` path kwargs [tests/conftest.py:61-68]
+
+- [x] [Review][Defer] Cache pip/apt dans la matrice CI [.github/workflows/pytest.yml] — deferred, pre-existing (déjà dans deferred-work.md, hors périmètre story)
+- [x] [Review][Defer] Épingler `macos-14` au lieu de `macos-latest` [.github/workflows/pytest.yml:16] — deferred, pre-existing (durcissement optionnel, CI verte)
+- [x] [Review][Defer] Fallback `QT_QPA_PLATFORM` par OS [.github/workflows/pytest.yml:18] — deferred, pre-existing (hérité de 7.1, CI verte sur les 3 legs)
 
 ## Dev Notes
 
