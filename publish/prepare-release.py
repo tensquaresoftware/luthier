@@ -311,6 +311,91 @@ def _git_output(*args: str) -> str:
     return result.stdout.strip()
 
 
+def is_prerelease_version(version: str) -> bool:
+    """Return True when version has a prerelease suffix (e.g. 1.0.0-rc1, 1.0.1-beta2)."""
+    return bool(re.match(r"^\d+\.\d+\.\d+-.+", version))
+
+
+def _gh_release_exists(tag: str) -> bool:
+    result = subprocess.run(
+        ["gh", "release", "view", tag, "--repo", GITHUB_REPO],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+    )
+    return result.returncode == 0
+
+
+def gh_release_create(paths: ReleasePaths, *, prerelease: bool) -> None:
+    verify_release(paths)
+
+    if not paths.notes.is_file():
+        raise SystemExit(f"Missing {NOTES_FILE}. Run: publish/prepare-release.py finalize")
+
+    tag = paths.version
+    assets = [*[str(p) for p in paths.distributable_archives()], str(paths.checksums)]
+
+    if _gh_release_exists(tag):
+        print(f"Release {tag} already exists — uploading assets")
+        _run(
+            ["gh", "release", "upload", tag, "--repo", GITHUB_REPO, *assets, "--clobber"],
+            cwd=paths.release_dir,
+        )
+        edit_cmd = ["gh", "release", "edit", tag, "--repo", GITHUB_REPO]
+        if prerelease:
+            edit_cmd.append("--prerelease")
+        else:
+            edit_cmd.append("--prerelease=false")
+        _run(edit_cmd, cwd=paths.release_dir)
+    else:
+        cmd = [
+            "gh",
+            "release",
+            "create",
+            tag,
+            "--repo",
+            GITHUB_REPO,
+            "--title",
+            f"Luthier {paths.version}",
+            "--notes-file",
+            str(paths.notes),
+            *assets,
+        ]
+        if prerelease:
+            cmd.append("--prerelease")
+        _run(cmd, cwd=paths.release_dir)
+
+    print()
+    print(f"Published: https://github.com/{GITHUB_REPO}/releases/tag/{tag}")
+
+
+def publish_ci(
+    paths: ReleasePaths,
+    *,
+    yes: bool,
+    prerelease: bool | None = None,
+) -> None:
+    resolved_prerelease = (
+        prerelease if prerelease is not None else is_prerelease_version(paths.version)
+    )
+
+    print()
+    print(f"Ready to publish Luthier {paths.version} (CI — tag must already exist)")
+    print(f"  Tag     : {paths.version}")
+    print(f"  Assets  : {paths.release_dir}")
+    print(f"  Notes   : {paths.notes.name}")
+    if resolved_prerelease:
+        print("  Mode    : pre-release")
+    print()
+
+    if not yes:
+        answer = input("Continue? [y/N] ").strip().lower()
+        if answer not in {"y", "yes"}:
+            print("Aborted.")
+            return
+
+    gh_release_create(paths, prerelease=resolved_prerelease)
+
+
 def publish_release(
     paths: ReleasePaths,
     *,
@@ -358,26 +443,7 @@ def publish_release(
     if not skip_tag_push:
         _run(["git", "push", "origin", tag])
 
-    cmd = [
-        "gh",
-        "release",
-        "create",
-        tag,
-        "--repo",
-        GITHUB_REPO,
-        "--title",
-        f"Luthier {paths.version}",
-        "--notes-file",
-        str(paths.notes),
-        *[str(p) for p in paths.distributable_archives()],
-        str(paths.checksums),
-    ]
-    if prerelease:
-        cmd.append("--prerelease")
-
-    _run(cmd, cwd=paths.release_dir)
-    print()
-    print(f"Published: https://github.com/{GITHUB_REPO}/releases/tag/{tag}")
+    gh_release_create(paths, prerelease=prerelease)
 
 
 def build_paths(version: str | None) -> ReleasePaths:
@@ -438,6 +504,18 @@ def main() -> int:
         help="Create tag locally but do not push (for dry runs)",
     )
 
+    pub_ci = sub.add_parser(
+        "publish-ci",
+        help="Create GitHub release via gh (CI: tag already exists on remote)",
+    )
+    pub_ci.add_argument("-y", "--yes", action="store_true", help="Skip confirmation prompt")
+    pub_ci.add_argument("--prerelease", action="store_true", help="Force pre-release on GitHub")
+    pub_ci.add_argument(
+        "--stable",
+        action="store_true",
+        help="Force stable release (override auto prerelease detection)",
+    )
+
     args = parser.parse_args()
     paths = build_paths(args.version)
 
@@ -462,6 +540,15 @@ def main() -> int:
             prerelease=args.prerelease,
             skip_tag_push=args.skip_tag_push,
         )
+    elif args.command == "publish-ci":
+        if args.prerelease and args.stable:
+            parser.error("Use only one of --prerelease or --stable")
+        prerelease_override = None
+        if args.prerelease:
+            prerelease_override = True
+        elif args.stable:
+            prerelease_override = False
+        publish_ci(paths, yes=args.yes, prerelease=prerelease_override)
     else:
         parser.error(f"Unknown command: {args.command}")
 

@@ -1,0 +1,131 @@
+name: release
+
+# Semver tags without v prefix (1.0.0, 1.0.0-rc1, …). Tag push is the only trigger — not workflow_dispatch.
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate semver tag and app version
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          if ! [[ "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
+            echo "Unsupported tag: $TAG (expected X.Y.Z or X.Y.Z-prerelease)"
+            exit 1
+          fi
+          APP_VERSION=$(grep '^VERSION = ' app/version.py | sed 's/VERSION = "\(.*\)"/\1/')
+          if [ -z "$APP_VERSION" ]; then
+            echo "Could not read VERSION from app/version.py"
+            exit 1
+          fi
+          if [ "$APP_VERSION" != "$TAG" ]; then
+            echo "Tag $TAG does not match app/version.py ($APP_VERSION)"
+            exit 1
+          fi
+          echo "Release version: $TAG"
+
+  build:
+    needs: validate-tag
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: windows
+          - os: macos-latest
+            platform: macos
+    env:
+      QT_QPA_PLATFORM: offscreen
+      VERSION: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Qt runtime dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libegl1 libgl1 libxkbcommon0 libdbus-1-3
+
+      - name: Build bundle and pack release archive
+        shell: bash
+        run: |
+          python -m venv .venv
+          if [[ "${{ matrix.os }}" == windows-* ]]; then
+            PY=".venv/Scripts/python"
+          else
+            PY=".venv/bin/python"
+          fi
+          "$PY" -m pip install --upgrade pip
+          "$PY" -m pip install -r requirements-dev.txt
+          "$PY" publish/build-dist.py
+          "$PY" publish/prepare-release.py pack --version "$VERSION" --force
+
+      - name: Upload platform archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}-archive
+          path: _local/releases/${{ github.ref_name }}/Luthier-${{ github.ref_name }}-${{ matrix.platform }}.zip
+          retention-days: 7
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Download platform archives
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Assemble release directory
+        shell: bash
+        run: |
+          RELEASE_DIR="_local/releases/${VERSION}"
+          mkdir -p "$RELEASE_DIR"
+          for platform in linux macos windows; do
+            src="artifacts/${platform}-archive/Luthier-${VERSION}-${platform}.zip"
+            if [ ! -f "$src" ]; then
+              echo "Missing platform archive: $src"
+              exit 1
+            fi
+            cp "$src" "$RELEASE_DIR/"
+          done
+
+      - name: Finalize and publish GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          python3 publish/prepare-release.py finalize --version "$VERSION" --force
+          python3 publish/prepare-release.py publish-ci --version "$VERSION" --yes

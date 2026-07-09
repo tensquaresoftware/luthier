@@ -162,6 +162,13 @@ Ces entrées ne sont **plus** de la dette ouverte — décision de design, hors 
 
 ---
 
+## Deferred from: code review of 10-2-cd-release-pipeline (2026-07-09)
+
+- No end-to-end workflow run in change set — AC1 forbids `workflow_dispatch`; first validation is a real tag push.
+- Artifact retention 7 days — extend if publish failures need manual artifact recovery.
+
+---
+
 ## Deferred from: code review of 10-1-ci-multi-platform-pytest-matrix (2026-07-09)
 
 - Cache pip/apt dans la matrice CI — hors périmètre story 10.1 ; déjà listé en post-MVP (déclencheur : latence CI > ~5 min).

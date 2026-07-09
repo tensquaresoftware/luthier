@@ -193,3 +193,43 @@ No CMake, JUCE, or PyInstaller build runs in CI. Tests that need those tools ski
 On Linux, match CI when running tests locally: install the same Qt runtime packages and set `export QT_QPA_PLATFORM=offscreen` before `pytest`.
 
 Local checks beyond CI: `main.py --check` and optional `publish/build-dist.py`.
+
+## Publishing a release (maintainers)
+
+Releases are **semver tags without a `v` prefix** (`1.0.0`, `1.0.0-rc1`, …). Pushing a tag triggers [`.github/workflows/release.yml`](.github/workflows/release.yml), which builds PyInstaller bundles on macOS, Windows, and Linux, packages four zips (`Luthier-X.Y.Z-{macos,windows,linux,docs}.zip`), writes `RELEASE_NOTES.md` and `SHA256SUMS.txt`, and creates a GitHub Release with assets attached.
+
+**There is no `workflow_dispatch` trigger** — publishing is always `git tag` + `git push origin <tag>` after the version bump is committed.
+
+### Recommended flow (RC → smoke → final)
+
+1. **Bump version** in `app/version.py` (`VERSION` and `REVISION_DATE` as needed). Commit on `main`.
+2. **Pre-release (smoke test):**
+   ```bash
+   git tag 1.0.0-rc1
+   git push origin 1.0.0-rc1
+   ```
+   CI marks the GitHub Release as **pre-release** when the tag contains a prerelease suffix (e.g. `-rc1`).
+3. **Manual smoke test** on the GitHub Release artefacts using [docs/tests/1.0.0-pre-release/smoke-test-v1-trois-os.md](docs/tests/1.0.0-pre-release/smoke-test-v1-trois-os.md).
+4. **Final release** (after smoke passes): bump to `1.0.0` if needed, commit, then:
+   ```bash
+   git tag 1.0.0
+   git push origin 1.0.0
+   ```
+
+The tag name **must match** `VERSION` in `app/version.py` at the tagged commit; the workflow fails fast on mismatch.
+
+### Local release tooling (optional)
+
+For manual assembly without CI, use the same scripts the workflow calls:
+
+```bash
+.venv/bin/python publish/build-dist.py          # current OS only
+.venv/bin/python publish/prepare-release.py pack
+# repeat build/pack on other OS machines, or use import for external zips
+.venv/bin/python publish/prepare-release.py finalize
+.venv/bin/python publish/prepare-release.py publish   # creates tag + pushes + gh release
+```
+
+CI uses `publish-ci` instead of `publish` — the tag already exists when the workflow runs.
+
+**Out of scope:** code signing/notarization, `.msi`/`.pkg` installers, Mac Intel `Luthier.app`.

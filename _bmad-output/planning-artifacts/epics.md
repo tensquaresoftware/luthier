@@ -124,11 +124,11 @@ One-shot JUCE/CMake skeleton generator: remove Open/reload, block Generate on no
 **Supersedes:** Epic 2
 
 ### Epic 10: CI & Release Scope
-Automated pytest on Linux, Windows, and macOS (GitHub-hosted runners); PRD/release alignment for ARM64-only macOS app distribution.
+Automated pytest on Linux, Windows, and macOS (GitHub-hosted runners); PRD/release alignment for ARM64-only macOS app distribution; **CD release pipeline** on semver tag push (Story 10.2).
 
-**FRs covered:** — (reinforces NFR2; clarifies FR9 release scope)
+**FRs covered:** — (reinforces NFR2, FR9, NFR4; clarifies FR9 release scope)
 **Priority:** Post-v1.0.0 (2026-07-09 correct-course)
-**Note:** Mac Intel `Luthier.app` explicitly out of scope per `investigations/macos-x86_64-intel-build-investigation.md`. No Story 10.2.
+**Note:** Mac Intel `Luthier.app` explicitly out of scope per `investigations/macos-x86_64-intel-build-investigation.md`. Story 10.2 = automated GitHub Release (not Intel runner).
 
 ---
 
@@ -1312,11 +1312,11 @@ So that I understand Luthier's role in my CMake workflow without expecting Proju
 
 ## Epic 10: CI & Release Scope
 
-Post-v1.0.0 automation and release-scope documentation: extend Story 7.1 CI to a three-OS pytest matrix; align backlog with ARM64-only macOS app distribution (Intel investigation closed 2026-07-09).
+Post-v1.0.0 automation and release-scope documentation: extend Story 7.1 CI to a three-OS pytest matrix (10.1); align backlog with ARM64-only macOS app distribution (Intel investigation closed 2026-07-09); **automated GitHub Release on semver tag push** (10.2).
 
-**Planning reference:** `sprint-change-proposal-2026-07-09-ci-multiplatform.md`
+**Planning references:** `sprint-change-proposal-2026-07-09-ci-multiplatform.md`, `sprint-change-proposal-2026-07-09-cd-release.md`
 
-**Recommended implementation order:** `10.1`
+**Recommended implementation order:** `10.1 → 10.2`
 
 ### Story 10.1: CI Multi-Platform (pytest matrix)
 
@@ -1351,9 +1351,71 @@ So that cross-platform regressions are caught in CI without manual re-runs on ea
 **When** Story 10.1 is complete,
 **Then** it documents the three-OS matrix and optional status badge (same workflow file).
 
-**Out of scope:** PyInstaller build in CI; macOS x86_64; Intel/Big Sur; self-hosted runner; Story 10.2.
+**Out of scope:** macOS x86_64 app build; Intel/Big Sur; self-hosted runner.
 
 **Story file:** `_bmad-output/implementation-artifacts/10-1-ci-multi-platform-pytest-matrix.md`
+
+---
+
+### Story 10.2: CD Release Pipeline (GitHub Actions)
+
+As a maintainer,
+I want pushing a semver git tag to trigger a full multi-OS build and GitHub Release,
+So that I (or an agent) can publish `1.0.0-rc1` for smoke testing and `1.0.0` for the final release without manual per-OS builds or duplicate packaging logic.
+
+**Priority:** MUST (pre-public v1.0.0 distribution)
+
+**Acceptance Criteria:**
+
+**Given** a semver tag push matching `*.*.*` (e.g. `1.0.0`, `1.0.0-rc1`, `1.0.1-beta2`),
+**When** GitHub Actions runs `.github/workflows/release.yml`,
+**Then** the workflow triggers on `push: tags:` only — **not** `workflow_dispatch`.
+
+**Given** the release workflow,
+**When** build jobs run,
+**Then** PyInstaller builds execute on **`macos-latest`**, **`windows-latest`**, and **`ubuntu-latest`** via `publish/build-dist.py`,
+**And** each leg runs `publish/prepare-release.py pack` to produce its platform zip under the release staging layout.
+
+**Given** all three platform build jobs succeed,
+**When** the publish job runs,
+**Then** it collects the three zips, runs `publish/prepare-release.py finalize` (docs zip, `RELEASE_NOTES.md`, `SHA256SUMS.txt`),
+**And** runs `publish/prepare-release.py publish-ci` (or equivalent) to create the GitHub Release with all assets attached.
+
+**Given** the tag already exists on the remote (normal tag-push trigger),
+**When** `publish-ci` runs,
+**Then** it does **not** create or push a git tag — it only invokes `gh release create` (or updates if idempotent policy is documented).
+
+**Given** a tag with a prerelease suffix `X.Y.Z-<suffix>` (e.g. `1.0.0-rc1`, `1.0.1-beta2`),
+**When** the GitHub Release is created,
+**Then** it is marked **`--prerelease`** for manual smoke testing per `docs/tests/1.0.0-pre-release/smoke-test-v1-trois-os.md`.
+
+**Given** a final release tag without prerelease suffix (e.g. `1.0.0`),
+**When** the GitHub Release is created,
+**Then** it is a **stable** (non-prerelease) release.
+
+**Given** the workflow,
+**When** it needs to publish assets,
+**Then** `permissions: contents: write` is set so `GITHUB_TOKEN` can create releases and upload assets.
+
+**Given** the tagged commit,
+**When** the workflow resolves the version,
+**Then** the tag name (no `v` prefix) matches `app/version.py` `VERSION` at that commit.
+
+**Given** `publish/prepare-release.py` and `publish/build-dist.py`,
+**When** the CD pipeline packages releases,
+**Then** zip naming, README sidecars, checksums, and release notes use the existing `publish/` implementation — **no duplicated logic** in workflow YAML.
+
+**Given** `publish/templates/README-macos.template.txt`,
+**When** Story 10.2 is complete,
+**Then** archive readme text reflects **scaffold-only** positioning (create new projects) — no "reopen" or Projucer-like reload wording (Epic 9).
+
+**Given** `CONTRIBUTING.md`,
+**When** Story 10.2 is complete,
+**Then** it documents the release procedure: bump `app/version.py` → commit → `git tag <version>` → `git push origin <tag>` → CI publishes → RC smoke test → final tag.
+
+**Out of scope:** Mac Intel `Luthier.app`; Apple/Microsoft code signing or notarization; `.msi` / `.pkg` installers; `workflow_dispatch` trigger.
+
+**Story file:** `_bmad-output/implementation-artifacts/10-2-cd-release-pipeline.md` (via `[CS] Create Story`)
 
 ---
 
@@ -1362,5 +1424,6 @@ So that cross-platform regressions are caught in CI without manual re-runs on ea
 | Order | Story | Slug | Depends on |
 |-------|-------|------|------------|
 | 1 | 10.1 | `10-1-ci-multi-platform-pytest-matrix` | 7.1 (done) |
+| 2 | 10.2 | `10-2-cd-release-pipeline` | 10.1 (done), Epic 4 publish scripts |
 
-**CE status:** Epic 10 ready for `[DS] Dev Story` — story **10.1** after PO approval of sprint change proposal 2026-07-09.
+**CE status:** Epic 10 — story **10.2** ready for `[CS] Create Story` after PO approval of sprint change proposal 2026-07-09-cd-release.

@@ -10,8 +10,8 @@ Une version française de ce fichier est disponible plus bas.
 
 WHAT IS IN THIS ARCHIVE
 -----------------------
-This archive contains Luthier.app — a standalone desktop app to create, reopen,
-and regenerate CMake-based JUCE audio plugin projects (AU / VST3 / Standalone).
+This archive contains Luthier.app — a standalone desktop app to create new
+CMake-based JUCE audio plugin project skeletons (AU / VST3 / Standalone).
 
 Keep the entire Luthier.app bundle together. Do not move only the executable out
 of the .app package.
@@ -81,8 +81,8 @@ FRANÇAIS
 
 CONTENU DE CETTE ARCHIVE
 ------------------------
-Cette archive contient Luthier.app — application autonome pour créer, rouvrir
-et régénérer des projets JUCE basés sur CMake (AU / VST3 / Standalone).
+Cette archive contient Luthier.app — application autonome pour créer de nouveaux
+squelettes de projets JUCE basés sur CMake (AU / VST3 / Standalone).
 
 Conservez le bundle Luthier.app entier. Ne déplacez pas uniquement l'exécutable
 hors du paquet .app.

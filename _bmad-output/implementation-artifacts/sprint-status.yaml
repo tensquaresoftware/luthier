@@ -1,5 +1,5 @@
 # generated: 2026-06-23
-# last_updated: 2026-07-09 # Epic 10 backlog (Correct Course CI multi-platform)
+# last_updated: 2026-07-09 # Epic 10 Story 10.2 done (CD release pipeline)
 # project: Luthier
 # project_key: NOKEY
 # tracking_system: file-system
@@ -126,7 +126,8 @@ development_status:
   epic-9-retrospective: optional
 
   # Epic 10: CI & Release Scope
-  # (Correct Course 2026-07-09 — multi-OS pytest matrix; ARM64-only macOS app scope)
+  # (Correct Course 2026-07-09 — pytest matrix done; CD release pipeline 10.2)
   epic-10: done
   10-1-ci-multi-platform-pytest-matrix: done
+  10-2-cd-release-pipeline: done
   epic-10-retrospective: optional
