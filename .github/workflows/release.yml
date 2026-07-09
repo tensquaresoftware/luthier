@@ -80,7 +80,7 @@ jobs:
           "$PY" -m pip install --upgrade pip
           "$PY" -m pip install -r requirements-dev.txt
           "$PY" publish/build-dist.py
-          "$PY" publish/prepare-release.py pack --version "$VERSION" --force
+          "$PY" publish/prepare-release.py --version "$VERSION" --force pack
 
       - name: Upload platform archive
         uses: actions/upload-artifact@v4
@@ -127,5 +127,5 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          python3 publish/prepare-release.py finalize --version "$VERSION" --force
-          python3 publish/prepare-release.py publish-ci --version "$VERSION" --yes
+          python3 publish/prepare-release.py --version "$VERSION" --force finalize
+          python3 publish/prepare-release.py --version "$VERSION" --yes publish-ci

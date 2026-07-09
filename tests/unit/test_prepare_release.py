@@ -142,11 +142,13 @@ def test_release_workflow_structure():
 
     build_yaml = yaml.dump(jobs["build"])
     assert "publish/build-dist.py" in build_yaml
-    assert "prepare-release.py pack" in build_yaml
+    assert "prepare-release.py --version" in build_yaml
+    assert "--force pack" in build_yaml
     assert "macos-latest" in build_yaml
     assert "windows-latest" in build_yaml
     assert "ubuntu-latest" in build_yaml
 
     publish_yaml = yaml.dump(jobs["publish"])
-    assert "prepare-release.py finalize" in publish_yaml
-    assert "prepare-release.py publish-ci" in publish_yaml
+    assert "prepare-release.py --version" in publish_yaml
+    assert "--force finalize" in publish_yaml
+    assert "--yes publish-ci" in publish_yaml
