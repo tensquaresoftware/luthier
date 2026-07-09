@@ -49,4 +49,5 @@ def test_resolve_dir_expands_user_home(tmp_path, monkeypatch):
     nested = tmp_path / "été 2026"
     nested.mkdir()
     monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
     assert resolve_dir(f"~/{nested.name}") == nested.resolve()

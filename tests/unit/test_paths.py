@@ -48,6 +48,7 @@ def test_resolve_dir_expands_user_and_accepts_unicode(tmp_path, monkeypatch):
     folder = tmp_path / "Téléchargements"
     folder.mkdir()
     monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
     assert resolve_dir("~/Téléchargements") == folder.resolve()
 
 

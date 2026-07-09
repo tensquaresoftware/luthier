@@ -8,7 +8,12 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # macos-latest = Apple Silicon runner (ARM64); aligns with ARM64-only Luthier.app distribution
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     env:
       QT_QPA_PLATFORM: offscreen
     steps:
@@ -18,14 +23,21 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Qt runtime dependencies
+      - name: Install Qt runtime dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libegl1 libgl1 libxkbcommon0 libdbus-1-3
 
       - name: Create venv, install dependencies, run pytest
+        shell: bash
         run: |
           python -m venv .venv
-          .venv/bin/pip install --upgrade pip
-          .venv/bin/pip install -r requirements-dev.txt
-          .venv/bin/pytest
+          if [[ "${{ matrix.os }}" == windows-* ]]; then
+            PY=".venv/Scripts/python"
+          else
+            PY=".venv/bin/python"
+          fi
+          "$PY" -m pip install --upgrade pip
+          "$PY" -m pip install -r requirements-dev.txt
+          "$PY" -m pytest

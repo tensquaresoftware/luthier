@@ -1,5 +1,5 @@
 # generated: 2026-06-23
-# last_updated: 2026-07-04 # Epic 9 done (Story 9.5)
+# last_updated: 2026-07-09 # Epic 10 backlog (Correct Course CI multi-platform)
 # project: Luthier
 # project_key: NOKEY
 # tracking_system: file-system
@@ -41,7 +41,7 @@
 # - Retrospective appends its action items to action_items; sprint-status surfaces open ones
 
 generated: 2026-06-23
-last_updated: 2026-07-04
+last_updated: 2026-07-09
 project: Luthier
 project_key: NOKEY
 tracking_system: file-system
@@ -124,3 +124,9 @@ development_status:
   9-6-test-suite-scaffold-only-regression: done
   9-5-documentation-v1-guide-manuals-readme: done
   epic-9-retrospective: optional
+
+  # Epic 10: CI & Release Scope
+  # (Correct Course 2026-07-09 — multi-OS pytest matrix; ARM64-only macOS app scope)
+  epic-10: done
+  10-1-ci-multi-platform-pytest-matrix: done
+  epic-10-retrospective: optional

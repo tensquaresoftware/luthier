@@ -29,7 +29,7 @@ FR5: Luthier supports a central artefacts mode: per-OS paths (macOS, Windows, Li
 FR6: Users can customize the 5 editable templates (4 source files + .gitignore) via a built-in editor with Save Override / Load File / Reset actions. Overrides persist to QStandardPaths::AppConfigLocation. Generation uses the user override when present.
 FR7: Preferences hold a complete global profile in preferences.json (identity, destination folder, JUCE default seed, plugin type, formats, compilation, artefacts). Factory defaults on first launch only; thereafter all Project seeding reads preferences.json. Auto-save on valid edit; Import replaces profile; Export copies without touching preferences.json. Open and Generate never write preferences.json.
 FR8: Tab bar (Project, Preferences, Templates, About) with per-tab action bar: Project — Create New Project, Generate Project (**Open Project… removed**, Epic 9); Preferences — Import Preferences…, Export Preferences…; Templates — Load from file…, Reset to default, Save override. Project form sections with Destination folder and JUCE directory (label → Choose… → field); Preferences mirrors defaults with same labels; auto-save indicator in tab bar. Dark theme; accent colour from Preferences only (not Project tab or sidecar).
-FR9: Luthier is distributable as a self-contained bundle (PyInstaller, no system Python) on macOS ARM64, macOS x86_64, Windows x64, and Linux x86_64, with full feature parity across platforms.
+FR9: Luthier is distributable as a self-contained bundle (PyInstaller, no system Python) on **macOS ARM64 (Apple Silicon)**, Windows x64, and Linux x86_64, with full feature parity across those platforms. **Mac Intel is not a Luthier.app target** (investigation 2026-07-09); generated projects retain x86_64 CMake presets.
 FR10: Generate is **hard-blocked** when the target project directory exists and is non-empty, **except** a **session-only carve-out**: after a successful Generate in the same app session, the user may regenerate to the **same** `{destination}/{projectName}/` path via **explicit destructive confirmation** (replaces the entire tree except `.git`; Finder/IDE edits since last generate are lost). Brownfield protection applies on fresh app launch or when the target was not produced by Luthier in this session. No Open/reload workflow (Epic 9.1).
 FR11: Plugin type uses **presets + independent characteristic toggles** (Synth, MIDI In/Out, MIDI Effect, keyboard focus), Audio I/O preset combo, MIDI channel counts, and Plugin Description — persisted in `.luthier.json` for reference only.
 FR12: Accent colour is **Preferences-only** (`preferences.json`); Workspace and Artefacts OS path groups display **tree connector lines** (Project + Preferences tabs).
@@ -122,6 +122,13 @@ One-shot JUCE/CMake skeleton generator: remove Open/reload, block Generate on no
 **FRs covered:** FR8 (revised), FR10, FR11, FR12; removes FR4
 **Priority:** Pre-public v1.0.0 (2026-07-04 correct-course)
 **Supersedes:** Epic 2
+
+### Epic 10: CI & Release Scope
+Automated pytest on Linux, Windows, and macOS (GitHub-hosted runners); PRD/release alignment for ARM64-only macOS app distribution.
+
+**FRs covered:** — (reinforces NFR2; clarifies FR9 release scope)
+**Priority:** Post-v1.0.0 (2026-07-09 correct-course)
+**Note:** Mac Intel `Luthier.app` explicitly out of scope per `investigations/macos-x86_64-intel-build-investigation.md`. No Story 10.2.
 
 ---
 
@@ -730,9 +737,7 @@ So that I can start generating projects immediately after download.
 **When** it is launched,
 **Then** the main window opens, all tabs are navigable, and "Generate Project" produces a valid project directory.
 
-**Given** `Luthier.app` on macOS x86_64 (Intel or Rosetta),
-**When** it is launched,
-**Then** all features work identically to the ARM64 build.
+**~~Given~~** ~~`Luthier.app` on macOS x86_64 (Intel or Rosetta)~~ — **OUT OF SCOPE (2026-07-09).** Luthier.app ships ARM64 only. See `investigations/macos-x86_64-intel-build-investigation.md`.
 
 **Given** `Luthier.app` is run with the `--check` flag,
 **When** the headless check completes,
@@ -1302,3 +1307,60 @@ So that I understand Luthier's role in my CMake workflow without expecting Proju
 **Backward compatibility:** None. PO §2.3 — delete legacy paths; do not migrate sidecars or projects.
 
 **CE status:** Epic 9 ready for `[CS] Create Story` — story **9.1** first after PO approval of sprint change proposal.
+
+---
+
+## Epic 10: CI & Release Scope
+
+Post-v1.0.0 automation and release-scope documentation: extend Story 7.1 CI to a three-OS pytest matrix; align backlog with ARM64-only macOS app distribution (Intel investigation closed 2026-07-09).
+
+**Planning reference:** `sprint-change-proposal-2026-07-09-ci-multiplatform.md`
+
+**Recommended implementation order:** `10.1`
+
+### Story 10.1: CI Multi-Platform (pytest matrix)
+
+As a contributor,
+I want pytest to run automatically on Linux, Windows, and macOS for every push and pull request,
+So that cross-platform regressions are caught in CI without manual re-runs on each OS after every change.
+
+**Priority:** SHOULD (post-v1.0.0)
+
+**Acceptance Criteria:**
+
+**Given** a push or pull request to **`main`**,
+**When** GitHub Actions runs,
+**Then** pytest executes on **`ubuntu-latest`**, **`windows-latest`**, and **`macos-latest`** (Python 3.11, venv, `requirements-dev.txt`).
+
+**Given** any matrix leg,
+**When** pytest imports PySide6,
+**Then** `QT_QPA_PLATFORM=offscreen` is set and OS-appropriate Qt runtime deps are satisfied (Linux: apt packages from Story 7.1).
+
+**Given** the macOS leg uses **`macos-latest`**,
+**Then** documentation states GitHub runners are **Apple Silicon** — sufficient for ARM64-only `Luthier.app` scope; not Intel Mac CI.
+
+**Given** tests requiring CMake, JUCE, or a built PyInstaller bundle,
+**When** CI runs without those tools,
+**Then** those tests skip cleanly — CI does **not** fail.
+
+**Given** a failing non-skipped test on any leg,
+**When** CI completes,
+**Then** the workflow exits non-zero and the PR check shows failure.
+
+**Given** `CONTRIBUTING.md`,
+**When** Story 10.1 is complete,
+**Then** it documents the three-OS matrix and optional status badge (same workflow file).
+
+**Out of scope:** PyInstaller build in CI; macOS x86_64; Intel/Big Sur; self-hosted runner; Story 10.2.
+
+**Story file:** `_bmad-output/implementation-artifacts/10-1-ci-multi-platform-pytest-matrix.md`
+
+---
+
+## Epic 10 — Planning Summary
+
+| Order | Story | Slug | Depends on |
+|-------|-------|------|------------|
+| 1 | 10.1 | `10-1-ci-multi-platform-pytest-matrix` | 7.1 (done) |
+
+**CE status:** Epic 10 ready for `[DS] Dev Story` — story **10.1** after PO approval of sprint change proposal 2026-07-09.
