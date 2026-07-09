@@ -151,4 +151,4 @@ def test_release_workflow_structure():
     publish_yaml = yaml.dump(jobs["publish"])
     assert "prepare-release.py --version" in publish_yaml
     assert "--force finalize" in publish_yaml
-    assert "--yes publish-ci" in publish_yaml
+    assert "publish-ci --yes" in publish_yaml

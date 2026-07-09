@@ -128,4 +128,4 @@ jobs:
         shell: bash
         run: |
           python3 publish/prepare-release.py --version "$VERSION" --force finalize
-          python3 publish/prepare-release.py --version "$VERSION" --yes publish-ci
+          python3 publish/prepare-release.py --version "$VERSION" publish-ci --yes
