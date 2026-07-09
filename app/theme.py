@@ -154,7 +154,7 @@ def build_stylesheet() -> str:
         width: 24px;
     }}
     QComboBox::down-arrow {{ image: url("{caret}"); width: 12px; height: 12px; }}
-    QComboBox:disabled::down-arrow {{ image: url("{caret_muted}"); width: 12px; height: 12px; }}
+    QComboBox::down-arrow:disabled {{ image: url("{caret_muted}"); width: 12px; height: 12px; }}
     QComboBox QAbstractItemView {{
         background: {p.BG_INPUT};
         color: {p.TEXT};
