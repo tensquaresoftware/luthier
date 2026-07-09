@@ -6,7 +6,7 @@ Title: Luthier — Manuel utilisateur
 Version: 1.0
 Product-Version: 1.0.0
 Created: 2026-06-26
-Updated: 2026-07-05
+Updated: 2026-07-09
 References:
   - docs/user/user-manual.md
   - _bmad-output/architecture.md
@@ -393,6 +393,8 @@ Le format **Standalone** produit une `.app`, `.exe` ou binaire lançable directe
 Choisissez la voie qui correspond à votre usage. Si vous recevez un installeur ou une archive, privilégiez l’application autonome. Si vous travaillez dans le dépôt Luthier, suivez la procédure développeur.
 
 Luthier fonctionne sur **Windows**, **macOS** et **Linux** — depuis les sources (Python + PySide6) ou comme **application autonome** (PyInstaller). L’interface est identique ; seule l’installation diffère.
+
+Sur **macOS**, l’application autonome `Luthier.app` requiert un Mac **Apple Silicon** (arm64). Les Mac Intel ne sont pas pris en charge pour l’application. Les projets JUCE générés restent compilables pour Mac Intel (presets CMake `macos-debug-x86_64`, `macos-release-x86_64`).
 
 ### Depuis les sources (développeurs)
 
@@ -1085,10 +1087,12 @@ Outre l’exécution depuis les sources Python, Luthier peut être distribué co
 | Plateforme | Sortie typique |
 |------------|----------------|
 | Windows | `Luthier.exe` dans un dossier `Luthier/` avec son sous-dossier `_internal/` |
-| macOS | `Luthier.app` |
+| macOS | `Luthier.app` (**Apple Silicon uniquement** — M1 ou ultérieur) |
 | Linux | Exécutable `Luthier` dans un dossier `Luthier/` avec son sous-dossier `_internal/` |
 
 **Important :** distribuez le **dossier entier**. L’exécutable seul ne suffit pas. Les templates et bibliothèques Qt sont à côté dans le sous-dossier `_internal`.
+
+**macOS :** l’application autonome ne fonctionne pas sur Mac Intel. Pour compiler des plugins Mac Intel, générez un projet depuis Windows, Linux ou un Mac Apple Silicon — les presets CMake générés incluent `macos-debug-x86_64` et `macos-release-x86_64`.
 
 ### Première exécution sous Windows (builds non signés)
 

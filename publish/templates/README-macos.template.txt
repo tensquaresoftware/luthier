@@ -37,7 +37,10 @@ This is expected for community/open-source builds.
 
 REQUIREMENTS
 ------------
-• macOS with a recent version (Apple Silicon or Intel build as labeled).
+• macOS on Apple Silicon (M1 or later). Intel-based Macs are not supported for
+  the Luthier app.
+• Generated JUCE projects produced by Luthier can still be built for Mac Intel
+  (CMake presets macos-debug-x86_64 / macos-release-x86_64).
 • A JUCE SDK installed on your Mac — Luthier does not bundle JUCE.
   Download from https://juce.com or clone https://github.com/juce-framework/JUCE
   Then set JUCE directory in Preferences → Workspace.
@@ -105,7 +108,10 @@ C'est normal pour des builds open source non signés.
 
 PRÉREQUIS
 ---------
-• macOS récent (build Apple Silicon ou Intel selon l'archive téléchargée).
+• macOS sur Apple Silicon (M1 ou ultérieur). Les Mac Intel ne sont pas pris en
+  charge pour l'application Luthier.
+• Les projets JUCE générés par Luthier restent compilables pour Mac Intel
+  (presets CMake macos-debug-x86_64 / macos-release-x86_64).
 • Un SDK JUCE installé sur votre Mac — Luthier n'inclut pas JUCE.
   Téléchargez-le sur https://juce.com ou clonez https://github.com/juce-framework/JUCE
   Puis renseignez JUCE directory dans Preferences → Workspace.
