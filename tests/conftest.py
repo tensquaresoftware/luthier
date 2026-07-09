@@ -5,7 +5,7 @@ import shutil
 from dataclasses import fields
 from pathlib import Path
 
-from core.paths import host_workspace_field_key
+from core.paths import host_workspace_field_key, normalize_portable_path
 from core.project_spec import ProjectSpec
 from core.plugin_settings import TYPE_INSTRUMENT
 
@@ -52,18 +52,18 @@ def _default_spec_fields(tmp_path) -> dict:
         artefacts_dir_linux="/out/linux",
     )
     host_dest = host_workspace_field_key("destination")
-    fields_dict[workspace_attr(host_dest)] = str(tmp_path)
+    fields_dict[workspace_attr(host_dest)] = normalize_portable_path(str(tmp_path))
     return fields_dict
 
 
 def make_spec(tmp_path, **kwargs) -> ProjectSpec:
     defaults = _default_spec_fields(tmp_path)
     if "destination_dir" in kwargs:
-        dest = kwargs.pop("destination_dir")
+        dest = normalize_portable_path(str(kwargs.pop("destination_dir")))
         host_dest = host_workspace_field_key("destination")
         defaults[workspace_attr(host_dest)] = dest
     if "juce_dir" in kwargs:
-        juce = kwargs.pop("juce_dir")
+        juce = normalize_portable_path(str(kwargs.pop("juce_dir")))
         host_juce = host_workspace_field_key("juce")
         defaults[workspace_attr(host_juce)] = juce
     defaults.update(kwargs)

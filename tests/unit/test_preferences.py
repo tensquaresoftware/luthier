@@ -7,13 +7,13 @@ from unittest.mock import patch
 import pytest
 
 from core.accent_colors import DEFAULT_ACCENT_COLOR
-from core.paths import host_workspace_field_key
+from core.paths import host_workspace_field_key, normalize_portable_path
 from core.preferences import Preferences, factory_defaults, validate_profile
 from core.plugin_settings import TYPE_AUDIO_EFFECT, TYPE_INSTRUMENT
 
 
 def _valid_profile(**overrides) -> dict:
-    from core.paths import host_workspace_field_key
+    from core.paths import host_workspace_field_key, normalize_portable_path
 
     host_dest = host_workspace_field_key("destination")
     host_juce = host_workspace_field_key("juce")
@@ -68,7 +68,9 @@ def test_factory_defaults_falls_back_when_desktop_empty():
         return_value="",
     ):
         defaults = factory_defaults()
-    assert defaults[host_workspace_field_key("destination")] == str(Path.home())
+    assert defaults[host_workspace_field_key("destination")] == normalize_portable_path(
+        str(Path.home())
+    )
 
 
 def test_ensure_initialized_creates_file_with_desktop_destination(tmp_path):
