@@ -33,7 +33,8 @@
 | --- | --- |
 | **Testeur** | Guillaume DUPONT |
 | **Date de début** | 09/07/2026 |
-| **Commit / tag testé** | `1.0.0-rc2` (smoke complet) — correctifs VS 2026 + WinError → **`1.0.0-rc3`** |
+| **Commit / tag testé** | Smoke : `1.0.0-rc2` / `1.0.0-rc4` · **Release publiée : `1.0.0`** (10/07/2026) |
+| **Date fin smoke test** | 10/07/2026 |
 | **Source du build Luthier** | GitHub Release — artefacts du tag testé (`.github/workflows/release.yml`) |
 | **CI GitHub** (pytest 3 OS) | ✅ verte sur le commit testé ☐ non vérifiée |
 | **DAW utilisé** | ☐ Ableton Live ☐ JUCE AudioPluginHost ✅ les deux |
@@ -47,9 +48,9 @@
 | --- | --- | --- | :---: | --- | --- |
 | **P** | Preferences (3 OS + fichier partagé) | 60 min | ✅ | 09–10/07/2026 | — |
 | **A** | Project — fumée macOS (Apple Silicon) | 45 min | ✅ | 09/07/2026 | — |
-| **B** | Project — fumée Windows | 45 min | ⚠️ | 10/07/2026 | Build Cursor (VS 2026) ; WinError regen — retest **rc3** |
+| **B** | Project — fumée Windows | 45 min | ✅ | 10/07/2026 | Validé via [rc4 Windows](./smoke-test-rc4-windows.md) |
 | **C** | Project — fumée Linux | 45 min | ✅ | 10/07/2026 | — |
-| **D** | Git cross-OS (projet généré) | 45 min | ⚠️ | 10/07/2026 | D2 Windows (VS) ; D-302 clarifié ci-dessous |
+| **D** | Git cross-OS (projet généré) | 45 min | ✅ | 10/07/2026 | D2 validé rc4 |
 
 ---
 
@@ -89,7 +90,7 @@ La **CD release** (`.github/workflows/release.yml`) construit et publie les bund
 | --- | --- | --- | :---: | :---: | --- |
 | P-01 | Vérifier **Git** installé (`git --version`) | Version affichée | ✅ | ☐ | Requis Phase D |
 | P-02 | Vérifier **CMake** ≥ 3.22 (`cmake --version`) | Version ≥ 3.22 | ✅ | ☐ | |
-| P-03 | Vérifier compilateur + **Ninja** (macOS/Linux) ou **VS 2026 + CMake 4.2+** (Windows ; legacy VS 2022 + CMake 3.22 : presets `windows-*-vs2022`) | Outil disponible | ✅ | ☐ | Sous rc2 : VS 2026 installé mais presets ciblent VS 2022 — corrigé en **rc3** |
+| P-03 | Vérifier compilateur + **Ninja** (macOS/Linux) ou **VS 2026 + CMake 4.2+** (Windows ; legacy VS 2022 + CMake 3.22 : presets `windows-*-vs2022`) | Outil disponible | ✅ | ☐ | Presets VS 2026 depuis rc3 ; validé build rc4 |
 | P-04 | Installer **Cursor** (ou VS Code) + extensions **CMake Tools** et **C/C++** | Extensions actives | ✅ | ☐ | |
 | P-05 | Préparer un dossier de travail **avec accents** possible (ex. `Téléchargements/été 2026`) | Dossier créé | ✅ | ☐ | Valide les chemins UI Luthier |
 | P-06 | Installer / localiser **JUCE** (checkout complet, pas seulement headers) | Chemin noté ci-dessous | ✅ | ☐ | |
@@ -340,7 +341,7 @@ Ce smoke test valide les **artefacts publiés par la CD** sur tag semver — pas
 
 ## Phase B — Project (Windows)
 
-**Build testé :** 1.0.0-rc2 | **Date :** 10/07/2026 
+**Build testé :** génération `1.0.0-rc2` · build/regen **`1.0.0-rc4`** ([détail](./smoke-test-rc4-windows.md)) | **Date :** 10/07/2026
 **Important :** chemin du projet `SmokeTest` en **ASCII uniquement** (pas d’accents — limitation MSVC) : projets générés sur le Bureau.  
 **Prérequis :** Phase **P** terminée ; fichier prefs maître (P-C-160).
 
@@ -371,8 +372,8 @@ Ce smoke test valide les **artefacts publiés par la CD** sur tag semver — pas
 | B-402 | **Generate** vers dossier `SmokeTest` existant | Bloqué (modale + barre) | ✅ | ☐ | |
 | B-403 | **Create New Project** → `SmokeRegen` → **Generate** | Succès | ✅ | ☐ | |
 | B-404 | `git init` + commit dans `SmokeRegen` | `.git/` créé | ✅ | ☐ | |
-| B-405 | **Generate** dans dossier avec `.git/` | Pas de WinError / accès refusé | ☐ | ❌ | rc2 : `WinError 32` — correctif `project_writer` + retest **rc3** |
-| B-406 | Régénération en session (version `2.0.0`, modale **Yes**) | Succès ; `.git/` préservé | ☐ | ❌ | Même erreur rc2 — retest **rc3** |
+| B-405 | **Generate** dans dossier avec `.git/` | Pas de WinError / accès refusé | ✅ | ☐ | rc2/rc3 : WinError 32 — OK **rc4** (W2-04) |
+| B-406 | Régénération en session (version `2.0.0`, modale **Yes**) | Succès ; `.git/` préservé | ✅ | ☐ | OK **rc4** (W2-05) |
 
 ### B5 — Create New Project et dirty guard
 
@@ -393,22 +394,22 @@ Ce smoke test valide les **artefacts publiés par la CD** sur tag semver — pas
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| B-701 | Ouvrir dossier `SmokeTest` dans Cursor | Sans accroc | ☐ | ❌ | rc2 : preset VS 2022 — retest **rc3** avec `windows-debug` (VS 2026) |
-| B-702 | `.vscode/` + configure CMake | Réussie | ☐ | ☐ | |
-| B-703 | Preset **`windows-debug`** | Build dir `Builds/Windows` | ☐ | ☐ | |
-| B-704 | **CMake: Build** / `Ctrl+Shift+B` | Sans erreur | ☐ | ☐ | |
-| B-705 | **Problems** | Pas d’erreur projet | ☐ | ☐ | |
-| B-706 | Prompt **UAC** à la copie VST3 système | Cliquer **Yes** ; logs artefacts visibles | ☐ | ☐ | |
+| B-701 | Ouvrir dossier `SmokeTest` dans Cursor | Sans accroc | ✅ | ☐ | OK **rc4** (W3-01) |
+| B-702 | `.vscode/` + configure CMake | Réussie | ✅ | ☐ | |
+| B-703 | Preset **`windows-debug`** | Build dir `Builds/Windows` | ✅ | ☐ | VS 2026 |
+| B-704 | **CMake: Build** / `Ctrl+Shift+B` | Sans erreur | ✅ | ☐ | |
+| B-705 | **Problems** | Pas d’erreur projet | ✅ | ☐ | |
+| B-706 | Prompt **UAC** à la copie VST3 système | Cliquer **Yes** ; logs artefacts visibles | ✅ | ☐ | |
 
 ### B8 — Standalone et plugins
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| B-801 | **F5** Standalone | Pas de crash | ☐ | ☐ | |
-| B-802 | `C:/Program Files/Common Files/VST3/` | VST3 présent | ☐ | ☐ | |
-| B-803 | DAW : VST3 **système** | Pas de crash | ☐ | ☐ | |
-| B-804 | DAW : VST3 **artefacts** | Pas de crash | ☐ | ☐ | |
-| B-805 | Standalone depuis **artefacts** | Pas de crash | ☐ | ☐ | |
+| B-801 | **F5** Standalone | Pas de crash | ✅ | ☐ | |
+| B-802 | `C:/Program Files/Common Files/VST3/` | VST3 présent | ✅ | ☐ | |
+| B-803 | DAW : VST3 **système** | Pas de crash | ✅ | ☐ | |
+| B-804 | DAW : VST3 **artefacts** | Pas de crash | ✅ | ☐ | |
+| B-805 | Standalone depuis **artefacts** | Pas de crash | ✅ | ☐ | |
 
 ---
 
@@ -497,10 +498,10 @@ Valide que le **projet JUCE** voyage via Git et compile sur chaque OS **sans** r
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| D-201 | `git clone` du dépôt | Copie locale OK | ☐ | ☐ | Retest **rc3** Windows (guide dédié) |
-| D-202 | Éditer `.luthier.json` : **JUCE directory** ligne **Windows** (chemin local) | Fichier sauvegardé | ☐ | ☐ | |
-| D-203 | Cursor : **`windows-debug`** → build | Sans erreur | ☐ | ☐ | |
-| D-204 | Standalone **F5** + VST3 système + artefacts | Pas de crash | ☐ | ☐ | |
+| D-201 | `git clone` du dépôt | Copie locale OK | ✅ | ☐ | OK **rc4** (W4-01) |
+| D-202 | Éditer `.luthier.json` : **`juceDirWindows`** (chemin JUCE local) | Fichier sauvegardé | ✅ | ☐ | |
+| D-203 | Cursor : **`windows-debug`** → build | Sans erreur | ✅ | ☐ | |
+| D-204 | Standalone **F5** + VST3 système + artefacts | Pas de crash | ✅ | ☐ | |
 | D-205 | (opt.) Modifier `Source/` → commit → push | Remote à jour | ☐ | ☐ | |
 
 > **Ne pas** utiliser **Generate Project** sur le clone après redémarrage Luthier (dossier non vide). Regénération complète = dossier vide + nouvelle session Luthier sur machine 1, ou régénération **en session** sur machine 1.
@@ -539,14 +540,16 @@ Valide que le **projet JUCE** voyage via Git et compile sur chaque OS **sans** r
 
 ## Critères de réussite (go release v1.0.0)
 
+**Verdict smoke test (10/07/2026) :** ✅ **GO** — phases P, A, B, C, D complètes ; anomalies #1–#2 résolues ; mineurs acceptés listés ci-dessous.
+
 | ID | Critère | ✅ OK | ❌ KO | Remarques |
 | --- | --- | :---: | :---: | --- |
 | G-00 | Phase **P** complète (P-A → P-C, fichier maître exporté) | ✅ | ☐ | |
 | G-01 | Phase **A** complète (A0 + A3–A8, hors opt.) | ✅ | ☐ | |
-| G-02 | Phase **B** complète (B0 + B3–B8, hors opt.) | ☐ | ❌ | Génération OK ; build/regen Windows → retest **rc3** |
+| G-02 | Phase **B** complète (B0 + B3–B8, hors opt.) | ✅ | ☐ | Build/regen validés rc4 |
 | G-03 | Phase **C** complète (C0 + C3–C8, hors opt.) | ✅ | ☐ | |
-| G-04 | Phase **D** complète (D1–D4 minimum) | ☐ | ❌ | D2 Windows en attente **rc3** |
-| G-05 | **Aucun bloquant** ouvert dans la grille ci-dessous | ☐ | ❌ | #1–#2 ouverts jusqu’à validation rc3 |
+| G-04 | Phase **D** complète (D1–D4 minimum) | ✅ | ☐ | D2 validé rc4 |
+| G-05 | **Aucun bloquant** ouvert dans la grille ci-dessous | ✅ | ☐ | #1–#2 résolus rc3/rc4 |
 | G-06 | Mineurs connus acceptés (si présents) | ✅ | ☐ | B-503, C-003, P-C-004 |
 
 **Mineurs acceptés sans échec release :**
@@ -565,9 +568,9 @@ Pour chaque **❌ KO** significatif, ajouter une ligne. Référencer l’**ID** 
 
 | # | ID étape | OS | Résumé | Attendu | Obtenu | Gravité | Suite |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | B-701 | Windows | Presets CMake ciblent VS 2022 | Configure avec VS 2026 installé | Échec configure (générateur introuvable) | **bloquant** (build) | Corrigé **rc3** : preset `windows-debug` → VS 2026 ; retest guide rc3 |
-| 2 | B-405, B-406 | Windows | Régénération en session avec `.git/` | Regen OK, `.git/` préservé | `WinError 32` (rc2/rc3) | **gênant** | rc4 : swap `Project` → `Project.old` ; retest W2 |
-| 3 | D-302 | Linux | Chemin JUCE Linux sur clone Git | Édition `.luthier.json` claire | Question testeur | **mineur** (doc) | Encadré D-302 ajouté dans ce guide |
+| 1 | B-701 | Windows | Presets CMake ciblent VS 2022 | Configure avec VS 2026 installé | Échec configure (générateur introuvable) | ~~bloquant~~ | **Résolu rc3** — preset VS 2026 ; validé rc4 W3 |
+| 2 | B-405, B-406 | Windows | Régénération en session avec `.git/` | Regen OK, `.git/` préservé | `WinError 32` (rc2/rc3) | ~~gênant~~ | **Résolu rc4** — rename aside ; validé W2 |
+| 3 | D-302 | Linux | Chemin JUCE Linux sur clone Git | Édition `.luthier.json` claire | Question testeur | mineur (doc) | Encadré D-302 ; test OK |
 
 **Gravité :** **bloquant** = impossible de continuer ou risque perte de données ; **gênant** = contournement pénible ; **mineur** = cosmétique ou cas rare.
 
@@ -589,7 +592,7 @@ Pour chaque **❌ KO** significatif, ajouter une ligne. Référencer l’**ID** 
 
 - [Manuel utilisateur (FR)](../../user/manuel-utilisateur.md) — §8 app autonome, §16 workflows, §18 stockage
 - [User manual (EN)](../../user/user-manual.md)
-- [Smoke test rc3 Windows (allégé)](./smoke-test-rc3-windows.md) — retest Phase B + D2 après correctifs
+- [Smoke test rc4 Windows (allégé)](./smoke-test-rc4-windows.md) — Phase B build/regen + D2 (✅ 10/07/2026)
 - [CONTRIBUTING.md](../../../CONTRIBUTING.md) — build bundle, CI
 - README du projet généré (`SmokeTest/README.md`) — presets Cursor, debugging
 - [Checklist QA archive (beta)](../1.0.0-beta/checklist-qa-pre-release-v1.md)
