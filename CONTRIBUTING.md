@@ -29,7 +29,7 @@ source .venv/bin/activate          # Windows: .venv\Scripts\activate
 # 3. Dev dependencies (PySide6 + pytest + PyInstaller)
 pip install -r requirements-dev.txt
 
-# 4. Test suite (158 tests collected; frozen-bundle tests skip when dist/ is absent)
+# 4. Test suite (331 tests collected; frozen-bundle tests skip when dist/ is absent)
 .venv/bin/pytest                     # Windows: .venv\Scripts\pytest
 
 # 5. Headless template check (exit 0, error: None)
@@ -95,7 +95,7 @@ PyInstaller 6+ uses an onedir layout on Windows and Linux (`_internal/` subdirec
 .venv/bin/pytest
 ```
 
-- **158 tests** collected (`pytest --collect-only`).
+- **331 tests** collected (`pytest --collect-only`).
 - **No display required** — default suite runs headless; most tests exercise `core/` directly (a few unit tests import lightweight `app/` field-spec helpers).
 - **`tests/unit/`** — primarily pure `core/` logic; some modules use `tmp_path` for file I/O.
 - **`tests/integration/`** — round-trip generation with pytest's `tmp_path` fixture.
