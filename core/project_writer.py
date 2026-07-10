@@ -28,8 +28,8 @@ def _is_sharing_violation(exc: BaseException) -> bool:
 def _retry_on_sharing_violation(
     func: Callable[[], _T],
     *,
-    attempts: int = 6,
-    base_delay: float = 0.05,
+    attempts: int = 10,
+    base_delay: float = 0.1,
 ) -> _T:
     last: BaseException | None = None
     for attempt in range(attempts):
@@ -65,19 +65,42 @@ def _robust_rmtree(path: Path) -> None:
         _remove()
 
 
-def _relocate_git_directory(src: Path, dst: Path) -> None:
-    """Move `.git` without shutil.move, which deletes the source via plain rmtree."""
+def _rename_path(src: Path, dst: Path) -> None:
+    if sys.platform == "win32":
+        _retry_on_sharing_violation(lambda: src.rename(dst))
+    else:
+        src.rename(dst)
+
+
+def _copy_git_directory(src: Path, dst: Path) -> None:
+    """Copy ``.git`` into a fresh project tree (source is left untouched)."""
     if dst.exists():
         _robust_rmtree(dst)
-    if sys.platform == "win32":
-        shutil.copytree(src, dst, symlinks=True)
-        _robust_rmtree(src)
-        return
+    shutil.copytree(src, dst, symlinks=True)
+
+
+def _swap_project_tree(project: Path, tmp: Path, stash: Path) -> None:
+    """Replace ``project`` with ``tmp``, moving the previous tree to ``stash``.
+
+    Avoids deleting ``.git`` in place on Windows (WinError 32 when Git or the
+    shell holds handles). The caller must copy ``.git`` into ``tmp`` first when
+    preservation is required.
+    """
+    if stash.exists():
+        _robust_rmtree(stash)
+    _rename_path(project, stash)
     try:
-        src.rename(dst)
-    except OSError:
-        shutil.copytree(src, dst, symlinks=True)
-        _robust_rmtree(src)
+        _rename_path(tmp, project)
+    except Exception:
+        if stash.exists() and not project.exists():
+            _rename_path(stash, project)
+        raise
+    if stash.exists():
+        try:
+            _robust_rmtree(stash)
+        except OSError:
+            pass
+
 
 _RENDERED = (
     "CMakeLists.txt",
@@ -114,25 +137,24 @@ class ProjectWriter:
     def write(self, context: dict, tokens: dict, spec: ProjectSpec) -> None:
         """Render and atomically replace the project directory.
 
-        If ``rename`` fails after removing the existing project directory, the
-        previous project tree is lost; only manual recovery (VCS/backup) is
-        possible. The temporary directory is cleaned up on failure when possible.
+        If the final ``rename`` fails after moving the existing tree aside, the
+        previous project is restored from the stash when possible. The temporary
+        directory is cleaned up on failure when possible.
         """
         tmp = self._project.parent / (self._project.name + ".tmp")
+        stash = self._project.parent / (self._project.name + ".old")
         if tmp.exists():
             _robust_rmtree(tmp)
         try:
             self._write_all(tmp, context, tokens)
             self._write_sidecar(tmp, spec)
-            if self._project.exists():
+            if self._project.is_dir():
                 git_src = self._project / ".git"
                 if git_src.is_dir():
-                    git_dst = tmp / ".git"
-                    if git_dst.exists():
-                        _robust_rmtree(git_dst)
-                    _relocate_git_directory(git_src, git_dst)
-                _robust_rmtree(self._project)
-            tmp.rename(self._project)
+                    _copy_git_directory(git_src, tmp / ".git")
+                _swap_project_tree(self._project, tmp, stash)
+            else:
+                tmp.rename(self._project)
         except Exception:
             try:
                 if tmp.exists():

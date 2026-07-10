@@ -10,7 +10,7 @@ import pytest
 
 from core import render_context
 from core.project_generator import templates_dir
-from core.project_writer import ProjectWriter, _relocate_git_directory, _robust_rmtree
+from core.project_writer import ProjectWriter, _copy_git_directory, _robust_rmtree
 from tests.conftest import assert_sidecar_omits_accent, make_spec, write_project
 
 
@@ -24,7 +24,7 @@ def test_robust_rmtree_removes_readonly_files(tmp_path):
     assert not target.exists()
 
 
-def test_relocate_git_directory_removes_readonly_source(tmp_path):
+def test_copy_git_directory_leaves_source_intact(tmp_path):
     src = tmp_path / "project" / ".git"
     objects_dir = src / "objects" / "06"
     objects_dir.mkdir(parents=True)
@@ -34,13 +34,29 @@ def test_relocate_git_directory_removes_readonly_source(tmp_path):
     (src / "HEAD").write_text("ref: refs/heads/main\n", encoding="utf-8")
 
     dst = tmp_path / "project.tmp" / ".git"
-    _relocate_git_directory(src, dst)
+    _copy_git_directory(src, dst)
 
-    assert not src.exists()
+    assert src.is_dir()
+    assert (src / "HEAD").read_text(encoding="utf-8") == "ref: refs/heads/main\n"
     assert (dst / "HEAD").read_text(encoding="utf-8") == "ref: refs/heads/main\n"
     assert (
         dst / "objects" / "06" / "f8e57e6fedf09e55548fb0554bdc1f2f7c3f19"
     ).read_bytes() == b"fake git object"
+
+
+def test_write_overwrite_leaves_no_stash_dir(tmp_path):
+    from core.project_generator import ProjectGenerator
+
+    spec = make_spec(tmp_path)
+    generator = ProjectGenerator()
+    dest = generator.generate(spec)
+    git_dir = dest / ".git"
+    git_dir.mkdir()
+    (git_dir / "HEAD").write_text("ref: refs/heads/main\n", encoding="utf-8")
+    generator.generate(make_spec(tmp_path, project_version="2.0.0"), allow_overwrite=True)
+    assert not (dest.parent / (dest.name + ".old")).exists()
+    assert not (dest.parent / (dest.name + ".tmp")).exists()
+    assert git_dir.is_dir()
 
 
 def test_write_leaves_no_tmp_dir_on_success(tmp_path):

@@ -1,6 +1,6 @@
 # Luthier — Smoke test rc3 (Windows uniquement)
 
-**Tag visé :** `1.0.0-rc3`  
+**Tag visé :** `1.0.0-rc4` (correctif WinError — voir rc3 si déjà commencé)  
 **Public :** complément au [smoke test complet](./smoke-test-v1-trois-os.md) — **Phase B** (build/regen) + **Phase D2**  
 **Durée estimée :** ~30 min
 
@@ -21,7 +21,7 @@ Ce guide couvre uniquement ce qui a **échoué ou n’a pas pu être validé** s
 | **CMake** | **4.2+** (`cmake --version`) — requis pour le preset `windows-debug` |
 | **Cursor / VS Code** | Extensions **CMake Tools** + **C/C++** |
 | **JUCE** | Checkout complet (ex. `C:/Users/Guillaume/Dev/SDKs/JUCE`) |
-| **Luthier rc3** | Zip `Luthier-1.0.0-rc3-windows.zip` depuis [GitHub Releases](https://github.com/tensquaresoftware/luthier/releases) |
+| **Luthier rc4** | Zip `Luthier-1.0.0-rc4-windows.zip` depuis [GitHub Releases](https://github.com/tensquaresoftware/luthier/releases) |
 | **Prefs maître** | `luthier-smoke-prefs.json` (Phase P du smoke complet) |
 | **DAW ou AudioPluginHost** | Pour charger le VST3 |
 
@@ -31,13 +31,13 @@ Ce guide couvre uniquement ce qui a **échoué ou n’a pas pu être validé** s
 
 ---
 
-## R0 — Obtenir rc3
+## R0 — Obtenir rc4
 
 | ID | Action | ✅ OK | ❌ KO | Remarques |
 | --- | --- | :---: | :---: | --- |
-| R0-01 | Télécharger `Luthier-1.0.0-rc3-windows.zip` | ☐ | ☐ | |
+| R0-01 | Télécharger `Luthier-1.0.0-rc4-windows.zip` | ☐ | ☐ | rc3 : WinError 32 persistant sur W2 |
 | R0-02 | Extraire → lancer `Luthier.exe` ou `--check` | ☐ | ☐ | |
-| R0-03 | **About** → version `1.0.0-rc3` | ☐ | ☐ | |
+| R0-03 | **About** → version `1.0.0-rc4` | ☐ | ☐ | |
 
 ---
 
@@ -45,22 +45,22 @@ Ce guide couvre uniquement ce qui a **échoué ou n’a pas pu être validé** s
 
 | ID | Action | ✅ OK | ❌ KO | Remarques |
 | --- | --- | :---: | :---: | --- |
-| W1-01 | **Import Preferences…** (fichier maître Phase P) | ☐ | ☐ | |
-| W1-02 | **Create New Project** → `SmokeTest` → **Generate Project** | ☐ | ☐ | Destination ASCII (Bureau OK) |
-| W1-03 | Vérifier `.vscode/` + `CMakeUserPresets.json` : preset `windows-debug` = **Visual Studio 18 2026** | ☐ | ☐ | |
+| W1-01 | **Import Preferences…** (fichier maître Phase P) | ✅ | ☐ | |
+| W1-02 | **Create New Project** → `SmokeTest` → **Generate Project** | ✅ | ☐ | Destination ASCII (Bureau OK : ✅) |
+| W1-03 | Vérifier `.vscode/` + `CMakeUserPresets.json` : preset `windows-debug` = **Visual Studio 18 2026** | ✅ | ☐ | Vérifié avec Notepad++ |
 
 ---
 
 ## W2 — Régénération avec `.git/` (correctif WinError)
 
-**Contexte rc2 :** `WinError 32` après `git init` + regen en session (B-405 / B-406).
+**Contexte :** rc2 et rc3 échouaient avec `WinError 32` après `git init` + regen en session. **rc4** remplace l’arborescence par un **rename aside** (`Project.old`) au lieu de supprimer `.git` sur place.
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| W2-01 | **Create New Project** → `SmokeRegen` → **Generate Project** | Succès | ☐ | ☐ | Même session Luthier |
-| W2-02 | Dans `SmokeRegen` : `git init`, `git add .`, `git commit -m "init"` | `.git/` créé | ☐ | ☐ | Fermer Cursor si dossier ouvert |
-| W2-03 | Luthier : **Version** → `2.0.0` → **Generate Project** | Modale **Regenerate Project** ; défaut **No** | ☐ | ☐ | |
-| W2-04 | Choisir **Yes** | Succès — **pas** de `WinError 32` | ☐ | ☐ | |
+| W2-01 | **Create New Project** → `SmokeRegen` → **Generate Project** | Succès | ✅ | ☐ | Même session Luthier |
+| W2-02 | Dans `SmokeRegen` : `git init`, `git add .`, `git commit -m "init"` | `.git/` créé | ✅ | ☐ | Fermer Cursor si dossier ouvert |
+| W2-03 | Luthier : **Version** → `2.0.0` → **Generate Project** | Modale **Regenerate Project** ; défaut **No** | ✅ | ☐ | |
+| W2-04 | Choisir **Yes** | Succès — **pas** de `WinError 32` | ☐ | ❌ | WinError 32 |
 | W2-05 | Sur disque : version `2.0.0` dans les sources ; dossier `.git/` **présent** | Conforme | ☐ | ☐ | `git log` doit montrer le commit init |
 
 > **Conseil :** avant W2-04, fermer Cursor/Explorateur sur `SmokeRegen` pour limiter les verrous fichiers Windows.

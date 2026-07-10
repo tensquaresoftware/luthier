@@ -566,7 +566,7 @@ Pour chaque **❌ KO** significatif, ajouter une ligne. Référencer l’**ID** 
 | # | ID étape | OS | Résumé | Attendu | Obtenu | Gravité | Suite |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | B-701 | Windows | Presets CMake ciblent VS 2022 | Configure avec VS 2026 installé | Échec configure (générateur introuvable) | **bloquant** (build) | Corrigé **rc3** : preset `windows-debug` → VS 2026 ; retest guide rc3 |
-| 2 | B-405, B-406 | Windows | Régénération en session avec `.git/` | Regen OK, `.git/` préservé | `WinError 32` (fichier verrouillé) | **gênant** | Correctif `core/project_writer.py` (retries + copie `.git` sous Windows) ; retest **rc3** |
+| 2 | B-405, B-406 | Windows | Régénération en session avec `.git/` | Regen OK, `.git/` préservé | `WinError 32` (rc2/rc3) | **gênant** | rc4 : swap `Project` → `Project.old` ; retest W2 |
 | 3 | D-302 | Linux | Chemin JUCE Linux sur clone Git | Édition `.luthier.json` claire | Question testeur | **mineur** (doc) | Encadré D-302 ajouté dans ce guide |
 
 **Gravité :** **bloquant** = impossible de continuer ou risque perte de données ; **gênant** = contournement pénible ; **mineur** = cosmétique ou cas rare.
