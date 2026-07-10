@@ -50,7 +50,7 @@ Each **semver tag push** (including `-rc*` prereleases) must trigger GitHub Acti
 | `publish/prepare-release.py` L314–380 | `publish_release()` creates tag + pushes + `gh release create` — blocks when tag exists |
 | `publish/build-dist.py` | Cross-platform PyInstaller build with `--check` smoke |
 | `publish/templates/README-macos.template.txt` L13–14 | Still says "create, reopen, and regenerate" — obsolete since Epic 9 scaffold-only |
-| `docs/tests/1.0.0-pre-release/smoke-test-v1-trois-os.md` | Manual smoke test checklist for RC artefacts from GitHub Release |
+| `docs/qa/smoke-test-three-os.md` | Manual smoke test checklist for RC artefacts from GitHub Release |
 | Epic 10 `epics.md` | Explicit "No Story 10.2" — superseded by this proposal (Intel runner still out of scope) |
 
 ---
@@ -163,7 +163,7 @@ Summary:
 6. **Version:** tag name = version (no `v` prefix); must match `app/version.py` at tagged commit.
 7. **Reuse:** no duplicated archive/checksum logic in workflow YAML.
 8. **Template fix:** `README-macos.template.txt` — scaffold-only copy (no reopen).
-9. **CONTRIBUTING.md:** document RC smoke test (`docs/tests/1.0.0-pre-release/smoke-test-v1-trois-os.md`) then final tag.
+9. **CONTRIBUTING.md:** document RC smoke test (`docs/qa/smoke-test-three-os.md`) then final tag.
 10. **Out of scope:** Mac Intel app, code signing/notarization, `.msi`/`.pkg` installers.
 
 ---

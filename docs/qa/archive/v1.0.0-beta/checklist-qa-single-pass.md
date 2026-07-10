@@ -6,7 +6,7 @@
 **Estimated duration:** 3 to 5 h across three OS (or 1 to 2 h if you only rerun regressions + end of Git workflow)
 
 > **Goal:** one read, one pass. Check `- [ ]` → `- [x]` as you go.  
-> Previous detailed checklist: [checklist-qa-manuelle.md](checklist-qa-manuelle.md) (detailed archive pre-Workspace).
+> Previous detailed checklist: [checklist-qa-manual.md](checklist-qa-manual.md) (detailed archive pre-Workspace).
 
 ---
 
@@ -238,5 +238,5 @@ The QA pass is **successful** if:
 
 ## References
 
-- [Detailed QA checklist (archive)](checklist-qa-manuelle.md)
-- [User manual (EN)](../user/user-manual.md)
+- [Detailed QA checklist (archive)](checklist-qa-manual.md)
+- [User manual (EN)](../../../user/user-manual.md)

@@ -9,7 +9,8 @@ Created: 2026-06-26
 Updated: 2026-07-09
 References:
   - docs/user/manuel-utilisateur.md
-  - _bmad-output/architecture.md
+  - docs/dev/architecture.md
+  - docs/user/guides/juce-cmake-and-luthier-guide.md
   - CONTRIBUTING.md
   - README.md
 ---
@@ -1136,6 +1137,11 @@ Exit code `0` means the bundled templates are reachable.
 ---
 
 ## 23. Further reading
+
+### Luthier philosophy & ecosystem
+
+- [JUCE, CMake and Luthier — guide (EN)](guides/juce-cmake-and-luthier-guide.md) — Projucer vs CMake, Luthier scope, agentic IDE workflow
+- [JUCE, CMake et Luthier — guide (FR)](guides/guide-juce-cmake-et-luthier.md)
 
 ### JUCE documentation
 

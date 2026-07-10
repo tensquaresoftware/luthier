@@ -12,7 +12,7 @@
 | Workspace smoke on all 3 OS | ~30 min (10 min/OS) |
 | Complete `VoyageLuthier` Git workflow | ~30 min |
 
-> **Goal:** do not rerun the full [detailed checklist](checklist-qa-manuelle.md) or [single pass](checklist-qa-passe-unique.md). This sheet covers **only** what changed since 30/06 and what remained **unchecked** or **failed** when testing stopped.
+> **Goal:** do not rerun the full [detailed checklist](checklist-qa-manual.md) or [single pass](checklist-qa-single-pass.md). This sheet covers **only** what changed since 30/06 and what remained **unchecked** or **failed** when testing stopped.
 
 ---
 
@@ -22,8 +22,8 @@ Check mentally; skip directly to the sections below if you use the **same build*
 
 | Area | Status | Reference |
 | --- | --- | --- |
-| Full Part 1 workflow (A/B/C, steps 1–9) | ✅ | [checklist-qa-manuelle.md](checklist-qa-manuelle.md) — 2026-06-29 |
-| Regressions R1, R4, R5, R6 (accents, `/` messages, dirty form, red error, corrupt prefs) | ✅ | [checklist-qa-passe-unique.md](checklist-qa-passe-unique.md) |
+| Full Part 1 workflow (A/B/C, steps 1–9) | ✅ | [checklist-qa-manual.md](checklist-qa-manual.md) — 2026-06-29 |
+| Regressions R1, R4, R5, R6 (accents, `/` messages, dirty form, red error, corrupt prefs) | ✅ | [checklist-qa-single-pass.md](checklist-qa-single-pass.md) |
 | `VoyageLuthier` Git workflow 2.2 → 2.4 (Mac → Win → Linux) | ✅ | manual checklist + single pass |
 | WinError 5 on `.git` (Windows) | ✅ fixed | commits `60dc52e`, **`c893cec`** |
 | Export Preferences with full path | ✅ | R2 single pass |
@@ -123,7 +123,7 @@ Related commits: `78dcf03` (QA fixes), `e78bce6` (Workspace per-OS), `fc433ac` (
 
 ## Part 3 — Open items from the single pass
 
-> Boxes left empty or marked ❌ in [checklist-qa-passe-unique.md](checklist-qa-passe-unique.md).
+> Boxes left empty or marked ❌ in [checklist-qa-single-pass.md](checklist-qa-single-pass.md).
 
 ### P1 — Windows modals (R3) — Windows only
 
@@ -205,6 +205,6 @@ Pre-release QA is **successful** when:
 
 ## References
 
-- [Detailed QA checklist (archive)](checklist-qa-manuelle.md)
-- [Single-pass Workspace QA (archive)](checklist-qa-passe-unique.md)
-- [User manual (EN)](../user/user-manual.md)
+- [Detailed QA checklist (archive)](checklist-qa-manual.md)
+- [Single-pass Workspace QA (archive)](checklist-qa-single-pass.md)
+- [User manual (EN)](../../../user/user-manual.md)

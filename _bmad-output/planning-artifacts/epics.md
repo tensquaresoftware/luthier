@@ -1283,7 +1283,7 @@ So that I understand Luthier's role in my CMake workflow without expecting Proju
 **Given** README / manuals  
 **Then** scaffold-only positioning; sponsor block unchanged; features list updated
 
-**Given** QA checklists in `docs/tests/`  
+**Given** QA checklists in `docs/qa/archive/`  
 **Then** open/round-trip scenarios removed; add empty-folder guard smoke step
 
 **Given** `templates/README.md` and `CONTRIBUTING.md`  
@@ -1387,7 +1387,7 @@ So that I (or an agent) can publish `1.0.0-rc1` for smoke testing and `1.0.0` fo
 
 **Given** a tag with a prerelease suffix `X.Y.Z-<suffix>` (e.g. `1.0.0-rc1`, `1.0.1-beta2`),
 **When** the GitHub Release is created,
-**Then** it is marked **`--prerelease`** for manual smoke testing per `docs/tests/1.0.0-pre-release/smoke-test-v1-trois-os.md`.
+**Then** it is marked **`--prerelease`** for manual smoke testing per `docs/qa/smoke-test-three-os.md`.
 
 **Given** a final release tag without prerelease suffix (e.g. `1.0.0`),
 **When** the GitHub Release is created,

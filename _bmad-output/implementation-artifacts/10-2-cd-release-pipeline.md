@@ -37,7 +37,7 @@ So that I (or an agent) can publish `1.0.0-rc1` for smoke testing and `1.0.0` fo
 **Planning references:**
 - `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-09-cd-release.md`
 - `publish/prepare-release.py` — `publish_release()` L314–380 (local flow; CI differs)
-- `docs/tests/1.0.0-pre-release/smoke-test-v1-trois-os.md` — manual RC validation
+- `docs/qa/smoke-test-three-os.md` — manual RC validation
 
 ## Acceptance Criteria
 

@@ -167,7 +167,7 @@ Destination folder *
 
 ### AC9 — QA checklists updated
 
-**Given** `docs/tests/checklist-qa-manuelle.md`, `checklist-qa-passe-unique.md`, `checklist-qa-pre-release-v1.md`  
+**Given** `docs/tests/checklist-qa-manual.md`, `checklist-qa-single-pass.md`, `checklist-qa-pre-release-v1.md`  
 **Then** remove or rewrite Open Project / round-trip / sidecar-reload / accent-in-sidecar scenarios  
 **And** add:
 - Generate blocked on non-empty destination (fresh session)
@@ -231,11 +231,11 @@ Destination folder *
 ### Review Findings
 
 - [x] [Review][Patch] `app_state.json` table falsely documents session regenerate path as persisted — fixed: separate in-memory row [docs/user/user-manual.md:688, docs/user/manuel-utilisateur.md:686]
-- [x] [Review][Patch] Checklist intro still says Luthier « crée et rouvre » des projets JUCE — fixed [docs/tests/checklist-qa-manuelle.md:17]
-- [x] [Review][Patch] `checklist-qa-passe-unique.md` R3 still expects generic overwrite modal on existing folder — fixed [docs/tests/checklist-qa-passe-unique.md:97]
-- [x] [Review][Patch] `checklist-qa-passe-unique.md` §3.3–3.5 still instruct Generate into cloned `VoyageLuthier` — fixed for CMake-only workflow [docs/tests/checklist-qa-passe-unique.md:180-197]
-- [x] [Review][Patch] `checklist-qa-passe-unique.md` §3.6 retains « projet ouvert inchangé » — fixed [docs/tests/checklist-qa-passe-unique.md:203]
-- [x] [Review][Patch] `checklist-qa-passe-unique.md` §3.4 retains « ouvrir projet » step — fixed [docs/tests/checklist-qa-passe-unique.md:186]
+- [x] [Review][Patch] Checklist intro still says Luthier « crée et rouvre » des projets JUCE — fixed [docs/tests/checklist-qa-manual.md:17]
+- [x] [Review][Patch] `checklist-qa-single-pass.md` R3 still expects generic overwrite modal on existing folder — fixed [docs/tests/checklist-qa-single-pass.md:97]
+- [x] [Review][Patch] `checklist-qa-single-pass.md` §3.3–3.5 still instruct Generate into cloned `VoyageLuthier` — fixed for CMake-only workflow [docs/tests/checklist-qa-single-pass.md:180-197]
+- [x] [Review][Patch] `checklist-qa-single-pass.md` §3.6 retains « projet ouvert inchangé » — fixed [docs/tests/checklist-qa-single-pass.md:203]
+- [x] [Review][Patch] `checklist-qa-single-pass.md` §3.4 retains « ouvrir projet » step — fixed [docs/tests/checklist-qa-single-pass.md:186]
 - [x] [Review][Patch] Broken §7.5 Workspace anchor links after section renumber — fixed → `#76-workspace` [docs/user/user-manual.md, docs/user/manuel-utilisateur.md]
 - [x] [Review][Patch] VST MIDI counts documented as Spinners; UI uses `ComboField` dropdowns — fixed [docs/user/user-manual.md:300, docs/user/manuel-utilisateur.md]
 - [x] [Review][Patch] §7.4 Formats says add formats « by regenerating the project » without same-session qualifier — fixed [both manuals]
@@ -244,9 +244,9 @@ Destination folder *
 - [x] [Review][Patch] Import §8.3 should clarify imported accent updates theme on all tabs immediately — fixed [both manuals §8.3]
 - [x] [Review][Patch] Guide `.luthier.json` table still describes sidecar as « miroir » — fixed write-only wording [docs/user/guide-juce-cmake-et-luthier.md]
 - [x] [Review][Patch] `CONTRIBUTING.md` missing link to guide — fixed [CONTRIBUTING.md]
-- [x] [Review][Patch] Epic 9 smoke block in manuelle lists S9.1–S9.3 only — added S9.4 checkbox [docs/tests/checklist-qa-manuelle.md:53-56]
-- [x] [Review][Patch] B4 missing post-restart blocked-generate check — fixed (parity with A4/C4) [docs/tests/checklist-qa-manuelle.md:257-266]
-- [x] [Review][Patch] B4 archive note nested italics inside blockquote — fixed [docs/tests/checklist-qa-manuelle.md:266]
+- [x] [Review][Patch] Epic 9 smoke block in manuelle lists S9.1–S9.3 only — added S9.4 checkbox [docs/tests/checklist-qa-manual.md:53-56]
+- [x] [Review][Patch] B4 missing post-restart blocked-generate check — fixed (parity with A4/C4) [docs/tests/checklist-qa-manual.md:257-266]
+- [x] [Review][Patch] B4 archive note nested italics inside blockquote — fixed [docs/tests/checklist-qa-manual.md:266]
 - [x] [Review][Defer] Plugin Type dirty-form confirm dialog undocumented in manuals — real UX gap but out of AC scope; document in follow-up [docs/user/user-manual.md §7.3] — deferred, pre-existing gap
 - [x] [Review][Defer] Epic 9 anchor slug uses accented characters — may not resolve in all Markdown renderers [docs/tests/checklist-qa-*.md] — deferred, renderer-dependent
 
@@ -443,8 +443,8 @@ Update `REVISION_DATE` only. About page reads these constants — no UI code cha
 | `docs/user/manuel-utilisateur.md` | Mirror EN changes (French prose) |
 | `docs/user/guide-juce-cmake-et-luthier.md` | Cross-links only (minimal); FR edition in `docs/user/` |
 | `docs/user/juce-cmake-and-luthier-guide.md` | EN translation; cross-links only (minimal) |
-| `docs/tests/checklist-qa-manuelle.md` | Remove Open scenarios; add guard/regenerate |
-| `docs/tests/checklist-qa-passe-unique.md` | Same |
+| `docs/tests/checklist-qa-manual.md` | Remove Open scenarios; add guard/regenerate |
+| `docs/tests/checklist-qa-single-pass.md` | Same |
 | `docs/tests/checklist-qa-pre-release-v1.md` | Same; fix stale v1 Open claims |
 | `templates/README.md` | Add post-generation / no Luthier reopen section |
 | `CONTRIBUTING.md` | Scaffold-only positioning if needed |
@@ -557,8 +557,8 @@ claude-sonnet-5-thinking-high
 - docs/user/juce-cmake-and-luthier-guide.md
 - docs/user/user-manual.md
 - docs/user/manuel-utilisateur.md
-- docs/tests/checklist-qa-manuelle.md
-- docs/tests/checklist-qa-passe-unique.md
+- docs/tests/checklist-qa-manual.md
+- docs/tests/checklist-qa-single-pass.md
 - docs/tests/checklist-qa-pre-release-v1.md
 - templates/README.md
 - tests/unit/test_about.py

@@ -2,7 +2,7 @@
 
 Thank you for contributing to Luthier — a **one-shot JUCE/CMake starter project generator** (generate once, then develop in your IDE — no Open/reload workflow). This guide walks you through environment setup, running the test suite, launching the app, and building a standalone bundle.
 
-For architecture and module contracts, see [_bmad-output/architecture.md](_bmad-output/architecture.md). For end-user documentation (including JUCE/CMake context and Luthier usage), see [docs/user/user-manual.md](docs/user/user-manual.md) (English) or [docs/user/manuel-utilisateur.md](docs/user/manuel-utilisateur.md) (French).
+For architecture and module contracts, see [docs/dev/architecture.md](docs/dev/architecture.md). For end-user documentation (including JUCE/CMake context and Luthier usage), see [docs/user/user-manual.md](docs/user/user-manual.md) (English) or [docs/user/manuel-utilisateur.md](docs/user/manuel-utilisateur.md) (French).
 
 ## Prerequisites
 
@@ -103,7 +103,7 @@ PyInstaller 6+ uses an onedir layout on Windows and Linux (`_internal/` subdirec
 - Legacy `tests/test_story_*.py` unittest modules are still collected by pytest — no need to run them separately.
 - Configuration: `pytest.ini` sets `testpaths = tests` and `pythonpath = .`.
 
-Cross-platform CMake validation (`cmake -B build` on generated projects) is covered by `tests/integration/test_cmake_cross_platform.py` — Windows x64 and Linux x86_64 configure tests run on matching hosts only (`@pytest.mark.skipif` by platform). Validated on all three OS families (2026-06-26). See [_bmad-output/architecture.md](_bmad-output/architecture.md#testing).
+Cross-platform CMake validation (`cmake -B build` on generated projects) is covered by `tests/integration/test_cmake_cross_platform.py` — Windows x64 and Linux x86_64 configure tests run on matching hosts only (`@pytest.mark.skipif` by platform). Validated on all three OS families (2026-06-26). See [docs/dev/architecture.md](docs/dev/architecture.md#testing).
 
 ## Code style and contribution norms
 
@@ -133,7 +133,7 @@ If `rules/process-clean-code.md` is present in your checkout, follow it for the 
 
 - `core/` must **never** import from `app/` (AD-8).
 - `app/` must **never** import from `templates/` directly — all generation goes through `core/`.
-- See [_bmad-output/architecture.md](_bmad-output/architecture.md) for the full architecture.
+- See [docs/dev/architecture.md](docs/dev/architecture.md) for the full architecture.
 
 ## Folder casing
 
@@ -159,14 +159,15 @@ The `_bmad-output/` folder is the BMad planning and implementation artifact stor
 | Architecture Spine (canonical) | [`_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md`](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-spine.md) |
 | Architecture Explained (companion) | [`_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-explained.md`](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-explained.md) |
 | Epics & stories | [`_bmad-output/planning-artifacts/epics.md`](_bmad-output/planning-artifacts/epics.md) |
-| Architecture (contributor reference) | [`_bmad-output/architecture.md`](_bmad-output/architecture.md) |
+| Architecture (contributor reference) | [`docs/dev/architecture.md`](docs/dev/architecture.md) |
 | Project context (AI/dev quick reference) | [`_bmad-output/project-context.md`](_bmad-output/project-context.md) |
 
-> **Note:** For the narrative companion, see [`architecture-explained.md`](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-explained.md) (Decisions 5–7 include superseded Epic 1 history). AD-5 and AD-7: use **architecture-spine** and [_bmad-output/architecture.md](_bmad-output/architecture.md).
+> **Note:** For the narrative companion, see [`architecture-explained.md`](_bmad-output/planning-artifacts/architecture/architecture-Luthier-2026-06-22/architecture-explained.md) (Decisions 5–7 include superseded Epic 1 history). AD-5 and AD-7: use **architecture-spine** and [docs/dev/architecture.md](docs/dev/architecture.md).
 
 ## Further reading
 
-- [_bmad-output/architecture.md](_bmad-output/architecture.md) — three-layer design, module contracts, two-pass rendering
+- [docs/dev/architecture.md](docs/dev/architecture.md) — three-layer design, module contracts, two-pass rendering
+- [docs/README.md](docs/README.md) — documentation index
 - [docs/user/user-manual.md](docs/user/user-manual.md) — end-user manual (English)
 - [docs/user/manuel-utilisateur.md](docs/user/manuel-utilisateur.md) — manuel utilisateur (français)
 - [README.md](README.md) — project overview and quick start
@@ -209,7 +210,7 @@ Releases are **semver tags without a `v` prefix** (`1.0.0`, `1.0.0-rc1`, …). P
    git push origin 1.0.0-rc1
    ```
    CI marks the GitHub Release as **pre-release** when the tag contains a prerelease suffix (e.g. `-rc1`).
-3. **Manual smoke test** on the GitHub Release artefacts using [docs/tests/1.0.0-pre-release/smoke-test-v1-trois-os.md](docs/tests/1.0.0-pre-release/smoke-test-v1-trois-os.md).
+3. **Manual smoke test** on the GitHub Release artefacts using [docs/qa/smoke-test-three-os.md](docs/qa/smoke-test-three-os.md).
 4. **Final release** (after smoke passes): bump to `1.0.0` if needed, commit, then:
    ```bash
    git tag 1.0.0

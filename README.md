@@ -13,7 +13,7 @@ A Projucer-inspired desktop GUI for **one-shot generation** of ready-to-build CM
 
 Luthier is a self-contained [PySide6](https://doc.qt.io/qtforpython/) desktop app that generates ready-to-build, CMake-based JUCE plugin projects (AU / VST3 / Standalone): fill a form, validate inline, and generate a complete starter project once. After generation, continue development in your IDE — Luthier does **not** reload or reopen existing projects. Your defaults live in a persistent preferences file; each generate also writes a **write-only** `.luthier.json` sidecar as metadata for you or AI tools.
 
-**Further reading:** [User manual (EN)](docs/user/user-manual.md) · [Manuel utilisateur (FR)](docs/user/manuel-utilisateur.md)
+**Further reading:** [User manual (EN)](docs/user/user-manual.md) · [Manuel utilisateur (FR)](docs/user/manuel-utilisateur.md) · [JUCE/CMake guide (EN)](docs/user/guides/juce-cmake-and-luthier-guide.md) · [Documentation index](docs/README.md)
 
 ## Features
 
@@ -53,7 +53,7 @@ Check that the bundled templates are reachable (headless):
 
 ## Contributing
 
-See **[CONTRIBUTING.md](CONTRIBUTING.md)** for full developer setup (venv, pytest, bundle build) and **[_bmad-output/architecture.md](_bmad-output/architecture.md)** for the three-layer design and module contracts.
+See **[CONTRIBUTING.md](CONTRIBUTING.md)** for full developer setup (venv, pytest, bundle build) and **[docs/dev/architecture.md](docs/dev/architecture.md)** for the three-layer design and module contracts.
 
 ## Build a standalone app
 

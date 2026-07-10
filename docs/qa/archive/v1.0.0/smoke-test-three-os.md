@@ -590,8 +590,8 @@ For each significant **❌ KO**, add a row. Reference the step **ID** (e.g. `A-7
 
 ## References
 
-- [User manual (EN)](../../user/user-manual.md)
+- [User manual (EN)](../../../user/user-manual.md)
 - [rc4 Windows smoke test (condensed)](./smoke-test-rc4-windows.md) — Phase B build/regen + D2 (✅ 10/07/2026)
-- [CONTRIBUTING.md](../../../CONTRIBUTING.md) — bundle build, CI
+- [CONTRIBUTING.md](../../../../CONTRIBUTING.md) — bundle build, CI
 - Generated project README (`SmokeTest/README.md`) — Cursor presets, debugging
-- [QA checklist archive (beta)](../1.0.0-beta/checklist-qa-pre-release-v1.md)
+- [QA checklist archive (beta)](../v1.0.0-beta/checklist-qa-pre-release-v1.md)

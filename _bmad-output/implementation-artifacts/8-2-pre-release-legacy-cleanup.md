@@ -98,8 +98,8 @@ So that v1.0.0 ships with a smaller, clearer codebase and no misleading legacy b
 
 **And** QA checklists:
 
-- `docs/checklist-qa-passe-unique.md` — sidecar required on Open
-- `docs/checklist-qa-manuelle.md` — replace archive « sans `.luthier.json` » test with « missing sidecar → clear error »
+- `docs/checklist-qa-single-pass.md` — sidecar required on Open
+- `docs/checklist-qa-manual.md` — replace archive « sans `.luthier.json` » test with « missing sidecar → clear error »
 
 ### AC6 — Tests & CI green
 
@@ -196,7 +196,7 @@ Optional: still require `CMakeLists.txt` to exist for « looks like a project »
 | `app/main_window.py` | Simplify open errors |
 | `templates/README.md`, `templates/.cursorrules` | Doc fix |
 | `docs/user-manual.md`, `docs/manuel-utilisateur.md`, `docs/architecture.md` | Doc fix |
-| `docs/checklist-qa-passe-unique.md`, `docs/checklist-qa-manuelle.md` | QA fix |
+| `docs/checklist-qa-single-pass.md`, `docs/checklist-qa-manual.md` | QA fix |
 | `_bmad-output/project-context.md` | Agent context sync |
 | `tests/integration/test_round_trip.py` | Remove cmake tests |
 | `tests/integration/test_cmake_cross_platform.py` | Fix sidecar test |
@@ -254,8 +254,8 @@ Optional: still require `CMakeLists.txt` to exist for « looks like a project »
 - `docs/user-manual.md` — modified
 - `docs/manuel-utilisateur.md` — modified
 - `docs/architecture.md` — modified
-- `docs/checklist-qa-passe-unique.md` — modified
-- `docs/checklist-qa-manuelle.md` — modified
+- `docs/checklist-qa-single-pass.md` — modified
+- `docs/checklist-qa-manual.md` — modified
 - `_bmad-output/project-context.md` — modified
 - `_bmad-output/implementation-artifacts/deferred-work.md` — modified
 - `_bmad-output/implementation-artifacts/sprint-status.yaml` — modified

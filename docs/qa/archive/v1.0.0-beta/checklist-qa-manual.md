@@ -48,13 +48,13 @@ Steps are identical from one OS to another; only specific notes (installation, p
 
 ## Epic 9 — Scaffold-only smoke (v1.0.0 — 2026-07-04)
 
-> **Open Project…** removed. See also [checklist-qa-passe-unique.md § Epic 9](checklist-qa-passe-unique.md#epic-9--scaffold-only-smoke-v100--2026-07-04) for S9.1–S9.4 scenario details (non-empty guard, session regenerate, accent Preferences-only, characteristics).
+> **Open Project…** removed. See also [checklist-qa-single-pass.md § Epic 9](checklist-qa-single-pass.md#epic-9--scaffold-only-smoke-v100--2026-07-04) for S9.1–S9.4 scenario details (non-empty guard, session regenerate, accent Preferences-only, characteristics).
 
 - [ ] **Project** action bar: **Create New Project** and **Generate Project** only (no **Open Project…**).
 - [ ] Non-empty folder guard after app restart (S9.1).
 - [ ] Session regenerate with **Regenerate Project** confirm (S9.2).
 - [ ] Accent via **Luthier appearance** (**Preferences** only); no `accentColor` in `.luthier.json` (S9.3).
-- [ ] **Plugin Type** **Instrument** + **Plugin MIDI Output** → **Generate Project** → consistent CMake intent (S9.4, optional — see [single-pass S9.4](checklist-qa-passe-unique.md#s94--plugin-characteristics-optional)).
+- [ ] **Plugin Type** **Instrument** + **Plugin MIDI Output** → **Generate Project** → consistent CMake intent (S9.4, optional — see [single-pass S9.4](checklist-qa-single-pass.md#s94--plugin-characteristics-optional)).
 
 ---
 
@@ -638,4 +638,4 @@ QA is **successful** for a release if:
 
 ## References
 
-- [User manual (EN)](../user/user-manual.md)
+- [User manual (EN)](../../../user/user-manual.md)
