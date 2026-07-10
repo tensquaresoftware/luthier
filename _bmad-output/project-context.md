@@ -2,7 +2,7 @@
 project_name: 'Luthier'
 user_name: 'Guillaume'
 date: '2026-06-22'
-sections_completed: ['technology_stack', 'architecture', 'patterns', 'critical_rules', 'known_issues', 'goals']
+sections_completed: ['technology_stack', 'architecture', 'patterns', 'critical_rules', 'backward_compatibility', 'known_issues', 'goals']
 ---
 
 # Project Context for AI Agents
@@ -234,6 +234,25 @@ Priority when conflicts: **correctness > KISS/YAGNI > SOLID > premature DRY**
 - Form keys (dict keys from `.values()`): `camelCase` (matches CMake template placeholders)
 - Git commits: English only
 - Folder names at project root: `PascalCase` (except Python packages `app/`, `core/`)
+
+### Backward Compatibility (post-1.0.0 — MANDATORY)
+
+**Effective 2026-07-10:** Luthier **1.0.0** is published on GitHub (public repo). Pre-1.0 work intentionally dropped legacy paths (Epic 9 §2.3); **from 1.0.0 onward, preserve backward compatibility on every change** unless shipping an explicit **major** semver bump (`2.0.0`).
+
+Apply on each PR / story:
+
+| Surface | Rule |
+|---------|------|
+| **`preferences.json`** | Existing keys keep meaning and valid defaults; new keys optional; never rename/remove without migration |
+| **`app_state.json`** | Same — tolerate missing keys on read; never break window restore or path memory |
+| **`.luthier.json` sidecar** | `ProjectSpec.to_dict()` shape is a public contract for generated projects and external tools; additive fields only in minor/patch |
+| **`Templates/` output** | Generated skeletons from 1.0.0 must still configure/build; template token/placeholder renames need compat shims or a major bump |
+| **`core/` public API** | Validators, `ProjectSpec`, generation pipeline — no silent breaking signature or semantics in patch/minor |
+| **Frozen bundles** | PyInstaller users on an older `X.Y.Z` must not break when upgrading within the same major |
+
+**Semver:** tags without `v` prefix (`1.0.0`, `1.1.0`, `2.0.0`). Patch/minor = compatible; major = allowed breaking changes (document in release notes).
+
+**Tests:** add or extend regression tests when touching persisted JSON, sidecar schema, or template contracts.
 
 ### No Comments Policy
 
