@@ -10,7 +10,6 @@ Updated: 2026-07-09
 References:
   - docs/user/user-manual.md
   - docs/dev/architecture.md
-  - docs/user/guides/guide-juce-cmake-et-luthier.md
   - CONTRIBUTING.md
   - README.md
 ---
@@ -1139,11 +1138,6 @@ Un code de sortie `0` signifie que les templates embarqués sont accessibles.
 ---
 
 ## 23. Pour aller plus loin
-
-### Philosophie Luthier & écosystème
-
-- [JUCE, CMake et Luthier — guide (FR)](guides/guide-juce-cmake-et-luthier.md)
-- [JUCE, CMake and Luthier — guide (EN)](guides/juce-cmake-and-luthier-guide.md)
 
 ### Documentation JUCE
 

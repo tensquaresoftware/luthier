@@ -4,14 +4,12 @@ Index of published documentation for the [Luthier](https://github.com/tensquares
 
 ## User documentation
 
-End-user manuals and background reading on JUCE, CMake, and Luthier's role in the ecosystem.
+End-user manuals (English and French).
 
 | Document | Language | Description |
 |----------|----------|-------------|
-| [user-manual.md](user/user-manual.md) | English | Full user manual — UI, workflows, troubleshooting |
+| [user-manual.md](user/user-manual.md) | English | Full user manual — context, UI, workflows, troubleshooting |
 | [manuel-utilisateur.md](user/manuel-utilisateur.md) | French | Manuel utilisateur complet |
-| [juce-cmake-and-luthier-guide.md](user/guides/juce-cmake-and-luthier-guide.md) | English | Philosophy: Projucer vs CMake, Luthier scope, agentic IDE workflow |
-| [guide-juce-cmake-et-luthier.md](user/guides/guide-juce-cmake-et-luthier.md) | French | Même contenu — édition française |
 
 ## Developer documentation
 
