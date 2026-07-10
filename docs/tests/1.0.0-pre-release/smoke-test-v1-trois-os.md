@@ -10,7 +10,9 @@
 ## Comment utiliser ce guide
 
 1. **Remplis la fiche de session** (section suivante) avant de commencer.
-2. **Exécute les phases dans l’ordre** A → B → C → D (D peut attendre la fin de A/B/C).
+2. **Exécute les phases dans l’ordre** **P** → **A** → **B** → **C** → **D** (D peut attendre la fin de A/B/C).
+   - **Phase P** : onglet **Preferences** uniquement (profil réaliste + fichier partagé entre les 3 OS) — **sans** Generate.
+   - **Phases A / B / C** : onglet **Project** (génération, build, DAW) — **Import** du fichier prefs maître au départ.
 3. Pour **chaque ligne** du tableau : fais l’action, vérifie le résultat attendu, coche **✅ OK** *ou* **❌ KO** (une seule des deux), note tes remarques dans la dernière colonne si besoin.
 4. Si **❌ KO** bloque la suite de la phase, note la gravité dans la **grille des anomalies** (fin de document) et décide si tu continues (gênant/mineur) ou tu arrêtes la phase (bloquant).
 5. Les étapes marquées **(opt)** sont optionnelles — ne bloquent pas le go release.
@@ -29,22 +31,25 @@
 
 | Champ | Valeur |
 | --- | --- |
-| **Testeur** | |
-| **Date de début** | |
-| **Commit / tag testé** | |
-| **Source du build Luthier** | ☐ GitHub Release (artefacts du tag) ☐ `dist/` local (PyInstaller) ☐ sources (`.venv/bin/python main.py`) ☐ autre : |
-| **CI GitHub** (pytest 3 OS) | ☐ verte sur le commit testé ☐ non vérifiée |
-| **DAW utilisé** | ☐ Ableton Live ☐ JUCE AudioPluginHost ☐ les deux |
-| **Cursor / VS Code** | Version : |
+| **Testeur** | Guillaume DUPONT |
+| **Date de début** | 09/07/2026 |
+| **Commit / tag testé** | `1.0.0-rc2` (smoke complet) — correctifs VS 2026 + WinError → **`1.0.0-rc3`** |
+| **Source du build Luthier** | GitHub Release — artefacts du tag testé (`.github/workflows/release.yml`) |
+| **CI GitHub** (pytest 3 OS) | ✅ verte sur le commit testé ☐ non vérifiée |
+| **DAW utilisé** | ☐ Ableton Live ☐ JUCE AudioPluginHost ✅ les deux |
+| **Cursor / VS Code** | Version : Cursor 3.10.20 (Universal) |
+| **Machine de dev** | MacBook Pro M5 (2025) / macOS Tahoe 26.5.1 |
+| **Fichier prefs partagé** | `/Users/Guillaume/Library/CloudStorage/Dropbox/Dev/Tests/Luthier/luthier-smoke-prefs.json` |
 
 ### Avancement par phase
 
 | Phase | Description | Durée ~ | ✅ Terminée | Date | Bloquants ouverts |
 | --- | --- | --- | :---: | --- | --- |
-| **A** | Fumée Luthier macOS (Apple Silicon) | 45 min | ☐ | | |
-| **B** | Fumée Luthier Windows | 45 min | ☐ | | |
-| **C** | Fumée Luthier Linux | 45 min | ☐ | | |
-| **D** | Fumée Git cross-OS (projet généré) | 45 min | ☐ | | |
+| **P** | Preferences (3 OS + fichier partagé) | 60 min | ✅ | 09–10/07/2026 | — |
+| **A** | Project — fumée macOS (Apple Silicon) | 45 min | ✅ | 09/07/2026 | — |
+| **B** | Project — fumée Windows | 45 min | ⚠️ | 10/07/2026 | Build Cursor (VS 2026) ; WinError regen — retest **rc3** |
+| **C** | Project — fumée Linux | 45 min | ✅ | 10/07/2026 | — |
+| **D** | Git cross-OS (projet généré) | 45 min | ⚠️ | 10/07/2026 | D2 Windows (VS) ; D-302 clarifié ci-dessous |
 
 ---
 
@@ -52,7 +57,9 @@
 
 La CI (`.github/workflows/pytest.yml`) exécute **pytest sur Ubuntu, Windows et macOS** à chaque push/PR. Tu n’as **pas** à rejouer manuellement la logique couverte par les tests automatisés (garde-fous Generate, dirty guard, preferences, génération de fichiers, etc.) **sauf** si tu veux une double validation avant release.
 
-**Ce guide couvre ce que la CI ne voit pas :** UI réelle, bundle PyInstaller, dialogues fichiers, Cursor/CMake Tools, build JUCE du projet généré, chargement DAW, copies vers dossiers système/artefacts.
+La **CD release** (`.github/workflows/release.yml`) construit et publie les bundles PyInstaller sur chaque tag semver. Tu n’as **pas** à builder localement pour ce smoke test.
+
+**Ce guide couvre ce que la CI/CD ne voit pas :** UI réelle sur bundle release, dialogues fichiers, quarantaine macOS, Cursor/CMake Tools, build JUCE du projet généré, chargement DAW, copies vers dossiers système/artefacts.
 
 ---
 
@@ -70,7 +77,7 @@ La CI (`.github/workflows/pytest.yml`) exécute **pytest sur Ubuntu, Windows et 
 | Projet JUCE généré | ✅ Oui | **Git** |
 | Réglages projet via Luthier sur machine distante | ❌ Non | — |
 | Profil Luthier (`preferences.json`, templates) | ✅ Oui (opt.) | **Export / Import Preferences…** |
-| Chemins Workspace (JUCE, destination) | ⚠️ Par machine | Ajuster dans **Preferences** ou `.luthier.json` avant un **nouveau** Generate |
+| Chemins Workspace (JUCE, destination) | ⚠️ Par machine | Phase **P** : profil réaliste + **Export / Import** sur les 3 OS → fichier maître avant toute génération |
 
 **macOS — périmètre app Luthier :** l’application autonome `Luthier.app` requiert un Mac **Apple Silicon (arm64)**. Les Mac Intel ne sont **pas** pris en charge pour l’app. Les **projets générés** restent compilables pour Mac Intel via les presets CMake `macos-debug-x86_64` (hors scope de ce smoke test pour la Phase A).
 
@@ -80,14 +87,14 @@ La CI (`.github/workflows/pytest.yml`) exécute **pytest sur Ubuntu, Windows et 
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| P-01 | Vérifier **Git** installé (`git --version`) | Version affichée | ☐ | ☐ | Requis Phase D |
-| P-02 | Vérifier **CMake** ≥ 3.22 (`cmake --version`) | Version ≥ 3.22 | ☐ | ☐ | |
-| P-03 | Vérifier compilateur + **Ninja** (macOS/Linux) ou **VS 2022** (Windows) | Outil disponible | ☐ | ☐ | |
-| P-04 | Installer **Cursor** (ou VS Code) + extensions **CMake Tools** et **C/C++** | Extensions actives | ☐ | ☐ | |
-| P-05 | Préparer un dossier de travail **avec accents** possible (ex. `Téléchargements/été 2026`) | Dossier créé | ☐ | ☐ | Valide les chemins UI Luthier |
-| P-06 | Installer / localiser **JUCE** (checkout complet, pas seulement headers) | Chemin noté ci-dessous | ☐ | ☐ | |
-| P-07 | Préparer **Ableton Live** *ou* build **AudioPluginHost** JUCE (`extras/AudioPluginHost`) | Au moins un outil prêt | ☐ | ☐ | |
-| P-08 | Lire la section **Obtenir le build Luthier** pour l’OS de la phase en cours | Build prêt avant A0/B0/C0 | ☐ | ☐ | |
+| P-01 | Vérifier **Git** installé (`git --version`) | Version affichée | ✅ | ☐ | Requis Phase D |
+| P-02 | Vérifier **CMake** ≥ 3.22 (`cmake --version`) | Version ≥ 3.22 | ✅ | ☐ | |
+| P-03 | Vérifier compilateur + **Ninja** (macOS/Linux) ou **VS 2026 + CMake 4.2+** (Windows ; legacy VS 2022 + CMake 3.22 : presets `windows-*-vs2022`) | Outil disponible | ✅ | ☐ | Sous rc2 : VS 2026 installé mais presets ciblent VS 2022 — corrigé en **rc3** |
+| P-04 | Installer **Cursor** (ou VS Code) + extensions **CMake Tools** et **C/C++** | Extensions actives | ✅ | ☐ | |
+| P-05 | Préparer un dossier de travail **avec accents** possible (ex. `Téléchargements/été 2026`) | Dossier créé | ✅ | ☐ | Valide les chemins UI Luthier |
+| P-06 | Installer / localiser **JUCE** (checkout complet, pas seulement headers) | Chemin noté ci-dessous | ✅ | ☐ | |
+| P-07 | Préparer **Ableton Live** *ou* build **AudioPluginHost** JUCE (`extras/AudioPluginHost`) | Au moins un outil prêt | ✅ | ☐ | |
+| P-08 | Télécharger et extraire le zip GitHub Release pour l’OS en cours (section **Obtenir le build**) | Build prêt avant Phase P sur chaque machine | ✅ | ☐ | |
 
 ### Chemins de référence (adapter à ta machine)
 
@@ -109,136 +116,195 @@ La CI (`.github/workflows/pytest.yml`) exécute **pytest sur Ubuntu, Windows et 
 
 ---
 
-## Obtenir le build Luthier (avant chaque phase OS)
+## Obtenir le build Luthier (GitHub Release — avant chaque phase OS)
 
-Choisis **une** méthode par machine. Pour un **RC** (`1.0.0-rc1`, etc.), privilégie **Option R** (artefacts publiés par la CI). Pour une validation locale avant tag, utilise les options A/B.
-
-### Option R — GitHub Release (recommandé pour RC)
-
-Après `git push origin <tag>`, la CI publie une [GitHub Release](https://github.com/tensquaresoftware/luthier/releases) avec quatre zips : `Luthier-<tag>-{macos,windows,linux,docs}.zip`.
+Ce smoke test valide les **artefacts publiés par la CD** sur tag semver — pas un build local. Après `git push origin <tag>`, la CI publie une [GitHub Release](https://github.com/tensquaresoftware/luthier/releases) avec quatre zips : `Luthier-<tag>-{macos,windows,linux,docs}.zip`.
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| R-01 | Ouvrir la Release du **tag testé** sur GitHub | Release marquée **Pre-release** si le tag contient un suffixe (`-rc1`, `-beta2`, …) | ☐ | ☐ | |
-| R-02 | Télécharger `Luthier-<tag>-macos.zip` (Phase A), `-windows.zip` (Phase B), `-linux.zip` (Phase C) | Archives présentes ; taille non nulle | ☐ | ☐ | |
-| R-03 | **macOS :** extraire le zip → `Luthier.app` ; si « est endommagé » : `xattr -cr /chemin/vers/Luthier.app` puis lancer ; sinon `--check` | Code **0** sur `--check` ; app démarre | ☐ | ☐ | Quarantaine navigateur = normal sur build non signé |
-| R-04 | **Windows :** extraire → `Luthier\Luthier.exe` ; lancer ou `--check` | Code **0** ; app démarre | ☐ | ☐ | |
-| R-05 | **Linux :** extraire → `Luthier/Luthier` exécutable ; lancer ou `--check` | Code **0** ; app démarre | ☐ | ☐ | |
-| R-06 | Onglet **About** sur chaque OS | Version = **tag testé** ; date de révision cohérente | ☐ | ☐ | |
-
-### macOS (Apple Silicon uniquement) — build local
-
-| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
-| --- | --- | --- | :---: | :---: | --- |
-| M-01 | **Option A — Bundle :** depuis la racine du dépôt, avec `.venv` et deps installées : `python publish/build-dist.py` | `dist/Luthier.app` créé ; `--check` termine avec code **0** | ☐ | ☐ | |
-| M-02 | **Option B — Dev :** `.venv/bin/python main.py` | Fenêtre Luthier s’ouvre | ☐ | ☐ | |
-| M-03 | Si macOS affiche « est endommagé » après téléchargement : `xattr -cr dist/Luthier.app` ; sinon clic droit → **Ouvrir** pour développeur non identifié | App lance sans blocage persistant | ☐ | ☐ | Bundle non signé = normal |
-| M-04 | Onglet **About** : version = **tag testé**, date de révision cohérente | Infos correctes | ☐ | ☐ | |
-
-**Vérification rapide bundle (optionnel)**
-
-```bash
-dist/Luthier.app/Contents/MacOS/Luthier --check
-# code de sortie 0 = templates embarqués OK
-```
-
-### Windows — build local
-
-| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
-| --- | --- | --- | :---: | :---: | --- |
-| W-01 | **Option A — Bundle :** `python publish/build-dist.py` | `dist\Luthier\Luthier.exe` créé ; `--check` → code **0** | ☐ | ☐ | |
-| W-02 | **Option B — Dev :** `.venv\Scripts\python main.py` | Fenêtre s’ouvre | ☐ | ☐ | |
-| W-03 | **About** : version = **tag testé** | Infos correctes | ☐ | ☐ | |
-
-```bat
-dist\Luthier\Luthier.exe --check
-```
-
-### Linux — build local
-
-| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
-| --- | --- | --- | :---: | :---: | --- |
-| L-01 | **Option A — Bundle :** `python publish/build-dist.py` | `dist/Luthier/Luthier` exécutable ; `--check` → code **0** | ☐ | ☐ | |
-| L-02 | **Option B — Dev :** `.venv/bin/python main.py` | Fenêtre s’ouvre | ☐ | ☐ | |
-| L-03 | **About** : version = **tag testé** | Infos correctes | ☐ | ☐ | |
-| L-04 | (opt.) Raccourci `.desktop` si tu testes l’icône barre des tâches | Icône visible | ☐ | ☐ | Mineur si absent |
-
-```bash
-dist/Luthier/Luthier --check
-```
+| R-01 | Ouvrir la Release du **tag testé** sur GitHub | Release marquée **Pre-release** si le tag contient un suffixe (`-rc1`, `-beta2`, …) | ✅ | ☐ | |
+| R-02 | Télécharger `Luthier-<tag>-macos.zip` (Phases **P-A** et **A**), `-windows.zip` (**P-B** / **B**), `-linux.zip` (**P-C** / **C**) | Archives présentes ; taille non nulle | ✅ | ☐ | |
+| R-03 | **macOS :** extraire le zip → `Luthier.app` ; si « est endommagé » : `xattr -cr /chemin/vers/Luthier.app` puis lancer ; sinon `--check` | Code **0** sur `--check` ; app démarre | ✅ | ☐ | Quarantaine navigateur = normal sur build non signé |
+| R-04 | **Windows :** extraire → `Luthier\Luthier.exe` ; lancer ou `--check` | Code **0** ; app démarre | ✅ | ☐ | |
+| R-05 | **Linux :** extraire → `Luthier/Luthier` exécutable ; lancer ou `--check` | Code **0** ; app démarre | ✅ | ☐ | |
+| R-06 | Onglet **About** sur chaque OS | Version = **tag testé** ; date de révision cohérente | ✅ | ☐ | |
 
 ---
 
-## Phase A — Fumée Luthier (macOS Apple Silicon)
+## Phase P — Preferences (3 OS, fichier partagé)
+
+**Objectif :** valider l’onglet **Preferences** avec un profil proche d’un **cas d’usage réel**, puis constituer `luthier-smoke-prefs.json` en le faisant voyager sur les **trois machines**. **Ne pas** ouvrir l’onglet **Project** ni cliquer **Generate Project** pendant la Phase P.
+
+**Ordre obligatoire :** **P-A** (macOS) → **Export** → **P-B** (Windows) → **Export** → **P-C** (Linux) → **Export maître** → Phases **A / B / C** (Project).
+
+**Fichier cible :** `luthier-smoke-prefs.json` (Dropbox, USB, etc.) — noter le chemin dans la fiche de session.
+
+**Règle Workspace :** sur chaque OS, ne renseigner que les lignes **hôte** (destination + JUCE via **Choose…** quand disponible). Les chemins des autres OS arrivent via **Import** des étapes précédentes.
+
+**Profil réaliste suggéré** (adapter à ton environnement ; voir aussi [Chemins de référence](#chemins-de-référence-adapté-à-ta-machine)) :
+
+| Zone Preferences | Valeurs suggérées |
+| --- | --- |
+| **Plugin identity** | Fabricant *Ten Square Software* (ou le tien) ; codes fabricant/plugin via **Generate** ; site et e-mail plausibles |
+| **Formats par défaut** | **VST3** + **AU** + **Standalone** cochés |
+| **Workspace (OS hôte)** | Destination avec accents (test chemins UI) ; JUCE = chemin réel du SDK |
+| **Artefacts** | **Copy to system folders** + **Copy to central artefacts folder** ON ; chemins **OS hôte** (dossier artefacts cloud si tu l’utilises) |
+| **Luthier appearance** | Changer de preset d’accent ; vérifier connecteurs arbre sous Workspace / Artefacts |
+
+---
+
+### P-A — macOS (Apple Silicon)
+
+**Prérequis :** R-01 à R-03 (build release extrait).
+
+#### P-A-0 — Lancement (shell, sans Project)
+
+| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
+| --- | --- | --- | :---: | :---: | --- |
+| P-A-001 | Lancer Luthier (double-clic `Luthier.app`) | Pas de crash | ✅ | ☐ | |
+| P-A-002 | Parcourir les onglets | **Project**, **Preferences**, **Templates**, **About** visibles | ✅ | ☐ | |
+| P-A-003 | Chercher **Open Project…** | **Absent** partout | ✅ | ☐ | |
+| P-A-004 | Zone au-dessus des boutons d’action (**Create New Project** / **Generate Project**) | **Aucun** message tant qu’aucune action Project (barre repliée) | ✅ | ☐ | |
+
+#### P-A-1 — Onglet Preferences (profil réaliste, macOS)
+
+| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
+| --- | --- | --- | :---: | :---: | --- |
+| P-A-101 | **Preferences → Workspace** | 6 champs : destination + JUCE × 3 OS | ✅ | ☐ | |
+| P-A-102 | Boutons **Choose…** | Uniquement lignes **macOS** | ✅ | ☐ | |
+| P-A-103 | **Choose…** destination **macOS** → dossier **avec accents** | Pas d’erreur rouge ; badge **Saved** possible | ✅ | ☐ | |
+| P-A-104 | JUCE **macOS** (chemin réel). **Ne pas** saisir Windows/Linux à la main | Champ accepté | ✅ | ☐ | |
+| P-A-110 | **Plugin identity** : fabricant, codes (**Generate**), site, e-mail — profil crédible | Pas d’erreur rouge | ✅ | ☐ | |
+| P-A-111 | **Formats par défaut** : **VST3** + **AU** + **Standalone** | Cochés sans conflit | ✅ | ☐ | |
+| P-A-120 | **Artefacts** : copies système + central **ON** ; chemins **macOS** réels | Champs valides | ✅ | ☐ | |
+| P-A-130 | **Luthier appearance** : changer preset | Thème à jour sur tous les onglets | ✅ | ☐ | |
+| P-A-131 | Connecteurs arbre sous **Workspace** / **Artefacts** | Visibles | ✅ | ☐ | |
+
+#### P-A-2 — Persistance, Export, Import
+
+| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
+| --- | --- | --- | :---: | :---: | --- |
+| P-A-150 | Fermer Luthier, relancer | Preferences **macOS** conservées | ✅ | ☐ | |
+| P-A-160 | **Export Preferences…** → `luthier-smoke-prefs.json` | Fichier créé (v1 — macOS seul) | ✅ | ☐ | Copier vers stockage partagé |
+| P-A-170 | Modifier une pref → **Import Preferences…** (fichier P-A-160) | Profil restauré (round-trip) | ✅ | ☐ | |
+
+---
+
+### P-B — Windows
+
+**Prérequis :** R-04 ; fichier exporté en **P-A-160**.
+
+#### P-B-0 — Lancement
+
+| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
+| --- | --- | --- | :---: | :---: | --- |
+| P-B-001 | Lancer `Luthier\Luthier.exe` | Pas de crash | ✅ | ☐ | |
+| P-B-002 | Onglets + absence **Open Project…** | Conforme | ✅ | ☐ | |
+| P-B-003 | Barre de statut (zone boutons Project) | Repliée (aucune action Project) | ✅ | ☐ | |
+
+#### P-B-1 — Import + compléter Preferences (Windows)
+
+| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
+| --- | --- | --- | :---: | :---: | --- |
+| P-B-101 | **Import Preferences…** (`luthier-smoke-prefs.json` v1) | Profil macOS + identity + formats + appearance restaurés | ✅ | ☐ | |
+| P-B-102 | **Choose…** uniquement lignes **Windows** | Conforme | ✅ | ☐ | |
+| P-B-103 | Destination **Windows** (accents via **Choose…**) | Pas d’erreur rouge | ✅ | ☐ | |
+| P-B-104 | JUCE **Windows** (chemin réel) | Champ accepté | ✅ | ☐ | |
+| P-B-120 | **Artefacts** : chemins **Windows** réels (si activés en P-A) | Champs valides | ✅ | ☐ | |
+| P-B-130 | Vérifier **Luthier appearance** + connecteurs arbre | Inchangés / cohérents après Import | ✅ | ☐ | |
+
+#### P-B-2 — Export
+
+| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
+| --- | --- | --- | :---: | :---: | --- |
+| P-B-150 | Fermer / rouvrir | Valeurs conservées | ✅ | ☐ | |
+| P-B-160 | **Export Preferences…** → mettre à jour `luthier-smoke-prefs.json` | v2 — macOS + Windows | ✅ | ☐ | |
+
+---
+
+### P-C — Linux
+
+**Prérequis :** R-05 ; fichier exporté en **P-B-160**.
+
+#### P-C-0 — Lancement
+
+| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
+| --- | --- | --- | :---: | :---: | --- |
+| P-C-001 | Lancer Luthier | Pas de crash | ✅ | ☐ | |
+| P-C-002 | Onglets + absence **Open Project…** | Conforme | ✅ | ☐ | |
+| P-C-003 | Barre de statut | Repliée | ✅ | ☐ | |
+| P-C-004 | Icône lanceur / barre des tâches | Visible (ou `.desktop`) | ✅ | ☐ | Mineur si absent |
+
+#### P-C-1 — Import + compléter Preferences (Linux)
+
+| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
+| --- | --- | --- | :---: | :---: | --- |
+| P-C-101 | **Import Preferences…** (v2) | Chemins **macOS** + **Windows** + profil identity présents | ✅ | ☐ | |
+| P-C-102 | **Choose…** uniquement lignes **Linux** | OK | ✅ | ☐ | |
+| P-C-103 | Destination **Linux** (accents via **Choose…**) | Pas d’erreur rouge | ✅ | ☐ | |
+| P-C-104 | JUCE **Linux** (chemin réel) | Champ accepté | ✅ | ☐ | |
+| P-C-120 | **Artefacts** : chemins **Linux** réels | Champs valides | ✅ | ☐ | |
+
+#### P-C-2 — Export maître
+
+| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
+| --- | --- | --- | :---: | :---: | --- |
+| P-C-150 | Fermer / rouvrir ; **Import** round-trip (fichier C-160) | OK | ✅ | ☐ | |
+| P-C-160 | **Export Preferences…** → **`luthier-smoke-prefs.json` maître** | **6 chemins Workspace réels** + profil réaliste complet | ✅ | ☐ | Utiliser pour Phases A/B/C |
+
+---
+
+## Phase A — Project (macOS Apple Silicon)
 
 **Machine :** Mac **Apple Silicon** (M1/M2/M3/M4…) — **pas** Mac Intel.  
-**Build testé :** | **Date :** |
+**Build testé :** 1.0.0-rc2 | **Date :** 09/07/2026  
+**Prérequis :** Phase **P** terminée ; fichier **`luthier-smoke-prefs.json` maître** (P-C-160).
 
-### A0 — Lancement et shell UI
-
-| ID | Action (faire exactement) | Résultat attendu | ✅ OK | ❌ KO | Remarques |
-| --- | --- | --- | :---: | :---: | --- |
-| A-001 | Lancer Luthier (double-clic `Luthier.app` ou `python main.py`) | Pas de crash au démarrage | ☐ | ☐ | |
-| A-002 | Parcourir les onglets | **Project**, **Preferences**, **Templates**, **About** visibles | ☐ | ☐ | |
-| A-003 | Chercher **Open Project…** (menu, barre d’action) | **Absent** partout | ☐ | ☐ | |
-| A-004 | Regarder au-dessus des boutons d’action | Barre de statut / message dédiée visible | ☐ | ☐ | |
-
-### A1 — Preferences et Workspace
+### A0 — Préparation (Import prefs, onglet Project)
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| A-101 | **Preferences → Workspace** | 6 champs : destination + JUCE × Windows / macOS / Linux | ☐ | ☐ | |
-| A-102 | Observer les boutons **Choose…** | Uniquement sur les lignes **macOS** ; Windows/Linux = saisie texte | ☐ | ☐ | |
-| A-103 | **Choose…** destination macOS → sélectionner un dossier **avec accents** (ex. `été 2026`) | Pas de message d’erreur rouge ; badge **Saved** possible | ☐ | ☐ | |
-| A-104 | Renseigner JUCE **macOS** (chemin réel) ; saisir des chemins **plausibles** pour Windows et Linux | Champs acceptés sans erreur | ☐ | ☐ | |
-| A-105 | Fermer Luthier complètement, relancer | Les 6 valeurs sont conservées | ☐ | ☐ | |
-| A-106 | **Export Preferences…** → enregistrer un fichier JSON | Fichier créé | ☐ | ☐ | |
-| A-107 | Modifier une pref, puis **Import Preferences…** (fichier exporté) | Profil restauré ; champs attendus réappliqués | ☐ | ☐ | |
-
-### A2 — Accent et apparence
-
-| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
-| --- | --- | --- | :---: | :---: | --- |
-| A-201 | Onglet **Project** | **Aucun** sélecteur de couleur d’accent | ☐ | ☐ | |
-| A-202 | **Preferences → Luthier appearance** : changer de preset | Thème mis à jour sur **tous** les onglets | ☐ | ☐ | |
-| A-203 | Regarder sous **Workspace** et **Artefacts** | Connecteurs en arbre visibles (lignes Win / macOS / Linux) | ☐ | ☐ | |
+| A-001 | Lancer Luthier (ou reprendre après Phase P-A) | Pas de crash | ✅ | ☐ | Shell UI déjà couvert en P-A-001–004 |
+| A-002 | **Import Preferences…** (fichier maître P-C-160) | 6 chemins Workspace + identity + formats + appearance restaurés | ✅ | ☐ | |
+| A-003 | **Preferences** : vérifier profil Phase P (identity, formats, Artefacts macOS) | Conforme sans resaisie manuelle | ✅ | ☐ | |
+| A-004 | Onglet **Project** | **Aucun** sélecteur de couleur d’accent ; barre de statut repliée tant qu’aucune action Project | ✅ | ☐ | |
 
 ### A3 — Génération initiale (`SmokeTest`)
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| A-301 | **Create New Project** | Formulaire vierge, valeurs par défaut des Preferences | ☐ | ☐ | |
-| A-302 | **Project name** = `SmokeTest` ; cocher **VST3** + **AU** + **Standalone** | Formats cochés sans conflit UI | ☐ | ☐ | |
-| A-303 | **Artefacts** : activer **Copy to system folders** et **Copy to central artefacts folder** ; renseigner chemins macOS (+ saisie Win/Linux) | Champs valides | ☐ | ☐ | |
-| A-304 | **Generate Project** | Succès ; message avec chemin en **`/`** (slashes avant) | ☐ | ☐ | Noter le chemin absolu : |
-| A-305 | Ouvrir le dossier généré dans le Finder | Présents : `CMakeLists.txt`, `CMakeUserPresets.json`, `Source/`, `.luthier.json`, `.gitignore`, `README.md`, `.vscode/`, `.cursorrules` | ☐ | ☐ | |
-| A-306 | Ouvrir `.luthier.json` | Chemins Workspace présents ; **pas** de clé `accentColor` | ☐ | ☐ | |
+| A-301 | **Create New Project** | Formulaire vierge, valeurs par défaut des Preferences ; message de statut visible au-dessus des boutons d’action (ex. *New project — defaults from Preferences.*) | ✅ | ☐ | |
+| A-302 | **Project name** = `SmokeTest` ; formats hérités des Preferences (VST3 + AU + Standalone si configurés en P-A) | Formats cochés sans conflit UI | ✅ | ☐ | |
+| A-303 | **Artefacts** : options et chemins déjà renseignés en Phase P — vérifier cohérence **macOS** | Champs valides | ✅ | ☐ | |
+| A-304 | **Generate Project** | Succès ; message avec chemin en **`/`** (slashes avant) | ✅ | ☐ | Noter le chemin absolu : '/Users/Guillaume/Desktop/été 2026/SmokeTest' |
+| A-305 | Ouvrir le dossier généré dans le Finder | Présents : `CMakeLists.txt`, `CMakeUserPresets.json`, `Source/`, `.luthier.json`, `.gitignore`, `README.md`, `.vscode/`, `.cursorrules` | ✅ | ☐ | |
+| A-306 | Ouvrir `.luthier.json` | Chemins Workspace présents ; **pas** de clé `accentColor` | ✅ | ☐ | |
 
 ### A4 — Garde-fous Generate
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| A-401 | **Fermer et relancer Luthier** (session fraîche) | App redémarre normalement | ☐ | ☐ | |
-| A-402 | Sans changer la destination : **Project name** = `SmokeTest` → **Generate Project** | **Bloqué** : modale + barre *This folder already exists and is not empty…* | ☐ | ☐ | |
-| A-403 | **Create New Project** → **Project name** = `SmokeRegen` → **Generate Project** | Succès dans un **nouveau** dossier | ☐ | ☐ | |
-| A-404 | Dans le dossier `SmokeRegen` : `git init`, `git add .`, `git commit -m "init"` | Dépôt Git initialisé | ☐ | ☐ | Prépare le test suivant |
-| A-405 | **Sans fermer Luthier** : sur `SmokeRegen`, changer **Version** → `2.0.0` → **Generate Project** | Modale **Regenerate Project** ; défaut **No** ; choisir **Yes** → succès | ☐ | ☐ | |
-| A-406 | Vérifier sur disque | Fichiers reflètent `2.0.0` ; dossier `.git/` **toujours présent** | ☐ | ☐ | |
+| A-401 | **Fermer et relancer Luthier** (session fraîche) | App redémarre normalement | ✅ | ☐ | |
+| A-402 | Sans changer la destination : **Project name** = `SmokeTest` → **Generate Project** | **Bloqué** : modale + barre *This folder already exists and is not empty…* | ✅ | ☐ | |
+| A-403 | **Create New Project** → **Project name** = `SmokeRegen` → **Generate Project** | Succès dans un **nouveau** dossier | ✅ | ☐ | |
+| A-404 | Dans le dossier `SmokeRegen` : `git init`, `git add .`, `git commit -m "init"` | Dépôt Git initialisé | ✅ | ☐ | Prépare le test suivant |
+| A-405 | **Sans fermer Luthier** : sur `SmokeRegen`, changer **Version** → `2.0.0` → **Generate Project** | Modale **Regenerate Project** ; défaut **No** ; choisir **Yes** → succès | ✅ | ☐ | |
+| A-406 | Vérifier sur disque | Fichiers reflètent `2.0.0` ; dossier `.git/` **toujours présent** | ✅ | ☐ | |
 
 ### A5 — Create New Project et dirty guard
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| A-501 | Juste après un **Generate** réussi : cliquer **Create New Project** | **Pas** de modale « unsaved changes » | ☐ | ☐ | |
-| A-502 | Modifier un champ (ex. version) **sans** générer → **Create New Project** | Modale de confirmation ; bouton **No** par défaut ; **No** annule, **Yes** réinitialise | ☐ | ☐ | |
+| A-501 | Juste après un **Generate** réussi : cliquer **Create New Project** | **Pas** de modale « unsaved changes » | ✅ | ☐ | |
+| A-502 | Modifier un champ (ex. version) **sans** générer → **Create New Project** | Modale de confirmation ; bouton **No** par défaut ; **No** annule, **Yes** réinitialise | ✅ | ☐ | |
 
 ### A6 — Templates **(opt.)**
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| A-601 | **Templates** → override `PluginProcessor.cpp` → **Save override** | Override enregistré | ☐ | ☐ | |
-| A-602 | **Create New Project** → nouveau nom → **Generate Project** | Override visible dans les sources générées | ☐ | ☐ | |
-| A-603 | **Reset to default** → nouvelle génération | Plus d’override dans les sources | ☐ | ☐ | |
+| A-601 | **Templates** → override `PluginProcessor.cpp` → **Save override** | Override enregistré | ✅ | ☐ | |
+| A-602 | **Create New Project** → nouveau nom → **Generate Project** | Override visible dans les sources générées | ✅ | ☐ | |
+| A-603 | **Reset to default** → nouvelle génération | Plus d’override dans les sources | ✅ | ☐ | |
 
 ### A7 — Cursor : ouverture, presets, build
 
@@ -246,107 +312,88 @@ dist/Luthier/Luthier --check
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| A-701 | Cursor → **File → Open Folder…** → dossier `SmokeTest` | Ouverture sans erreur bloquante | ☐ | ☐ | |
-| A-702 | Vérifier `.vscode/` | `settings.json`, `tasks.json`, `launch.json` présents | ☐ | ☐ | |
-| A-703 | Attendre la fin de la configuration CMake (barre de statut) | Configure **réussie** (pas d’échec rouge) | ☐ | ☐ | |
-| A-704 | Palette (`Cmd+Shift+P`) → **CMake: Select Configure Preset** | Presets **macOS** listés (`macos-debug-arm64`, `macos-release-arm64`, …) | ☐ | ☐ | |
-| A-705 | Sélectionner **`macos-debug-arm64`** | Dossier de build cohérent (ex. `Builds/macOS/ARM/Debug`) | ☐ | ☐ | **Ne pas** utiliser `macos-debug-x86_64` sur ce test (host ARM) sauf test Rosetta volontaire |
-| A-706 | **CMake: Build** ou `Cmd+Shift+B` | Build **sans erreur** | ☐ | ☐ | |
-| A-707 | Panneau **Problems** | Aucune **erreur** ; aucun warning **du projet** (warnings headers JUCE tiers = noter mineur) | ☐ | ☐ | |
-| A-708 | Logs de build / terminal | Traces de copie vers dossiers **système** et **artefacts** visibles | ☐ | ☐ | |
+| A-701 | Cursor → **File → Open Folder…** → dossier `SmokeTest` | Ouverture sans erreur bloquante | ✅ | ☐ | |
+| A-702 | Vérifier `.vscode/` | `settings.json`, `tasks.json`, `launch.json` présents | ✅ | ☐ | |
+| A-703 | Attendre la fin de la configuration CMake (barre de statut) | Configure **réussie** (pas d’échec rouge) | ✅ | ☐ | |
+| A-704 | Palette (`Cmd+Shift+P`) → **CMake: Select Configure Preset** | Presets **macOS** listés (`macos-debug-arm64`, `macos-release-arm64`, …) | ✅ | ☐ | |
+| A-705 | Sélectionner **`macos-debug-arm64`** | Dossier de build cohérent (ex. `Builds/macOS/ARM/Debug`) | ✅ | ☐ | **Ne pas** utiliser `macos-debug-x86_64` sur ce test (host ARM) sauf test Rosetta volontaire |
+| A-706 | **CMake: Build** ou `Cmd+Shift+B` | Build **sans erreur** | ✅ | ☐ | |
+| A-707 | Panneau **Problems** | Aucune **erreur** ; aucun warning **du projet** (warnings headers JUCE tiers = noter mineur) | ✅ | ☐ | |
+| A-708 | Logs de build / terminal | Traces de copie vers dossiers **système** et **artefacts** visibles | ✅ | ☐ | |
 
 ### A8 — Standalone et chargement plugins
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| A-801 | **Run and Debug** → config **Standalone** → **F5** | Standalone s’ouvre **sans crash** ; fermeture propre | ☐ | ☐ | |
-| A-802 | Finder : `~/Library/Audio/Plug-Ins/VST3/` | `SmokeTest.vst3` (ou nom équivalent) présent | ☐ | ☐ | |
-| A-803 | Finder : `~/Library/Audio/Plug-Ins/Components/` | `SmokeTest.component` présent | ☐ | ☐ | |
-| A-804 | DAW : rescan plugins si nécessaire | Scan terminé sans erreur | ☐ | ☐ | |
-| A-805 | Charger **VST3** depuis dossier **système** | Pas de crash ; UI plugin visible | ☐ | ☐ | |
-| A-806 | Charger **AU** depuis dossier **système** | Pas de crash | ☐ | ☐ | |
-| A-807 | Dossier **artefacts** : sous `…/macOS/ARM/` (ou équivalent) | VST3, AU, Standalone présents | ☐ | ☐ | |
-| A-808 | Charger **VST3** depuis **artefacts** | Pas de crash | ☐ | ☐ | |
-| A-809 | Charger **AU** depuis **artefacts** | Pas de crash | ☐ | ☐ | |
-| A-810 | Lancer **Standalone** depuis le dossier **artefacts** | Pas de crash | ☐ | ☐ | |
+| A-801 | **Run and Debug** → config **Standalone** → **F5** | Standalone s’ouvre **sans crash** ; fermeture propre | ✅ | ☐ | |
+| A-802 | Finder : `~/Library/Audio/Plug-Ins/VST3/` | `SmokeTest.vst3` (ou nom équivalent) présent | ✅ | ☐ | |
+| A-803 | Finder : `~/Library/Audio/Plug-Ins/Components/` | `SmokeTest.component` présent | ✅ | ☐ | |
+| A-804 | DAW : rescan plugins si nécessaire | Scan terminé sans erreur | ✅ | ☐ | Testé avec Ableton Live 12 |
+| A-805 | Charger **VST3** depuis dossier **système** | Pas de crash ; UI plugin visible | ✅ | ☐ | Testé avec Ableton Live 12 |
+| A-806 | Charger **AU** depuis dossier **système** | Pas de crash | ✅ | ☐ | Testé avec Ableton Live 12 |
+| A-807 | Dossier **artefacts** : sous `…/macOS/ARM/` (ou équivalent) | VST3, AU, Standalone présents | ✅ | ☐ | |
+| A-808 | Charger **VST3** depuis **artefacts** | Pas de crash | ✅ | ☐ | Testé avec AudioHostPlugin |
+| A-809 | Charger **AU** depuis **artefacts** | Pas de crash | ✅ | ☐ | Testé avec AudioHostPlugi |
+| A-810 | Lancer **Standalone** depuis le dossier **artefacts** | Pas de crash | ✅ | ☐ | |
 
 ---
 
-## Phase B — Fumée Luthier (Windows)
+## Phase B — Project (Windows)
 
-**Build testé :** | **Date :**  
-**Important :** chemin du projet `SmokeTest` en **ASCII uniquement** (pas d’accents — limitation MSVC).
+**Build testé :** 1.0.0-rc2 | **Date :** 10/07/2026 
+**Important :** chemin du projet `SmokeTest` en **ASCII uniquement** (pas d’accents — limitation MSVC) : projets générés sur le Bureau.  
+**Prérequis :** Phase **P** terminée ; fichier prefs maître (P-C-160).
 
-### B0 — Lancement et shell UI
-
-| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
-| --- | --- | --- | :---: | :---: | --- |
-| B-001 | Lancer `Luthier.exe` ou `python main.py` | Pas de crash | ☐ | ☐ | |
-| B-002 | Onglets | **Project**, **Preferences**, **Templates**, **About** | ☐ | ☐ | |
-| B-003 | Chercher **Open Project…** | **Absent** | ☐ | ☐ | |
-| B-004 | Barre de statut au-dessus des boutons d’action | Visible | ☐ | ☐ | |
-
-### B1 — Preferences et Workspace
+### B0 — Préparation (Import prefs)
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| B-101 | **Preferences → Workspace** | 6 champs destination + JUCE × 3 OS | ☐ | ☐ | |
-| B-102 | Boutons **Choose…** | Uniquement lignes **Windows** | ☐ | ☐ | |
-| B-103 | **Choose…** destination Windows → dossier avec accents | Pas d’erreur rouge ; **Saved** possible | ☐ | ☐ | |
-| B-104 | JUCE **Windows** renseigné ; chemins plausibles macOS/Linux | Champs valides | ☐ | ☐ | |
-| B-105 | Fermer / rouvrir Luthier | 6 valeurs conservées | ☐ | ☐ | |
-| B-106 | **Export Preferences…** puis **Import Preferences…** | Profil restauré | ☐ | ☐ | |
-
-### B2 — Accent et apparence
-
-| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
-| --- | --- | --- | :---: | :---: | --- |
-| B-201 | Onglet **Project** | Pas de sélecteur d’accent | ☐ | ☐ | |
-| B-202 | **Preferences → Luthier appearance** : changer preset | Thème à jour sur tous les onglets | ☐ | ☐ | |
-| B-203 | Connecteurs sous **Workspace** / **Artefacts** | Visibles | ☐ | ☐ | |
+| B-001 | Lancer Luthier (shell UI : cf. P-B-001–003) | Pas de crash | ✅ | ☐ | |
+| B-002 | **Import Preferences…** (fichier maître P-C-160) | Profil complet restauré (6 chemins Workspace + identity + appearance) | ✅ | ☐ | |
+| B-003 | **Preferences** : vérifier sans resaisie (Artefacts Windows si activés en P-B) | Conforme | ✅ | ☐ | |
 
 ### B3 — Génération initiale (`SmokeTest`)
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| B-301 | **Create New Project** | Formulaire vierge | ☐ | ☐ | |
-| B-302 | **Project name** = `SmokeTest` ; **VST3** + **Standalone** (AU coché ne doit **pas** bloquer) | OK | ☐ | ☐ | |
-| B-303 | **Artefacts** : copies système + artefacts activées ; chemins renseignés | OK | ☐ | ☐ | |
-| B-304 | **Generate Project** | Succès ; chemins affichés avec **`/`** (pas `\`) | ☐ | ☐ | Chemin : |
-| B-305 | Contenu du dossier | Fichiers requis présents (cf. A-305) | ☐ | ☐ | |
-| B-306 | `.luthier.json` | Workspace OK ; **pas** de `accentColor` | ☐ | ☐ | |
+| B-301 | **Create New Project** | Formulaire vierge ; message de statut visible au-dessus des boutons d’action (ex. *New project — defaults from Preferences.*) | ✅ | ☐ | |
+| B-302 | **Project name** = `SmokeTest` ; formats hérités des Preferences | OK | ✅ | ☐ | |
+| B-303 | **Artefacts** : vérifier cohérence depuis Phase P | OK | ✅ | ☐ | |
+| B-304 | **Generate Project** | Succès ; chemins affichés avec **`/`** (pas `\`) | ✅ | ☐ | Chemin : C:/Users/Guillaume/Desktop |
+| B-305 | Contenu du dossier | Fichiers requis présents (cf. A-305) | ✅ | ☐ | |
+| B-306 | `.luthier.json` | Workspace OK ; **pas** de `accentColor` | ✅ | ☐ | |
 
 ### B4 — Garde-fous Generate
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| B-401 | Fermer / relancer Luthier | OK | ☐ | ☐ | |
-| B-402 | **Generate** vers dossier `SmokeTest` existant | Bloqué (modale + barre) | ☐ | ☐ | |
-| B-403 | **Create New Project** → `SmokeRegen` → **Generate** | Succès | ☐ | ☐ | |
-| B-404 | `git init` + commit dans `SmokeRegen` | `.git/` créé | ☐ | ☐ | |
-| B-405 | **Generate** dans dossier avec `.git/` | Pas de WinError / accès refusé | ☐ | ☐ | |
-| B-406 | Régénération en session (version `2.0.0`, modale **Yes**) | Succès ; `.git/` préservé | ☐ | ☐ | |
+| B-401 | Fermer / relancer Luthier | OK | ✅ | ☐ | |
+| B-402 | **Generate** vers dossier `SmokeTest` existant | Bloqué (modale + barre) | ✅ | ☐ | |
+| B-403 | **Create New Project** → `SmokeRegen` → **Generate** | Succès | ✅ | ☐ | |
+| B-404 | `git init` + commit dans `SmokeRegen` | `.git/` créé | ✅ | ☐ | |
+| B-405 | **Generate** dans dossier avec `.git/` | Pas de WinError / accès refusé | ☐ | ❌ | rc2 : `WinError 32` — correctif `project_writer` + retest **rc3** |
+| B-406 | Régénération en session (version `2.0.0`, modale **Yes**) | Succès ; `.git/` préservé | ☐ | ❌ | Même erreur rc2 — retest **rc3** |
 
 ### B5 — Create New Project et dirty guard
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| B-501 | **Create New Project** juste après Generate | Pas de modale unsaved | ☐ | ☐ | |
-| B-502 | Modifier champ → **Create New Project** | Modale ; **No** par défaut | ☐ | ☐ | |
-| B-503 | Ordre boutons modale **No** / **Yes** | Inversé vs Mac = **mineur** si fonctionnel | ☐ | ☐ | |
+| B-501 | **Create New Project** juste après Generate | Pas de modale unsaved | ✅ | ☐ | |
+| B-502 | Modifier champ → **Create New Project** | Modale ; **No** par défaut | ✅ | ☐ | |
+| B-503 | Ordre boutons modale **No** / **Yes** | Inversé vs Mac = **mineur** si fonctionnel | ✅ | ☐ | |
 
 ### B6 — Templates **(opt.)**
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| B-601 | Override template → Generate nouveau projet | Override visible | ☐ | ☐ | |
-| B-602 | **Reset to default** → Generate | Override absent | ☐ | ☐ | |
+| B-601 | Override template → Generate nouveau projet | Override visible | ✅ | ☐ | |
+| B-602 | **Reset to default** → Generate | Override absent | ✅ | ☐ | |
 
 ### B7 — Cursor : build
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| B-701 | Ouvrir dossier `SmokeTest` dans Cursor | Sans accroc | ☐ | ☐ | |
+| B-701 | Ouvrir dossier `SmokeTest` dans Cursor | Sans accroc | ☐ | ❌ | rc2 : preset VS 2022 — retest **rc3** avec `windows-debug` (VS 2026) |
 | B-702 | `.vscode/` + configure CMake | Réussie | ☐ | ☐ | |
 | B-703 | Preset **`windows-debug`** | Build dir `Builds/Windows` | ☐ | ☐ | |
 | B-704 | **CMake: Build** / `Ctrl+Shift+B` | Sans erreur | ☐ | ☐ | |
@@ -365,79 +412,61 @@ dist/Luthier/Luthier --check
 
 ---
 
-## Phase C — Fumée Luthier (Linux)
+## Phase C — Project (Linux)
 
-**Build testé :** | **Date :**
+**Build testé :** | **Date :**  
+**Prérequis :** Phase **P** terminée ; fichier prefs maître (P-C-160).
 
-### C0 — Lancement et shell UI
-
-| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
-| --- | --- | --- | :---: | :---: | --- |
-| C-001 | Lancer Luthier | Pas de crash | ☐ | ☐ | |
-| C-002 | Onglets + absence **Open Project…** | Conforme | ☐ | ☐ | |
-| C-003 | Barre de statut visible | Oui | ☐ | ☐ | |
-| C-004 | Icône lanceur / barre des tâches | Visible (ou via `.desktop`) | ☐ | ☐ | Mineur si absent |
-| C-005 | Fermer / rouvrir : taille fenêtre | Taille sensiblement conservée ; position non garantie (Wayland = mineur) | ☐ | ☐ | |
-
-### C1 — Preferences et Workspace
+### C0 — Préparation (Import prefs)
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| C-101 | **Workspace** : 6 champs | OK | ☐ | ☐ | |
-| C-102 | **Choose…** uniquement lignes **Linux** | OK | ☐ | ☐ | |
-| C-103 | Destination avec accents via **Choose…** | Pas d’erreur rouge | ☐ | ☐ | |
-| C-104 | JUCE Linux + chemins plausibles autres OS | OK | ☐ | ☐ | |
-| C-105 | Fermer / rouvrir ; Export / Import prefs | Valeurs conservées ; import OK | ☐ | ☐ | |
-
-### C2 — Accent et apparence
-
-| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
-| --- | --- | --- | :---: | :---: | --- |
-| C-201 | Pas d’accent sur **Project** ; preset **Luthier appearance** | Conforme Epic 9 | ☐ | ☐ | |
-| C-202 | Connecteurs arbre Workspace / Artefacts | Visibles | ☐ | ☐ | |
+| C-001 | Lancer Luthier (shell UI : cf. P-C-001–004) | Pas de crash | ✅ | ☐ | |
+| C-002 | **Import Preferences…** (fichier maître P-C-160) | Profil complet restauré | ✅ | ☐ | |
+| C-003 | Fermer / rouvrir : taille fenêtre | Taille sensiblement conservée ; position non garantie (Wayland = mineur) | ✅ | ☐ | |
 
 ### C3 — Génération (`SmokeTest`)
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| C-301 | **Create New Project** → `SmokeTest` ; **VST3** + **Standalone** | OK | ☐ | ☐ | |
-| C-302 | **Generate Project** | Succès ; chemins en `/` | ☐ | ☐ | |
-| C-303 | Fichiers + `.luthier.json` | Conformes (cf. A-305 / A-306) | ☐ | ☐ | |
+| C-301 | **Create New Project** → `SmokeTest` ; **VST3** + **Standalone** | OK ; message de statut visible après **Create New Project** (ex. *New project — defaults from Preferences.*) | ✅ | ☐ | |
+| C-302 | **Generate Project** | Succès ; chemins en `/` | ✅ | ☐ | |
+| C-303 | Fichiers + `.luthier.json` | Conformes (cf. A-305 / A-306) | ✅ | ☐ | |
 
 ### C4 — Garde-fous Generate
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| C-401 | Session fraîche → Generate vers `SmokeTest` existant | Bloqué | ☐ | ☐ | |
-| C-402 | `SmokeRegen` + `git init` + régénération session | OK ; `.git/` préservé | ☐ | ☐ | |
+| C-401 | Session fraîche → Generate vers `SmokeTest` existant | Bloqué | ✅ | ☐ | |
+| C-402 | `SmokeRegen` + `git init` + régénération session | OK ; `.git/` préservé | ✅ | ☐ | |
 
 ### C5 — Dirty guard
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| C-501 | Create New Project après Generate / après modification | Comportement identique A-501 / A-502 | ☐ | ☐ | |
+| C-501 | Create New Project après Generate / après modification | Comportement identique A-501 / A-502 | ✅ | ☐ | |
 
 ### C6 — Templates **(opt.)**
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| C-601 | Override + Generate + Reset | Conforme A6 | ☐ | ☐ | |
+| C-601 | Override + Generate + Reset | Conforme A6 | ✅ | ☐ | |
 
 ### C7 — Cursor : build
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| C-701 | Ouvrir `SmokeTest` ; preset **`linux-debug`** | `Builds/Linux/Debug` | ☐ | ☐ | |
-| C-702 | Build sans erreur ; Problems clean | OK | ☐ | ☐ | |
-| C-703 | Logs copie `~/.vst3/` et artefacts | Visibles | ☐ | ☐ | |
+| C-701 | Ouvrir `SmokeTest` ; preset **`linux-debug`** | `Builds/Linux/Debug` | ✅ | ☐ | |
+| C-702 | Build sans erreur ; Problems clean | OK | ✅ | ☐ | |
+| C-703 | Logs copie `~/.vst3/` et artefacts | Visibles | ✅ | ☐ | |
 
 ### C8 — Standalone et plugins
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| C-801 | **F5** Standalone | Pas de crash | ☐ | ☐ | |
-| C-802 | `~/.vst3/` + DAW système | VST3 chargeable | ☐ | ☐ | |
-| C-803 | Artefacts + Standalone artefacts | Pas de crash | ☐ | ☐ | |
+| C-801 | **F5** Standalone | Pas de crash | ✅ | ☐ | |
+| C-802 | `~/.vst3/` + DAW système | VST3 chargeable | ✅ | ☐ | Testé avec AudioHostPlugin |
+| C-803 | Artefacts + Standalone artefacts | Pas de crash | ✅ | ☐ | |
 
 ---
 
@@ -450,25 +479,25 @@ Valide que le **projet JUCE** voyage via Git et compile sur chaque OS **sans** r
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| D-001 | Créer ou vider un dépôt distant `VoyageLuthier` (GitHub ou local) | Dépôt prêt | ☐ | ☐ | URL : |
-| D-002 | JUCE installé sur **chaque** machine avec chemins locaux notés | Prêt pour D1–D3 | ☐ | ☐ | |
+| D-001 | Créer ou vider un dépôt distant `VoyageLuthier` (GitHub ou local) | Dépôt prêt | ✅ | ☐ | URL : |
+| D-002 | JUCE installé sur **chaque** machine avec chemins locaux notés | Prêt pour D1–D3 | ✅ | ☐ | |
 
 ### D1 — Machine 1 (macOS Apple Silicon) — Création
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| D-101 | Luthier : **Create New Project** → `VoyageLuthier`, v `1.0.0`, **VST3** + **Standalone** + **AU** | Formulaire OK | ☐ | ☐ | |
-| D-102 | Workspace + Artefacts renseignés pour **3 OS** ; copies système + artefacts **ON** | OK | ☐ | ☐ | |
-| D-103 | **Generate Project** | Dossier + `.luthier.json` | ☐ | ☐ | |
-| D-104 | `git init` → `git add .` → `git commit` → `git push` | Dépôt distant à jour | ☐ | ☐ | |
-| D-105 | Cursor : preset **`macos-debug-arm64`** → build | Sans erreur ni warning projet | ☐ | ☐ | |
-| D-106 | **F5** Standalone + plugins **système** et **artefacts** | Pas de crash | ☐ | ☐ | |
+| D-101 | Luthier : **Create New Project** → `VoyageLuthier`, v `1.0.0`, **VST3** + **Standalone** + **AU** | Formulaire OK | ✅ | ☐ | |
+| D-102 | Workspace + Artefacts renseignés pour **3 OS** ; copies système + artefacts **ON** | OK | ✅ | ☐ | |
+| D-103 | **Generate Project** | Dossier + `.luthier.json` | ✅ | ☐ | |
+| D-104 | `git init` → `git add .` → `git commit` → `git push` | Dépôt distant à jour | ✅ | ☐ | |
+| D-105 | Cursor : preset **`macos-debug-arm64`** → build | Sans erreur ni warning projet | ✅ | ☐ | |
+| D-106 | **F5** Standalone + plugins **système** et **artefacts** | Pas de crash | ✅ | ☐ | |
 
 ### D2 — Machine 2 (Windows)
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| D-201 | `git clone` du dépôt | Copie locale OK | ☐ | ☐ | |
+| D-201 | `git clone` du dépôt | Copie locale OK | ☐ | ☐ | Retest **rc3** Windows (guide dédié) |
 | D-202 | Éditer `.luthier.json` : **JUCE directory** ligne **Windows** (chemin local) | Fichier sauvegardé | ☐ | ☐ | |
 | D-203 | Cursor : **`windows-debug`** → build | Sans erreur | ☐ | ☐ | |
 | D-204 | Standalone **F5** + VST3 système + artefacts | Pas de crash | ☐ | ☐ | |
@@ -480,26 +509,31 @@ Valide que le **projet JUCE** voyage via Git et compile sur chaque OS **sans** r
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| D-301 | `git pull` (ou clone) | À jour | ☐ | ☐ | |
-| D-302 | Éditer JUCE **Linux** dans `.luthier.json` | OK | ☐ | ☐ | |
-| D-303 | Cursor : **`linux-debug`** → build + plugins | Conforme D-204 | ☐ | ☐ | |
-| D-304 | (opt.) commit + push si modifications | OK | ☐ | ☐ | |
+| D-301 | `git pull` (ou clone) | À jour | ✅ | ☐ | |
+| D-302 | Éditer JUCE **Linux** dans `.luthier.json` | OK | ✅ | ☐ | Voir encadré **D-302** ci-dessous |
+| D-303 | Cursor : **`linux-debug`** → build + plugins | Conforme D-204 | ✅ | ☐ | |
+| D-304 | (opt.) commit + push si modifications | OK | ✅ | ☐ | J'ai modifié le texte de la GUI en "Voyage Luthier - Linux" |
 
 ### D4 — Retour machine 1 (macOS)
 
 | ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
 | --- | --- | --- | :---: | :---: | --- |
-| D-401 | `git pull` | Sources + `.luthier.json` + `CMakeLists.txt` cohérents | ☐ | ☐ | |
-| D-402 | Ajuster JUCE **macOS** si besoin → build + plugins | Toujours OK | ☐ | ☐ | |
-| D-403 | Pendant D1–D4 : Luthier utilisé **uniquement en D1** | Aucun plantage Luthier | ☐ | ☐ | |
+| D-401 | `git pull` | Sources + `.luthier.json` + `CMakeLists.txt` cohérents | ✅ | ☐ | |
+| D-402 | Ajuster JUCE **macOS** si besoin → build + plugins | Toujours OK | ✅ | ☐ | |
+| D-403 | Pendant D1–D4 : Luthier utilisé **uniquement en D1** | Aucun plantage Luthier | ✅ | ☐ | |
 
-### D5 — Import Preferences cross-OS **(opt.)**
-
-| ID | Action | Résultat attendu | ✅ OK | ❌ KO | Remarques |
-| --- | --- | --- | :---: | :---: | --- |
-| D-501 | Machine A : **Export Preferences…** vers cloud/USB | Fichier partagé | ☐ | ☐ | |
-| D-502 | Machine B : **Import Preferences…** | Preferences mises à jour | ☐ | ☐ | |
-| D-503 | Onglet **Project** sans **Create New Project** | Formulaire **inchangé** | ☐ | ☐ | |
+> **D-302 — Éditer JUCE Linux dans `.luthier.json`**
+>
+> Sur la machine **Linux**, après clone ou pull du dépôt `VoyageLuthier` :
+>
+> 1. Ouvrir le dossier cloné dans Cursor (ou éditeur).
+> 2. Ouvrir `.luthier.json` à la racine du projet.
+> 3. Repérer la clé **`juceDirLinux`** (ou équivalent workspace Linux selon le schéma sidecar).
+> 4. Remplacer la valeur par le **chemin JUCE local sur cette machine** (ex. `/home/guillaume/Dev/SDKs/JUCE`).
+> 5. Sauvegarder — **ne pas** utiliser Luthier pour rouvrir le projet.
+> 6. Enchaîner **D-303** : preset `linux-debug` → build.
+>
+> Les chemins **macOS** et **Windows** dans le même fichier restent ceux des autres machines ; seul le chemin **hôte Linux** doit correspondre à la machine courante.
 
 ---
 
@@ -507,18 +541,19 @@ Valide que le **projet JUCE** voyage via Git et compile sur chaque OS **sans** r
 
 | ID | Critère | ✅ OK | ❌ KO | Remarques |
 | --- | --- | :---: | :---: | --- |
-| G-01 | Phase **A** complète (A0–A8, hors opt.) | ☐ | ☐ | |
-| G-02 | Phase **B** complète (B0–B8, hors opt.) | ☐ | ☐ | |
-| G-03 | Phase **C** complète (C0–C8, hors opt.) | ☐ | ☐ | |
-| G-04 | Phase **D** complète (D1–D4 minimum) | ☐ | ☐ | |
-| G-05 | **Aucun bloquant** ouvert dans la grille ci-dessous | ☐ | ☐ | |
-| G-06 | Mineurs connus acceptés (si présents) | ☐ | ☐ | Voir liste |
+| G-00 | Phase **P** complète (P-A → P-C, fichier maître exporté) | ✅ | ☐ | |
+| G-01 | Phase **A** complète (A0 + A3–A8, hors opt.) | ✅ | ☐ | |
+| G-02 | Phase **B** complète (B0 + B3–B8, hors opt.) | ☐ | ❌ | Génération OK ; build/regen Windows → retest **rc3** |
+| G-03 | Phase **C** complète (C0 + C3–C8, hors opt.) | ✅ | ☐ | |
+| G-04 | Phase **D** complète (D1–D4 minimum) | ☐ | ❌ | D2 Windows en attente **rc3** |
+| G-05 | **Aucun bloquant** ouvert dans la grille ci-dessous | ☐ | ❌ | #1–#2 ouverts jusqu’à validation rc3 |
+| G-06 | Mineurs connus acceptés (si présents) | ✅ | ☐ | B-503, C-003, P-C-004 |
 
 **Mineurs acceptés sans échec release :**
 
 - Ordre boutons modales Windows (B-503)
-- Position fenêtre Linux non garantie (C-005)
-- Icône Linux sans `.desktop` (C-004)
+- Position fenêtre Linux non garantie (C-003)
+- Icône Linux sans `.desktop` (P-C-004)
 - Warnings compilateur dans headers JUCE tiers uniquement
 - Faux positifs CMake Tools « Task has errors » après copie post-build (README projet généré)
 
@@ -530,9 +565,9 @@ Pour chaque **❌ KO** significatif, ajouter une ligne. Référencer l’**ID** 
 
 | # | ID étape | OS | Résumé | Attendu | Obtenu | Gravité | Suite |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | | | | | | bloquant / gênant / mineur | |
-| 2 | | | | | | | |
-| 3 | | | | | | | |
+| 1 | B-701 | Windows | Presets CMake ciblent VS 2022 | Configure avec VS 2026 installé | Échec configure (générateur introuvable) | **bloquant** (build) | Corrigé **rc3** : preset `windows-debug` → VS 2026 ; retest guide rc3 |
+| 2 | B-405, B-406 | Windows | Régénération en session avec `.git/` | Regen OK, `.git/` préservé | `WinError 32` (fichier verrouillé) | **gênant** | Correctif `core/project_writer.py` (retries + copie `.git` sous Windows) ; retest **rc3** |
+| 3 | D-302 | Linux | Chemin JUCE Linux sur clone Git | Édition `.luthier.json` claire | Question testeur | **mineur** (doc) | Encadré D-302 ajouté dans ce guide |
 
 **Gravité :** **bloquant** = impossible de continuer ou risque perte de données ; **gênant** = contournement pénible ; **mineur** = cosmétique ou cas rare.
 
@@ -546,6 +581,7 @@ Pour chaque **❌ KO** significatif, ajouter une ligne. Référencer l’**ID** 
 - Parcours « Open sur Windows → Generate » sur clone Git
 - **Luthier sur Mac Intel** (hors périmètre v1.0.0)
 - Rejouer en manuel toute la logique déjà couverte par **pytest CI** (sauf décision de double contrôle)
+- Build PyInstaller local (`publish/build-dist.py`) ou exécution depuis sources — couvert par la **CD release** sur tag
 
 ---
 
@@ -553,6 +589,7 @@ Pour chaque **❌ KO** significatif, ajouter une ligne. Référencer l’**ID** 
 
 - [Manuel utilisateur (FR)](../../user/manuel-utilisateur.md) — §8 app autonome, §16 workflows, §18 stockage
 - [User manual (EN)](../../user/user-manual.md)
+- [Smoke test rc3 Windows (allégé)](./smoke-test-rc3-windows.md) — retest Phase B + D2 après correctifs
 - [CONTRIBUTING.md](../../../CONTRIBUTING.md) — build bundle, CI
 - README du projet généré (`SmokeTest/README.md`) — presets Cursor, debugging
 - [Checklist QA archive (beta)](../1.0.0-beta/checklist-qa-pre-release-v1.md)

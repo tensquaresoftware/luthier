@@ -30,9 +30,29 @@ _ALL_PRESET_NAMES = (
     "macos-release-universal",
     "windows-debug",
     "windows-release",
+    "windows-debug-vs2022",
+    "windows-release-vs2022",
     "linux-debug",
     "linux-release",
 )
+
+
+def _windows_vs_generator() -> str:
+    """Pick a Visual Studio generator available on this Windows host."""
+    try:
+        help_text = subprocess.run(
+            ["cmake", "--help"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=True,
+        ).stdout
+    except (FileNotFoundError, subprocess.SubprocessError):
+        return "Visual Studio 17 2022"
+    for gen in ("Visual Studio 18 2026", "Visual Studio 17 2022"):
+        if gen in help_text:
+            return gen
+    return "Visual Studio 17 2022"
 
 
 def _require_cmake_and_juce() -> str:
@@ -49,7 +69,7 @@ def _cmake_configure_args(juce_path: str) -> list[str]:
     if sys.platform == "win32":
         return [
             "-G",
-            "Visual Studio 17 2022",
+            _windows_vs_generator(),
             "-A",
             "x64",
             f"-DJUCE_DIR={juce_path}",
@@ -150,7 +170,7 @@ def test_cmake_configure_macos_dev_baseline(tmp_path):
 
 
 def test_cmake_user_presets_json_valid_ac3(tmp_path):
-    """AC3 (partial): rendered CMakeUserPresets.json is valid JSON with all 10 presets."""
+    """AC3 (partial): rendered CMakeUserPresets.json is valid JSON with all presets."""
     project_dir, _ = generate_project(tmp_path, spec=canonical_cross_platform_spec(tmp_path))
     presets = _load_presets(project_dir)
     names = {p["name"] for p in presets["configurePresets"]}
@@ -165,7 +185,7 @@ def test_windows_debug_preset_structure_ac3(tmp_path):
     preset = _preset_by_name(_load_presets(project_dir), "windows-debug")
 
     assert preset["condition"]["rhs"] == "Windows"
-    assert preset["generator"] == "Visual Studio 17 2022"
+    assert preset["generator"] == "Visual Studio 18 2026"
     assert preset["architecture"]["value"] == "x64"
     assert "Builds/macOS/" not in preset["binaryDir"]
 

@@ -4,27 +4,75 @@ import json
 import os
 import shutil
 import stat
+import sys
+import time
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional, TypeVar
 
 from core import rendering
 from core.project_spec import ProjectSpec
+
+_T = TypeVar("_T")
+
+
+def _is_sharing_violation(exc: BaseException) -> bool:
+    if isinstance(exc, PermissionError):
+        return True
+    if isinstance(exc, OSError):
+        winerror = getattr(exc, "winerror", None)
+        if winerror in (32, 5):
+            return True
+    return False
+
+
+def _retry_on_sharing_violation(
+    func: Callable[[], _T],
+    *,
+    attempts: int = 6,
+    base_delay: float = 0.05,
+) -> _T:
+    last: BaseException | None = None
+    for attempt in range(attempts):
+        try:
+            return func()
+        except OSError as exc:
+            last = exc
+            if (
+                sys.platform == "win32"
+                and _is_sharing_violation(exc)
+                and attempt + 1 < attempts
+            ):
+                time.sleep(base_delay * (2**attempt))
+                continue
+            raise
+    assert last is not None
+    raise last
 
 
 def _robust_rmtree(path: Path) -> None:
     """Remove a directory tree, clearing read-only files (e.g. Git objects on Windows)."""
 
-    def _onerror(func, p, _exc_info):
-        os.chmod(p, stat.S_IWRITE)
-        func(p)
+    def _remove() -> None:
+        def _onerror(func, p, _exc_info):
+            os.chmod(p, stat.S_IWRITE)
+            func(p)
 
-    shutil.rmtree(path, onerror=_onerror)
+        shutil.rmtree(path, onerror=_onerror)
+
+    if sys.platform == "win32":
+        _retry_on_sharing_violation(_remove)
+    else:
+        _remove()
 
 
 def _relocate_git_directory(src: Path, dst: Path) -> None:
     """Move `.git` without shutil.move, which deletes the source via plain rmtree."""
     if dst.exists():
         _robust_rmtree(dst)
+    if sys.platform == "win32":
+        shutil.copytree(src, dst, symlinks=True)
+        _robust_rmtree(src)
+        return
     try:
         src.rename(dst)
     except OSError:

@@ -1,5 +1,7 @@
 """Unit tests for generate destination guard (Story 9.2) and session regenerate (9.8)."""
 
+import os
+
 import pytest
 
 from core.app_state import AppState
@@ -66,6 +68,38 @@ def test_generate_overwrite_preserves_git(tmp_path):
     generator.generate(spec, allow_overwrite=True)
     assert git_dir.is_dir()
     assert (git_dir / "HEAD").read_text(encoding="utf-8") == "ref: refs/heads/main\n"
+
+
+def test_generate_overwrite_preserves_git_init_repo(tmp_path):
+    """Session regenerate after real ``git init`` (Windows file-lock regression)."""
+    import shutil
+    import subprocess
+
+    if shutil.which("git") is None:
+        pytest.skip("git not on PATH")
+
+    spec = make_spec(tmp_path)
+    generator = ProjectGenerator()
+    project_dir = generator.generate(spec)
+    env = {
+        **os.environ,
+        "GIT_AUTHOR_NAME": "Luthier Test",
+        "GIT_AUTHOR_EMAIL": "test@example.com",
+        "GIT_COMMITTER_NAME": "Luthier Test",
+        "GIT_COMMITTER_EMAIL": "test@example.com",
+    }
+    subprocess.run(["git", "init"], cwd=project_dir, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "--allow-empty", "-m", "init"],
+        cwd=project_dir,
+        check=True,
+        capture_output=True,
+        env=env,
+    )
+    spec = make_spec(tmp_path, project_version="2.0.0")
+    generator.generate(spec, allow_overwrite=True)
+    assert (project_dir / ".git" / "HEAD").is_file()
+    assert (project_dir / ".luthier.json").read_text(encoding="utf-8").find("2.0.0") >= 0
 
 
 def test_resolved_project_dir_for_spec(tmp_path):

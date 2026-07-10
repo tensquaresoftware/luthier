@@ -12,8 +12,9 @@ Formats: {pluginFormats}
 
 - Windows 10 or later
 - **Cursor** or **VS Code** with **CMake Tools** (and C/C++ debugging if you use **F5**)
-- CMake 3.22+ (add to system PATH during installation)
-- Visual Studio 2022 with "Desktop development with C++" workload
+- **CMake 4.2+** (required for the default `windows-debug` / `windows-release` presets targeting **Visual Studio 2026**)
+- **Visual Studio 2026** with **Desktop development with C++** workload (default presets)
+- **Legacy:** if you only have **Visual Studio 2022**, use CMake 3.22+ and select `windows-debug-vs2022` / `windows-release-vs2022` in CMake Tools
 - JUCE 8 installed at `C:\Program Files\JUCE` (or set `JUCE_DIR` if elsewhere)
 
 #### macOS
@@ -136,10 +137,18 @@ To verify the binary contains both architectures: `lipo -archs Builds/macOS/Univ
 #### Windows
 
 ```powershell
-# Configure (using Visual Studio 2022)
-cmake -B Builds/Windows -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Debug
+# Configure (default — Visual Studio 2026; requires CMake 4.2+)
+cmake --preset windows-debug
 
-# Build all formats
+# Or manual configure
+cmake -B Builds/Windows -G "Visual Studio 18 2026" -A x64
+
+# Legacy Visual Studio 2022 only
+cmake --preset windows-debug-vs2022
+```
+
+```powershell
+# Build all formats (after configure)
 cmake --build Builds/Windows --config Debug
 
 # Or build specific format
@@ -157,7 +166,8 @@ The project uses **CMake Presets** for flexible configuration. Simply:
 
 1. Open the project folder in **Cursor** or **VS Code** (CMake Tools extension installed)
 2. Select your preferred CMake preset when prompted (Debug or Release per platform):
-   - **Windows**: `windows-debug` / `windows-release` → `Builds/Windows`
+   - **Windows (default)**: `windows-debug` / `windows-release` → VS 2026 → `Builds/Windows`
+   - **Windows (VS 2022 legacy)**: `windows-debug-vs2022` / `windows-release-vs2022` → `Builds/Windows`
    - **macOS Apple Silicon**: `macos-debug-arm64` / `macos-release-arm64` → `Builds/macOS/ARM/Debug` or `Release`
    - **macOS Intel**: `macos-debug-x86_64` / `macos-release-x86_64` → `Builds/macOS/Intel/Debug` or `Release`
    - **macOS Universal**: `macos-debug-universal` / `macos-release-universal` → `Builds/macOS/Universal/Debug` or `Release`

@@ -39,9 +39,9 @@ if(APPLE)
         endif()
     endif()
 elseif(WIN32)
-    # Use Visual Studio generator on Windows if not specified
+    # Use Visual Studio generator on Windows if not specified (prefer VS 2026; CMake 4.2+)
     if(NOT CMAKE_GENERATOR)
-        set(CMAKE_GENERATOR "Visual Studio 17 2022" CACHE INTERNAL "")
+        set(CMAKE_GENERATOR "Visual Studio 18 2026" CACHE INTERNAL "")
     endif()
 endif()
 
