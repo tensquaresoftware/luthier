@@ -172,6 +172,19 @@ The `_bmad-output/` folder is the BMad planning and implementation artifact stor
 - [docs/user/manuel-utilisateur.md](docs/user/manuel-utilisateur.md) — manuel utilisateur (français)
 - [README.md](README.md) — project overview and quick start
 
+## Versioning and backward compatibility
+
+Luthier **1.0.0** is the first public release (July 2026). The repository is **public**; users install tagged PyInstaller bundles and persist `preferences.json`, `app_state.json`, and `.luthier.json` sidecars on disk.
+
+**From 1.0.0 onward, treat backward compatibility as a release requirement** for every change merged to `main`:
+
+- **Patch / minor** (`1.0.1`, `1.1.0`): no breaking changes — existing preference keys, app state, sidecar fields, and generated project layouts must keep working; prefer additive schema changes with safe defaults on read.
+- **Major** (`2.0.0` only): breaking changes are allowed; document them clearly in release notes and bump `VERSION` accordingly.
+
+Pre-1.0 development deliberately removed legacy code paths (scaffold-only pivot). That one-time clean break does **not** apply to post-1.0 maintenance.
+
+When you change persisted JSON, the sidecar format, or `Templates/`, add or update regression tests under `tests/`. See also [`_bmad-output/project-context.md`](_bmad-output/project-context.md) (AI/dev quick reference).
+
 ## CI
 
 [![pytest](https://github.com/tensquaresoftware/luthier/actions/workflows/pytest.yml/badge.svg)](https://github.com/tensquaresoftware/luthier/actions/workflows/pytest.yml)
